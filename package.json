@@ -1,0 +1,102 @@
+{
+  "name": "cloudnotes-v2",
+  "version": "2.0.0",
+  "project_id": "7a3abbb7-b666-483c-9a47-dc2a08a9ab83",
+  "status": "In Development",
+  "description": "CloudNotes V2 - Modern, standalone-component based note-taking application with Angular Signals, Tailwind CSS, and Supabase",
+  "author": "Ramaeon",
+  "license": "MIT",
+  "homepage": "https://cloudnotes.therama.dev",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/ramaeondev/cloudnotes-v2"
+  },
+  "keywords": [
+    "angular",
+    "angular-20",
+    "typescript",
+    "tailwindcss",
+    "supabase",
+    "standalone-components",
+    "signals",
+    "markdown-editor",
+    "note-taking"
+  ],
+  "features": [
+    "Standalone Components Architecture",
+    "Angular Signals State Management",
+    "Responsive Design",
+    "Dark/Light Mode with System Preference",
+    "Tailwind CSS + Custom Design System",
+    "Markdown Editor with Live Preview",
+    "Supabase Backend",
+    "Real-time Sync",
+    "Folder Organization",
+    "Search & Filter",
+    "Accessibility (WCAG 2.1 AA)",
+    "PWA Support"
+  ],
+  "scripts": {
+    "ng": "ng",
+    "start": "ng serve",
+    "build": "ng build",
+    "build:prod": "ng build --configuration production",
+    "watch": "ng build --watch --configuration development",
+    "test": "ng test",
+    "test:coverage": "ng test --code-coverage",
+    "format": "prettier --write \"src/**/*.{ts,html,scss,css,json}\"",
+    "analyze": "ng build --configuration production --stats-json && webpack-bundle-analyzer dist/cloudnotes-v2/stats.json"
+  },
+  "prettier": {
+    "printWidth": 100,
+    "singleQuote": true,
+    "overrides": [
+      {
+        "files": "*.html",
+        "options": {
+          "parser": "angular"
+        }
+      }
+    ]
+  },
+  "private": true,
+  "dependencies": {
+    "@angular/cdk": "^20.2.12",
+    "@angular/common": "^20.3.0",
+    "@angular/compiler": "^20.3.0",
+    "@angular/core": "^20.3.0",
+    "@angular/forms": "^20.3.0",
+    "@angular/material": "^20.2.12",
+    "@angular/platform-browser": "^20.3.0",
+    "@angular/router": "^20.3.0",
+    "@angular/service-worker": "^20.3.11",
+    "@supabase/supabase-js": "^2.81.1",
+    "highlight.js": "^11.11.1",
+    "marked": "^17.0.0",
+    "marked-highlight": "^2.2.3",
+    "rxjs": "~7.8.0",
+    "tslib": "^2.3.0",
+    "zone.js": "~0.15.0"
+  },
+  "devDependencies": {
+    "@angular/build": "^20.3.10",
+    "@angular/cli": "^20.3.10",
+    "@angular/compiler-cli": "^20.3.0",
+    "@tailwindcss/forms": "^0.5.10",
+    "@tailwindcss/typography": "^0.5.19",
+    "@types/jasmine": "~5.1.0",
+    "@types/marked": "^5.0.2",
+    "autoprefixer": "^10.4.22",
+    "jasmine-core": "~5.9.0",
+    "karma": "~6.4.0",
+    "karma-chrome-launcher": "~3.2.0",
+    "karma-coverage": "~2.2.0",
+    "karma-jasmine": "~5.1.0",
+    "karma-jasmine-html-reporter": "~2.1.0",
+    "postcss": "^8.5.6",
+    "prettier": "^3.6.2",
+    "tailwindcss": "^4.1.17",
+    "typescript": "~5.9.2",
+    "webpack-bundle-analyzer": "^4.10.2"
+  }
+}
