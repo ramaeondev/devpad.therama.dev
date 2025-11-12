@@ -61,6 +61,7 @@
   },
   "private": true,
   "dependencies": {
+    "@angular/animations": "^20.3.11",
     "@angular/cdk": "^20.2.12",
     "@angular/common": "^20.3.0",
     "@angular/compiler": "^20.3.0",
@@ -95,7 +96,7 @@
     "karma-jasmine-html-reporter": "~2.1.0",
     "postcss": "^8.5.6",
     "prettier": "^3.6.2",
-    "tailwindcss": "^4.1.17",
+    "tailwindcss": "^3.4.17",
     "typescript": "~5.9.2",
     "webpack-bundle-analyzer": "^4.10.2"
   }
