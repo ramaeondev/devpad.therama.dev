@@ -1,18 +1,19 @@
 import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterOutlet } from '@angular/router';
+// Removed RouterOutlet as workspace replaces routed content
 import { SidebarComponent } from '../../features/dashboard/components/sidebar/sidebar.component';
 import { ToastContainerComponent } from '../../shared/components/ui/toast/toast-container.component';
 import { AuthStateService } from '../../core/services/auth-state.service';
 import { SupabaseService } from '../../core/services/supabase.service';
 import { Router } from '@angular/router';
 import { GlobalSpinnerComponent } from '../../shared/components/ui/spinner/global-spinner.component';
+import { NoteWorkspaceComponent } from '../../features/notes/components/note-workspace/note-workspace.component';
 import { LoadingService } from '../../core/services/loading.service';
 
 @Component({
   selector: 'app-dashboard-layout',
   standalone: true,
-  imports: [CommonModule, RouterOutlet, SidebarComponent, ToastContainerComponent, GlobalSpinnerComponent],
+  imports: [CommonModule, SidebarComponent, ToastContainerComponent, GlobalSpinnerComponent, NoteWorkspaceComponent],
   template: `
     <div class="h-screen w-screen overflow-hidden bg-gray-50 dark:bg-gray-900 flex flex-col">
       <!-- Header -->
@@ -35,9 +36,9 @@ import { LoadingService } from '../../core/services/loading.service';
         <!-- Sidebar -->
         <app-sidebar />
 
-        <!-- Main content -->
+        <!-- Main content: Note workspace (router currently unused for notes) -->
         <main class="flex-1 h-full overflow-y-auto">
-          <router-outlet />
+          <app-note-workspace />
         </main>
       </div>
       <!-- Toasts -->
