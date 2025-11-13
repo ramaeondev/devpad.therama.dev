@@ -1,4 +1,4 @@
-import { Component, Input } from '@angular/core';
+import { Component, Input, AfterViewInit, ElementRef, Renderer2 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 
 @Component({
@@ -40,22 +40,43 @@ export class LogoComponent {
   @Input() text = 'DevPad';
   /** Duration of typing animation, accepts CSS time value (default: 1.8s) */
   @Input() speed = '1.8s';
+  /** Animation mode: 'once' -> animate once then become static (default), 'always' -> keep animating, false -> never animate */
+  @Input() animate: 'once' | 'always' | false = 'once';
 
-  ngOnInit(): void {
-    // Set CSS variables dynamically based on input text / speed
-    const host = (document.currentScript as unknown) as HTMLElement | null;
-    // We'll set variables on the component root element after it's instantiated
-    // but we can't access the host element directly in a static way here.
-    // Consumers can override variables via inline style. To apply defaults, set on document in microtask.
-    queueMicrotask(() => {
-      const el = document.querySelector('app-logo:last-of-type') as HTMLElement | null;
-      if (el) {
-        el.style.setProperty('--speed', this.speed);
-        el.style.setProperty('--steps', String(Math.max(1, this.text.length)));
-        el.style.setProperty('--chars', String(Math.max(1, this.text.length)));
-        // add animate class to start animation
-        el.classList.add('animate');
-      }
-    });
+  constructor(private el: ElementRef<HTMLElement>, private renderer: Renderer2) {}
+  ngAfterViewInit(): void {
+    // Set CSS variables on host element
+    const hostEl = this.el.nativeElement;
+    this.renderer.setStyle(hostEl, '--speed', this.speed);
+    this.renderer.setStyle(hostEl, '--steps', String(Math.max(1, this.text.length)));
+    this.renderer.setStyle(hostEl, '--chars', String(Math.max(1, this.text.length)));
+
+    const textEl = hostEl.querySelector('.text') as HTMLElement | null;
+    const caretEl = hostEl.querySelector('.caret') as HTMLElement | null;
+
+    if (this.animate === false) {
+      // never animate: ensure text visible and caret hidden
+      if (textEl) this.renderer.setStyle(textEl, 'width', 'auto');
+      if (caretEl) this.renderer.setStyle(caretEl, 'display', 'none');
+      return;
+    }
+
+    // Start animation (either once or always)
+    this.renderer.addClass(hostEl, 'animate');
+
+    if (this.animate === 'once') {
+      // After typing animation completes, stop animating and leave static text + no caret
+      const onAnimEnd = (ev: AnimationEvent) => {
+        // Only react to typing animation ending on the .text element
+        if (ev.animationName === 'typing') {
+          this.renderer.removeClass(hostEl, 'animate');
+          if (textEl) this.renderer.setStyle(textEl, 'width', 'auto');
+          if (caretEl) this.renderer.setStyle(caretEl, 'display', 'none');
+          textEl?.removeEventListener('animationend', onAnimEnd as any);
+        }
+      };
+      textEl?.addEventListener('animationend', onAnimEnd as any);
+    }
+    // if 'always', leave animate class so caret keeps blinking and typing repeats per CSS if desired
   }
 }
