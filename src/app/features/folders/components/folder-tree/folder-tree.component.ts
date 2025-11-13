@@ -6,6 +6,7 @@ import { NoteService } from '../../../../core/services/note.service';
 import { AuthStateService } from '../../../../core/services/auth-state.service';
 import { ToastService } from '../../../../core/services/toast.service';
 import { DropdownComponent } from '../../../../shared/components/ui/dropdown/dropdown.component';
+import { Router } from '@angular/router';
 import { FolderNameModalComponent } from '../../../../shared/components/ui/dialog/folder-name-modal.component';
 
 @Component({
@@ -162,6 +163,7 @@ export class FolderTreeComponent {
   private noteService = inject(NoteService);
   private authState = inject(AuthStateService);
   private toast = inject(ToastService);
+  private router = inject(Router);
 
   // Inline edit state
   private _editingId = signal<string | null>(null);
@@ -296,6 +298,8 @@ export class FolderTreeComponent {
       this.toast.success(`Note "${created.title}" created`);
       // Refresh folder tree as files changed (e.g., notes count badges)
       this.treeChanged.emit();
+      // Navigate to editor for immediate editing
+      this.router.navigate(['/notes', created.id, 'edit']);
     } catch (e:any) {
       console.error(e);
       this.toast.error('Failed to create note');
