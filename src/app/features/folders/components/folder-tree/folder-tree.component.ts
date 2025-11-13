@@ -7,12 +7,15 @@ import { ToastService } from '../../../../core/services/toast.service';
 import { DropdownComponent } from '../../../../shared/components/ui/dropdown/dropdown.component';
 import { Router } from '@angular/router';
 import { NoteService } from '../../../../core/services/note.service';
+import { WorkspaceStateService } from '../../../../core/services/workspace-state.service';
 import { FolderNameModalComponent } from '../../../../shared/components/ui/dialog/folder-name-modal.component';
+import { NoteNameModalComponent } from '../../../../shared/components/ui/dialog/note-name-modal.component';
+import { ConfirmModalComponent } from '../../../../shared/components/ui/dialog/confirm-modal.component';
 
 @Component({
   selector: 'app-folder-tree',
   standalone: true,
-  imports: [CommonModule, DropdownComponent, FolderNameModalComponent],
+  imports: [CommonModule, DropdownComponent, FolderNameModalComponent, NoteNameModalComponent, ConfirmModalComponent],
   template: `
     <div class="folder-tree">
       <!-- Name modal -->
@@ -20,6 +23,25 @@ import { FolderNameModalComponent } from '../../../../shared/components/ui/dialo
         <app-folder-name-modal
           (cancel)="closeNameModal()"
           (submit)="handleCreateName($event)"
+        />
+      }
+      <!-- Note rename modal -->
+      @if (showNoteRenameModal()) {
+        <app-note-name-modal
+          [initial]="renamingNote?.title"
+          [existingNames]="renamingExistingNames()"
+          (cancel)="closeNoteRenameModal()"
+          (submit)="handleNoteRename($event)"
+        />
+      }
+
+      <!-- Generic confirm modal -->
+      @if (showConfirmModal()) {
+        <app-confirm-modal
+          [title]="confirmTitle()"
+          [message]="confirmMessage()"
+          (confirm)="performConfirmAction()"
+          (cancel)="closeConfirmModal()"
         />
       }
       @for (folder of folders; track folder.id) {
@@ -77,9 +99,9 @@ import { FolderNameModalComponent } from '../../../../shared/components/ui/dialo
             </span>
 
             <!-- Notes Count Badge -->
-            @if (folder.notes_count !== undefined && folder.notes_count > 0) {
+            @if (folder.notes && folder.notes.length > 0) {
               <span class="notes-count px-2 py-0.5 text-xs rounded-full bg-primary-100 dark:bg-primary-900 text-primary-700 dark:text-primary-300">
-                {{ folder.notes_count }}
+                {{ folder.notes.length }}
               </span>
             }
 
@@ -105,6 +127,36 @@ import { FolderNameModalComponent } from '../../../../shared/components/ui/dialo
             </app-dropdown>
           </div>
 
+          <!-- Notes under this folder -->
+          @if (folder.notes && folder.notes.length > 0 && isExpanded(folder.id)) {
+            <ul class="ml-8 mt-1 space-y-0.5">
+              @for (note of folder.notes; track note.id) {
+                <li
+                  class="note-row flex items-center gap-2 px-2 py-1 rounded cursor-pointer text-xs hover:bg-gray-100 dark:hover:bg-gray-700"
+                  [class.bg-gray-200]="workspaceState.selectedNoteId() === note.id"
+                  [class.dark:bg-gray-600]="workspaceState.selectedNoteId() === note.id"
+                >
+                  <span class="truncate flex-1" (click)="onNoteClick(note, folder, $event)">{{ note.title || 'Untitled' }}</span>
+                  <span class="text-[10px] text-gray-400">
+                    {{ note.updated_at | date:'shortTime' }}
+                  </span>
+                  <!-- Note Actions Dropdown -->
+                  <app-dropdown align="right">
+                    <button dropdownTrigger class="p-0.5 rounded hover:bg-gray-200 dark:hover:bg-gray-600">
+                      <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
+                        <path d="M10 6a2 2 0 110-4 2 2 0 010 4zM10 12a2 2 0 110-4 2 2 0 010 4zM10 18a2 2 0 110-4 2 2 0 010 4z"/>
+                      </svg>
+                    </button>
+                    <div dropdownMenu class="text-xs">
+                      <button class="dropdown-item w-full text-left px-3 py-1.5 hover:bg-gray-100 dark:hover:bg-gray-700" (click)="startNoteRename(note, folder)">Rename</button>
+                      <button class="dropdown-item w-full text-left px-3 py-1.5 text-red-600 hover:bg-red-50 dark:hover:bg-red-900/30" (click)="deleteNote(note, folder)">Delete</button>
+                    </div>
+                  </app-dropdown>
+                </li>
+              }
+            </ul>
+          }
+
           <!-- Nested Children -->
           @if (folder.children && folder.children.length > 0 && isExpanded(folder.id)) {
             <div class="folder-children ml-6 mt-1">
@@ -114,6 +166,7 @@ import { FolderNameModalComponent } from '../../../../shared/components/ui/dialo
                 (folderSelected)="folderSelected.emit($event)"
                 (folderMore)="folderMore.emit($event)"
                 (treeChanged)="treeChanged.emit()"
+                (noteSelected)="noteSelected.emit($event)"
               />
             </div>
           }
@@ -165,6 +218,7 @@ export class FolderTreeComponent {
   private authState = inject(AuthStateService);
   private toast = inject(ToastService);
   private router = inject(Router);
+  workspaceState = inject(WorkspaceStateService);
 
   // Inline edit state
   private _editingId = signal<string | null>(null);
@@ -176,6 +230,18 @@ export class FolderTreeComponent {
   showNameModal = signal(false);
   private pendingParentId: string | null = null;
 
+  // Note rename modal state
+  showNoteRenameModal = signal(false);
+  renamingNote: any = null;
+  renamingFolder: FolderTree | null = null;
+
+  // Generic confirm modal state (used for deletes)
+  showConfirmModal = signal(false);
+  confirmTitle = signal('');
+  confirmMessage = signal('');
+  private pendingDeleteNote: { note: any; folder: FolderTree } | null = null;
+  private pendingDeleteFolder: FolderTree | null = null;
+
   ngOnInit() {
     // Auto-expand root folders
     this.folders.forEach(folder => {
@@ -186,6 +252,8 @@ export class FolderTreeComponent {
         });
       }
     });
+    // Lazy load notes counts/notes for expanded folders
+    this.loadNotesForExpanded();
   }
 
   // Auto-focus input when entering edit mode
@@ -215,10 +283,46 @@ export class FolderTreeComponent {
       }
       return new Set(set);
     });
+    // After toggling, attempt lazy load for newly expanded folder
+    this.loadNotesForExpanded(folderId);
   }
 
   onFolderClick(folder: FolderTree) {
+    this.workspaceState.setSelectedFolder(folder.id);
     this.folderSelected.emit(folder);
+  }
+
+  private async loadNotesForExpanded(targetId?: string) {
+    const userId = this.authState.userId();
+    if (!userId) return;
+    // Iterate folders that are expanded (or just targetId if provided)
+    const loadFor = (folder: FolderTree) => {
+      const shouldLoad = this.isExpanded(folder.id) && (!targetId || folder.id === targetId);
+      if (shouldLoad) {
+        // Only fetch if not already loaded
+        if (!folder.notes) {
+          this.fetchNotesForFolder(folder);
+        }
+      }
+      folder.children?.forEach(child => loadFor(child));
+    };
+    this.folders.forEach(f => loadFor(f));
+  }
+
+  private async fetchNotesForFolder(folder: FolderTree) {
+    try {
+      const list = await this.noteService.getNotesForFolder(folder.id, this.authState.userId());
+      folder.notes = list.map(n => ({ id: n.id, title: n.title, updated_at: n.updated_at, folder_id: n.folder_id }));
+    } catch (e:any) {
+      console.error('Failed to fetch notes for folder', folder.id, e);
+    }
+  }
+
+  onNoteClick(note: any, folder: FolderTree, event: Event) {
+    event.stopPropagation();
+    this.workspaceState.setSelectedFolder(folder.id);
+    this.workspaceState.emitNoteSelected(note);
+    this.noteSelected.emit(note);
   }
 
   onMoreClick(folder: FolderTree, event: Event) {
@@ -301,6 +405,15 @@ export class FolderTreeComponent {
       this.treeChanged.emit();
       // Emit selection for workspace
       this.noteSelected.emit(created);
+      // Ensure workspace switches to this folder so the new note becomes visible
+      this.workspaceState.setSelectedFolder(folder.id);
+      this.workspaceState.emitNoteCreated(created);
+      // Optimistically insert into local notes array if present
+      if ((folder as any).notes) {
+        (folder as any).notes.unshift(created);
+      } else {
+        (folder as any).notes = [created];
+      }
     } catch (e:any) {
       console.error(e);
       this.toast.error('Failed to create note');
@@ -362,6 +475,100 @@ export class FolderTreeComponent {
       this.toast.error(e?.message || 'Failed to create folder');
     } finally {
       this.closeNameModal();
+    }
+  }
+
+  // Note operations
+  startNoteRename(note: any, folder: FolderTree) {
+    // Open rename modal
+    this.renamingNote = note;
+    this.renamingFolder = folder;
+    this.showNoteRenameModal.set(true);
+  }
+
+  async renameNote(note: any, folder: FolderTree, newTitle: string) {
+    const userId = this.authState.userId();
+    try {
+      await this.noteService.updateNote(note.id, userId, { title: newTitle });
+      note.title = newTitle;
+      this.toast.success('Note renamed');
+      this.treeChanged.emit();
+    } catch (e:any) {
+      console.error(e);
+      this.toast.error('Failed to rename note');
+    }
+  }
+
+  async deleteNote(note: any, folder: FolderTree) {
+    // Open confirm modal before deleting
+    this.pendingDeleteNote = { note, folder };
+    this.confirmTitle.set('Delete note');
+    this.confirmMessage.set(`Delete note "${note.title}"?`);
+    this.showConfirmModal.set(true);
+  }
+
+  // Called when confirm modal confirms
+  private async performDeleteNote() {
+    if (!this.pendingDeleteNote) return;
+    const { note, folder } = this.pendingDeleteNote;
+    const userId = this.authState.userId();
+    try {
+      await this.noteService.deleteNote(note.id, userId);
+      this.toast.success('Note deleted');
+      // Remove from local folder notes array
+      if (folder.notes) {
+        const idx = folder.notes.findIndex(n => n.id === note.id);
+        if (idx !== -1) folder.notes.splice(idx, 1);
+      }
+      // If this was the selected note, clear selection
+      if (this.workspaceState.selectedNoteId() === note.id) {
+        this.workspaceState.setSelectedNote(null);
+      }
+      this.treeChanged.emit();
+    } catch (e:any) {
+      console.error(e);
+      this.toast.error('Failed to delete note');
+    } finally {
+      this.closeConfirmModal();
+    }
+  }
+
+  // Confirm modal handlers
+  closeConfirmModal() {
+    this.showConfirmModal.set(false);
+    this.pendingDeleteNote = null;
+    this.pendingDeleteFolder = null;
+    this.confirmTitle.set('');
+    this.confirmMessage.set('');
+  }
+
+  // Note rename handlers
+  closeNoteRenameModal() {
+    this.showNoteRenameModal.set(false);
+    this.renamingNote = null;
+    this.renamingFolder = null;
+  }
+
+  async handleNoteRename(newTitle: string) {
+    if (!this.renamingNote || !this.renamingFolder) {
+      this.closeNoteRenameModal();
+      return;
+    }
+    await this.renameNote(this.renamingNote, this.renamingFolder, newTitle);
+    this.closeNoteRenameModal();
+  }
+
+  renamingExistingNames(): string[] {
+    if (!this.renamingFolder || !this.renamingFolder.notes) return [];
+    return this.renamingFolder.notes
+      .filter((n: any) => n.id !== this.renamingNote?.id)
+      .map((n: any) => n.title || '');
+  }
+
+  performConfirmAction() {
+    // Currently only wired for note deletes
+    if (this.pendingDeleteNote) {
+      this.performDeleteNote();
     }
   }
 }

@@ -4,6 +4,8 @@ import { FolderTreeComponent } from '../../../folders/components/folder-tree/fol
 import { FolderService } from '../../../folders/services/folder.service';
 import { AuthStateService } from '../../../../core/services/auth-state.service';
 import { FolderTree } from '../../../../core/models/folder.model';
+import { Note } from '../../../../core/models/note.model';
+import { WorkspaceStateService } from '../../../../core/services/workspace-state.service';
 
 @Component({
   selector: 'app-sidebar',
@@ -34,6 +36,7 @@ import { FolderTree } from '../../../../core/models/folder.model';
             (folderSelected)="onFolderSelected($event)"
             (folderMore)="onFolderMore($event)"
             (treeChanged)="reloadFolders()"
+            (noteSelected)="onNoteSelected($event)"
           />
         }
 
@@ -63,6 +66,7 @@ import { FolderTree } from '../../../../core/models/folder.model';
 export class SidebarComponent implements OnInit {
   private folderService = inject(FolderService);
   private authState = inject(AuthStateService);
+  private workspaceState = inject(WorkspaceStateService);
 
   folderTree = signal<FolderTree[]>([]);
   selectedFolderId = signal<string | undefined>(undefined);
@@ -93,6 +97,7 @@ export class SidebarComponent implements OnInit {
 
   onFolderSelected(folder: FolderTree) {
     this.selectedFolderId.set(folder.id);
+    this.workspaceState.setSelectedFolder(folder.id);
     // Navigate to folder view or filter notes by folder
     console.log('Folder selected:', folder);
   }
@@ -109,5 +114,12 @@ export class SidebarComponent implements OnInit {
   onCreateFolder() {
     // Show create folder dialog
     console.log('Create new folder');
+  }
+
+  onNoteSelected(note: Note) {
+    // Sync selected folder and broadcast selection to workspace
+    this.selectedFolderId.set(note.folder_id || undefined);
+    this.workspaceState.setSelectedFolder(note.folder_id ?? null);
+    this.workspaceState.emitNoteSelected(note);
   }
 }
