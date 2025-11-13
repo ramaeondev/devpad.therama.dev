@@ -7,7 +7,7 @@ import { CommonModule } from '@angular/common';
   imports: [CommonModule],
   template: `
     <div class="logo" [attr.aria-label]="text">
-      <span class="typewriter">
+      <span class="typewriter text-gray-900 dark:text-gray-100">
         <span class="text">{{ text }}</span>
         <span class="caret" aria-hidden="true">▌</span>
       </span>
@@ -16,7 +16,7 @@ import { CommonModule } from '@angular/common';
   styles: [
     `:host { display: inline-block; }
     .logo { display: inline-block; }
-    .typewriter { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, 'Courier New', monospace; font-weight: 600; color: var(--logo-color, #1f2937); font-size: 1.15rem; display: inline-flex; align-items: center; }
+    .typewriter { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, 'Courier New', monospace; font-weight: 600; color: inherit; font-size: 1.15rem; display: inline-flex; align-items: center; }
     .text { display: inline-block; overflow: hidden; white-space: nowrap; /* make width animate */ width: 0ch; }
     .caret { display: inline-block; margin-left: 0.2rem; color: var(--logo-color, #1f2937); opacity: 1; }
 
@@ -25,8 +25,8 @@ import { CommonModule } from '@angular/common';
     @keyframes blink { 0%, 49% { opacity: 1; } 50%, 100% { opacity: 0; } }
 
     /* Expose CSS variables for speed and character count via style binding or component defaults */
-    :host(.animate) .text { animation: typing var(--speed, 1.8s) steps(var(--steps, 6), end) 0s forwards; }
-    :host(.animate) .caret { animation: blink 1s step-end infinite; }
+  :host(.animate) .text { animation: typing var(--speed, 3.5s) steps(var(--steps, 6), end) 0s forwards; }
+  :host(.animate) .caret { animation: blink 1s step-end infinite; }
 
     /* small responsive sizing */
     @media (min-width: 768px) {

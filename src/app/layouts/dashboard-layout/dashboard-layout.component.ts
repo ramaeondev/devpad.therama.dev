@@ -20,8 +20,8 @@ import { LoadingService } from '../../core/services/loading.service';
     <div class="h-screen w-screen overflow-hidden bg-gray-50 dark:bg-gray-900 flex flex-col">
       <!-- Header -->
       <header class="bg-white dark:bg-gray-800 shadow-sm">
-        <div class="px-4 py-4 flex items-center justify-between">
-          <div class="flex items-center space-x-4">
+          <div class="px-4 py-4 flex items-center justify-between">
+          <div class="flex items-center space-x-4 text-gray-900 dark:text-gray-100">
             <app-logo [animate]="'once'" [persist]="true"></app-logo>
           </div>
           <div class="flex items-center space-x-4">
