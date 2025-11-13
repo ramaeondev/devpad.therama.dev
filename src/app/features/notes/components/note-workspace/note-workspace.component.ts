@@ -211,6 +211,13 @@ export class NoteWorkspaceComponent {
         const created = await this.noteService.createNote(userId, { title: t, content: c, folder_id: this.selectedFolderId()! });
         this.selectedNoteId.set(created.id);
         this.toast.success('Note created');
+        // Notify folder tree and other listeners
+        try {
+          this.workspaceState.emitNoteCreated(created);
+          this.workspaceState.emitFoldersChanged();
+        } catch (e) {
+          // noop
+        }
       } else {
         const updated = await this.noteService.updateNote(this.selectedNoteId()!, userId, { title: t, content: c, folder_id: this.selectedFolderId()! });
         this.toast.success('Note saved');

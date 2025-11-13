@@ -5,6 +5,7 @@ import { MarkdownEditorComponent } from '../../components/markdown-editor/markdo
 import { NoteService } from '../../../../core/services/note.service';
 import { AuthStateService } from '../../../../core/services/auth-state.service';
 import { ToastService } from '../../../../core/services/toast.service';
+import { WorkspaceStateService } from '../../../../core/services/workspace-state.service';
 
 @Component({
   selector: 'app-note-editor',
@@ -46,6 +47,7 @@ export class NoteEditorComponent {
   private noteService = inject(NoteService);
   private auth = inject(AuthStateService);
   private toast = inject(ToastService);
+  private workspaceState = inject(WorkspaceStateService);
 
   // state signals
   title = signal('');
@@ -91,6 +93,13 @@ export class NoteEditorComponent {
       if (this.isNew()) {
         const created = await this.noteService.createNote(userId, { title: t, content: c, folder_id: null });
         this.toast.success('Note created');
+        // Notify other parts of the app (folder tree, workspace) that a note was created
+        try {
+          this.workspaceState.emitNoteCreated(created);
+          this.workspaceState.emitFoldersChanged();
+        } catch (e) {
+          // ignore
+        }
         this.isNew.set(false);
         this.noteId.set(created.id);
         // navigate to edit route (keeping content)

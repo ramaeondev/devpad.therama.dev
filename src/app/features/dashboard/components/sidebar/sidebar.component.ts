@@ -74,6 +74,10 @@ export class SidebarComponent implements OnInit {
 
   async ngOnInit() {
     await this.loadFolders();
+    // Reload folders when other parts of the app signal changes (e.g., note created from center)
+    this.workspaceState.foldersChanged$.subscribe(() => {
+      this.reloadFolders();
+    });
   }
 
   async loadFolders() {
