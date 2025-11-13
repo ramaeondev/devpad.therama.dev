@@ -4,6 +4,7 @@ import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { SupabaseService } from '../../../../core/services/supabase.service';
 import { ToastService } from '../../../../core/services/toast.service';
+import { FolderService } from '../../../folders/services/folder.service';
 
 @Component({
   selector: 'app-signup',
@@ -102,6 +103,7 @@ export class SignupComponent {
   private router = inject(Router);
   private supabase = inject(SupabaseService);
   private toast = inject(ToastService);
+  private folderService = inject(FolderService);
 
   loading = signal(false);
   errorMessage = signal('');
