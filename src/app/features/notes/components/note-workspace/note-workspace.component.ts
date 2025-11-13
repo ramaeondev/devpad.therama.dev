@@ -211,9 +211,10 @@ export class NoteWorkspaceComponent {
         const created = await this.noteService.createNote(userId, { title: t, content: c, folder_id: this.selectedFolderId()! });
         this.selectedNoteId.set(created.id);
         this.toast.success('Note created');
-        // Notify folder tree and other listeners
+        // Notify folder tree to refresh counts/listings. Note: we do not emit
+        // `noteCreated` here because this workspace already opens the created note
+        // locally; emitting `noteCreated` caused duplicate open/selection races.
         try {
-          this.workspaceState.emitNoteCreated(created);
           this.workspaceState.emitFoldersChanged();
         } catch (e) {
           // noop

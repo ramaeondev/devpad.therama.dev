@@ -136,7 +136,8 @@ import { ConfirmModalComponent } from '../../../../shared/components/ui/dialog/c
                   [class.bg-gray-200]="workspaceState.selectedNoteId() === note.id"
                   [class.dark:bg-gray-600]="workspaceState.selectedNoteId() === note.id"
                 >
-                  <span class="truncate flex-1" (click)="onNoteClick(note, folder, $event)">{{ note.title || 'Untitled' }}</span>
+                    <span class="note-icon w-4 text-sm">{{ note.icon || '📝' }}</span>
+                    <span class="truncate flex-1" (click)="onNoteClick(note, folder, $event)">{{ note.title || 'Untitled' }}</span>
                   <span class="text-[10px] text-gray-400">
                     {{ note.updated_at | date:'shortTime' }}
                   </span>
@@ -312,7 +313,7 @@ export class FolderTreeComponent {
   private async fetchNotesForFolder(folder: FolderTree) {
     try {
       const list = await this.noteService.getNotesForFolder(folder.id, this.authState.userId());
-      folder.notes = list.map(n => ({ id: n.id, title: n.title, updated_at: n.updated_at, folder_id: n.folder_id }));
+      folder.notes = list.map(n => ({ id: n.id, title: n.title, updated_at: n.updated_at, folder_id: n.folder_id, icon: (n as any).icon || undefined }));
     } catch (e:any) {
       console.error('Failed to fetch notes for folder', folder.id, e);
     }
