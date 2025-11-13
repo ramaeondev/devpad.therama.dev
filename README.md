@@ -1,4 +1,4 @@
-# CloudNotes V2
+# DevPad
 
 Modern, standalone-component based note-taking application built with Angular 20, Signals, Tailwind CSS, and Supabase.
 

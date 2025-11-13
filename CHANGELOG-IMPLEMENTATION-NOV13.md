@@ -1,4 +1,4 @@
-# CloudNotes Implementation Summary (Nov 13, 2025)
+# DevPad Implementation Summary (Nov 13, 2025)
 
 ## Overview
 This document captures the architectural and feature changes introduced during the recent iteration focused on improving folder management UX, global feedback (loading + toasts), and data integrity.
