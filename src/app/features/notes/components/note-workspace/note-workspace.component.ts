@@ -18,36 +18,46 @@ import { WorkspaceStateService } from '../../../../core/services/workspace-state
       <div class="flex-1 h-full overflow-y-auto p-4 flex flex-col gap-4">
         <div class="flex items-center gap-3 flex-wrap">
           <button class="px-3 py-1.5 rounded bg-primary-600 text-white text-sm" (click)="createNewNote()">New Note</button>
-          <span *ngIf="selectedNoteId()" class="text-xs text-gray-500">ID: {{ selectedNoteId() }}</span>
+          @if (selectedNoteId()) {
+            <span class="text-xs text-gray-500">ID: {{ selectedNoteId() }}</span>
+          }
         </div>
 
         <!-- Title input -->
-        <input
-          *ngIf="currentMode() !== 'empty'"
-          class="text-xl font-semibold bg-transparent border-b border-gray-300 dark:border-gray-700 focus:outline-none focus:border-primary-500 text-gray-900 dark:text-gray-100 py-1"
-          [value]="title()"
-          (input)="onTitleInput($event)"
-          placeholder="Note title" />
+        @if (currentMode() !== 'empty') {
+          <input
+            class="text-xl font-semibold bg-transparent border-b border-gray-300 dark:border-gray-700 focus:outline-none focus:border-primary-500 text-gray-900 dark:text-gray-100 py-1"
+            [value]="title()"
+            (input)="onTitleInput($event)"
+            placeholder="Note title" />
+        }
 
         <!-- Editor -->
-        <app-markdown-editor
-          *ngIf="currentMode() !== 'empty'"
-          [initialContent]="content()"
-          (contentChange)="content.set($event)"
-        />
+        @if (currentMode() !== 'empty') {
+          <app-markdown-editor
+            [initialContent]="content()"
+            (contentChange)="content.set($event)"
+          />
+        }
 
         <!-- Empty state -->
-        <div *ngIf="currentMode() === 'empty'" class="text-center py-24 text-gray-500 dark:text-gray-400">
-          Select a folder and create a note to begin.
-        </div>
+        @if (currentMode() === 'empty') {
+          <div class="text-center py-24 text-gray-500 dark:text-gray-400">
+            Select a folder and create a note to begin.
+          </div>
+        }
 
         <!-- Actions -->
-        <div *ngIf="currentMode() === 'editing'" class="flex gap-2 flex-wrap">
-          <button class="px-4 py-2 rounded bg-primary-600 text-white text-sm disabled:opacity-40" [disabled]="saving()" (click)="saveNote()">
-            {{ saving() ? 'Saving…' : (selectedNoteId() ? 'Save' : 'Create') }}
-          </button>
-          <button *ngIf="selectedNoteId()" class="px-4 py-2 rounded border border-red-600 text-red-600 text-sm hover:bg-red-50 dark:hover:bg-red-900/30" (click)="deleteNote()">Delete</button>
-        </div>
+        @if (currentMode() === 'editing') {
+          <div class="flex gap-2 flex-wrap">
+            <button class="px-4 py-2 rounded bg-primary-600 text-white text-sm disabled:opacity-40" [disabled]="saving()" (click)="saveNote()">
+              {{ saving() ? 'Saving…' : (selectedNoteId() ? 'Save' : 'Create') }}
+            </button>
+            @if (selectedNoteId()) {
+              <button class="px-4 py-2 rounded border border-red-600 text-red-600 text-sm hover:bg-red-50 dark:hover:bg-red-900/30" (click)="deleteNote()">Delete</button>
+            }
+          </div>
+        }
 
         <!-- Notes list removed; rely on folder tree for navigation -->
       </div>

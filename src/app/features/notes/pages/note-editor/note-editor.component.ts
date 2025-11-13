@@ -24,7 +24,9 @@ import { ToastService } from '../../../../core/services/toast.service';
             <button class="px-4 py-2 rounded bg-primary-600 text-white disabled:opacity-40" [disabled]="saving()" (click)="onSave()">
               {{ isNew() ? (saving() ? 'Creating…' : 'Create') : (saving() ? 'Saving…' : 'Save') }}
             </button>
-            <button *ngIf="!isNew()" class="px-4 py-2 rounded border border-red-600 text-red-600 hover:bg-red-50 dark:hover:bg-red-900/30" (click)="onDelete()">Delete</button>
+            @if (!isNew()) {
+              <button class="px-4 py-2 rounded border border-red-600 text-red-600 hover:bg-red-50 dark:hover:bg-red-900/30" (click)="onDelete()">Delete</button>
+            }
             <a routerLink="/notes" class="px-4 py-2 rounded border border-gray-300 dark:border-gray-600">Back</a>
           </div>
         </div>
