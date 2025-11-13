@@ -16,7 +16,9 @@ import { LogoComponent } from '../../../../shared/components/ui/logo/logo.compon
       <div class="max-w-md w-full space-y-8">
         <div>
           <h2 class="mt-6 text-center text-3xl font-extrabold text-gray-900 dark:text-white">
-          <app-logo [text]="'DevPad'" [animate]="'once'" [persist]="true"></app-logo>
+          <span class="text-gray-900 dark:text-gray-100 inline-block">
+            <app-logo [text]="'DevPad'" [animate]="'once'" [persist]="true"></app-logo>
+          </span>
           </h2>
           <p class="mt-2 text-center text-sm text-gray-600 dark:text-gray-400">
             Create your account
