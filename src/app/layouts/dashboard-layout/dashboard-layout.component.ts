@@ -5,6 +5,7 @@ import { SidebarComponent } from '../../features/dashboard/components/sidebar/si
 import { ToastContainerComponent } from '../../shared/components/ui/toast/toast-container.component';
 import { LogoComponent } from '../../shared/components/ui/logo/logo.component';
 import { AuthStateService } from '../../core/services/auth-state.service';
+import { ThemeService } from '../../core/services/theme.service';
 import { SupabaseService } from '../../core/services/supabase.service';
 import { Router } from '@angular/router';
 import { GlobalSpinnerComponent } from '../../shared/components/ui/spinner/global-spinner.component';
@@ -25,6 +26,9 @@ import { LoadingService } from '../../core/services/loading.service';
           </div>
           <div class="flex items-center space-x-4">
             <span class="text-sm text-gray-600 dark:text-gray-400">{{ auth.userEmail() }}</span>
+            <button (click)="theme.toggleTheme()" class="btn btn-ghost px-3 py-2" title="Toggle theme">
+              Toggle Theme
+            </button>
             <button (click)="signOut()" class="btn btn-ghost px-4 py-2">
               Sign Out
             </button>
@@ -52,6 +56,7 @@ import { LoadingService } from '../../core/services/loading.service';
 })
 export class DashboardLayoutComponent {
   auth = inject(AuthStateService);
+  theme = inject(ThemeService);
   private supabase = inject(SupabaseService);
   private router = inject(Router);
   private loading = inject(LoadingService);
