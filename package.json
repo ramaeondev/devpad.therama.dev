@@ -6,10 +6,9 @@
   "homepage": "https://devpad.therama.dev",
   "author": "Ramaeon",
   "license": "MIT",
-  "homepage": "https://cloudnotes.therama.dev",
   "repository": {
     "type": "git",
-  "url": "https://github.com/ramaeondev/cloudnotes-v2"
+    "url": ""
   },
   "keywords": [
     "angular",
