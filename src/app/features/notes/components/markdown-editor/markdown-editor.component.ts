@@ -44,7 +44,14 @@ import { marked } from 'marked';
   `]
 })
 export class MarkdownEditorComponent {
-  @Input() initialContent = '';
+  private _initial = '';
+  @Input()
+  set initialContent(v: string) {
+    this._initial = v || '';
+    // update internal signal whenever input changes
+    this._content.set(this._initial);
+  }
+  get initialContent() { return this._initial; }
   @Output() contentChange = new EventEmitter<string>();
   private _content = signal('');
   preview = signal(false);

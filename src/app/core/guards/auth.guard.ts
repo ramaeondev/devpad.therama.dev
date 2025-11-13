@@ -10,7 +10,7 @@ export const authGuard: CanActivateFn = async (route, state) => {
   const folderService = inject(FolderService);
   const router = inject(Router);
 
-  const { data: { session } } = await supabase.auth.getSession();
+  const { session } = await supabase.getSession();
 
   if (session) {
     authState.setUser(session.user);
