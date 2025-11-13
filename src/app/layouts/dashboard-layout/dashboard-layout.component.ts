@@ -20,7 +20,7 @@ import { LoadingService } from '../../core/services/loading.service';
       <header class="bg-white dark:bg-gray-800 shadow-sm">
         <div class="px-4 py-4 flex items-center justify-between">
           <div class="flex items-center space-x-4">
-            <h1 class="text-2xl font-bold text-gray-900 dark:text-white">CloudNotes</h1>
+            <h1 class="text-2xl font-bold text-gray-900 dark:text-white">DevPad</h1>
           </div>
           <div class="flex items-center space-x-4">
             <span class="text-sm text-gray-600 dark:text-gray-400">{{ auth.userEmail() }}</span>

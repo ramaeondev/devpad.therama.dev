@@ -1,15 +1,15 @@
 {
-  "name": "cloudnotes-v2",
-  "version": "2.0.0",
-  "project_id": "7a3abbb7-b666-483c-9a47-dc2a08a9ab83",
-  "status": "In Development",
-  "description": "CloudNotes V2 - Modern, standalone-component based note-taking application with Angular Signals, Tailwind CSS, and Supabase",
+  "name": "devpad",
+  "version": "0.0.0",
+  "private": true,
+  "description": "DevPad - Modern, standalone-component based note-taking application with Angular Signals, Tailwind CSS, and Supabase",
+  "homepage": "https://devpad.therama.dev",
   "author": "Ramaeon",
   "license": "MIT",
   "homepage": "https://cloudnotes.therama.dev",
   "repository": {
     "type": "git",
-    "url": "https://github.com/ramaeondev/cloudnotes-v2"
+  "url": "https://github.com/ramaeondev/cloudnotes-v2"
   },
   "keywords": [
     "angular",
@@ -45,7 +45,7 @@
     "test": "ng test",
     "test:coverage": "ng test --code-coverage",
     "format": "prettier --write \"src/**/*.{ts,html,scss,css,json}\"",
-    "analyze": "ng build --configuration production --stats-json && webpack-bundle-analyzer dist/cloudnotes-v2/stats.json"
+    "analyze": "ng build --configuration production --stats-json && webpack-bundle-analyzer dist/devpad/stats.json"
   },
   "prettier": {
     "printWidth": 100,
@@ -59,7 +59,7 @@
       }
     ]
   },
-  "private": true,
+  
   "dependencies": {
     "@angular/animations": "^20.3.11",
     "@angular/cdk": "^20.2.12",

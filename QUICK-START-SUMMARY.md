@@ -299,7 +299,7 @@ Before deploying:
 
 ## 🎉 You're All Set!
 
-Your CloudNotes application now has:
+Your DevPad application now has:
 - ✅ Automatic root folder creation
 - ✅ Hierarchical folder organization
 - ✅ Protection against duplicates

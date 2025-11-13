@@ -15,7 +15,7 @@ import { FolderService } from '../../../folders/services/folder.service';
       <div class="max-w-md w-full space-y-8">
         <div>
           <h2 class="mt-6 text-center text-3xl font-extrabold text-gray-900 dark:text-white">
-            CloudNotes
+            DevPad
           </h2>
           <p class="mt-2 text-center text-sm text-gray-600 dark:text-gray-400">
             Create your account
