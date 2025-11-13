@@ -33,7 +33,9 @@ import { marked } from 'marked';
             (scroll)="syncScroll($event)"
           ></textarea>
         </div>
-        <div *ngIf="preview()" class="prose dark:prose-invert max-w-none overflow-auto border border-gray-200 dark:border-gray-700 rounded-md bg-white dark:bg-gray-900 p-4" [innerHTML]="rendered()"></div>
+        @if (preview()) {
+          <div class="prose dark:prose-invert max-w-none overflow-auto border border-gray-200 dark:border-gray-700 rounded-md bg-white dark:bg-gray-900 p-4" [innerHTML]="rendered()"></div>
+        }
       </div>
     </div>
   `,

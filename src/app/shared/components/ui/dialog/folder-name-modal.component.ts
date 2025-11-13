@@ -20,7 +20,9 @@ import { CommonModule } from '@angular/common';
           (keydown.escape)="onCancel()"
           autofocus
         />
-        <p *ngIf="error()" class="mt-2 text-xs text-red-600">{{ error() }}</p>
+        @if (error()) {
+          <p class="mt-2 text-xs text-red-600">{{ error() }}</p>
+        }
         <div class="mt-4 flex justify-end gap-2">
           <button type="button" class="px-3 py-1.5 text-sm rounded border border-gray-300 dark:border-gray-700" (click)="onCancel()">Cancel</button>
           <button type="button" class="px-3 py-1.5 text-sm rounded bg-primary-600 text-white disabled:opacity-50" [disabled]="!name().trim()" (click)="trySubmit()">Create</button>
