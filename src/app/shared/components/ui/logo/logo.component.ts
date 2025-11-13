@@ -42,6 +42,10 @@ export class LogoComponent {
   @Input() speed = '1.8s';
   /** Animation mode: 'once' -> animate once then become static (default), 'always' -> keep animating, false -> never animate */
   @Input() animate: 'once' | 'always' | false = 'once';
+  /** If true, persist that the animation has been shown for this text and skip on subsequent visits */
+  @Input() persist = true;
+  /** Optional custom localStorage key to persist the shown flag */
+  @Input() persistKey?: string;
 
   constructor(private el: ElementRef<HTMLElement>, private renderer: Renderer2) {}
   ngAfterViewInit(): void {
@@ -54,8 +58,18 @@ export class LogoComponent {
     const textEl = hostEl.querySelector('.text') as HTMLElement | null;
     const caretEl = hostEl.querySelector('.caret') as HTMLElement | null;
 
+    // Determine persistence key
+    const storageAvailable = typeof window !== 'undefined' && !!window.localStorage;
+    const key = this.persistKey || `devpad.logo.shown:${this.text}`;
+
     if (this.animate === false) {
       // never animate: ensure text visible and caret hidden
+      if (textEl) this.renderer.setStyle(textEl, 'width', 'auto');
+      if (caretEl) this.renderer.setStyle(caretEl, 'display', 'none');
+      return;
+    }
+    // If persistence requested and already shown, render static immediately
+    if (this.persist && storageAvailable && window.localStorage.getItem(key)) {
       if (textEl) this.renderer.setStyle(textEl, 'width', 'auto');
       if (caretEl) this.renderer.setStyle(caretEl, 'display', 'none');
       return;
@@ -73,6 +87,14 @@ export class LogoComponent {
           if (textEl) this.renderer.setStyle(textEl, 'width', 'auto');
           if (caretEl) this.renderer.setStyle(caretEl, 'display', 'none');
           textEl?.removeEventListener('animationend', onAnimEnd as any);
+          // Persist that we've shown the animation
+          try {
+            if (this.persist && storageAvailable) {
+              window.localStorage.setItem(key, '1');
+            }
+          } catch (err) {
+            // ignore storage errors
+          }
         }
       };
       textEl?.addEventListener('animationend', onAnimEnd as any);
