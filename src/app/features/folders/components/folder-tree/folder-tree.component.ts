@@ -1,12 +1,12 @@
-import { Component, Input, Output, EventEmitter, signal, inject, effect } from '@angular/core';
+import { Component, Input, Output, EventEmitter, signal, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FolderTree } from '../../../../core/models/folder.model';
 import { FolderService } from '../../../folders/services/folder.service';
-import { NoteService } from '../../../../core/services/note.service';
 import { AuthStateService } from '../../../../core/services/auth-state.service';
 import { ToastService } from '../../../../core/services/toast.service';
 import { DropdownComponent } from '../../../../shared/components/ui/dropdown/dropdown.component';
 import { Router } from '@angular/router';
+import { NoteService } from '../../../../core/services/note.service';
 import { FolderNameModalComponent } from '../../../../shared/components/ui/dialog/folder-name-modal.component';
 
 @Component({
@@ -157,6 +157,7 @@ export class FolderTreeComponent {
   @Output() folderSelected = new EventEmitter<FolderTree>();
   @Output() folderMore = new EventEmitter<FolderTree>();
   @Output() treeChanged = new EventEmitter<void>();
+  @Output() noteSelected = new EventEmitter<any>();
 
   private expandedFolders = signal<Set<string>>(new Set());
   private folderService = inject(FolderService);
@@ -298,8 +299,8 @@ export class FolderTreeComponent {
       this.toast.success(`Note "${created.title}" created`);
       // Refresh folder tree as files changed (e.g., notes count badges)
       this.treeChanged.emit();
-      // Navigate to editor for immediate editing
-      this.router.navigate(['/notes', created.id, 'edit']);
+      // Emit selection for workspace
+      this.noteSelected.emit(created);
     } catch (e:any) {
       console.error(e);
       this.toast.error('Failed to create note');
