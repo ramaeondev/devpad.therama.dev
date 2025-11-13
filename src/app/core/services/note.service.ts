@@ -65,7 +65,10 @@ export class NoteService {
       if (uploadErr) throw uploadErr;
 
       // Verify upload succeeded and file is retrievable (helps catch permission/multipart issues)
-      await this.verifyUpload(path);
+      // Skip verification for intentionally empty files: empty notes are allowed.
+      if (contentStr && contentStr.length > 0) {
+        await this.verifyUpload(path);
+      }
 
       // Step 3: update row to reference storage path (use storage:// scheme in content field)
       const storageRef = `storage://${this.BUCKET}/${path}`;
@@ -105,7 +108,10 @@ export class NoteService {
           .from(this.BUCKET)
           .upload(expectedPath, file, { upsert: true, contentType: 'text/markdown' });
         if (uploadErr) throw uploadErr;
-        await this.verifyUpload(expectedPath);
+        // Only verify when migrated content is non-empty
+        if (migrateContent && migrateContent.length > 0) {
+          await this.verifyUpload(expectedPath);
+        }
         storageRef = `storage://${this.BUCKET}/${expectedPath}`;
       } else {
         // File already stored in storage; if new content provided, overwrite the deterministic path
@@ -115,7 +121,10 @@ export class NoteService {
             .from(this.BUCKET)
             .upload(expectedPath, file, { upsert: true, contentType: 'text/markdown' });
           if (upErr) throw upErr;
-          await this.verifyUpload(expectedPath);
+          // Only verify when provided content is non-empty
+          if (dto.content && (dto.content as string).length > 0) {
+            await this.verifyUpload(expectedPath);
+          }
           storageRef = `storage://${this.BUCKET}/${expectedPath}`;
         } else {
           // keep existing storageRef if no content provided
