@@ -1,4 +1,6 @@
-import { Injectable, signal, effect } from '@angular/core';
+import { Injectable, signal, effect, inject } from '@angular/core';
+import { SupabaseService } from './supabase.service';
+import { AuthStateService } from './auth-state.service';
 
 export type Theme = 'light' | 'dark' | 'system';
 
@@ -8,6 +10,8 @@ export type Theme = 'light' | 'dark' | 'system';
 export class ThemeService {
   private currentTheme = signal<Theme>('system');
   theme = this.currentTheme.asReadonly();
+  private supabase = inject(SupabaseService);
+  private auth = inject(AuthStateService);
 
   constructor() {
     // Apply theme changes
@@ -28,6 +32,20 @@ export class ThemeService {
   setTheme(theme: Theme) {
     this.currentTheme.set(theme);
     localStorage.setItem('theme', theme);
+    // Persist theme preference to Supabase user metadata when available
+    try {
+      const userId = this.auth.userId();
+      if (userId) {
+        // Update user's metadata with theme preference. This uses the client-side
+        // auth.updateUser to set user_metadata.theme. It's best-effort; failures
+        // are logged but do not block the UI.
+        this.supabase.auth.updateUser({ data: { theme } }).catch(err => {
+          console.warn('Failed to persist theme preference to Supabase:', err);
+        });
+      }
+    } catch (err) {
+      // Ignore persistence errors
+    }
   }
 
   toggleTheme() {
