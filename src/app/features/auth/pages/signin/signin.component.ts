@@ -6,17 +6,18 @@ import { SupabaseService } from '../../../../core/services/supabase.service';
 import { AuthStateService } from '../../../../core/services/auth-state.service';
 import { ToastService } from '../../../../core/services/toast.service';
 import { FolderService } from '../../../folders/services/folder.service';
+import { LogoComponent } from '../../../../shared/components/ui/logo/logo.component';
 
 @Component({
   selector: 'app-signin',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, RouterLink],
+  imports: [CommonModule, ReactiveFormsModule, RouterLink, LogoComponent],
   template: `
     <div class="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900 py-12 px-4 sm:px-6 lg:px-8">
       <div class="max-w-md w-full space-y-8">
         <div>
           <h2 class="mt-6 text-center text-3xl font-extrabold text-gray-900 dark:text-white">
-            DevPad
+            <app-logo [text]="'DevPad'"></app-logo>
           </h2>
           <p class="mt-2 text-center text-sm text-gray-600 dark:text-gray-400">
             Sign in to your account
