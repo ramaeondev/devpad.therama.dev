@@ -13,6 +13,10 @@ export class WorkspaceStateService {
   private _noteCreated$ = new Subject<Note>();
   noteCreated$ = this._noteCreated$.asObservable();
 
+  // Emits when folders / folder tree changed and consumers should reload
+  private _foldersChanged$ = new Subject<void>();
+  foldersChanged$ = this._foldersChanged$.asObservable();
+
   // Emits when a note is selected (e.g., from folder tree)
   private _noteSelected$ = new Subject<Note>();
   noteSelected$ = this._noteSelected$.asObservable();
@@ -23,6 +27,10 @@ export class WorkspaceStateService {
 
   emitNoteCreated(note: Note) {
     this._noteCreated$.next(note);
+  }
+
+  emitFoldersChanged() {
+    this._foldersChanged$.next();
   }
 
   emitNoteSelected(note: Note) {
