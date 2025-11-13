@@ -38,8 +38,13 @@ import { CommonModule } from '@angular/common';
 export class LogoComponent {
   /** Text to type (default: DevPad) */
   @Input() text = 'DevPad';
-  /** Duration of typing animation, accepts CSS time value (default: 3.5s) */
-  @Input() speed = '3.5s';
+  /**
+   * Duration of typing animation. If omitted, an automatic duration is computed
+   * from the text length to provide a visible per-character typing feel
+   * (approx. 0.7s per character, min 2s).
+   * Accepts a CSS time string like '3s' or '500ms' if you want to override.
+   */
+  @Input() speed?: string;
   /** Animation mode: 'once' -> animate once then become static (default), 'always' -> keep animating, false -> never animate */
   @Input() animate: 'once' | 'always' | false = 'once';
   /** If true, persist that the animation has been shown for this text and skip on subsequent visits */
@@ -49,9 +54,13 @@ export class LogoComponent {
 
   constructor(private el: ElementRef<HTMLElement>, private renderer: Renderer2) {}
   ngAfterViewInit(): void {
-    // Set CSS variables on host element
+    // Set CSS variables on host element. If a speed was provided, use it;
+    // otherwise compute a per-character duration so typing is visible.
     const hostEl = this.el.nativeElement;
-    this.renderer.setStyle(hostEl, '--speed', this.speed);
+    const computedSpeed = this.speed
+      ? this.speed
+      : `${Math.max(2, Math.round(this.text.length * 0.7))}s`;
+    this.renderer.setStyle(hostEl, '--speed', computedSpeed);
     this.renderer.setStyle(hostEl, '--steps', String(Math.max(1, this.text.length)));
     this.renderer.setStyle(hostEl, '--chars', String(Math.max(1, this.text.length)));
 
