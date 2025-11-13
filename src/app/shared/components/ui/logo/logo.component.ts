@@ -38,8 +38,8 @@ import { CommonModule } from '@angular/common';
 export class LogoComponent {
   /** Text to type (default: DevPad) */
   @Input() text = 'DevPad';
-  /** Duration of typing animation, accepts CSS time value (default: 1.8s) */
-  @Input() speed = '1.8s';
+  /** Duration of typing animation, accepts CSS time value (default: 3.5s) */
+  @Input() speed = '3.5s';
   /** Animation mode: 'once' -> animate once then become static (default), 'always' -> keep animating, false -> never animate */
   @Input() animate: 'once' | 'always' | false = 'once';
   /** If true, persist that the animation has been shown for this text and skip on subsequent visits */
