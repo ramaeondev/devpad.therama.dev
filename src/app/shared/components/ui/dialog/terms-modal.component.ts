@@ -1,5 +1,6 @@
-import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { Component, EventEmitter, Input, Output, OnChanges, SimpleChanges, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 
 @Component({
   selector: 'app-terms-modal',
@@ -16,7 +17,7 @@ import { CommonModule } from '@angular/common';
         <div class="flex-1">
           <iframe
             title="Terms and Conditions"
-            [src]="termsSrc"
+            [src]="safeSrc"
             class="w-full h-full border-0 bg-white dark:bg-gray-800"
           ></iframe>
         </div>
@@ -28,9 +29,36 @@ import { CommonModule } from '@angular/common';
   `,
   styles: []
 })
-export class TermsModalComponent {
+export class TermsModalComponent implements OnChanges {
   @Input() title = 'Terms & Conditions';
   /** Path to an HTML page under public/, e.g. '/terms.html' */
   @Input() termsSrc: string = '/terms.html';
   @Output() close = new EventEmitter<void>();
+
+  safeSrc: SafeResourceUrl;
+  private sanitizer = inject(DomSanitizer);
+
+  constructor() {
+    this.safeSrc = this.trustSrc(this.termsSrc);
+  }
+
+  ngOnChanges(changes: SimpleChanges): void {
+    if (changes['termsSrc']) {
+      this.safeSrc = this.trustSrc(this.termsSrc);
+    }
+  }
+
+  private trustSrc(path: string): SafeResourceUrl {
+    try {
+      const base = typeof window !== 'undefined' ? window.location.origin : '';
+      const url = new URL(path || '/terms.html', base);
+      // Enforce same-origin for safety; if not same-origin, fallback to default
+      if (base && url.origin !== base) {
+        return this.sanitizer.bypassSecurityTrustResourceUrl('/terms.html');
+      }
+      return this.sanitizer.bypassSecurityTrustResourceUrl(url.toString());
+    } catch {
+      return this.sanitizer.bypassSecurityTrustResourceUrl('/terms.html');
+    }
+  }
 }
