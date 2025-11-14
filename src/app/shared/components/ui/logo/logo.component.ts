@@ -36,9 +36,6 @@ export class LogoComponent implements OnInit {
 
   @Input() text = 'DevPad';
   @Input() speed: number = 200;
-  @Input() animate: 'once' | 'always' | false = 'once';
-  @Input() persist = true;
-  @Input() persistKey?: string;
   @Input() showCursor = false;
   letters: Array<{ char: string; visible: boolean; delay: number }> = [];
 
