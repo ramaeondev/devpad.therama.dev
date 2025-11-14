@@ -33,11 +33,37 @@ END $$;
 CREATE TABLE IF NOT EXISTS user_profiles (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   user_id UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
+  first_name TEXT,
+  last_name TEXT,
+  avatar_url TEXT,
   is_root_folder_created BOOLEAN NOT NULL DEFAULT false,
   created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL,
   updated_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL,
   UNIQUE(user_id)
 );
+-- Add missing columns to user_profiles if the table already exists
+DO $$
+BEGIN
+  IF EXISTS (
+    SELECT 1 FROM information_schema.tables WHERE table_name = 'user_profiles'
+  ) THEN
+    IF NOT EXISTS (
+      SELECT 1 FROM information_schema.columns WHERE table_name = 'user_profiles' AND column_name = 'first_name'
+    ) THEN
+      ALTER TABLE user_profiles ADD COLUMN first_name TEXT;
+    END IF;
+    IF NOT EXISTS (
+      SELECT 1 FROM information_schema.columns WHERE table_name = 'user_profiles' AND column_name = 'last_name'
+    ) THEN
+      ALTER TABLE user_profiles ADD COLUMN last_name TEXT;
+    END IF;
+    IF NOT EXISTS (
+      SELECT 1 FROM information_schema.columns WHERE table_name = 'user_profiles' AND column_name = 'avatar_url'
+    ) THEN
+      ALTER TABLE user_profiles ADD COLUMN avatar_url TEXT;
+    END IF;
+  END IF;
+END $$;
 
 -- Create indexes for faster queries
 CREATE INDEX IF NOT EXISTS idx_user_profiles_user_id ON user_profiles(user_id);

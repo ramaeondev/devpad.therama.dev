@@ -41,14 +41,17 @@ export class UserService {
   /**
    * Create a new user profile
    */
-  async createUserProfile(userId: string): Promise<UserProfile> {
+  async createUserProfile(userId: string, init?: Partial<UserProfile>): Promise<UserProfile> {
     return this.loading.withLoading(async () => {
       try {
         const { data, error } = await this.supabase
         .from('user_profiles')
         .insert({
           user_id: userId,
-          is_root_folder_created: false
+          is_root_folder_created: false,
+          first_name: init?.first_name ?? null,
+          last_name: init?.last_name ?? null,
+          avatar_url: init?.avatar_url ?? null
         })
         .select()
         .single();
@@ -111,5 +114,19 @@ export class UserService {
       console.error('Error checking root folder status:', error);
       return false;
     }
+  }
+
+  /** Upload avatar to storage and return public URL */
+  async uploadAvatar(userId: string, file: File): Promise<string> {
+    return this.loading.withLoading(async () => {
+      const ext = file.name.split('.').pop() || 'png';
+      const path = `avatars/${userId}.${ext}`;
+      const { error: upErr } = await this.supabase.storage
+        .from('avatars')
+        .upload(path, file, { upsert: true, cacheControl: '3600', contentType: file.type || 'image/png' });
+      if (upErr) throw upErr;
+      const { data } = this.supabase.storage.from('avatars').getPublicUrl(path);
+      return data.publicUrl;
+    });
   }
 }

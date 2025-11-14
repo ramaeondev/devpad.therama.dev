@@ -1,22 +1,20 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, inject, signal, computed, effect } from '@angular/core';
 import { CommonModule } from '@angular/common';
-// Removed RouterOutlet as workspace replaces routed content
 import { SidebarComponent } from '../../features/dashboard/components/sidebar/sidebar.component';
 import { ToastContainerComponent } from '../../shared/components/ui/toast/toast-container.component';
 import { LogoComponent } from '../../shared/components/ui/logo/logo.component';
 import { SettingsPanelComponent } from '../../shared/components/settings/settings-panel.component';
 import { AuthStateService } from '../../core/services/auth-state.service';
 import { ThemeService, Theme } from '../../core/services/theme.service';
-import { SupabaseService } from '../../core/services/supabase.service';
-import { Router } from '@angular/router';
 import { GlobalSpinnerComponent } from '../../shared/components/ui/spinner/global-spinner.component';
 import { NoteWorkspaceComponent } from '../../features/notes/components/note-workspace/note-workspace.component';
-import { LoadingService } from '../../core/services/loading.service';
+import { UserService } from '../../core/services/user.service';
+import { AvatarComponent } from '../../shared/components/ui/avatar/avatar.component';
 
 @Component({
   selector: 'app-dashboard-layout',
   standalone: true,
-  imports: [CommonModule, SidebarComponent, ToastContainerComponent, GlobalSpinnerComponent, NoteWorkspaceComponent, LogoComponent, SettingsPanelComponent],
+  imports: [CommonModule, SidebarComponent, ToastContainerComponent, GlobalSpinnerComponent, NoteWorkspaceComponent, LogoComponent, SettingsPanelComponent, AvatarComponent],
   template: `
     <div class="h-screen w-screen overflow-hidden bg-gray-50 dark:bg-gray-900 flex flex-col">
       <!-- Header -->
@@ -26,11 +24,14 @@ import { LoadingService } from '../../core/services/loading.service';
             <app-logo></app-logo>
           </div>
           <div class="flex items-center space-x-4 relative">            
-            <button (click)="openSettings()" class="btn btn-ghost p-2" title="Settings">
-              <!-- gear icon -->
-              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-700 dark:text-gray-200" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
-                <path fill-rule="evenodd" d="M11.983 1.725a1 1 0 00-1.966 0l-.094.564a7.977 7.977 0 00-1.77.732l-.5-.289a1 1 0 00-1.366.366l-.983 1.703a1 1 0 00.366 1.366l.5.289a7.977 7.977 0 000 1.463l-.5.289a1 1 0 00-.366 1.366l.983 1.703a1 1 0 001.366.366l.5-.289c.558.312 1.151.56 1.77.732l.094.564a1 1 0 001.966 0l.094-.564c.619-.172 1.212-.42 1.77-.732l.5.289a1 1 0 001.366-.366l.983-1.703a1 1 0 00-.366-1.366l-.5-.289a7.977 7.977 0 000-1.463l.5-.289a1 1 0 00.366-1.366l-.983-1.703a1 1 0 00-1.366-.366l-.5.289a7.977 7.977 0 00-1.77-.732l-.094-.564zM10 12a2 2 0 110-4 2 2 0 010 4z" clip-rule="evenodd" />
-              </svg>
+            <button (click)="openSettings()" class="p-0 rounded-full border-2 border-transparent hover:border-gray-300 dark:hover:border-gray-600 transition-colors" title="Settings" aria-label="Open settings">
+              <app-avatar 
+                [avatarUrl]="avatarUrl()" 
+                [firstName]="firstName()" 
+                [lastName]="lastName()" 
+                [email]="auth.userEmail()"
+                size="md"
+              />
             </button>
           </div>
         </div>
@@ -60,10 +61,48 @@ export class DashboardLayoutComponent {
   auth = inject(AuthStateService);
   theme = inject(ThemeService);
   showSettings = signal(false);
-  private supabase = inject(SupabaseService);
-  private router = inject(Router);
-  private loading = inject(LoadingService);
+  private userService = inject(UserService);
+
+  // Profile state
+  firstName = signal<string>('');
+  lastName = signal<string>('');
+  avatarUrl = signal<string | null>(null);
+
+  initials = computed(() => {
+    const f = (this.firstName() || '').trim();
+    const l = (this.lastName() || '').trim();
+    if (f && l) return (f[0] + l[0]).toUpperCase();
+    if (f) return f.slice(0, 2).toUpperCase();
+    const email = this.auth.userEmail();
+    return email ? email[0].toUpperCase() : '?';
+  });
+
+  constructor() {
+    effect(() => {
+      const userId = this.auth.userId();
+      if (userId) {
+        this.loadProfile();
+      }
+    });
+  }
+
+  private async loadProfile() {
+    const userId = this.auth.userId();
+    if (!userId) return;
+    try {
+      const profile = await this.userService.getUserProfile(userId);
+      this.firstName.set(profile?.first_name ?? '');
+      this.lastName.set(profile?.last_name ?? '');
+      this.avatarUrl.set(profile?.avatar_url ?? null);
+    } catch (e) {
+      // Silent fail - avatar not critical for header
+    }
+  }
 
   openSettings() { this.showSettings.set(true); }
-  closeSettings() { this.showSettings.set(false); }
+  closeSettings() { 
+    this.showSettings.set(false);
+    // Reload profile when settings close (in case it was updated)
+    this.loadProfile();
+  }
 }
