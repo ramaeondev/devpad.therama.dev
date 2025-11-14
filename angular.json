@@ -7,7 +7,7 @@
   },
   "newProjectRoot": "projects",
   "projects": {
-    "cloudnotes-v2": {
+    "devpad": {
       "projectType": "application",
       "schematics": {
         "@schematics/angular:component": {
@@ -65,10 +65,10 @@
           "builder": "@angular/build:dev-server",
           "configurations": {
             "production": {
-              "buildTarget": "cloudnotes-v2:build:production"
+              "buildTarget": "devpad:build:production"
             },
             "development": {
-              "buildTarget": "cloudnotes-v2:build:development"
+              "buildTarget": "devpad:build:development"
             }
           },
           "defaultConfiguration": "development"
