@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, Output, inject, signal } from '@angular/core';
+import { Component, EventEmitter, Input, Output, inject, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ThemeService, Theme } from '../../../core/services/theme.service';
 import { AuthStateService } from '../../../core/services/auth-state.service';
@@ -8,11 +8,13 @@ import { LoadingService } from '../../../core/services/loading.service';
 import { ConfirmModalComponent } from '../../components/ui/dialog/confirm-modal.component';
 import { TermsModalComponent } from '../../components/ui/dialog/terms-modal.component';
 import { ToastService } from '../../../core/services/toast.service';
+import { UserService } from '../../../core/services/user.service';
+import { AvatarComponent } from '../ui/avatar/avatar.component';
 
 @Component({
   selector: 'app-settings-panel',
   standalone: true,
-  imports: [CommonModule, ConfirmModalComponent, TermsModalComponent],
+  imports: [CommonModule, ConfirmModalComponent, TermsModalComponent, AvatarComponent],
   template: `
     <div class="hidden"></div>
     @if (open) {
@@ -27,11 +29,39 @@ import { ToastService } from '../../../core/services/toast.service';
           <div class="flex-1 overflow-y-auto p-4 space-y-6 text-gray-900 dark:text-gray-100">
             <!-- Profile -->
             <section>
-              <h3 class="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Profile</h3>
-              <div class="text-sm">
-                <div><span class="text-gray-500 dark:text-gray-400">Email:</span> {{ auth.userEmail() }}</div>
-                <div class="mt-2">
-                  <button class="px-3 py-1.5 text-sm rounded border border-gray-300 dark:border-gray-700" (click)="signOut()">Sign out</button>
+              <h3 class="text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">Profile</h3>
+              <div class="flex items-start gap-3">
+                <div class="shrink-0 border border-gray-200 dark:border-gray-700 rounded-full">
+                  <app-avatar 
+                    [avatarUrl]="avatarUrl()" 
+                    [firstName]="firstName()" 
+                    [lastName]="lastName()" 
+                    [email]="auth.userEmail()"
+                    size="lg"
+                  />
+                </div>
+                <div class="flex-1 space-y-2">
+                  <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                    <div>
+                      <label class="sr-only" for="firstName">First name</label>
+                      <input id="firstName" type="text" class="input" [value]="firstName()" (input)="firstName.set($any($event.target).value)" placeholder="First name" />
+                    </div>
+                    <div>
+                      <label class="sr-only" for="lastName">Last name</label>
+                      <input id="lastName" type="text" class="input" [value]="lastName()" (input)="lastName.set($any($event.target).value)" placeholder="Last name" />
+                    </div>
+                  </div>
+                  <div class="text-xs text-gray-600 dark:text-gray-400">{{ auth.userEmail() }}</div>
+                  <div class="flex flex-wrap gap-2 pt-1">
+                    <label class="px-3 py-1.5 text-sm rounded border border-gray-300 dark:border-gray-700 cursor-pointer inline-flex items-center gap-2">
+                      <input type="file" accept="image/*" class="hidden" (change)="onAvatarSelected($event)" />
+                      <span>@if (uploading()) { Uploading... } @else { Change photo }</span>
+                    </label>
+                    <button class="px-3 py-1.5 text-sm rounded border border-gray-300 dark:border-gray-700" [disabled]="saving()" (click)="saveProfile()">
+                      @if (saving()) { Saving... } @else { Save changes }
+                    </button>
+                    <button class="px-3 py-1.5 text-sm rounded border border-gray-300 dark:border-gray-700" (click)="signOut()">Sign out</button>
+                  </div>
                 </div>
               </div>
             </section>
@@ -92,7 +122,15 @@ import { ToastService } from '../../../core/services/toast.service';
   styles: []
 })
 export class SettingsPanelComponent {
-  @Input() open = false;
+  private _open = false;
+  @Input() set open(val: boolean) {
+    const opening = !this._open && !!val;
+    this._open = !!val;
+    if (opening) {
+      this.loadProfile();
+    }
+  }
+  get open() { return this._open; }
   @Output() close = new EventEmitter<void>();
 
   auth = inject(AuthStateService);
@@ -101,10 +139,83 @@ export class SettingsPanelComponent {
   private router = inject(Router);
   private loading = inject(LoadingService);
   private toast = inject(ToastService);
+  private userService = inject(UserService);
 
   showConfirm1 = signal(false);
   showConfirm2 = signal(false);
   showTerms = signal(false);
+
+  // Profile state
+  firstName = signal<string>('');
+  lastName = signal<string>('');
+  avatarUrl = signal<string | null>(null);
+  saving = signal(false);
+  uploading = signal(false);
+
+  initials = computed(() => {
+    const f = (this.firstName() || '').trim();
+    const l = (this.lastName() || '').trim();
+    if (f && l) return (f[0] + l[0]).toUpperCase();
+    if (f) return f.slice(0, 2).toUpperCase();
+    const email = this.auth.userEmail();
+    return email ? email[0].toUpperCase() : '?';
+  });
+
+  constructor() {}
+
+  private async loadProfile() {
+    const userId = this.auth.userId();
+    if (!userId) return;
+    try {
+      const profile = await this.userService.getUserProfile(userId);
+      this.firstName.set(profile?.first_name ?? '');
+      this.lastName.set(profile?.last_name ?? '');
+      this.avatarUrl.set(profile?.avatar_url ?? null);
+    } catch (e) {
+      this.toast.error('Failed to load profile');
+    }
+  }
+
+  async saveProfile() {
+    const userId = this.auth.userId();
+    if (!userId) return;
+    try {
+      this.saving.set(true);
+      const updated = await this.userService.updateUserProfile(userId, {
+        first_name: this.firstName().trim() || null,
+        last_name: this.lastName().trim() || null,
+        avatar_url: this.avatarUrl()
+      });
+      this.firstName.set(updated.first_name ?? '');
+      this.lastName.set(updated.last_name ?? '');
+      this.avatarUrl.set(updated.avatar_url ?? null);
+      this.toast.success('Profile updated');
+    } catch (e) {
+      this.toast.error('Failed to update profile');
+    } finally {
+      this.saving.set(false);
+    }
+  }
+
+  async onAvatarSelected(event: Event) {
+    const input = event.target as HTMLInputElement;
+    const file = input.files?.[0];
+    if (!file) return;
+    const userId = this.auth.userId();
+    if (!userId) return;
+    try {
+      this.uploading.set(true);
+      const url = await this.userService.uploadAvatar(userId, file);
+      this.avatarUrl.set(url);
+      await this.saveProfile();
+    } catch (e) {
+      this.toast.error('Failed to upload avatar');
+    } finally {
+      // reset input to allow re-selecting same file
+      input.value = '';
+      this.uploading.set(false);
+    }
+  }
 
   onClose() { this.close.emit(); }
 
@@ -127,8 +238,6 @@ export class SettingsPanelComponent {
 
   async onConfirm2() {
     this.showConfirm2.set(false);
-    // Client-side projects cannot delete users without a server-side function (service role).
-    // Provide a helpful message and sign out as a placeholder.
     this.toast.error('Account deletion requires server-side action. Please contact support.');
   }
 

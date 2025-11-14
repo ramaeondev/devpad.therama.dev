@@ -26,6 +26,16 @@ import { LogoComponent } from '../../../../shared/components/ui/logo/logo.compon
         </div>
         <form class="mt-8 space-y-6" [formGroup]="signupForm" (ngSubmit)="onSubmit()">
           <div class="rounded-md shadow-sm space-y-4">
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div>
+                <label for="firstName" class="sr-only">First name</label>
+                <input id="firstName" type="text" formControlName="firstName" class="input" placeholder="First name" />
+              </div>
+              <div>
+                <label for="lastName" class="sr-only">Last name</label>
+                <input id="lastName" type="text" formControlName="lastName" class="input" placeholder="Last name" />
+              </div>
+            </div>
             <div>
               <label for="email" class="sr-only">Email address</label>
               <input
@@ -112,6 +122,8 @@ export class SignupComponent {
   errorMessage = signal('');
 
   signupForm = this.fb.nonNullable.group({
+    firstName: ['', []],
+    lastName: ['', []],
     email: ['', [Validators.required, Validators.email]],
     password: ['', [Validators.required, Validators.minLength(6)]],
     confirmPassword: ['', [Validators.required]]
@@ -131,12 +143,18 @@ export class SignupComponent {
     this.loading.set(true);
     this.errorMessage.set('');
 
-    const { email, password } = this.signupForm.getRawValue();
+    const { email, password, firstName, lastName } = this.signupForm.getRawValue();
 
     try {
       const { error } = await this.supabase.auth.signUp({
         email,
-        password
+        password,
+        options: {
+          data: {
+            first_name: firstName?.trim() || null,
+            last_name: lastName?.trim() || null
+          }
+        }
       });
 
       if (error) throw error;
