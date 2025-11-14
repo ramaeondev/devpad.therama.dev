@@ -1,4 +1,4 @@
-import { Component, Input, AfterViewInit, ElementRef, Renderer2 } from '@angular/core';
+import { Component, Input, AfterViewInit, ElementRef, Renderer2, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 
 @Component({
@@ -6,108 +6,69 @@ import { CommonModule } from '@angular/common';
   standalone: true,
   imports: [CommonModule],
   template: `
-    <div class="logo" [attr.aria-label]="text">
-      <span class="typewriter text-gray-900 dark:text-gray-100">
-        <span class="text">{{ text }}</span>
-        <span class="caret" aria-hidden="true">▌</span>
-      </span>
-    </div>
+    <span *ngFor="let letter of letters" [class.hidden]="!letter.visible">
+      {{ letter.char }}
+    </span>
+    <span *ngIf="showCursor" class="animate-blink">|</span>
   `,
   styles: [
-    `:host { display: inline-block; }
-    .logo { display: inline-block; }
-    .typewriter { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, 'Courier New', monospace; font-weight: 600; color: inherit; font-size: 1.15rem; display: inline-flex; align-items: center; }
-    .text { display: inline-block; overflow: hidden; white-space: nowrap; /* make width animate */ width: 0ch; }
-    .caret { display: inline-block; margin-left: 0.2rem; color: var(--logo-color, #1f2937); opacity: 1; }
-
-    /* Typing animation uses steps matching chars */
-    @keyframes typing { from { width: 0ch; } to { width: var(--chars, 6)ch; } }
-    @keyframes blink { 0%, 49% { opacity: 1; } 50%, 100% { opacity: 0; } }
-
-    /* Expose CSS variables for speed and character count via style binding or component defaults */
-  :host(.animate) .text { animation: typing var(--speed, 3.5s) steps(var(--steps, 6), end) 0s forwards; }
-  :host(.animate) .caret { animation: blink 1s step-end infinite; }
-
-    /* small responsive sizing */
-    @media (min-width: 768px) {
-      .typewriter { font-size: 1.25rem; }
+    `
+    @keyframes blink {
+      0%, 50% {
+        opacity: 1;
+      }
+      51%, 100% {
+        opacity: 0;
+      }
+    }
+    
+    .animate-blink {
+      animation: blink 0.8s infinite;
+    }
+    
+    .hidden {
+      visibility: hidden;
     }
     `
   ]
 })
-export class LogoComponent {
-  /** Text to type (default: DevPad) */
+export class LogoComponent implements OnInit {
+
   @Input() text = 'DevPad';
-  /**
-   * Duration of typing animation. If omitted, an automatic duration is computed
-   * from the text length to provide a visible per-character typing feel
-   * (approx. 0.7s per character, min 2s).
-   * Accepts a CSS time string like '3s' or '500ms' if you want to override.
-   */
-  @Input() speed?: string;
-  /** Animation mode: 'once' -> animate once then become static (default), 'always' -> keep animating, false -> never animate */
+  @Input() speed: number = 200;
   @Input() animate: 'once' | 'always' | false = 'once';
-  /** If true, persist that the animation has been shown for this text and skip on subsequent visits */
   @Input() persist = true;
-  /** Optional custom localStorage key to persist the shown flag */
   @Input() persistKey?: string;
+  @Input() showCursor = false;
+  letters: Array<{ char: string; visible: boolean; delay: number }> = [];
 
-  constructor(private el: ElementRef<HTMLElement>, private renderer: Renderer2) {}
-  ngAfterViewInit(): void {
-    // Set CSS variables on host element. If a speed was provided, use it;
-    // otherwise compute a per-character duration so typing is visible.
-    const hostEl = this.el.nativeElement;
-    const computedSpeed = this.speed
-      ? this.speed
-      : `${Math.max(2, Math.round(this.text.length * 0.7))}s`;
-    this.renderer.setStyle(hostEl, '--speed', computedSpeed);
-    this.renderer.setStyle(hostEl, '--steps', String(Math.max(1, this.text.length)));
-    this.renderer.setStyle(hostEl, '--chars', String(Math.max(1, this.text.length)));
 
-    const textEl = hostEl.querySelector('.text') as HTMLElement | null;
-    const caretEl = hostEl.querySelector('.caret') as HTMLElement | null;
-
-    // Determine persistence key
-    const storageAvailable = typeof window !== 'undefined' && !!window.localStorage;
-    const key = this.persistKey || `devpad.logo.shown:${this.text}`;
-
-    if (this.animate === false) {
-      // never animate: ensure text visible and caret hidden
-      if (textEl) this.renderer.setStyle(textEl, 'width', 'auto');
-      if (caretEl) this.renderer.setStyle(caretEl, 'display', 'none');
-      return;
-    }
-    // If persistence requested and already shown, render static immediately
-    if (this.persist && storageAvailable && window.localStorage.getItem(key)) {
-      if (textEl) this.renderer.setStyle(textEl, 'width', 'auto');
-      if (caretEl) this.renderer.setStyle(caretEl, 'display', 'none');
-      return;
-    }
-
-    // Start animation (either once or always)
-    this.renderer.addClass(hostEl, 'animate');
-
-    if (this.animate === 'once') {
-      // After typing animation completes, stop animating and leave static text + no caret
-      const onAnimEnd = (ev: AnimationEvent) => {
-        // Only react to typing animation ending on the .text element
-        if (ev.animationName === 'typing') {
-          this.renderer.removeClass(hostEl, 'animate');
-          if (textEl) this.renderer.setStyle(textEl, 'width', 'auto');
-          if (caretEl) this.renderer.setStyle(caretEl, 'display', 'none');
-          textEl?.removeEventListener('animationend', onAnimEnd as any);
-          // Persist that we've shown the animation
-          try {
-            if (this.persist && storageAvailable) {
-              window.localStorage.setItem(key, '1');
-            }
-          } catch (err) {
-            // ignore storage errors
-          }
-        }
-      };
-      textEl?.addEventListener('animationend', onAnimEnd as any);
-    }
-    // if 'always', leave animate class so caret keeps blinking and typing repeats per CSS if desired
+ ngOnInit() {
+    this.initializeLetters();
+    this.typeText();
   }
+
+  initializeLetters() {
+    this.letters = this.text.split('').map((char, index) => ({
+      char,
+      visible: false,
+      delay: 0,
+    }));
+  }
+
+  typeText() {
+    this.letters.forEach((letter, index) => {
+      setTimeout(() => {
+        letter.visible = true;
+
+        // Show and start blinking cursor after last letter
+        if (index === this.letters.length - 1) {
+          setTimeout(() => {
+            this.showCursor = true;
+          }, 100);
+        }
+      }, index * this.speed);
+    });
+  }
+  
 }
