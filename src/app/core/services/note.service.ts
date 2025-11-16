@@ -133,14 +133,19 @@ export class NoteService {
       }
 
       const updatePayload: any = {
-        title: dto.title,
-        content: storageRef,
-        folder_id: dto.folder_id,
-        tags: dto.tags,
-        is_favorite: dto.is_favorite,
-        is_archived: dto.is_archived,
         updated_at: new Date().toISOString()
       };
+      
+      // Only include fields that are explicitly provided
+      if (dto.title !== undefined) updatePayload.title = dto.title;
+      if (dto.content !== undefined || !cur.content || !cur.content.startsWith('storage://')) {
+        updatePayload.content = storageRef;
+      }
+      if (dto.folder_id !== undefined) updatePayload.folder_id = dto.folder_id;
+      if (dto.tags !== undefined) updatePayload.tags = dto.tags;
+      if (dto.is_favorite !== undefined) updatePayload.is_favorite = dto.is_favorite;
+      if (dto.is_archived !== undefined) updatePayload.is_archived = dto.is_archived;
+
       const { data, error } = await this.supabase
         .from('notes')
         .update(updatePayload)
