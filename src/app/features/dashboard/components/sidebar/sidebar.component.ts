@@ -12,11 +12,11 @@ import { WorkspaceStateService } from '../../../../core/services/workspace-state
   standalone: true,
   imports: [CommonModule, FolderTreeComponent],
   template: `
-    <aside class="sidebar w-64 bg-white dark:bg-gray-900 border-r border-gray-200 dark:border-gray-800 h-full overflow-y-auto">
-      <div class="p-4">
+    <aside class="sidebar w-64 sm:w-72 md:w-80 lg:w-64 bg-white dark:bg-gray-900 border-r border-gray-200 dark:border-gray-800 h-full overflow-y-auto touch-pan-y">
+      <div class="p-3 sm:p-4">
         <!-- Header -->
-        <div class="flex items-center justify-between mb-4">
-          <h2 class="text-lg font-semibold text-gray-900 dark:text-white">
+        <div class="flex items-center justify-between mb-3 sm:mb-4">
+          <h2 class="text-base sm:text-lg font-semibold text-gray-900 dark:text-white">
             Folders
           </h2>
         </div>

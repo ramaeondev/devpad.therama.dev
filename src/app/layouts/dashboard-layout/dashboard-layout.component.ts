@@ -1,4 +1,4 @@
-import { Component, inject, signal, computed, effect } from '@angular/core';
+import { Component, inject, signal, computed, effect, HostListener } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { SidebarComponent } from '../../features/dashboard/components/sidebar/sidebar.component';
 import { ToastContainerComponent } from '../../shared/components/ui/toast/toast-container.component';
@@ -18,19 +18,47 @@ import { AvatarComponent } from '../../shared/components/ui/avatar/avatar.compon
   template: `
     <div class="h-screen w-screen overflow-hidden bg-gray-50 dark:bg-gray-900 flex flex-col">
       <!-- Header -->
-      <header class="bg-white dark:bg-gray-800 shadow-sm">
-          <div class="px-4 py-4 flex items-center justify-between">
-          <div class="flex items-center space-x-4 text-gray-900 dark:text-gray-100">
+      <header class="bg-white dark:bg-gray-800 shadow-sm z-40">
+        <div class="px-3 sm:px-4 py-3 sm:py-4 flex items-center justify-between">
+          <div class="flex items-center gap-2 sm:gap-4 text-gray-900 dark:text-gray-100">
+            <!-- Mobile menu button -->
+            <button 
+              (click)="toggleMobileSidebar()" 
+              class="lg:hidden p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+              aria-label="Toggle menu"
+            >
+              <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                @if (showMobileSidebar()) {
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                } @else {
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
+                }
+              </svg>
+            </button>
             <app-logo></app-logo>
           </div>
-          <div class="flex items-center space-x-4 relative">            
-            <button (click)="openSettings()" class="p-0 rounded-full border-2 border-transparent hover:border-gray-300 dark:hover:border-gray-600 transition-colors" title="Settings" aria-label="Open settings">
+          <div class="flex items-center gap-2 sm:gap-4 relative">            
+            <button 
+              (click)="openSettings()" 
+              class="p-0 rounded-full border-2 border-transparent hover:border-gray-300 dark:hover:border-gray-600 transition-colors" 
+              title="Settings" 
+              aria-label="Open settings"
+            >
+              <app-avatar 
+                [avatarUrl]="avatarUrl()" 
+                [firstName]="firstName()" 
+                [lastName]="lastName()" 
+                [email]="auth.userEmail()"
+                size="sm"
+                class="sm:hidden"
+              />
               <app-avatar 
                 [avatarUrl]="avatarUrl()" 
                 [firstName]="firstName()" 
                 [lastName]="lastName()" 
                 [email]="auth.userEmail()"
                 size="md"
+                class="hidden sm:block"
               />
             </button>
           </div>
@@ -38,12 +66,27 @@ import { AvatarComponent } from '../../shared/components/ui/avatar/avatar.compon
       </header>
 
       <!-- Body -->
-      <div class="flex flex-1 min-h-0">
-        <!-- Sidebar -->
-        <app-sidebar />
+      <div class="flex flex-1 min-h-0 relative">
+        <!-- Mobile sidebar overlay -->
+        @if (showMobileSidebar()) {
+          <div 
+            class="fixed inset-0 bg-black/50 z-30 lg:hidden" 
+            (click)="closeMobileSidebar()"
+            aria-hidden="true"
+          ></div>
+        }
 
-        <!-- Main content: Note workspace (router currently unused for notes) -->
-        <main class="flex-1 h-full overflow-y-auto">
+        <!-- Sidebar -->
+        <div 
+          class="fixed lg:static inset-y-0 left-0 z-40 transform transition-transform duration-300 ease-in-out lg:transform-none"
+          [class.-translate-x-full]="!showMobileSidebar()"
+          [class.translate-x-0]="showMobileSidebar()"
+        >
+          <app-sidebar />
+        </div>
+
+        <!-- Main content: Note workspace -->
+        <main class="flex-1 h-full overflow-y-auto w-full lg:w-auto">
           <app-note-workspace />
         </main>
       </div>
@@ -61,6 +104,7 @@ export class DashboardLayoutComponent {
   auth = inject(AuthStateService);
   theme = inject(ThemeService);
   showSettings = signal(false);
+  showMobileSidebar = signal(false);
   private userService = inject(UserService);
 
   // Profile state
@@ -99,10 +143,30 @@ export class DashboardLayoutComponent {
     }
   }
 
-  openSettings() { this.showSettings.set(true); }
+  toggleMobileSidebar() { 
+    this.showMobileSidebar.update(v => !v); 
+  }
+
+  closeMobileSidebar() { 
+    this.showMobileSidebar.set(false); 
+  }
+
+  openSettings() { 
+    this.showSettings.set(true);
+    this.closeMobileSidebar(); // Close sidebar when opening settings
+  }
+
   closeSettings() { 
     this.showSettings.set(false);
     // Reload profile when settings close (in case it was updated)
     this.loadProfile();
+  }
+
+  // Close mobile sidebar on window resize to desktop
+  @HostListener('window:resize')
+  onResize() {
+    if (window.innerWidth >= 1024) { // lg breakpoint
+      this.closeMobileSidebar();
+    }
   }
 }

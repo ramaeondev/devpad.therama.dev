@@ -13,10 +13,10 @@ import { LogoComponent } from '../../../../shared/components/ui/logo/logo.compon
   standalone: true,
   imports: [CommonModule, ReactiveFormsModule, RouterLink, LogoComponent],
   template: `
-    <div class="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900 py-12 px-4 sm:px-6 lg:px-8">
-      <div class="max-w-md w-full space-y-8">
+    <div class="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900 py-8 sm:py-12 px-4 sm:px-6 lg:px-8">
+      <div class="max-w-md w-full space-y-6 sm:space-y-8">
         <div>
-          <h2 class="mt-6 text-center text-3xl font-extrabold text-gray-900 dark:text-white">
+          <h2 class="mt-4 sm:mt-6 text-center text-2xl sm:text-3xl font-extrabold text-gray-900 dark:text-white">
           <span class="text-gray-900 dark:text-gray-100 inline-block">
             <app-logo></app-logo>
           </span>
@@ -25,16 +25,17 @@ import { LogoComponent } from '../../../../shared/components/ui/logo/logo.compon
             Sign in to your account
           </p>
         </div>
-        <form class="mt-8 space-y-6" [formGroup]="signinForm" (ngSubmit)="onSubmit()">
-          <div class="rounded-md shadow-sm -space-y-px">
+        <form class="mt-6 sm:mt-8 space-y-5 sm:space-y-6" [formGroup]="signinForm" (ngSubmit)="onSubmit()">
+          <div class="rounded-md shadow-sm space-y-3">
             <div>
               <label for="email" class="sr-only">Email address</label>
               <input
                 id="email"
                 type="email"
                 formControlName="email"
-                class="input rounded-t-md"
+                class="input rounded-md text-base touch-manipulation"
                 placeholder="Email address"
+                autocomplete="email"
                 required
               />
             </div>
@@ -44,8 +45,9 @@ import { LogoComponent } from '../../../../shared/components/ui/logo/logo.compon
                 id="password"
                 type="password"
                 formControlName="password"
-                class="input rounded-b-md"
+                class="input rounded-md text-base touch-manipulation"
                 placeholder="Password"
+                autocomplete="current-password"
                 required
               />
             </div>
@@ -69,7 +71,7 @@ import { LogoComponent } from '../../../../shared/components/ui/logo/logo.compon
             <button
               type="submit"
               [disabled]="loading() || signinForm.invalid"
-              class="btn btn-primary w-full py-2 px-4"
+              class="btn btn-primary w-full py-3 px-4 text-base font-medium touch-manipulation"
             >
               @if (loading()) {
                 <span>Signing in...</span>
@@ -80,9 +82,9 @@ import { LogoComponent } from '../../../../shared/components/ui/logo/logo.compon
           </div>
 
           <div class="text-center">
-            <p class="text-sm text-gray-600 dark:text-gray-400">
+            <p class="text-sm sm:text-base text-gray-600 dark:text-gray-400">
               Don't have an account?
-              <a routerLink="/auth/signup" class="font-medium text-primary-600 hover:text-primary-500">
+              <a routerLink="/auth/signup" class="font-medium text-primary-600 hover:text-primary-500 touch-manipulation">
                 Sign up
               </a>
             </p>

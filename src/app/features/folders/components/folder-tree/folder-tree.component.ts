@@ -47,7 +47,7 @@ import { ConfirmModalComponent } from '../../../../shared/components/ui/dialog/c
       @for (folder of folders; track folder.id) {
         <div class="folder-item">
           <div 
-            class="folder-header flex items-center gap-2 px-3 py-2 rounded-lg cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+            class="folder-header flex items-center gap-2 px-2 sm:px-3 py-2.5 sm:py-2 rounded-lg cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors touch-manipulation"
             [class.bg-gray-100]="selectedFolderId === folder.id"
             [class.dark:bg-gray-800]="selectedFolderId === folder.id"
             (click)="onFolderClick(folder)"
@@ -55,7 +55,7 @@ import { ConfirmModalComponent } from '../../../../shared/components/ui/dialog/c
             <!-- Expand/Collapse Icon -->
             @if (folder.children && folder.children.length > 0) {
               <button 
-                class="expand-btn w-4 h-4 flex items-center justify-center"
+                class="expand-btn w-6 h-6 sm:w-4 sm:h-4 flex items-center justify-center touch-manipulation"
                 (click)="toggleExpand(folder.id, $event)"
               >
                 @if (isExpanded(folder.id)) {
