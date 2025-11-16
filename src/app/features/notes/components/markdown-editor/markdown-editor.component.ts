@@ -7,40 +7,60 @@ import { marked } from 'marked';
   standalone: true,
   imports: [CommonModule],
   template: `
-    <div class="flex flex-col gap-4">
+    <div class="flex flex-col gap-3 sm:gap-4">
       <ng-content select="[editor-header]"></ng-content>
-      <div class="flex flex-wrap gap-2 items-center bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-md px-3 py-2">
-        <button type="button" class="toolbar-btn" (click)="wrapSelection('**','**')" title="Bold"><strong>B</strong></button>
-        <button type="button" class="toolbar-btn italic" (click)="wrapSelection('*','*')" title="Italic">I</button>
-        <button type="button" class="toolbar-btn" (click)="prependLine('# ')" title="H1">H1</button>
-        <button type="button" class="toolbar-btn" (click)="prependLine('## ')" title="H2">H2</button>
-        <button type="button" class="toolbar-btn" (click)="prependLine('### ')" title="H3">H3</button>
-  <button type="button" class="toolbar-btn" (click)="insertInlineCode()" title="Inline Code">&lt;/&gt;</button>
-        <button type="button" class="toolbar-btn" (click)="insertCodeBlock()" title="Code Block">Code</button>
-        <button type="button" class="toolbar-btn" (click)="prependLine('- ')" title="Bullet List">• List</button>
-        <button type="button" class="toolbar-btn" (click)="insertLink()" title="Link">Link</button>
-        <button type="button" class="toolbar-btn" (click)="insertImage()" title="Image">Img</button>
-        <button type="button" class="ml-auto toolbar-btn" (click)="togglePreview()" [class.bg-primary-600]="preview()" title="Toggle Preview">{{ preview() ? 'Edit' : 'Preview' }}</button>
+      <!-- Toolbar with horizontal scrolling on mobile -->
+      <div class="flex gap-2 items-center bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-md px-2 sm:px-3 py-2 overflow-x-auto scrollbar-thin">
+        <button type="button" class="toolbar-btn flex-shrink-0" (click)="wrapSelection('**','**')" title="Bold"><strong>B</strong></button>
+        <button type="button" class="toolbar-btn italic flex-shrink-0" (click)="wrapSelection('*','*')" title="Italic">I</button>
+        <button type="button" class="toolbar-btn flex-shrink-0" (click)="prependLine('# ')" title="H1">H1</button>
+        <button type="button" class="toolbar-btn flex-shrink-0" (click)="prependLine('## ')" title="H2">H2</button>
+        <button type="button" class="toolbar-btn flex-shrink-0" (click)="prependLine('### ')" title="H3">H3</button>
+        <button type="button" class="toolbar-btn flex-shrink-0" (click)="insertInlineCode()" title="Inline Code">&lt;/&gt;</button>
+        <button type="button" class="toolbar-btn flex-shrink-0" (click)="insertCodeBlock()" title="Code Block">Code</button>
+        <button type="button" class="toolbar-btn flex-shrink-0" (click)="prependLine('- ')" title="Bullet List">• List</button>
+        <button type="button" class="toolbar-btn flex-shrink-0" (click)="insertLink()" title="Link">Link</button>
+        <button type="button" class="toolbar-btn flex-shrink-0" (click)="insertImage()" title="Image">Img</button>
+        <div class="flex-1 min-w-[16px]"></div>
+        <button type="button" class="toolbar-btn flex-shrink-0" (click)="togglePreview()" [class.bg-primary-600]="preview()" [class.text-white]="preview()" title="Toggle Preview">
+          <span class="hidden sm:inline">{{ preview() ? 'Edit' : 'Preview' }}</span>
+          <span class="sm:hidden">
+            @if (preview()) {
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
+            } @else {
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+            }
+          </span>
+        </button>
       </div>
-      <div class="grid gap-4" [class.md:grid-cols-2]="preview()">
-        <div class="flex flex-col">
+      <!-- Editor/Preview area - toggle on mobile, side-by-side on desktop when preview active -->
+      <div class="grid gap-3 sm:gap-4" [class.lg:grid-cols-2]="preview()">
+        <!-- Editor - hidden on mobile when preview active, always shown on desktop -->
+        <div class="flex flex-col" [class.hidden]="preview()" [class.lg:block]="preview()">
           <textarea
             #textarea
-            class="flex-1 min-h-[50vh] resize-y w-full font-mono text-sm bg-white dark:bg-gray-900 border border-gray-300 dark:border-gray-700 rounded-md p-3 leading-5 text-gray-800 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-primary-500"
+            class="flex-1 min-h-[40vh] sm:min-h-[50vh] resize-y w-full font-mono text-xs sm:text-sm bg-white dark:bg-gray-900 border border-gray-300 dark:border-gray-700 rounded-md p-3 sm:p-4 leading-relaxed text-gray-800 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-primary-500 touch-manipulation"
             [value]="content()"
             (input)="onInput($event)"
             (keydown.tab)="handleTab($event)"
             (scroll)="syncScroll($event)"
           ></textarea>
         </div>
+        <!-- Preview - shown when preview active -->
         @if (preview()) {
-          <div class="prose dark:prose-invert max-w-none overflow-auto border border-gray-200 dark:border-gray-700 rounded-md bg-white dark:bg-gray-900 p-4" [innerHTML]="rendered()"></div>
+          <div class="prose prose-sm sm:prose dark:prose-invert max-w-none overflow-auto border border-gray-200 dark:border-gray-700 rounded-md bg-white dark:bg-gray-900 p-3 sm:p-4 min-h-[40vh] sm:min-h-[50vh] touch-pan-y" [innerHTML]="rendered()"></div>
         }
       </div>
     </div>
   `,
   styles: [`
-    .toolbar-btn { @apply px-2 py-1 text-xs rounded bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-100 hover:bg-gray-200 dark:hover:bg-gray-600 transition; }
+    .toolbar-btn { 
+      @apply px-2.5 py-1.5 text-xs sm:text-sm rounded bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-100 hover:bg-gray-200 dark:hover:bg-gray-600 transition touch-manipulation;
+      min-width: 32px;
+      min-height: 32px;
+    }
+    .scrollbar-thin::-webkit-scrollbar { height: 6px; }
+    .scrollbar-thin::-webkit-scrollbar-thumb { @apply bg-gray-300 dark:bg-gray-600 rounded; }
     textarea::-webkit-scrollbar { width: 8px; }
     textarea::-webkit-scrollbar-thumb { @apply bg-gray-300 dark:bg-gray-600 rounded; }
   `]

@@ -9,13 +9,13 @@ import { DomSanitizer, SafeUrl } from '@angular/platform-browser';
   imports: [CommonModule, ImageCropperComponent],
   template: `
     @if (open) {
-      <div class="fixed inset-0 z-[70] flex items-center justify-center p-4" aria-modal="true" role="dialog">
+      <div class="fixed inset-0 z-[70] flex items-end sm:items-center justify-center p-0 sm:p-4" aria-modal="true" role="dialog">
         <div class="absolute inset-0 bg-black/60 backdrop-blur-sm" (click)="onCancel()"></div>
         
-        <div class="relative bg-white dark:bg-gray-900 rounded-xl shadow-2xl w-full max-w-lg border border-gray-200 dark:border-gray-800 flex flex-col max-h-[90vh]">
+        <div class="relative bg-white dark:bg-gray-900 rounded-t-2xl sm:rounded-xl shadow-2xl w-full max-w-lg border-t sm:border border-gray-200 dark:border-gray-800 flex flex-col max-h-[95vh] sm:max-h-[90vh]">
           <!-- Header -->
-          <div class="flex items-center justify-between px-6 py-4 border-b border-gray-200 dark:border-gray-800">
-            <h2 class="text-lg font-semibold text-gray-900 dark:text-gray-100">Crop Profile Photo</h2>
+          <div class="flex items-center justify-between px-4 sm:px-6 py-3 sm:py-4 border-b border-gray-200 dark:border-gray-800">
+            <h2 class="text-base sm:text-lg font-semibold text-gray-900 dark:text-gray-100">Crop Profile Photo</h2>
             <button 
               class="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-500 dark:text-gray-400 transition-colors" 
               (click)="onCancel()" 
@@ -28,8 +28,8 @@ import { DomSanitizer, SafeUrl } from '@angular/platform-browser';
           </div>
 
           <!-- Cropper Area -->
-          <div class="flex-1 overflow-y-auto p-6">
-            <div class="bg-gray-100 dark:bg-gray-800 rounded-lg overflow-hidden min-h-[400px] flex items-center justify-center">
+          <div class="flex-1 overflow-y-auto p-4 sm:p-6 touch-pan-y">
+            <div class="bg-gray-100 dark:bg-gray-800 rounded-lg overflow-hidden min-h-[300px] sm:min-h-[400px] flex items-center justify-center">
               @if (imageChangedEvent) {
                 <image-cropper
                   [imageChangedEvent]="imageChangedEvent"
@@ -82,15 +82,15 @@ import { DomSanitizer, SafeUrl } from '@angular/platform-browser';
           </div>
 
           <!-- Footer Actions -->
-          <div class="flex items-center justify-end gap-3 px-6 py-4 border-t border-gray-200 dark:border-gray-800">
+          <div class="flex items-center justify-end gap-2 sm:gap-3 px-4 sm:px-6 py-3 sm:py-4 border-t border-gray-200 dark:border-gray-800 safe-bottom">
             <button 
-              class="px-4 py-2 text-sm font-medium rounded-lg border border-gray-300 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
+              class="px-4 py-2.5 text-sm font-medium rounded-lg border border-gray-300 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors touch-manipulation"
               (click)="onCancel()"
             >
               Cancel
             </button>
             <button 
-              class="px-4 py-2 text-sm font-medium rounded-lg bg-blue-600 text-white hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              class="px-4 py-2.5 text-sm font-medium rounded-lg bg-blue-600 text-white hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors touch-manipulation min-w-[100px]"
               [disabled]="!croppedImage() || loading()"
               (click)="onSave()"
             >

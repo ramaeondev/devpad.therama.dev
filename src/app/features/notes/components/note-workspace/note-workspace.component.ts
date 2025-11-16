@@ -15,18 +15,18 @@ import { WorkspaceStateService } from '../../../../core/services/workspace-state
   template: `
     <div class="h-full flex flex-col">
       <!-- Toolbar -->
-      <div class="flex-1 h-full overflow-y-auto p-4 flex flex-col gap-4">
-        <div class="flex items-center gap-3 flex-wrap">
-          <button class="px-3 py-1.5 rounded bg-primary-600 text-white text-sm" (click)="createNewNote()">New Note</button>
+      <div class="flex-1 h-full overflow-y-auto p-3 sm:p-4 md:p-6 flex flex-col gap-3 sm:gap-4">
+        <div class="flex items-center gap-2 sm:gap-3 flex-wrap">
+          <button class="px-3 sm:px-4 py-2 rounded bg-primary-600 text-white text-sm font-medium touch-manipulation" (click)="createNewNote()">New Note</button>
           @if (selectedNoteId()) {
-            <span class="text-xs text-gray-500">ID: {{ selectedNoteId() }}</span>
+            <span class="text-xs text-gray-500 hidden sm:inline">ID: {{ selectedNoteId() }}</span>
           }
         </div>
 
         <!-- Title input -->
         @if (currentMode() !== 'empty') {
           <input
-            class="text-xl font-semibold bg-transparent border-b border-gray-300 dark:border-gray-700 focus:outline-none focus:border-primary-500 text-gray-900 dark:text-gray-100 py-1"
+            class="text-lg sm:text-xl font-semibold bg-transparent border-b border-gray-300 dark:border-gray-700 focus:outline-none focus:border-primary-500 text-gray-900 dark:text-gray-100 py-2 px-1 touch-manipulation"
             [value]="title()"
             (input)="onTitleInput($event)"
             placeholder="Note title" />
@@ -49,12 +49,12 @@ import { WorkspaceStateService } from '../../../../core/services/workspace-state
 
         <!-- Actions -->
         @if (currentMode() === 'editing') {
-          <div class="flex gap-2 flex-wrap">
-            <button class="px-4 py-2 rounded bg-primary-600 text-white text-sm disabled:opacity-40" [disabled]="saving()" (click)="saveNote()">
+          <div class="flex gap-2 sm:gap-3 flex-wrap">
+            <button class="px-4 sm:px-6 py-2.5 rounded bg-primary-600 text-white text-sm font-medium disabled:opacity-40 touch-manipulation min-w-[100px]" [disabled]="saving()" (click)="saveNote()">
               {{ saving() ? 'Saving…' : (selectedNoteId() ? 'Save' : 'Create') }}
             </button>
             @if (selectedNoteId()) {
-              <button class="px-4 py-2 rounded border border-red-600 text-red-600 text-sm hover:bg-red-50 dark:hover:bg-red-900/30" (click)="deleteNote()">Delete</button>
+              <button class="px-4 sm:px-6 py-2.5 rounded border border-red-600 text-red-600 text-sm font-medium hover:bg-red-50 dark:hover:bg-red-900/30 touch-manipulation" (click)="deleteNote()">Delete</button>
             }
           </div>
         }

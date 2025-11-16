@@ -20,11 +20,11 @@ import { CdkOverlayOrigin, OverlayModule } from '@angular/cdk/overlay';
   template: `
     <div class="hidden"></div>
     @if (open) {
-      <div class="fixed inset-0 z-[60] flex items-center justify-center p-4 sm:p-6 lg:p-8" aria-modal="true" role="dialog">
+      <div class="fixed inset-0 z-[60] flex items-end sm:items-center justify-center p-0 sm:p-4 md:p-6 lg:p-8" aria-modal="true" role="dialog">
         <div class="absolute inset-0 bg-black/50 backdrop-blur-sm" (click)="onClose()"></div>
-        <div class="relative bg-white dark:bg-gray-900 rounded-xl shadow-2xl w-full max-w-lg lg:max-w-xl border border-gray-200 dark:border-gray-800 flex flex-col max-h-[90vh] animate-in fade-in zoom-in-95 duration-200">
-          <div class="flex items-center justify-between px-6 py-4 border-b border-gray-200 dark:border-gray-800">
-            <h2 class="text-lg font-semibold text-gray-900 dark:text-gray-100">Settings</h2>
+        <div class="relative bg-white dark:bg-gray-900 rounded-t-2xl sm:rounded-xl shadow-2xl w-full max-w-lg lg:max-w-xl border-t sm:border border-gray-200 dark:border-gray-800 flex flex-col max-h-[95vh] sm:max-h-[90vh] animate-in fade-in slide-in-from-bottom sm:zoom-in-95 duration-200">
+          <div class="flex items-center justify-between px-4 sm:px-6 py-3 sm:py-4 border-b border-gray-200 dark:border-gray-800">
+            <h2 class="text-base sm:text-lg font-semibold text-gray-900 dark:text-gray-100">Settings</h2>
             <button class="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-500 dark:text-gray-400 transition-colors" (click)="onClose()" aria-label="Close settings">
               <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
@@ -32,21 +32,30 @@ import { CdkOverlayOrigin, OverlayModule } from '@angular/cdk/overlay';
             </button>
           </div>
 
-          <div class="flex-1 overflow-y-auto p-6 space-y-6 text-gray-900 dark:text-gray-100">
+          <div class="flex-1 overflow-y-auto p-4 sm:p-6 space-y-4 sm:space-y-6 text-gray-900 dark:text-gray-100 touch-pan-y">
             <!-- Profile -->
             <section>
-              <h3 class="text-sm font-semibold text-gray-900 dark:text-gray-100 mb-4">Profile</h3>
-              <div class="flex flex-col items-center gap-4 mb-6">
+              <h3 class="text-sm font-semibold text-gray-900 dark:text-gray-100 mb-3 sm:mb-4">Profile</h3>
+              <div class="flex flex-col items-center gap-3 sm:gap-4 mb-4 sm:mb-6">
                 <div class="border-2 border-gray-200 dark:border-gray-700 rounded-full">
                   <app-avatar 
                     [avatarUrl]="avatarUrl()" 
                     [firstName]="firstName()" 
                     [lastName]="lastName()" 
                     [email]="auth.userEmail()"
+                    size="lg"
+                    class="sm:hidden"
+                  />
+                  <app-avatar 
+                    [avatarUrl]="avatarUrl()" 
+                    [firstName]="firstName()" 
+                    [lastName]="lastName()" 
+                    [email]="auth.userEmail()"
                     size="xl"
+                    class="hidden sm:block"
                   />
                 </div>
-                <label class="px-4 py-2 text-sm rounded-lg bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 cursor-pointer inline-flex items-center gap-2 transition-colors">
+                <label class="px-4 py-2 text-sm rounded-lg bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 cursor-pointer inline-flex items-center gap-2 transition-colors touch-manipulation">
                   <input type="file" accept="image/*" class="hidden" (change)="onImageSelected($event)" />
                   <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/>

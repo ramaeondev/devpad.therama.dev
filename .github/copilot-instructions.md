@@ -33,6 +33,11 @@ DevPad is a modern note-taking application built with Angular 18+ (standalone co
 - Interceptors: `<name>.interceptor.ts`
 - Routes: `<feature>.routes.ts`
 
+### Mobile Friendly
+- Ensure responsive design using Tailwind's responsive utilities
+- Use touch-friendly sizes for buttons and interactive elements
+- Test layouts on various screen sizes (mobile, tablet, desktop)
+
 ### TypeScript
 - Use strict typing; avoid `any` when possible
 - Prefer `interface` for data models
