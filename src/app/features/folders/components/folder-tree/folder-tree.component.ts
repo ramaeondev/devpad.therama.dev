@@ -50,7 +50,14 @@ import { ConfirmModalComponent } from '../../../../shared/components/ui/dialog/c
             class="folder-header flex items-center gap-2 px-2 sm:px-3 py-2.5 sm:py-2 rounded-lg cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors touch-manipulation"
             [class.bg-gray-100]="selectedFolderId === folder.id"
             [class.dark:bg-gray-800]="selectedFolderId === folder.id"
+            [class.ring-2]="dragOverFolderId() === folder.id"
+            [class.ring-primary-500]="dragOverFolderId() === folder.id"
+            [class.bg-primary-50]="dragOverFolderId() === folder.id"
+            [class.dark:bg-primary-900/20]="dragOverFolderId() === folder.id"
             (click)="onFolderClick(folder)"
+            (dragover)="onFolderDragOver($event, folder)"
+            (dragleave)="onFolderDragLeave($event, folder)"
+            (drop)="onFolderDrop($event, folder)"
           >
             <!-- Expand/Collapse Icon -->
             @if (folder.children && folder.children.length > 0) {
@@ -132,13 +139,17 @@ import { ConfirmModalComponent } from '../../../../shared/components/ui/dialog/c
             <ul class="ml-8 mt-1 space-y-0.5">
               @for (note of folder.notes; track note.id) {
                 <li
-                  class="note-row flex items-center gap-2 px-2 py-1 rounded cursor-pointer text-xs hover:bg-gray-100 dark:hover:bg-gray-700"
+                  class="note-row flex items-center gap-2 px-2 py-1 rounded cursor-move text-xs hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
                   [class.bg-gray-200]="workspaceState.selectedNoteId() === note.id"
                   [class.dark:bg-gray-600]="workspaceState.selectedNoteId() === note.id"
+                  [class.opacity-50]="draggedNoteId() === note.id"
+                  draggable="true"
+                  (dragstart)="onNoteDragStart($event, note, folder)"
+                  (dragend)="onNoteDragEnd($event)"
                 >
-                    <span class="note-icon w-4 text-sm">{{ note.icon || '📝' }}</span>
-                    <span class="truncate flex-1" (click)="onNoteClick(note, folder, $event)">{{ note.title || 'Untitled' }}</span>
-                  <span class="text-[10px] text-gray-400">
+                    <span class="note-icon w-4 text-sm pointer-events-none">{{ note.icon || '📝' }}</span>
+                    <span class="truncate flex-1 pointer-events-none" (click)="onNoteClick(note, folder, $event)">{{ note.title || 'Untitled' }}</span>
+                  <span class="text-[10px] text-gray-400 pointer-events-none">
                     {{ note.updated_at | date:'shortTime' }}
                   </span>
                   <!-- Note Actions Dropdown -->
@@ -203,6 +214,19 @@ import { ConfirmModalComponent } from '../../../../shared/components/ui/dialog/c
         @apply scale-110;
       }
     }
+
+    /* Drag and drop styles */
+    .note-row {
+      @apply transition-all duration-200;
+      
+      &[draggable="true"] {
+        cursor: move;
+      }
+    }
+
+    .folder-header {
+      @apply transition-all duration-200;
+    }
   `]
 })
 export class FolderTreeComponent {
@@ -242,6 +266,12 @@ export class FolderTreeComponent {
   confirmMessage = signal('');
   private pendingDeleteNote: { note: any; folder: FolderTree } | null = null;
   private pendingDeleteFolder: FolderTree | null = null;
+
+  // Drag and drop state
+  draggedNoteId = signal<string | null>(null);
+  draggedNote: any = null;
+  draggedSourceFolder: FolderTree | null = null;
+  dragOverFolderId = signal<string | null>(null);
 
   ngOnInit() {
     // Auto-expand root folders
@@ -570,6 +600,124 @@ export class FolderTreeComponent {
     // Currently only wired for note deletes
     if (this.pendingDeleteNote) {
       this.performDeleteNote();
+    }
+  }
+
+  // Drag and Drop handlers
+  onNoteDragStart(event: DragEvent, note: any, folder: FolderTree) {
+    this.draggedNoteId.set(note.id);
+    this.draggedNote = note;
+    this.draggedSourceFolder = folder;
+    
+    // Set drag effect and data
+    if (event.dataTransfer) {
+      event.dataTransfer.effectAllowed = 'move';
+      event.dataTransfer.setData('text/plain', note.id);
+    }
+
+    // Add visual feedback
+    const target = event.target as HTMLElement;
+    target.style.opacity = '0.5';
+  }
+
+  onNoteDragEnd(event: DragEvent) {
+    this.draggedNoteId.set(null);
+    this.draggedNote = null;
+    this.draggedSourceFolder = null;
+    this.dragOverFolderId.set(null);
+
+    // Reset visual feedback
+    const target = event.target as HTMLElement;
+    target.style.opacity = '1';
+  }
+
+  onFolderDragOver(event: DragEvent, folder: FolderTree) {
+    if (!this.draggedNote) return;
+    
+    // Prevent default to allow drop
+    event.preventDefault();
+    event.stopPropagation();
+    
+    if (event.dataTransfer) {
+      event.dataTransfer.dropEffect = 'move';
+    }
+
+    // Visual feedback
+    this.dragOverFolderId.set(folder.id);
+  }
+
+  onFolderDragLeave(event: DragEvent, folder: FolderTree) {
+    event.stopPropagation();
+    
+    // Only clear if we're actually leaving the folder element
+    const relatedTarget = event.relatedTarget as HTMLElement;
+    const currentTarget = event.currentTarget as HTMLElement;
+    
+    if (!currentTarget.contains(relatedTarget)) {
+      if (this.dragOverFolderId() === folder.id) {
+        this.dragOverFolderId.set(null);
+      }
+    }
+  }
+
+  async onFolderDrop(event: DragEvent, targetFolder: FolderTree) {
+    event.preventDefault();
+    event.stopPropagation();
+
+    this.dragOverFolderId.set(null);
+
+    if (!this.draggedNote || !this.draggedSourceFolder) {
+      return;
+    }
+
+    const note = this.draggedNote;
+    const sourceFolder = this.draggedSourceFolder;
+
+    // Don't move if dropping on the same folder
+    if (sourceFolder.id === targetFolder.id) {
+      this.toast.info('Note is already in this folder');
+      this.draggedNoteId.set(null);
+      this.draggedNote = null;
+      this.draggedSourceFolder = null;
+      return;
+    }
+
+    try {
+      const userId = this.authState.userId();
+      
+      // Update the note's folder_id
+      await this.noteService.updateNote(note.id, userId, {
+        folder_id: targetFolder.id
+      });
+
+      // Update local state - remove from source folder
+      if (sourceFolder.notes) {
+        const index = sourceFolder.notes.findIndex((n: any) => n.id === note.id);
+        if (index > -1) {
+          sourceFolder.notes.splice(index, 1);
+        }
+      }
+
+      // Add to target folder
+      if (targetFolder.notes) {
+        targetFolder.notes.unshift({ ...note, folder_id: targetFolder.id });
+      } else {
+        targetFolder.notes = [{ ...note, folder_id: targetFolder.id }];
+      }
+
+      // Expand target folder to show the moved note
+      this.expandedFolders.update(set => new Set(set.add(targetFolder.id)));
+
+      this.toast.success(`Moved "${note.title}" to "${targetFolder.name}"`);
+      this.treeChanged.emit();
+
+    } catch (error: any) {
+      console.error('Failed to move note:', error);
+      this.toast.error('Failed to move note');
+    } finally {
+      this.draggedNoteId.set(null);
+      this.draggedNote = null;
+      this.draggedSourceFolder = null;
     }
   }
 }
