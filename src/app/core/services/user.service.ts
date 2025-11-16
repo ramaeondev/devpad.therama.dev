@@ -119,14 +119,23 @@ export class UserService {
   /** Upload avatar to storage and return public URL */
   async uploadAvatar(userId: string, file: File): Promise<string> {
     return this.loading.withLoading(async () => {
-      const ext = file.name.split('.').pop() || 'png';
-      const path = `avatars/${userId}.${ext}`;
+      // Always use .png extension and consistent naming: avatars/<user_id>.png
+      const path = `avatars/${userId}.png`;
+      
+      // Upload with upsert:true to replace existing avatar
       const { error: upErr } = await this.supabase.storage
         .from('avatars')
-        .upload(path, file, { upsert: true, cacheControl: '3600', contentType: file.type || 'image/png' });
+        .upload(path, file, { 
+          upsert: true, 
+          cacheControl: '3600', 
+          contentType: 'image/png' 
+        });
+      
       if (upErr) throw upErr;
+      
+      // Add timestamp to URL to bust cache after upload
       const { data } = this.supabase.storage.from('avatars').getPublicUrl(path);
-      return data.publicUrl;
+      return `${data.publicUrl}?t=${Date.now()}`;
     });
   }
 }

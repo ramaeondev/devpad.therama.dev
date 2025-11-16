@@ -14,42 +14,47 @@ ON CONFLICT (id) DO NOTHING;
 -- =============================================
 -- Storage Policies for 'avatars' bucket
 -- =============================================
+-- IMPORTANT: Drop existing policies first if re-running
+-- DROP POLICY IF EXISTS "Users can upload own avatar" ON storage.objects;
+-- DROP POLICY IF EXISTS "Users can update own avatar" ON storage.objects;
+-- DROP POLICY IF EXISTS "Users can delete own avatar" ON storage.objects;
+-- DROP POLICY IF EXISTS "Public avatar access" ON storage.objects;
 
 -- Policy 1: Allow users to upload their own avatar
--- Users can INSERT files with path format: avatars/{user_id}.*
+-- Users can INSERT files with path format: avatars/<user_id>.<ext>
 CREATE POLICY "Users can upload own avatar"
 ON storage.objects
 FOR INSERT
 TO authenticated
 WITH CHECK (
   bucket_id = 'avatars' 
-  AND auth.uid()::text = (storage.foldername(name))[1]
+  AND name ~ ('^avatars/' || auth.uid()::text || '\.')
 );
 
 -- Policy 2: Allow users to update their own avatar
--- Users can UPDATE files with path format: avatars/{user_id}.*
+-- Users can UPDATE files with path format: avatars/<user_id>.<ext>
 CREATE POLICY "Users can update own avatar"
 ON storage.objects
 FOR UPDATE
 TO authenticated
 USING (
   bucket_id = 'avatars' 
-  AND auth.uid()::text = (storage.foldername(name))[1]
+  AND name ~ ('^avatars/' || auth.uid()::text || '\.')
 )
 WITH CHECK (
   bucket_id = 'avatars' 
-  AND auth.uid()::text = (storage.foldername(name))[1]
+  AND name ~ ('^avatars/' || auth.uid()::text || '\.')
 );
 
 -- Policy 3: Allow users to delete their own avatar
--- Users can DELETE files with path format: avatars/{user_id}.*
+-- Users can DELETE files with path format: avatars/<user_id>.<ext>
 CREATE POLICY "Users can delete own avatar"
 ON storage.objects
 FOR DELETE
 TO authenticated
 USING (
   bucket_id = 'avatars' 
-  AND auth.uid()::text = (storage.foldername(name))[1]
+  AND name ~ ('^avatars/' || auth.uid()::text || '\.')
 );
 
 -- Policy 4: Public read access for all avatars
