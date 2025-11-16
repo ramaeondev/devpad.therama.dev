@@ -135,7 +135,7 @@ import { ConfirmModalComponent } from '../../../../shared/components/ui/dialog/c
           </div>
 
           <!-- Notes under this folder -->
-          @if (folder.notes && folder.notes.length > 0 && isExpanded(folder.id)) {
+          @if (folder.notes && folder.notes.length > 0 && (isExpanded(folder.id) || !folder.children || folder.children.length === 0)) {
             <ul class="ml-8 mt-1 space-y-0.5">
               @for (note of folder.notes; track note.id) {
                 <li
@@ -322,6 +322,12 @@ export class FolderTreeComponent {
   onFolderClick(folder: FolderTree) {
     this.workspaceState.setSelectedFolder(folder.id);
     this.folderSelected.emit(folder);
+    // For leaf folders (no child folders), ensure notes are loaded on selection
+    if (!folder.children || folder.children.length === 0) {
+      if (!folder.notes) {
+        this.fetchNotesForFolder(folder);
+      }
+    }
   }
 
   private async loadNotesForExpanded(targetId?: string) {
