@@ -11,12 +11,13 @@ import { WorkspaceStateService } from '../../../../core/services/workspace-state
 import { FolderNameModalComponent } from '../../../../shared/components/ui/dialog/folder-name-modal.component';
 import { NoteNameModalComponent } from '../../../../shared/components/ui/dialog/note-name-modal.component';
 import { ConfirmModalComponent } from '../../../../shared/components/ui/dialog/confirm-modal.component';
+import { NotePropertiesModalComponent, NoteProperties } from '../../../../shared/components/ui/dialog/note-properties-modal.component';
 import { RelativeTimeDirective } from '../../../../shared/directives/relative-time.directive';
 
 @Component({
   selector: 'app-folder-tree',
   standalone: true,
-  imports: [CommonModule, DropdownComponent, FolderNameModalComponent, NoteNameModalComponent, ConfirmModalComponent, RelativeTimeDirective],
+  imports: [CommonModule, DropdownComponent, FolderNameModalComponent, NoteNameModalComponent, ConfirmModalComponent, NotePropertiesModalComponent, RelativeTimeDirective],
   template: `
     <div class="folder-tree">
       <!-- Name modal -->
@@ -43,6 +44,14 @@ import { RelativeTimeDirective } from '../../../../shared/directives/relative-ti
           [message]="confirmMessage()"
           (confirm)="performConfirmAction()"
           (cancel)="closeConfirmModal()"
+        />
+      }
+
+      <!-- Note properties modal -->
+      @if (showPropertiesModal() && noteProperties()) {
+        <app-note-properties-modal
+          [properties]="noteProperties()!"
+          (cancel)="closePropertiesModal()"
         />
       }
       @for (folder of folders; track folder.id) {
@@ -153,14 +162,16 @@ import { RelativeTimeDirective } from '../../../../shared/directives/relative-ti
                     <span class="truncate flex-1 pointer-events-none">{{ note.title || 'Untitled' }}</span>
                   <span class="text-[10px] text-gray-400 pointer-events-none" [appRelativeTime]="note.updated_at"></span>
                   <!-- Note Actions Dropdown -->
-                  <app-dropdown align="right">
-                    <button dropdownTrigger class="p-0.5 rounded hover:bg-gray-200 dark:hover:bg-gray-600">
+                  <app-dropdown align="right" (click)="$event.stopPropagation()">
+                    <button dropdownTrigger class="p-0.5 rounded hover:bg-gray-200 dark:hover:bg-gray-600" (click)="$event.stopPropagation()">
                       <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
                         <path d="M10 6a2 2 0 110-4 2 2 0 010 4zM10 12a2 2 0 110-4 2 2 0 010 4zM10 18a2 2 0 110-4 2 2 0 010 4z"/>
                       </svg>
                     </button>
                     <div dropdownMenu class="text-xs">
                       <button class="dropdown-item w-full text-left px-3 py-1.5 hover:bg-gray-100 dark:hover:bg-gray-700" (click)="startNoteRename(note, folder)">Rename</button>
+                      <button class="dropdown-item w-full text-left px-3 py-1.5 hover:bg-gray-100 dark:hover:bg-gray-700" (click)="showNoteProperties(note, folder)">Properties</button>
+                      <hr class="my-1 border-gray-200 dark:border-gray-700" />
                       <button class="dropdown-item w-full text-left px-3 py-1.5 text-red-600 hover:bg-red-50 dark:hover:bg-red-900/30" (click)="deleteNote(note, folder)">Delete</button>
                     </div>
                   </app-dropdown>
@@ -266,6 +277,10 @@ export class FolderTreeComponent {
   confirmMessage = signal('');
   private pendingDeleteNote: { note: any; folder: FolderTree } | null = null;
   private pendingDeleteFolder: FolderTree | null = null;
+
+  // Note properties modal state
+  showPropertiesModal = signal(false);
+  noteProperties = signal<NoteProperties | null>(null);
 
   // Drag and drop state
   draggedNoteId = signal<string | null>(null);
@@ -615,6 +630,38 @@ export class FolderTreeComponent {
     return this.renamingFolder.notes
       .filter((n: any) => n.id !== this.renamingNote?.id)
       .map((n: any) => n.title || '');
+  }
+
+  // Note properties handlers
+  async showNoteProperties(note: any, folder: FolderTree) {
+    try {
+      // Fetch full note details including size
+      const fullNote = await this.noteService.getNote(note.id, this.authState.userId());
+      
+      const props: NoteProperties = {
+        id: note.id,
+        title: note.title || 'Untitled',
+        created_at: fullNote?.created_at || note.created_at,
+        updated_at: fullNote?.updated_at || note.updated_at,
+        folder_name: folder.name,
+        tags: fullNote?.tags || [],
+        is_favorite: fullNote?.is_favorite || false,
+        is_archived: fullNote?.is_archived || false,
+        owner: this.authState.user()?.email || 'You',
+        size: fullNote?.content ? new Blob([fullNote.content]).size : 0
+      };
+      
+      this.noteProperties.set(props);
+      this.showPropertiesModal.set(true);
+    } catch (error) {
+      console.error('Failed to load note properties:', error);
+      this.toast.error('Failed to load note properties');
+    }
+  }
+
+  closePropertiesModal() {
+    this.showPropertiesModal.set(false);
+    this.noteProperties.set(null);
   }
 
   performConfirmAction() {
