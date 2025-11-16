@@ -450,12 +450,16 @@ export class FolderTreeComponent {
       // Ensure workspace switches to this folder so the new note becomes visible
       this.workspaceState.setSelectedFolder(folder.id);
       this.workspaceState.emitNoteCreated(created);
+      // Ensure the folder is expanded so the new note is visible
+      this.expandedFolders.update(set => new Set(set.add(folder.id)));
       // Optimistically insert into local notes array if present
       if ((folder as any).notes) {
-        (folder as any).notes.unshift(created);
+        (folder as any).notes.unshift({ id: created.id, title: created.title, updated_at: created.updated_at, folder_id: created.folder_id, icon: (created as any).icon || undefined });
       } else {
-        (folder as any).notes = [created];
+        (folder as any).notes = [{ id: created.id, title: created.title, updated_at: created.updated_at, folder_id: created.folder_id, icon: (created as any).icon || undefined }];
       }
+      // Fetch latest notes for this folder in background to ensure consistency
+      this.fetchNotesForFolder(folder);
     } catch (e:any) {
       console.error('Failed to create note:', e);
       const errorMsg = e?.message || e?.error?.message || 'Failed to create note';
