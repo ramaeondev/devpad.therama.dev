@@ -11,11 +11,12 @@ import { WorkspaceStateService } from '../../../../core/services/workspace-state
 import { FolderNameModalComponent } from '../../../../shared/components/ui/dialog/folder-name-modal.component';
 import { NoteNameModalComponent } from '../../../../shared/components/ui/dialog/note-name-modal.component';
 import { ConfirmModalComponent } from '../../../../shared/components/ui/dialog/confirm-modal.component';
+import { RelativeTimeDirective } from '../../../../shared/directives/relative-time.directive';
 
 @Component({
   selector: 'app-folder-tree',
   standalone: true,
-  imports: [CommonModule, DropdownComponent, FolderNameModalComponent, NoteNameModalComponent, ConfirmModalComponent],
+  imports: [CommonModule, DropdownComponent, FolderNameModalComponent, NoteNameModalComponent, ConfirmModalComponent, RelativeTimeDirective],
   template: `
     <div class="folder-tree">
       <!-- Name modal -->
@@ -150,9 +151,7 @@ import { ConfirmModalComponent } from '../../../../shared/components/ui/dialog/c
                 >
                     <span class="note-icon w-4 text-sm pointer-events-none">{{ note.icon || '📝' }}</span>
                     <span class="truncate flex-1 pointer-events-none">{{ note.title || 'Untitled' }}</span>
-                  <span class="text-[10px] text-gray-400 pointer-events-none">
-                    {{ note.updated_at | date:'shortTime' }}
-                  </span>
+                  <span class="text-[10px] text-gray-400 pointer-events-none" [appRelativeTime]="note.updated_at"></span>
                   <!-- Note Actions Dropdown -->
                   <app-dropdown align="right">
                     <button dropdownTrigger class="p-0.5 rounded hover:bg-gray-200 dark:hover:bg-gray-600">
