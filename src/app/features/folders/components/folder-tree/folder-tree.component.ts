@@ -144,11 +144,12 @@ import { ConfirmModalComponent } from '../../../../shared/components/ui/dialog/c
                   [class.dark:bg-gray-600]="workspaceState.selectedNoteId() === note.id"
                   [class.opacity-50]="draggedNoteId() === note.id"
                   draggable="true"
+                  (click)="onNoteClick(note, folder, $event)"
                   (dragstart)="onNoteDragStart($event, note, folder)"
                   (dragend)="onNoteDragEnd($event)"
                 >
                     <span class="note-icon w-4 text-sm pointer-events-none">{{ note.icon || '📝' }}</span>
-                    <span class="truncate flex-1 pointer-events-none" (click)="onNoteClick(note, folder, $event)">{{ note.title || 'Untitled' }}</span>
+                    <span class="truncate flex-1 pointer-events-none">{{ note.title || 'Untitled' }}</span>
                   <span class="text-[10px] text-gray-400 pointer-events-none">
                     {{ note.updated_at | date:'shortTime' }}
                   </span>
@@ -350,7 +351,11 @@ export class FolderTreeComponent {
   }
 
   onNoteClick(note: any, folder: FolderTree, event: Event) {
+    // Don't trigger click when dragging
+    if (this.draggedNoteId()) return;
+    
     event.stopPropagation();
+    console.log('Note clicked:', note);
     this.workspaceState.setSelectedFolder(folder.id);
     this.workspaceState.emitNoteSelected(note);
     this.noteSelected.emit(note);
@@ -426,11 +431,17 @@ export class FolderTreeComponent {
 
   async createNoteDirect(folder: FolderTree) {
     const userId = this.authState.userId();
+    if (!userId) {
+      this.toast.error('User not authenticated');
+      return;
+    }
     try {
       const existingTitles: string[] = []; // could fetch notes for folder if needed
       const titleBase = 'Untitled';
       const unique = this.uniqueName(titleBase, existingTitles, '.md');
+      console.log('Creating note in folder:', folder.id, 'with title:', unique);
       const created = await this.noteService.createNote(userId, { title: unique, content: '', folder_id: folder.id });
+      console.log('Note created successfully:', created);
       this.toast.success(`Note "${created.title}" created`);
       // Refresh folder tree as files changed (e.g., notes count badges)
       this.treeChanged.emit();
@@ -446,8 +457,9 @@ export class FolderTreeComponent {
         (folder as any).notes = [created];
       }
     } catch (e:any) {
-      console.error(e);
-      this.toast.error('Failed to create note');
+      console.error('Failed to create note:', e);
+      const errorMsg = e?.message || e?.error?.message || 'Failed to create note';
+      this.toast.error(errorMsg);
     }
   }
 
@@ -667,6 +679,7 @@ export class FolderTreeComponent {
     this.dragOverFolderId.set(null);
 
     if (!this.draggedNote || !this.draggedSourceFolder) {
+      console.log('Drop cancelled: no dragged note or source folder');
       return;
     }
 
@@ -684,11 +697,19 @@ export class FolderTreeComponent {
 
     try {
       const userId = this.authState.userId();
+      if (!userId) {
+        this.toast.error('User not authenticated');
+        return;
+      }
+
+      console.log('Moving note:', note.id, 'from folder:', sourceFolder.id, 'to folder:', targetFolder.id);
       
       // Update the note's folder_id
       await this.noteService.updateNote(note.id, userId, {
         folder_id: targetFolder.id
       });
+
+      console.log('Note moved successfully');
 
       // Update local state - remove from source folder
       if (sourceFolder.notes) {
@@ -713,7 +734,8 @@ export class FolderTreeComponent {
 
     } catch (error: any) {
       console.error('Failed to move note:', error);
-      this.toast.error('Failed to move note');
+      const errorMsg = error?.message || error?.error?.message || 'Failed to move note';
+      this.toast.error(errorMsg);
     } finally {
       this.draggedNoteId.set(null);
       this.draggedNote = null;
