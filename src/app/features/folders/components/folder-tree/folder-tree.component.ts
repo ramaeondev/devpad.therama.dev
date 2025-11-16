@@ -162,19 +162,21 @@ import { RelativeTimeDirective } from '../../../../shared/directives/relative-ti
                     <span class="truncate flex-1 pointer-events-none">{{ note.title || 'Untitled' }}</span>
                   <span class="text-[10px] text-gray-400 pointer-events-none" [appRelativeTime]="note.updated_at"></span>
                   <!-- Note Actions Dropdown -->
-                  <app-dropdown align="right" (click)="$event.stopPropagation()">
-                    <button dropdownTrigger class="p-0.5 rounded hover:bg-gray-200 dark:hover:bg-gray-600" (click)="$event.stopPropagation()">
-                      <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
-                        <path d="M10 6a2 2 0 110-4 2 2 0 010 4zM10 12a2 2 0 110-4 2 2 0 010 4zM10 18a2 2 0 110-4 2 2 0 010 4z"/>
-                      </svg>
-                    </button>
-                    <div dropdownMenu class="text-xs">
-                      <button class="dropdown-item w-full text-left px-3 py-1.5 hover:bg-gray-100 dark:hover:bg-gray-700" (click)="startNoteRename(note, folder)">Rename</button>
-                      <button class="dropdown-item w-full text-left px-3 py-1.5 hover:bg-gray-100 dark:hover:bg-gray-700" (click)="showNoteProperties(note, folder)">Properties</button>
-                      <hr class="my-1 border-gray-200 dark:border-gray-700" />
-                      <button class="dropdown-item w-full text-left px-3 py-1.5 text-red-600 hover:bg-red-50 dark:hover:bg-red-900/30" (click)="deleteNote(note, folder)">Delete</button>
-                    </div>
-                  </app-dropdown>
+                  <div class="dropdown-wrapper" (click)="$event.stopPropagation()">
+                    <app-dropdown align="right">
+                      <button dropdownTrigger class="p-0.5 rounded hover:bg-gray-200 dark:hover:bg-gray-600">
+                        <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
+                          <path d="M10 6a2 2 0 110-4 2 2 0 010 4zM10 12a2 2 0 110-4 2 2 0 010 4zM10 18a2 2 0 110-4 2 2 0 010 4z"/>
+                        </svg>
+                      </button>
+                      <div dropdownMenu class="text-xs">
+                        <button class="dropdown-item w-full text-left px-3 py-1.5 hover:bg-gray-100 dark:hover:bg-gray-700" (click)="startNoteRename(note, folder)">Rename</button>
+                        <button class="dropdown-item w-full text-left px-3 py-1.5 hover:bg-gray-100 dark:hover:bg-gray-700" (click)="showNoteProperties(note, folder)">Properties</button>
+                        <hr class="my-1 border-gray-200 dark:border-gray-700" />
+                        <button class="dropdown-item w-full text-left px-3 py-1.5 text-red-600 hover:bg-red-50 dark:hover:bg-red-900/30" (click)="deleteNote(note, folder)">Delete</button>
+                      </div>
+                    </app-dropdown>
+                  </div>
                 </li>
               }
             </ul>
