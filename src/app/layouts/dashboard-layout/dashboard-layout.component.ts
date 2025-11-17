@@ -5,11 +5,12 @@ import { ToastContainerComponent } from '../../shared/components/ui/toast/toast-
 import { LogoComponent } from '../../shared/components/ui/logo/logo.component';
 import { SettingsPanelComponent } from '../../shared/components/settings/settings-panel.component';
 import { AuthStateService } from '../../core/services/auth-state.service';
-import { ThemeService, Theme } from '../../core/services/theme.service';
+import { ThemeService } from '../../core/services/theme.service';
 import { GlobalSpinnerComponent } from '../../shared/components/ui/spinner/global-spinner.component';
 import { NoteWorkspaceComponent } from '../../features/notes/components/note-workspace/note-workspace.component';
 import { UserService } from '../../core/services/user.service';
 import { AvatarComponent } from '../../shared/components/ui/avatar/avatar.component';
+import { IconComponent } from '../../shared/components/ui/icon/icon.component';
 
 @Component({
   selector: 'app-dashboard-layout',
@@ -23,6 +24,7 @@ import { AvatarComponent } from '../../shared/components/ui/avatar/avatar.compon
     LogoComponent,
     SettingsPanelComponent,
     AvatarComponent,
+    IconComponent,
   ],
   template: `
     <div class="h-screen w-screen overflow-hidden bg-gray-50 dark:bg-gray-900 flex flex-col">
@@ -36,23 +38,7 @@ import { AvatarComponent } from '../../shared/components/ui/avatar/avatar.compon
               class="lg:hidden p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
               aria-label="Toggle menu"
             >
-              <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                @if (showMobileSidebar()) {
-                  <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    stroke-width="2"
-                    d="M6 18L18 6M6 6l12 12"
-                  />
-                } @else {
-                  <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    stroke-width="2"
-                    d="M4 6h16M4 12h16M4 18h16"
-                  />
-                }
-              </svg>
+              <app-icon [name]="showMobileSidebar() ? 'close' : 'menu'" [size]="24"></app-icon>
             </button>
             <app-logo></app-logo>
           </div>

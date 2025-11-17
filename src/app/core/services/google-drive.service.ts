@@ -1,5 +1,4 @@
 import { Injectable, inject, signal } from '@angular/core';
-import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { SupabaseService } from './supabase.service';
 import { AuthStateService } from './auth-state.service';
 import { ToastService } from './toast.service';
@@ -11,7 +10,6 @@ declare const google: any;
 
 @Injectable({ providedIn: 'root' })
 export class GoogleDriveService {
-  private http = inject(HttpClient);
   private supabase = inject(SupabaseService);
   private auth = inject(AuthStateService);
   private toast = inject(ToastService);

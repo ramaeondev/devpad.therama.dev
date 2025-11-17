@@ -11,9 +11,10 @@ import { ImageCropDialogComponent } from '../../components/ui/dialog/image-crop-
 import { ToastService } from '../../../core/services/toast.service';
 import { UserService } from '../../../core/services/user.service';
 import { AvatarComponent } from '../ui/avatar/avatar.component';
-import { CdkOverlayOrigin, OverlayModule } from '@angular/cdk/overlay';
+import { OverlayModule } from '@angular/cdk/overlay';
 import { GoogleDriveService } from '../../../core/services/google-drive.service';
 import { OneDriveService } from '../../../core/services/onedrive.service';
+import { IconComponent } from '../ui/icon/icon.component';
 
 @Component({
   selector: 'app-settings-panel',
@@ -26,6 +27,7 @@ import { OneDriveService } from '../../../core/services/onedrive.service';
     ImageCropDialogComponent,
     AvatarComponent,
     OverlayModule,
+    IconComponent,
   ],
   template: `
     <div class="hidden"></div>
@@ -50,14 +52,7 @@ import { OneDriveService } from '../../../core/services/onedrive.service';
               (click)="onClose()"
               aria-label="Close settings"
             >
-              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke-width="2"
-                  d="M6 18L18 6M6 6l12 12"
-                />
-              </svg>
+              <app-icon name="close" [size]="20"></app-icon>
             </button>
           </div>
 
@@ -97,20 +92,7 @@ import { OneDriveService } from '../../../core/services/onedrive.service';
                     class="hidden"
                     (change)="onImageSelected($event)"
                   />
-                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                      stroke-width="2"
-                      d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"
-                    />
-                    <path
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                      stroke-width="2"
-                      d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"
-                    />
-                  </svg>
+                  <app-icon name="photo_camera" [size]="16"></app-icon>
                   <span>
                     @if (uploading()) {
                       Uploading...
@@ -232,9 +214,7 @@ import { OneDriveService } from '../../../core/services/onedrive.service';
                 <div class="flex items-center justify-between p-3 rounded-lg border border-gray-200 dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors">
                   <div class="flex items-center space-x-3">
                     <div class="w-10 h-10 rounded-lg bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center">
-                      <svg class="w-5 h-5 text-blue-600 dark:text-blue-400" viewBox="0 0 24 24" fill="currentColor">
-                        <path d="M7.71 3.5L1.15 15l3.38 5.87L11.1 9.3l-3.38-5.8zm13.14 0l-3.38 5.87L23.85 15l-6.56-11.5zM12 9.3L5.53 20.87h12.94L12 9.3z"/>
-                      </svg>
+                      <app-icon name="google-drive" [size]="20"></app-icon>
                     </div>
                     <div>
                       <div class="text-sm font-medium text-gray-900 dark:text-gray-100">
@@ -272,9 +252,7 @@ import { OneDriveService } from '../../../core/services/onedrive.service';
                 <div class="flex items-center justify-between p-3 rounded-lg border border-gray-200 dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors">
                   <div class="flex items-center space-x-3">
                     <div class="w-10 h-10 rounded-lg bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center">
-                      <svg class="w-5 h-5 text-blue-600 dark:text-blue-400" viewBox="0 0 24 24" fill="currentColor">
-                        <path d="M13.98 3.37A6.5 6.5 0 0 0 7.5 9.5a6.5 6.5 0 0 0 .1 1.13A5.73 5.73 0 0 0 0 16.5C0 19.54 2.46 22 5.5 22h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96A6.5 6.5 0 0 0 13.98 3.37z"/>
-                      </svg>
+                      <app-icon name="onedrive" [size]="20"></app-icon>
                     </div>
                     <div>
                       <div class="text-sm font-medium text-gray-900 dark:text-gray-100">

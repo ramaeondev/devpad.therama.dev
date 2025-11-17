@@ -1,14 +1,12 @@
-import { Injectable, inject } from '@angular/core';
-import { createClient, SupabaseClient, User } from '@supabase/supabase-js';
+import { Injectable } from '@angular/core';
+import { createClient, SupabaseClient } from '@supabase/supabase-js';
 import { environment } from '../../../environments/environment';
-import { LoadingService } from './loading.service';
 
 @Injectable({
   providedIn: 'root',
 })
 export class SupabaseService {
   private supabase: SupabaseClient;
-  private loading = inject(LoadingService);
   private sessionCache: any = null;
   private sessionPromise: Promise<any> | null = null;
 
