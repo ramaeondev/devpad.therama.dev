@@ -1,0 +1,260 @@
+import { Component } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { RouterLink } from '@angular/router';
+import { LogoComponent } from '../../../../shared/components/ui/logo/logo.component';
+
+@Component({
+  selector: 'app-privacy',
+  standalone: true,
+  imports: [CommonModule, RouterLink, LogoComponent],
+  template: `
+    <div class="min-h-screen bg-gray-50 dark:bg-gray-900">
+      <div class="max-w-4xl mx-auto px-4 py-8 sm:px-6 lg:px-8">
+        <!-- Header with Logo -->
+        <div class="text-center mb-12">
+          <a routerLink="/" class="inline-block mb-6 hover:opacity-80 transition-opacity">
+            <div class="flex items-center justify-center gap-3">
+              <img src="/logo.png" alt="DevPad Logo" class="w-12 h-12 rounded-xl shadow-lg">
+              <span class="text-3xl font-bold text-gray-900 dark:text-white tracking-tight">
+                <app-logo text="DevPad" [speed]="100"></app-logo>
+              </span>
+            </div>
+          </a>
+          <h1 class="text-3xl font-bold text-gray-900 dark:text-white mb-2">Privacy Policy</h1>
+          <p class="text-gray-600 dark:text-gray-400">Last Updated: November 17, 2025</p>
+        </div>
+
+        <!-- Content -->
+        <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-8 space-y-8">
+          
+          <!-- Introduction -->
+          <section>
+            <p class="text-gray-700 dark:text-gray-300 leading-relaxed">
+              Welcome to DevPad ("we," "our," or "us"). We are committed to protecting your privacy and ensuring the security of your personal information. 
+              This Privacy Policy explains how we collect, use, disclose, and safeguard your information when you use our note-taking application.
+            </p>
+          </section>
+
+          <!-- Information We Collect -->
+          <section>
+            <h2 class="text-2xl font-semibold text-gray-900 dark:text-white mb-4">1. Information We Collect</h2>
+            
+            <h3 class="text-xl font-medium text-gray-900 dark:text-white mb-3 mt-6">1.1 Account Information</h3>
+            <p class="text-gray-700 dark:text-gray-300 leading-relaxed mb-3">When you create an account, we collect:</p>
+            <ul class="list-disc list-inside text-gray-700 dark:text-gray-300 space-y-2 ml-4">
+              <li>Email address</li>
+              <li>Password (encrypted and securely stored)</li>
+              <li>Account creation and last login dates</li>
+            </ul>
+
+            <h3 class="text-xl font-medium text-gray-900 dark:text-white mb-3 mt-6">1.2 Content You Create</h3>
+            <p class="text-gray-700 dark:text-gray-300 leading-relaxed mb-3">We store the content you create within DevPad, including:</p>
+            <ul class="list-disc list-inside text-gray-700 dark:text-gray-300 space-y-2 ml-4">
+              <li>Notes and their content (markdown text)</li>
+              <li>Folders and organizational structure</li>
+              <li>Metadata (creation dates, modification dates, titles)</li>
+            </ul>
+
+            <h3 class="text-xl font-medium text-gray-900 dark:text-white mb-3 mt-6">1.3 Cloud Storage Integration Data</h3>
+            <p class="text-gray-700 dark:text-gray-300 leading-relaxed mb-3">When you connect cloud storage services (Google Drive, OneDrive), we store:</p>
+            <ul class="list-disc list-inside text-gray-700 dark:text-gray-300 space-y-2 ml-4">
+              <li>Access tokens (encrypted)</li>
+              <li>Integration status and connection dates</li>
+              <li>Associated email address for the cloud service</li>
+            </ul>
+            <div class="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4 mt-3">
+              <p class="text-sm text-blue-900 dark:text-blue-200">
+                <strong>Important:</strong> We do not store your cloud storage files locally. Access tokens are only used to facilitate file operations you explicitly request.
+              </p>
+            </div>
+
+            <h3 class="text-xl font-medium text-gray-900 dark:text-white mb-3 mt-6">1.4 Technical Information</h3>
+            <p class="text-gray-700 dark:text-gray-300 leading-relaxed mb-3">We automatically collect certain technical information:</p>
+            <ul class="list-disc list-inside text-gray-700 dark:text-gray-300 space-y-2 ml-4">
+              <li>Browser type and version</li>
+              <li>Device information</li>
+              <li>IP address</li>
+              <li>Usage patterns and interactions with the app</li>
+            </ul>
+          </section>
+
+          <!-- How We Use Your Information -->
+          <section>
+            <h2 class="text-2xl font-semibold text-gray-900 dark:text-white mb-4">2. How We Use Your Information</h2>
+            <p class="text-gray-700 dark:text-gray-300 leading-relaxed mb-3">We use your information to:</p>
+            <ul class="list-disc list-inside text-gray-700 dark:text-gray-300 space-y-2 ml-4">
+              <li>Provide, maintain, and improve DevPad services</li>
+              <li>Authenticate your identity and manage your account</li>
+              <li>Store and sync your notes across devices</li>
+              <li>Facilitate cloud storage integrations you choose to enable</li>
+              <li>Send important service updates and security notifications</li>
+              <li>Analyze usage patterns to improve user experience</li>
+              <li>Prevent fraud and ensure platform security</li>
+            </ul>
+          </section>
+
+          <!-- Data Storage and Security -->
+          <section>
+            <h2 class="text-2xl font-semibold text-gray-900 dark:text-white mb-4">3. Data Storage and Security</h2>
+            
+            <h3 class="text-xl font-medium text-gray-900 dark:text-white mb-3 mt-4">3.1 Data Storage</h3>
+            <p class="text-gray-700 dark:text-gray-300 leading-relaxed mb-3">
+              Your data is stored using Supabase (PostgreSQL database) with the following security measures:
+            </p>
+            <ul class="list-disc list-inside text-gray-700 dark:text-gray-300 space-y-2 ml-4">
+              <li>End-to-end encryption for data transmission (HTTPS/TLS)</li>
+              <li>Row Level Security (RLS) policies ensuring users can only access their own data</li>
+              <li>Regular automated backups</li>
+              <li>Data stored in secure, SOC 2 compliant data centers</li>
+            </ul>
+
+            <h3 class="text-xl font-medium text-gray-900 dark:text-white mb-3 mt-6">3.2 Security Measures</h3>
+            <p class="text-gray-700 dark:text-gray-300 leading-relaxed mb-3">We implement industry-standard security practices:</p>
+            <ul class="list-disc list-inside text-gray-700 dark:text-gray-300 space-y-2 ml-4">
+              <li>Password hashing using bcrypt</li>
+              <li>OAuth 2.0 for third-party integrations</li>
+              <li>Access token encryption</li>
+              <li>Regular security audits and updates</li>
+              <li>Secure authentication with JWT tokens</li>
+            </ul>
+          </section>
+
+          <!-- Data Sharing -->
+          <section>
+            <h2 class="text-2xl font-semibold text-gray-900 dark:text-white mb-4">4. Data Sharing and Disclosure</h2>
+            <p class="text-gray-700 dark:text-gray-300 leading-relaxed mb-3">
+              We do NOT sell your personal information. We may share your data only in these circumstances:
+            </p>
+            <ul class="list-disc list-inside text-gray-700 dark:text-gray-300 space-y-2 ml-4">
+              <li><strong>With your consent:</strong> When you explicitly authorize data sharing</li>
+              <li><strong>Service providers:</strong> Third-party services that help us operate (e.g., Supabase for hosting, Vercel for deployment)</li>
+              <li><strong>Legal requirements:</strong> When required by law, court order, or governmental request</li>
+              <li><strong>Security and fraud prevention:</strong> To protect against harm to our rights, property, or safety</li>
+            </ul>
+          </section>
+
+          <!-- Third-Party Services -->
+          <section>
+            <h2 class="text-2xl font-semibold text-gray-900 dark:text-white mb-4">5. Third-Party Services</h2>
+            <p class="text-gray-700 dark:text-gray-300 leading-relaxed mb-3">
+              DevPad integrates with third-party services. When you connect these services, you are subject to their privacy policies:
+            </p>
+            <ul class="list-disc list-inside text-gray-700 dark:text-gray-300 space-y-2 ml-4">
+              <li><strong>Google Drive:</strong> <a href="https://policies.google.com/privacy" target="_blank" rel="noopener noreferrer" class="text-primary-600 dark:text-primary-400 hover:underline">Google Privacy Policy</a></li>
+              <li><strong>OneDrive:</strong> <a href="https://privacy.microsoft.com/privacystatement" target="_blank" rel="noopener noreferrer" class="text-primary-600 dark:text-primary-400 hover:underline">Microsoft Privacy Statement</a></li>
+              <li><strong>Supabase:</strong> <a href="https://supabase.com/privacy" target="_blank" rel="noopener noreferrer" class="text-primary-600 dark:text-primary-400 hover:underline">Supabase Privacy Policy</a></li>
+            </ul>
+          </section>
+
+          <!-- Your Rights -->
+          <section>
+            <h2 class="text-2xl font-semibold text-gray-900 dark:text-white mb-4">6. Your Rights and Choices</h2>
+            
+            <h3 class="text-xl font-medium text-gray-900 dark:text-white mb-3 mt-4">6.1 Access and Control</h3>
+            <p class="text-gray-700 dark:text-gray-300 leading-relaxed mb-3">You have the right to:</p>
+            <ul class="list-disc list-inside text-gray-700 dark:text-gray-300 space-y-2 ml-4">
+              <li>Access your personal information</li>
+              <li>Update or correct your information</li>
+              <li>Delete your account and associated data</li>
+              <li>Export your data (notes and folders)</li>
+              <li>Disconnect cloud storage integrations at any time</li>
+            </ul>
+
+            <h3 class="text-xl font-medium text-gray-900 dark:text-white mb-3 mt-6">6.2 Data Retention</h3>
+            <p class="text-gray-700 dark:text-gray-300 leading-relaxed mb-3">
+              We retain your data as long as your account is active. Upon account deletion:
+            </p>
+            <ul class="list-disc list-inside text-gray-700 dark:text-gray-300 space-y-2 ml-4">
+              <li>All notes, folders, and integrations are permanently deleted within 30 days</li>
+              <li>Backups are purged according to our retention schedule (90 days)</li>
+              <li>Some data may be retained for legal or security purposes as required by law</li>
+            </ul>
+          </section>
+
+          <!-- Cookies -->
+          <section>
+            <h2 class="text-2xl font-semibold text-gray-900 dark:text-white mb-4">7. Cookies and Tracking</h2>
+            <p class="text-gray-700 dark:text-gray-300 leading-relaxed mb-3">
+              DevPad uses minimal cookies and local storage for:
+            </p>
+            <ul class="list-disc list-inside text-gray-700 dark:text-gray-300 space-y-2 ml-4">
+              <li>Authentication (JWT tokens)</li>
+              <li>User preferences (theme settings)</li>
+              <li>Session management</li>
+            </ul>
+            <p class="text-gray-700 dark:text-gray-300 leading-relaxed mt-3">
+              We do not use third-party tracking cookies or analytics that identify individual users.
+            </p>
+          </section>
+
+          <!-- Children's Privacy -->
+          <section>
+            <h2 class="text-2xl font-semibold text-gray-900 dark:text-white mb-4">8. Children's Privacy</h2>
+            <p class="text-gray-700 dark:text-gray-300 leading-relaxed">
+              DevPad is not intended for children under 13 years of age. We do not knowingly collect personal information from children. 
+              If you believe we have collected information from a child, please contact us immediately.
+            </p>
+          </section>
+
+          <!-- International Transfers -->
+          <section>
+            <h2 class="text-2xl font-semibold text-gray-900 dark:text-white mb-4">9. International Data Transfers</h2>
+            <p class="text-gray-700 dark:text-gray-300 leading-relaxed">
+              Your data may be transferred to and processed in countries other than your own. We ensure appropriate safeguards are in place 
+              to protect your information in accordance with this Privacy Policy.
+            </p>
+          </section>
+
+          <!-- Changes -->
+          <section>
+            <h2 class="text-2xl font-semibold text-gray-900 dark:text-white mb-4">10. Changes to This Privacy Policy</h2>
+            <p class="text-gray-700 dark:text-gray-300 leading-relaxed mb-3">
+              We may update this Privacy Policy from time to time. We will notify you of significant changes by:
+            </p>
+            <ul class="list-disc list-inside text-gray-700 dark:text-gray-300 space-y-2 ml-4">
+              <li>Posting the new policy on this page</li>
+              <li>Updating the "Last Updated" date</li>
+              <li>Sending an email notification for material changes</li>
+            </ul>
+          </section>
+
+          <!-- Contact -->
+          <section>
+            <h2 class="text-2xl font-semibold text-gray-900 dark:text-white mb-4">11. Contact Us</h2>
+            <p class="text-gray-700 dark:text-gray-300 leading-relaxed mb-3">
+              If you have questions or concerns about this Privacy Policy or our data practices, please contact us:
+            </p>
+            <div class="bg-gray-50 dark:bg-gray-700 rounded-lg p-4">
+              <p class="text-gray-700 dark:text-gray-300 mb-2"><strong class="text-primary-600 dark:text-primary-400">Email:</strong> privacy&#64;devpad.therama.dev</p>
+              <p class="text-gray-700 dark:text-gray-300"><strong class="text-primary-600 dark:text-primary-400">GitHub:</strong> 
+                <a href="https://github.com/ramaeondev/devpad.therama.dev" target="_blank" rel="noopener noreferrer" class="text-primary-600 dark:text-primary-400 hover:underline">
+                  github.com/ramaeondev/devpad.therama.dev
+                </a>
+              </p>
+            </div>
+          </section>
+
+          <!-- Consent -->
+          <section>
+            <h2 class="text-2xl font-semibold text-gray-900 dark:text-white mb-4">12. Your Consent</h2>
+            <p class="text-gray-700 dark:text-gray-300 leading-relaxed">
+              By using DevPad, you consent to this Privacy Policy and agree to its terms. If you do not agree, please do not use our services.
+            </p>
+          </section>
+
+        </div>
+
+        <!-- Footer -->
+        <footer class="mt-12 text-center text-sm text-gray-600 dark:text-gray-400">
+          <p class="mb-2">
+            <a routerLink="/" class="text-primary-600 dark:text-primary-400 hover:underline font-medium">← Back to DevPad</a> | 
+            <a routerLink="/terms" class="text-primary-600 dark:text-primary-400 hover:underline font-medium">Terms of Service</a>
+          </p>
+          <p class="text-gray-500 dark:text-gray-500">&copy; 2025 DevPad by Ramaeon. All rights reserved.</p>
+        </footer>
+      </div>
+    </div>
+  `,
+  styles: [],
+})
+export class PrivacyComponent {}
