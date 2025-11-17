@@ -4,6 +4,108 @@ All notable changes to this project are documented in this file.
 
 ## [Unreleased] - 2025-11-17
 
+### Added - Google Drive Integration Epic
+- **Google Drive OAuth Integration**: Complete OAuth 2.0 flow with Google Identity Services
+  - Client-side authentication using Google's official SDK
+  - Secure token storage in Supabase with access/refresh tokens
+  - Automatic connection status detection and token validation
+  - Integration management in user settings
+  
+- **Google Drive File Browser**: Full file/folder tree navigation in sidebar
+  - Recursive folder structure display with expand/collapse functionality
+  - Real-time file listing with proper MIME type detection
+  - Collapsible root folder accordion to reduce visual clutter
+  - File type icons (📁 folders, 📝 docs, 📊 sheets, 📽️ slides, 🖼️ images, 📄 PDFs)
+  - Refresh button to sync latest changes from Google Drive
+
+- **File Management Kebab Menu**: Comprehensive file operations
+  - **Download**: Download files directly to local machine with proper extensions
+  - **Import to DevPad**: Import Google Drive files to DevPad "Imports" folder
+  - **Rename**: Rename files directly in Google Drive
+  - **Delete**: Delete files from Google Drive with confirmation
+  - **Properties**: View file metadata in modal (name, type, size, modified date, ID)
+  - Menu appears on hover with proper positioning and dark mode support
+
+- **File Preview System**: Preview Google Drive files in DevPad workspace
+  - Click any file in tree to open preview in center area
+  - Google Workspace documents use native Google preview (webViewLink)
+  - Full metadata display with file icons and information
+  - Close button to return to note editing
+
+- **Properties Modal Component**: Reusable modal for file metadata
+  - `PropertiesModalComponent` - Generic property display with icons
+  - Shows detailed file information (name, type, size, dates, ID)
+  - Dark mode compatible with smooth animations
+  - Used for both Google Drive and DevPad file properties
+
+### Added - Document Preview Enhancements
+- **MS Office Document Preview**: View Office files directly in DevPad
+  - Microsoft Office Online Viewer integration for Word, Excel, PowerPoint
+  - Supports .doc, .docx, .xls, .xlsx, .ppt, .pptx formats
+  - Full document rendering with scroll, zoom, and search capabilities
+  - Uses signed URLs with Microsoft's official viewer service
+
+- **Enhanced Media Preview**: Improved video and audio playback
+  - Video files (.mp4, .avi, .mov, .webm, .mkv) play in iframe with native controls
+  - Audio files (.mp3, .wav, .ogg, .flac, .m4a) play in iframe with controls
+  - Fullscreen support for videos
+  - Proper permissions for autoplay and encrypted media
+
+- **Text File Preview**: View text-based files in browser
+  - Support for .txt, .md, .json, .xml, .csv, .log files
+  - Code file preview (.html, .css, .js, .ts)
+  - Rendered in iframe for proper formatting
+
+### Changed
+- **File Download Behavior**: DevPad files now download directly instead of opening in new tab
+  - Fetches files as blobs from Supabase storage
+  - Creates proper download links with correct filenames and extensions
+  - Automatically revokes object URLs after download
+  - Improved user experience with "Download started" toast notification
+
+- **Google Drive API Integration**: Migrated from HttpClient to native fetch API
+  - Better authentication header handling
+  - Proper support for Google Workspace file exports
+  - Export format mapping (Docs→.docx, Sheets→.xlsx, Slides→.pptx, Drawings→.png)
+  - Improved error handling and retry logic
+
+- **Workspace State Management**: Enhanced cross-component communication
+  - Added `googleDriveFileSelected$` Subject for file selection events
+  - `emitGoogleDriveFileSelected()` method for broadcasting selections
+  - Proper cleanup in component lifecycle hooks
+
+- **Sidebar Layout**: Integrated Google Drive tree in sidebar
+  - Added "Cloud Storage" section below folders
+  - Automatic connection status check on component initialization
+  - Seamless integration with existing folder navigation
+
+### Technical Details
+- **Services Modified**:
+  - `google-drive.service.ts`: File operations, OAuth, API integration
+  - `workspace-state.service.ts`: Google Drive file selection state
+  - `note.service.ts`: Document upload enhancements
+
+- **Components Modified**:
+  - `google-drive-tree.component.ts`: File tree, kebab menu, actions
+  - `google-drive-preview.component.ts`: File preview display
+  - `note-workspace.component.ts`: Preview integration
+  - `folder-tree.component.ts`: Download behavior fix
+  - `document-preview.component.ts`: Office/media preview support
+  - `sidebar.component.ts`: Google Drive integration
+
+- **New Components**:
+  - `properties-modal.component.ts`: Generic file properties modal
+  - `google-drive-preview.component.ts`: Google file preview
+
+### Fixed
+- Google Drive API 401/403 authentication errors resolved with fetch API
+- Workspace file export now uses proper Google API export endpoints
+- Duplicate key violations in Supabase integrations table fixed with onConflict
+- DevPad file downloads now properly extract filename and extension
+- Office document preview works with signed URLs and Microsoft viewer
+
+## [Unreleased] - 2025-11-17
+
 ### Added
 - **Material File Icons Integration**: Implemented proper Material Design file type icons using `@ng-icons/core` and `@ng-icons/material-file-icons` packages
   - 34+ colored icons for different file types (PDF, Word, Excel, PowerPoint, images, videos, audio, archives, code files)

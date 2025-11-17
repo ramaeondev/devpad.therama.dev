@@ -1,0 +1,219 @@
+import { Component } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { RouterLink } from '@angular/router';
+import { LogoComponent } from '../../../../shared/components/ui/logo/logo.component';
+
+@Component({
+  selector: 'app-terms',
+  standalone: true,
+  imports: [CommonModule, RouterLink, LogoComponent],
+  template: `
+    <div class="min-h-screen bg-gray-50 dark:bg-gray-900">
+      <div class="max-w-4xl mx-auto px-4 py-8 sm:px-6 lg:px-8">
+        <!-- Header with Logo -->
+        <div class="text-center mb-12">
+          <app-logo class="mx-auto mb-4"></app-logo>
+          <h1 class="text-3xl font-bold text-gray-900 dark:text-white mb-2">Terms of Service</h1>
+          <p class="text-gray-600 dark:text-gray-400">Last Updated: November 17, 2025</p>
+        </div>
+
+        <!-- Content -->
+        <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-8 space-y-8">
+
+          <!-- Introduction -->
+          <section>
+            <p class="text-gray-700 dark:text-gray-300 leading-relaxed">
+              These Terms of Service ("Terms") govern your access to and use of <strong class="text-primary-600 dark:text-primary-400">DevPad</strong>,
+              a modern note-taking and productivity application provided by <strong class="text-primary-600 dark:text-primary-400">Ramaeon</strong>
+              ("we", "our", "us"). By using DevPad, you acknowledge that you have read, understood, and agree to these Terms.
+              If you do not agree, you must discontinue use of the application immediately.
+            </p>
+          </section>
+
+          <!-- Sections -->
+          <section>
+            <h2 class="text-xl font-semibold text-gray-900 dark:text-white mb-4">1. Acceptance of Terms</h2>
+            <p class="text-gray-700 dark:text-gray-300 leading-relaxed">
+              By creating an account, accessing, or using DevPad, you agree to comply with these Terms and all applicable laws and regulations.
+              These Terms apply to all users of the DevPad web application and mobile applications.
+            </p>
+          </section>
+
+          <section>
+            <h2 class="text-xl font-semibold text-gray-900 dark:text-white mb-4">2. Eligibility</h2>
+            <p class="text-gray-700 dark:text-gray-300 leading-relaxed">
+              You must be at least 13 years old to use DevPad. By using the service, you confirm that you meet this age requirement
+              and have the legal capacity to enter into these Terms. If you are under 18, you must have parental consent.
+            </p>
+          </section>
+
+          <section>
+            <h2 class="text-xl font-semibold text-gray-900 dark:text-white mb-4">3. Account Registration & Security</h2>
+            <p class="text-gray-700 dark:text-gray-300 leading-relaxed mb-3">
+              To use DevPad, you must create an account using your email address. You agree to:
+            </p>
+            <ul class="list-disc list-inside text-gray-700 dark:text-gray-300 space-y-2 ml-4">
+              <li>Provide accurate and complete information during registration</li>
+              <li>Maintain the confidentiality of your account credentials</li>
+              <li>Notify us immediately of any unauthorized access to your account</li>
+              <li>Be responsible for all activities that occur under your account</li>
+            </ul>
+          </section>
+
+          <section>
+            <h2 class="text-xl font-semibold text-gray-900 dark:text-white mb-4">4. Use of the Service</h2>
+            <p class="text-gray-700 dark:text-gray-300 leading-relaxed mb-3">
+              DevPad is designed for personal and professional note-taking, organization, and productivity. You agree to use the service only for lawful purposes and in compliance with these Terms. Prohibited activities include:
+            </p>
+            <ul class="list-disc list-inside text-gray-700 dark:text-gray-300 space-y-2 ml-4">
+              <li>Violating any applicable laws or regulations</li>
+              <li>Disrupting or interfering with the security, functionality, or integrity of the application</li>
+              <li>Attempting to bypass authentication, security, or access restrictions</li>
+              <li>Using automation, bots, or scraping tools to access the service</li>
+              <li>Uploading viruses, malware, or harmful code</li>
+              <li>Engaging in fraud, spam, or unlawful activity</li>
+            </ul>
+          </section>
+
+          <section>
+            <h2 class="text-xl font-semibold text-gray-900 dark:text-white mb-4">5. User Content & Data</h2>
+            <p class="text-gray-700 dark:text-gray-300 leading-relaxed mb-3">
+              You retain full ownership of all content you create, upload, or store within DevPad ("User Content"). This includes notes, documents, and any other materials you create using the application.
+            </p>
+            <p class="text-gray-700 dark:text-gray-300 leading-relaxed mb-3">
+              By using DevPad, you grant us a limited, non-exclusive license to process, store, and transmit your content solely for the purpose of providing the DevPad service. Your content must not:
+            </p>
+            <ul class="list-disc list-inside text-gray-700 dark:text-gray-300 space-y-2 ml-4">
+              <li>Violate any laws or regulations</li>
+              <li>Infringe upon third-party intellectual property rights</li>
+              <li>Contain harmful, abusive, or malicious material</li>
+              <li>Include illegal content or materials</li>
+            </ul>
+          </section>
+
+          <section>
+            <h2 class="text-xl font-semibold text-gray-900 dark:text-white mb-4">6. Privacy & Data Protection</h2>
+            <p class="text-gray-700 dark:text-gray-300 leading-relaxed">
+              Your use of DevPad is also governed by our 
+              <a routerLink="/privacy" class="text-primary-600 dark:text-primary-400 hover:underline">Privacy Policy</a>. 
+              We are committed to protecting your privacy and handling your data responsibly.
+              By using DevPad, you consent to the collection and use of data as described in our Privacy Policy, including the use of Supabase for data storage and authentication.
+            </p>
+          </section>
+
+          <section>
+            <h2 class="text-xl font-semibold text-gray-900 dark:text-white mb-4">7. Intellectual Property</h2>
+            <p class="text-gray-700 dark:text-gray-300 leading-relaxed">
+              DevPad, including its software, design, branding, logos, and all related intellectual property, belongs to Ramaeon.
+              You may not copy, reverse-engineer, distribute, or reuse any part of the platform without explicit written permission.
+              The DevPad name, logo, and branding are trademarks of Ramaeon.
+            </p>
+          </section>
+
+          <section>
+            <h2 class="text-xl font-semibold text-gray-900 dark:text-white mb-4">8. Service Availability & Support</h2>
+            <p class="text-gray-700 dark:text-gray-300 leading-relaxed">
+              We strive to provide reliable service but do not guarantee uninterrupted availability. DevPad may experience occasional downtime for maintenance, updates, or unforeseen technical issues.
+              We may modify, suspend, or discontinue any feature or service at any time with or without notice.
+            </p>
+          </section>
+
+          <section>
+            <h2 class="text-xl font-semibold text-gray-900 dark:text-white mb-4">9. Termination</h2>
+            <p class="text-gray-700 dark:text-gray-300 leading-relaxed">
+              We may suspend or terminate your access to DevPad if you violate these Terms or engage in harmful activity.
+              Upon termination, your access to stored content may be removed after a grace period. You are responsible for backing up your data before termination.
+              You may also terminate your account at any time through the application settings.
+            </p>
+          </section>
+
+          <section>
+            <h2 class="text-xl font-semibold text-gray-900 dark:text-white mb-4">10. Changes to These Terms</h2>
+            <p class="text-gray-700 dark:text-gray-300 leading-relaxed">
+              We may update these Terms periodically to reflect changes in our services or legal requirements.
+              We will notify users of significant changes via email or in-app notifications. Continued use of DevPad after changes are published indicates your acceptance of the revised Terms.
+            </p>
+          </section>
+
+          <section>
+            <h2 class="text-xl font-semibold text-gray-900 dark:text-white mb-4">11. Limitation of Liability</h2>
+            <p class="text-gray-700 dark:text-gray-300 leading-relaxed">
+              DevPad is provided "AS IS" and "AS AVAILABLE" without warranties of any kind, either express or implied.
+              To the maximum extent permitted by law, we are not liable for any indirect, incidental, punitive, or consequential damages.
+              Our total liability is limited to the amount paid by you (if any) within the previous 12 months.
+            </p>
+          </section>
+
+          <section>
+            <h2 class="text-xl font-semibold text-gray-900 dark:text-white mb-4">12. Governing Law</h2>
+            <p class="text-gray-700 dark:text-gray-300 leading-relaxed">
+              These Terms shall be governed by the laws of India, without regard to conflict-of-law principles.
+              Any disputes arising from these Terms or your use of DevPad shall be resolved in the courts of India.
+            </p>
+          </section>
+
+          <section>
+            <h2 class="text-xl font-semibold text-gray-900 dark:text-white mb-4">13. Contact Information</h2>
+            <div class="bg-gray-50 dark:bg-gray-700 rounded-lg p-4">
+              <p class="text-gray-700 dark:text-gray-300 mb-2">For questions, support, or legal inquiries, contact:</p>
+              <div class="space-y-1">
+                <p class="text-sm"><strong class="text-primary-600 dark:text-primary-400">Email:</strong> support&#64;therama.dev</p>
+                <p class="text-sm"><strong class="text-primary-600 dark:text-primary-400">Website:</strong> 
+                  <a href="https://therama.dev" target="_blank" rel="noopener noreferrer" class="text-primary-600 dark:text-primary-400 hover:underline">
+                    therama.dev
+                  </a>
+                </p>
+                <p class="text-sm"><strong class="text-primary-600 dark:text-primary-400">GitHub:</strong> 
+                  <a href="https://github.com/ramaeondev" target="_blank" rel="noopener noreferrer" class="text-primary-600 dark:text-primary-400 hover:underline">
+                    github.com/ramaeondev
+                  </a>
+                </p>
+              </div>
+            </div>
+          </section>
+
+          <!-- MIT License Section -->
+          <section class="border-t border-gray-200 dark:border-gray-700 pt-8">
+            <h2 class="text-xl font-semibold text-gray-900 dark:text-white mb-4">Open Source License</h2>
+            <div class="bg-gray-50 dark:bg-gray-700 rounded-lg p-4">
+              <h3 class="font-medium text-gray-900 dark:text-white mb-2">MIT License</h3>
+              <pre class="text-xs text-gray-700 dark:text-gray-300 whitespace-pre-wrap font-mono bg-white dark:bg-gray-800 p-3 rounded border overflow-x-auto"><code>MIT License
+
+Copyright (c) 2025 Ramaeon
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.</code></pre>
+            </div>
+          </section>
+
+        </div>
+
+        <!-- Footer -->
+        <footer class="mt-12 text-center text-sm text-gray-600 dark:text-gray-400">
+          <p class="mb-2">
+            <a routerLink="/" class="text-primary-600 dark:text-primary-400 hover:underline font-medium">← Back to DevPad</a> | 
+            <a routerLink="/privacy" class="text-primary-600 dark:text-primary-400 hover:underline font-medium">Privacy Policy</a>
+          </p>
+          <p class="text-gray-500 dark:text-gray-500">&copy; 2025 DevPad by Ramaeon. All rights reserved.</p>
+        </footer>
+      </div>
+    </div>
+  `,
+  styles: [],
+})
+export class TermsComponent {}

@@ -54,8 +54,8 @@ import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 })
 export class TermsModalComponent implements OnChanges {
   @Input() title = 'Terms & Conditions';
-  /** Path to an HTML page under public/, e.g. '/terms.html' */
-  @Input() termsSrc: string = '/terms.html';
+  /** Path to an Angular route or component for terms */
+    @Input() termsSrc: string = '/terms';
   @Output() close = new EventEmitter<void>();
 
   safeSrc: SafeResourceUrl;
@@ -74,14 +74,10 @@ export class TermsModalComponent implements OnChanges {
   private trustSrc(path: string): SafeResourceUrl {
     try {
       const base = typeof window !== 'undefined' ? window.location.origin : '';
-      const url = new URL(path || '/terms.html', base);
-      // Enforce same-origin for safety; if not same-origin, fallback to default
-      if (base && url.origin !== base) {
-        return this.sanitizer.bypassSecurityTrustResourceUrl('/terms.html');
-      }
-      return this.sanitizer.bypassSecurityTrustResourceUrl(url.toString());
+      // For Angular, just use the route directly
+      return this.sanitizer.bypassSecurityTrustResourceUrl(this.termsSrc);
     } catch {
-      return this.sanitizer.bypassSecurityTrustResourceUrl('/terms.html');
+      return this.sanitizer.bypassSecurityTrustResourceUrl(this.termsSrc);
     }
   }
 }

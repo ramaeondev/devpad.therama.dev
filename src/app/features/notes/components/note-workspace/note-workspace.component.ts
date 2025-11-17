@@ -2,32 +2,43 @@ import { Component, inject, signal, computed, effect } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MarkdownEditorComponent } from '../markdown-editor/markdown-editor.component';
 import { DocumentPreviewComponent } from '../../../../shared/components/ui/document-preview/document-preview.component';
+import { GoogleDrivePreviewComponent } from '../../../integrations/components/google-drive-preview/google-drive-preview.component';
 import { FolderTree } from '../../../../core/models/folder.model';
 import { AuthStateService } from '../../../../core/services/auth-state.service';
 import { FolderService } from '../../../folders/services/folder.service';
 import { NoteService } from '../../../../core/services/note.service';
 import { ToastService } from '../../../../core/services/toast.service';
 import { WorkspaceStateService } from '../../../../core/services/workspace-state.service';
+import { GoogleDriveService } from '../../../../core/services/google-drive.service';
+import { GoogleDriveFile } from '../../../../core/models/integration.model';
 
 @Component({
   selector: 'app-note-workspace',
   standalone: true,
-  imports: [CommonModule, MarkdownEditorComponent, DocumentPreviewComponent],
+  imports: [CommonModule, MarkdownEditorComponent, DocumentPreviewComponent, GoogleDrivePreviewComponent],
   template: `
     <div class="h-full flex flex-col">
-      <!-- Toolbar -->
-      <div class="flex-1 h-full overflow-y-auto p-3 sm:p-4 md:p-6 flex flex-col gap-3 sm:gap-4">
-        <div class="flex items-center gap-2 sm:gap-3 flex-wrap">
-          <button
-            class="px-3 sm:px-4 py-2 rounded bg-primary-600 text-white text-sm font-medium touch-manipulation"
-            (click)="createNewNote()"
-          >
-            New Note
-          </button>
-          @if (selectedNoteId()) {
-            <span class="text-xs text-gray-500 hidden sm:inline">ID: {{ selectedNoteId() }}</span>
-          }
-        </div>
+      <!-- Google Drive Preview -->
+      @if (selectedGoogleDriveFile()) {
+        <app-google-drive-preview
+          [file]="selectedGoogleDriveFile()!"
+          (onClose)="closeGoogleDrivePreview()"
+          (onFileAction)="handleGoogleDriveFileAction($event)"
+        />
+      } @else {
+        <!-- Toolbar -->
+        <div class="flex-1 h-full overflow-y-auto p-3 sm:p-4 md:p-6 flex flex-col gap-3 sm:gap-4">
+          <div class="flex items-center gap-2 sm:gap-3 flex-wrap">
+            <button
+              class="px-3 sm:px-4 py-2 rounded bg-primary-600 text-white text-sm font-medium touch-manipulation"
+              (click)="createNewNote()"
+            >
+              New Note
+            </button>
+            @if (selectedNoteId()) {
+              <span class="text-xs text-gray-500 hidden sm:inline">ID: {{ selectedNoteId() }}</span>
+            }
+          </div>
 
         <!-- Title input -->
         @if (currentMode() !== 'empty') {
@@ -80,7 +91,8 @@ import { WorkspaceStateService } from '../../../../core/services/workspace-state
         }
 
         <!-- Notes list removed; rely on folder tree for navigation -->
-      </div>
+        </div>
+      }
     </div>
   `,
   styles: [],
@@ -91,6 +103,7 @@ export class NoteWorkspaceComponent {
   private auth = inject(AuthStateService);
   private toast = inject(ToastService);
   private workspaceState = inject(WorkspaceStateService);
+  private googleDrive = inject(GoogleDriveService);
 
   folders = signal<FolderTree[]>([]);
   // Use shared selected folder state from workspaceState
@@ -98,6 +111,7 @@ export class NoteWorkspaceComponent {
 
   notes = signal<any[]>([]); // could type Note
   selectedNoteId = signal<string | null>(null);
+  selectedGoogleDriveFile = signal<GoogleDriveFile | null>(null);
   currentNote = signal<any>(null); // Full note object
 
   title = signal('');
@@ -199,6 +213,12 @@ export class NoteWorkspaceComponent {
         // Refresh list for authoritative data (timestamps, etc.)
         this.loadNotes(note.folder_id!);
       }
+    });
+
+    // React to Google Drive file selection
+    this.workspaceState.googleDriveFileSelected$.subscribe((file) => {
+      console.log('Google Drive file selected in note-workspace:', file);
+      this.selectedGoogleDriveFile.set(file);
     });
 
     // React to note selection from folder tree
@@ -344,6 +364,29 @@ export class NoteWorkspaceComponent {
         });
     } else {
       this.content.set(note.content || '');
+    }
+  }
+
+  closeGoogleDrivePreview() {
+    this.selectedGoogleDriveFile.set(null);
+  }
+
+  async handleGoogleDriveFileAction(event: { action: string; file: GoogleDriveFile }) {
+    const { action, file } = event;
+
+    switch (action) {
+      case 'rename':
+        await this.googleDrive.renameFile(file.id, file.name);
+        break;
+      case 'delete':
+        const success = await this.googleDrive.deleteFile(file.id);
+        if (success) {
+          this.closeGoogleDrivePreview();
+        }
+        break;
+      case 'imported':
+        // File was imported, just close preview
+        break;
     }
   }
 
