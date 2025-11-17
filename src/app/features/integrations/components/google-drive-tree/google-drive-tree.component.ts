@@ -11,13 +11,14 @@ import { PropertiesModalComponent, PropertyItem } from '../../../../shared/compo
 import { IconDirective } from '../../../../shared/directives';
 import { GoogleDriveIconPipe } from '../../../../shared/pipes/google-drive-icon.pipe';
 import { IconComponent } from '../../../../shared/components/ui/icon/icon.component';
+import { DropdownComponent } from '../../../../shared/components/ui/dropdown/dropdown.component';
 
 @Component({
   selector: 'app-google-drive-tree',
   standalone: true,
-  imports: [CommonModule, PropertiesModalComponent, IconDirective, GoogleDriveIconPipe, IconComponent],
+  imports: [CommonModule, PropertiesModalComponent, IconDirective, GoogleDriveIconPipe, IconComponent, DropdownComponent],
   template: `
-    <div class="google-drive-tree-container">
+    <div class="google-drive-tree-container p-2">
       @if (!googleDrive.isConnected()) {
         <div class="text-center py-8">
           <div class="text-gray-500 dark:text-gray-400 mb-4">
@@ -33,22 +34,24 @@ import { IconComponent } from '../../../../shared/components/ui/icon/icon.compon
         </div>
       } @else {
         @if (googleDrive.rootFolder(); as root) {
-          <div class="p-4">
+          <div class="folder-item">
             <!-- Root Folder Accordion Header -->
             <div 
-              class="flex items-center justify-between mb-2 cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700/50 rounded-lg p-2 -mx-2 transition-colors"
+              class="folder-header flex items-center gap-2 px-2 sm:px-3 py-2.5 sm:py-2 rounded-lg cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
               (click)="toggleRootFolder()"
             >
-              <div class="flex items-center gap-2">
+              <div class="flex items-center gap-2 flex-1 min-w-0">
                 <span class="text-lg">{{ isRootExpanded() ? '📂' : '📁' }}</span>
-                <h3 class="font-semibold text-gray-900 dark:text-gray-100">{{ root.name }}</h3>
-                <span class="text-xs text-gray-500 dark:text-gray-400">
-                  {{ root.files.length + root.folders.length }} items
-                </span>
+                <h3 class="font-semibold text-gray-700 dark:text-gray-300 flex-1 truncate">{{ root.name }}</h3>
               </div>
+              @if (root.files.length + root.folders.length > 0) {
+                <span class="notes-count px-2 py-0.5 text-xs rounded-full bg-primary-100 dark:bg-primary-900 text-primary-700 dark:text-primary-300">
+                  {{ root.files.length + root.folders.length }}
+                </span>
+              }
               <button
                 (click)="googleDrive.loadFiles(); $event.stopPropagation()"
-                class="text-sm text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 transition-colors"
+                class="p-1 rounded hover:bg-gray-200 dark:hover:bg-gray-700"
                 title="Refresh"
               >
                 <app-icon name="refresh" [size]="16"></app-icon>
@@ -57,8 +60,8 @@ import { IconComponent } from '../../../../shared/components/ui/icon/icon.compon
             
             <!-- Root Folder Content -->
             @if (isRootExpanded()) {
-              <div class="space-y-1">
-                <ng-container *ngTemplateOutlet="folderTemplate; context: { $implicit: root, level: 0 }"></ng-container>
+              <div class="space-y-1 mt-1">
+                <ng-container *ngTemplateOutlet="folderTemplate; context: { $implicit: root, level: 1 }"></ng-container>
               </div>
             }
           </div>
@@ -70,95 +73,86 @@ import { IconComponent } from '../../../../shared/components/ui/icon/icon.compon
 
     <!-- Recursive folder template -->
     <ng-template #folderTemplate let-folder let-level="level">
-      <!-- Render subfolders -->
-      @for (subFolder of folder.folders; track subFolder.id) {
-        <div class="folder-item" [style.padding-left.rem]="level * 1.5">
-          <div class="flex items-center gap-2" (click)="toggleFolder(subFolder.id)">
-            <span class="text-lg">{{ isExpanded(subFolder.id) ? '📂' : '📁' }}</span>
-            <span class="flex-1 text-gray-900 dark:text-gray-100">{{ subFolder.name }}</span>
-            <span class="text-xs text-gray-500 dark:text-gray-400">
-              {{ subFolder.files.length + subFolder.folders.length }} items
-            </span>
-          </div>
-          @if (isExpanded(subFolder.id)) {
-            <div class="mt-1">
-              <ng-container *ngTemplateOutlet="folderTemplate; context: { $implicit: subFolder, level: level + 1 }"></ng-container>
+      <div [style.padding-left.rem]="level * 1.5">
+        <!-- Render subfolders -->
+        @for (subFolder of folder.folders; track subFolder.id) {
+          <div class="folder-item">
+            <div class="folder-header flex items-center gap-2 px-2 py-1.5 rounded-lg cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-800" (click)="toggleFolder(subFolder.id)">
+              @if (subFolder.folders.length > 0) {
+                <button 
+                  class="expand-btn w-4 h-4 flex items-center justify-center"
+                  (click)="toggleFolder(subFolder.id); $event.stopPropagation()"
+                >
+                  @if (isExpanded(subFolder.id)) {
+                    <app-icon name="expand_more" [size]="16"></app-icon>
+                  } @else {
+                    <app-icon name="chevron_right" [size]="16"></app-icon>
+                  }
+                </button>
+              } @else {
+                <span class="w-4"></span>
+              }
+              <span class="text-lg">📂</span>
+              <span class="flex-1 text-sm font-medium text-gray-700 dark:text-gray-300 truncate">{{ subFolder.name }}</span>
+              @if (subFolder.files.length + subFolder.folders.length > 0) {
+                <span class="notes-count px-2 py-0.5 text-xs rounded-full bg-gray-200 dark:bg-gray-700 text-gray-600 dark:text-gray-300">
+                  {{ subFolder.files.length + subFolder.folders.length }}
+                </span>
+              }
             </div>
-          }
-        </div>
-      }
-      
-      <!-- Render files -->
-      @for (file of folder.files; track file.id) {
-        <div 
-          class="file-item group" 
-          [style.padding-left.rem]="level * 1.5"
-        >
-          <div class="flex items-center gap-2 flex-1 min-w-0 cursor-pointer" (click)="onFileClick(file)">
-            <span class="w-4 h-4 flex-shrink-0" appIcon [appIcon]="file | googleDriveIcon" [size]="16"></span>
-            <span class="flex-1 truncate text-gray-900 dark:text-gray-100">{{ file.name }}</span>
-          </div>
-          
-          <!-- Kebab Menu -->
-          <div class="relative flex-shrink-0">
-            <button
-              (click)="toggleFileMenu(file.id); $event.stopPropagation()"
-              class="p-1.5 rounded hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors opacity-0 group-hover:opacity-100"
-              [class.opacity-100]="openMenuId() === file.id"
-            >
-              <app-icon name="more_vert" [size]="16"></app-icon>
-            </button>
-            
-            @if (openMenuId() === file.id) {
-              <div class="absolute right-0 mt-1 w-48 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 z-20">
-                <button
-                  (click)="handleDownload(file); $event.stopPropagation()"
-                  class="w-full text-left px-3 py-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors flex items-center justify-between gap-2 rounded-t-lg"
-                >
-                  <span>Download</span>
-                  <app-icon name="download" [size]="16"></app-icon>
-                </button>
-                
-                <button
-                  (click)="handleImportToDevPad(file); $event.stopPropagation()"
-                  class="w-full text-left px-3 py-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors flex items-center justify-between gap-2"
-                >
-                  <span>Import to DevPad</span>
-                  <app-icon name="file_upload" [size]="16"></app-icon>
-                </button>
-                
-                <button
-                  (click)="handleRename(file); $event.stopPropagation()"
-                  class="w-full text-left px-3 py-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors flex items-center justify-between gap-2"
-                >
-                  <span>Rename</span>
-                  <app-icon name="edit" [size]="16"></app-icon>
-                </button>
-                
-                <div class="border-t border-gray-200 dark:border-gray-700"></div>
-                
-                <button
-                  (click)="handleProperties(file); $event.stopPropagation()"
-                  class="w-full text-left px-3 py-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors flex items-center justify-between gap-2"
-                >
-                  <span>Properties</span>
-                  <app-icon name="info" [size]="16"></app-icon>
-                </button>
-                
-                <div class="border-t border-gray-200 dark:border-gray-700"></div>
-                
-                <button
-                  (click)="handleDelete(file); $event.stopPropagation()"
-                  class="w-full text-left px-3 py-2 text-sm hover:bg-red-50 dark:hover:bg-red-900/20 text-red-600 dark:text-red-400 transition-colors flex items-center justify-between gap-2 rounded-b-lg"
-                >
-                  <span>Delete</span>
-                  <app-icon name="delete" [size]="16"></app-icon>
-                </button>
+            @if (isExpanded(subFolder.id)) {
+              <div class="mt-1">
+                <ng-container *ngTemplateOutlet="folderTemplate; context: { $implicit: subFolder, level: level + 1 }"></ng-container>
               </div>
             }
           </div>
-        </div>
-      }
+        }
+        
+        <!-- Render files -->
+        @for (file of folder.files; track file.id) {
+          <div 
+            class="note-row flex items-center gap-2 px-2 py-1 rounded cursor-pointer text-xs hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+            (click)="onFileClick(file)"
+          >
+            <span class="w-4"></span> <!-- Spacer -->
+            <span class="note-icon w-4 h-4 pointer-events-none" appIcon [appIcon]="file | googleDriveIcon" [size]="16"></span>
+            <span class="truncate flex-1" [title]="file.name">{{ file.name }}</span>
+            
+            <!-- Kebab Menu -->
+            <div class="dropdown-wrapper" (click)="$event.stopPropagation()">
+              <app-dropdown align="right">
+                <button dropdownTrigger class="p-0.5 rounded hover:bg-gray-200 dark:hover:bg-gray-600">
+                  <app-icon name="more_vert" [size]="16"></app-icon>
+                </button>
+                <div dropdownMenu class="text-xs">
+                  <button class="dropdown-item" (click)="handleDownload(file)">
+                    <span>Download</span>
+                    <app-icon name="download" [size]="16"></app-icon>
+                  </button>
+                  <button class="dropdown-item" (click)="handleImportToDevPad(file)">
+                    <span>Import to DevPad</span>
+                    <app-icon name="file_upload" [size]="16"></app-icon>
+                  </button>
+                  <button class="dropdown-item" (click)="handleRename(file)">
+                    <span>Rename</span>
+                    <app-icon name="edit" [size]="16"></app-icon>
+                  </button>
+                  <hr class="my-1 border-gray-200 dark:border-gray-700" />
+                  <button class="dropdown-item" (click)="handleProperties(file)">
+                    <span>Properties</span>
+                    <app-icon name="info" [size]="16"></app-icon>
+                  </button>
+                  <hr class="my-1 border-gray-200 dark:border-gray-700" />
+                  <button class="dropdown-item text-red-600 hover:bg-red-50 dark:hover:bg-red-900/30" (click)="handleDelete(file)">
+                    <span>Delete</span>
+                    <app-icon name="delete" [size]="16"></app-icon>
+                  </button>
+                </div>
+              </app-dropdown>
+            </div>
+          </div>
+        }
+      </div>
     </ng-template>
 
     <!-- Properties Modal -->
@@ -171,16 +165,11 @@ import { IconComponent } from '../../../../shared/components/ui/icon/icon.compon
   `,
   styles: [
     `
-      .google-drive-tree-container {
-        @apply bg-transparent;
-      }
-
       .folder-item {
-        @apply py-2 px-3 rounded hover:bg-gray-100 dark:hover:bg-gray-700/50 cursor-pointer transition-colors;
+        @apply space-y-1;
       }
-
-      .file-item {
-        @apply py-1.5 px-3 text-sm rounded hover:bg-gray-50 dark:hover:bg-gray-800/50 flex items-center gap-2 justify-between transition-colors;
+      .dropdown-item {
+        @apply w-full text-left px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 flex items-center justify-between;
       }
     `,
   ],
