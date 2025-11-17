@@ -28,5 +28,12 @@ export interface FolderTree extends Folder {
   children?: FolderTree[];
   notes_count?: number;
   // Added for UI layering of notes inside tree (optional runtime property)
-  notes?: { id: string; title: string; updated_at: string; folder_id: string | null; content?: string; icon?: string }[];
+  notes?: {
+    id: string;
+    title: string;
+    updated_at: string;
+    folder_id: string | null;
+    content?: string;
+    icon?: string;
+  }[];
 }

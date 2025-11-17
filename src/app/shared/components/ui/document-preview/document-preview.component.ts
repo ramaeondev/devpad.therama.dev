@@ -18,9 +18,24 @@ import { SupabaseService } from '../../../../core/services/supabase.service';
         @if (isLoading()) {
           <div class="h-full flex items-center justify-center">
             <div class="text-center">
-              <svg class="animate-spin h-8 w-8 mx-auto mb-4 text-primary-600" fill="none" viewBox="0 0 24 24">
-                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+              <svg
+                class="animate-spin h-8 w-8 mx-auto mb-4 text-primary-600"
+                fill="none"
+                viewBox="0 0 24 24"
+              >
+                <circle
+                  class="opacity-25"
+                  cx="12"
+                  cy="12"
+                  r="10"
+                  stroke="currentColor"
+                  stroke-width="4"
+                ></circle>
+                <path
+                  class="opacity-75"
+                  fill="currentColor"
+                  d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                ></path>
               </svg>
               <p class="text-gray-500 dark:text-gray-400">Loading document...</p>
             </div>
@@ -45,8 +60,13 @@ import { SupabaseService } from '../../../../core/services/supabase.service';
           } @else if (isOfficeDocument()) {
             <div class="h-full flex items-center justify-center bg-gray-50 dark:bg-gray-900 p-8">
               <div class="text-center max-w-md">
-                <div class="w-16 h-16 mx-auto mb-4 text-gray-400 flex-shrink-0" [innerHTML]="getFileIcon()"></div>
-                <h3 class="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-2">{{ note?.title }}</h3>
+                <div
+                  class="w-16 h-16 mx-auto mb-4 text-gray-400 flex-shrink-0"
+                  [innerHTML]="getFileIcon()"
+                ></div>
+                <h3 class="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-2">
+                  {{ note?.title }}
+                </h3>
                 <p class="text-gray-600 dark:text-gray-400">
                   This {{ getFileType() }} document cannot be previewed directly in the browser.
                 </p>
@@ -56,7 +76,9 @@ import { SupabaseService } from '../../../../core/services/supabase.service';
             <div class="h-full flex items-center justify-center bg-gray-50 dark:bg-gray-900 p-8">
               <div class="text-center max-w-md">
                 <div class="text-6xl mb-4">📄</div>
-                <h3 class="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-2">{{ note?.title }}</h3>
+                <h3 class="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-2">
+                  {{ note?.title }}
+                </h3>
                 <p class="text-gray-600 dark:text-gray-400">
                   This file type is not supported for preview.
                 </p>
@@ -66,8 +88,13 @@ import { SupabaseService } from '../../../../core/services/supabase.service';
         } @else {
           <div class="h-full flex items-center justify-center bg-gray-50 dark:bg-gray-900">
             <div class="text-center">
-              <div class="w-16 h-16 mx-auto mb-4 text-gray-400 flex-shrink-0" [innerHTML]="getFileIcon()"></div>
-              <h3 class="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-2">Preview Unavailable</h3>
+              <div
+                class="w-16 h-16 mx-auto mb-4 text-gray-400 flex-shrink-0"
+                [innerHTML]="getFileIcon()"
+              ></div>
+              <h3 class="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-2">
+                Preview Unavailable
+              </h3>
               <p class="text-gray-600 dark:text-gray-400">
                 Unable to load preview for this document.
               </p>
@@ -77,7 +104,7 @@ import { SupabaseService } from '../../../../core/services/supabase.service';
       </div>
     </div>
   `,
-  styles: []
+  styles: [],
 })
 export class DocumentPreviewComponent implements OnInit, OnDestroy {
   @Input() note: any;
@@ -127,7 +154,7 @@ export class DocumentPreviewComponent implements OnInit, OnDestroy {
       // Create signed URL for the document
       const path = fullNote.content.replace('storage://notes/', '');
       console.log('Document path:', path);
-      
+
       const { data: urlData, error: urlErr } = await this.supabase.storage
         .from('notes')
         .createSignedUrl(path, 3600); // 1 hour expiry
@@ -183,33 +210,43 @@ export class DocumentPreviewComponent implements OnInit, OnDestroy {
     const ext = this.getFileExtension();
     switch (ext) {
       case 'doc':
-      case 'docx': return 'Word';
+      case 'docx':
+        return 'Word';
       case 'xls':
-      case 'xlsx': return 'Excel';
+      case 'xlsx':
+        return 'Excel';
       case 'ppt':
-      case 'pptx': return 'PowerPoint';
-      case 'pdf': return 'PDF';
-      case 'txt': return 'Text';
+      case 'pptx':
+        return 'PowerPoint';
+      case 'pdf':
+        return 'PDF';
+      case 'txt':
+        return 'Text';
       case 'jpg':
       case 'jpeg':
       case 'png':
       case 'gif':
-      case 'webp': return 'Image';
+      case 'webp':
+        return 'Image';
       case 'mp4':
       case 'avi':
-      case 'mov': return 'Video';
+      case 'mov':
+        return 'Video';
       case 'mp3':
-      case 'wav': return 'Audio';
+      case 'wav':
+        return 'Audio';
       case 'zip':
-      case 'rar': return 'Archive';
-      default: return 'Document';
+      case 'rar':
+        return 'Archive';
+      default:
+        return 'Document';
     }
   }
 
   getFileIcon(): string {
     const ext = this.getFileExtension();
     console.log('Getting icon for extension:', ext);
-    
+
     switch (ext) {
       case 'pdf':
         return `<svg class="w-full h-full fill-current text-red-500" viewBox="0 0 24 24"><path d="M8.5 2H15.5L19 5.5V22H5V2H8.5ZM15 3.5V7H18.5L15 3.5ZM7 4V20H17V9H13V4H7ZM9 12H11V18H9V12ZM13 10H15V18H13V10Z"/></svg>`;

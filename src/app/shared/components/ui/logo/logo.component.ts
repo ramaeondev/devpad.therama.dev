@@ -13,34 +13,34 @@ import { CommonModule } from '@angular/common';
   `,
   styles: [
     `
-    @keyframes blink {
-      0%, 50% {
-        opacity: 1;
+      @keyframes blink {
+        0%,
+        50% {
+          opacity: 1;
+        }
+        51%,
+        100% {
+          opacity: 0;
+        }
       }
-      51%, 100% {
-        opacity: 0;
+
+      .animate-blink {
+        animation: blink 0.8s infinite;
       }
-    }
-    
-    .animate-blink {
-      animation: blink 0.8s infinite;
-    }
-    
-    .hidden {
-      visibility: hidden;
-    }
-    `
-  ]
+
+      .hidden {
+        visibility: hidden;
+      }
+    `,
+  ],
 })
 export class LogoComponent implements OnInit {
-
   @Input() text = 'DevPad';
   @Input() speed: number = 200;
   @Input() showCursor = false;
   letters: Array<{ char: string; visible: boolean; delay: number }> = [];
 
-
- ngOnInit() {
+  ngOnInit() {
     this.initializeLetters();
     this.typeText();
   }
@@ -67,5 +67,4 @@ export class LogoComponent implements OnInit {
       }, index * this.speed);
     });
   }
-  
 }

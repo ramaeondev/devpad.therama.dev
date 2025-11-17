@@ -5,17 +5,17 @@ import { SupabaseService } from '../services/supabase.service';
 
 export const authInterceptor: HttpInterceptorFn = (req, next) => {
   const supabase = inject(SupabaseService);
-  
+
   return from(supabase.getSession()).pipe(
     switchMap(({ session }) => {
       if (session?.access_token) {
         req = req.clone({
           setHeaders: {
-            Authorization: `Bearer ${session.access_token}`
-          }
+            Authorization: `Bearer ${session.access_token}`,
+          },
         });
       }
       return next(req);
-    })
+    }),
   );
 };

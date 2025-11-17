@@ -14,6 +14,6 @@ import { CommonModule } from '@angular/common';
         </div>
       </div>
     </div>
-  `
+  `,
 })
 export class FolderListComponent {}

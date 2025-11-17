@@ -22,17 +22,31 @@ import { WorkspaceStateService } from '../../../../core/services/workspace-state
             [value]="title()"
             [disabled]="isDocument()"
             (input)="onTitleInput($event)"
-            placeholder="Note title" />
+            placeholder="Note title"
+          />
           <div class="flex gap-2">
             @if (!isDocument()) {
-              <button class="px-4 py-2 rounded bg-primary-600 text-white disabled:opacity-40" [disabled]="saving()" (click)="onSave()">
-                {{ isNew() ? (saving() ? 'Creating…' : 'Create') : (saving() ? 'Saving…' : 'Save') }}
+              <button
+                class="px-4 py-2 rounded bg-primary-600 text-white disabled:opacity-40"
+                [disabled]="saving()"
+                (click)="onSave()"
+              >
+                {{ isNew() ? (saving() ? 'Creating…' : 'Create') : saving() ? 'Saving…' : 'Save' }}
               </button>
             }
             @if (!isNew()) {
-              <button class="px-4 py-2 rounded border border-red-600 text-red-600 hover:bg-red-50 dark:hover:bg-red-900/30" (click)="onDelete()">Delete</button>
+              <button
+                class="px-4 py-2 rounded border border-red-600 text-red-600 hover:bg-red-50 dark:hover:bg-red-900/30"
+                (click)="onDelete()"
+              >
+                Delete
+              </button>
             }
-            <a routerLink="/notes" class="px-4 py-2 rounded border border-gray-300 dark:border-gray-600">Back</a>
+            <a
+              routerLink="/notes"
+              class="px-4 py-2 rounded border border-gray-300 dark:border-gray-600"
+              >Back</a
+            >
           </div>
         </div>
 
@@ -47,7 +61,7 @@ import { WorkspaceStateService } from '../../../../core/services/workspace-state
         }
       </div>
     </div>
-  `
+  `,
 })
 export class NoteEditorComponent {
   private route = inject(ActivatedRoute);
@@ -88,7 +102,7 @@ export class NoteEditorComponent {
       this.currentNote.set(note);
       this.title.set(note.title);
       this.content.set(note.content || '');
-    } catch (e:any) {
+    } catch (e: any) {
       console.error(e);
       this.toast.error('Failed to load note');
     }
@@ -101,7 +115,11 @@ export class NoteEditorComponent {
     this.saving.set(true);
     try {
       if (this.isNew()) {
-        const created = await this.noteService.createNote(userId, { title: t, content: c, folder_id: null });
+        const created = await this.noteService.createNote(userId, {
+          title: t,
+          content: c,
+          folder_id: null,
+        });
         this.toast.success('Note created');
         // Notify other parts of the app (folder tree, workspace) that a note was created
         try {
@@ -115,11 +133,14 @@ export class NoteEditorComponent {
         // navigate to edit route (keeping content)
         this.router.navigate(['/notes', created.id, 'edit']);
       } else if (this.noteId()) {
-        const updated = await this.noteService.updateNote(this.noteId()!, userId, { title: t, content: c });
+        const updated = await this.noteService.updateNote(this.noteId()!, userId, {
+          title: t,
+          content: c,
+        });
         this.toast.success('Note saved');
         this.title.set(updated.title);
       }
-    } catch (e:any) {
+    } catch (e: any) {
       console.error(e);
       this.toast.error('Failed to save note');
     } finally {
@@ -134,7 +155,7 @@ export class NoteEditorComponent {
       await this.noteService.deleteNote(this.noteId()!, userId);
       this.toast.success('Note deleted');
       this.router.navigate(['/notes']);
-    } catch (e:any) {
+    } catch (e: any) {
       console.error(e);
       this.toast.error('Failed to delete note');
     }

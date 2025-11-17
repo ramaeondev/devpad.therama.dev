@@ -7,11 +7,11 @@ export class LoadingService {
   readonly isLoading = computed(() => this.activeRequests() > 0);
 
   start() {
-    this.activeRequests.update(v => v + 1);
+    this.activeRequests.update((v) => v + 1);
   }
 
   stop() {
-    this.activeRequests.update(v => Math.max(0, v - 1));
+    this.activeRequests.update((v) => Math.max(0, v - 1));
   }
 
   // Utility wrapper for promises

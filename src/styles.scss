@@ -6,10 +6,14 @@
   * {
     -webkit-tap-highlight-color: transparent;
   }
-  
+
   body {
     @apply bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100;
-    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    font-family:
+      'Inter',
+      system-ui,
+      -apple-system,
+      sans-serif;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     touch-action: pan-x pan-y;
@@ -30,27 +34,27 @@
   .container {
     @apply mx-auto px-4 sm:px-6 lg:px-8;
   }
-  
+
   .card {
     @apply bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700;
   }
-  
+
   .btn {
     @apply inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50;
   }
-  
+
   .btn-primary {
     @apply bg-primary-600 text-white hover:bg-primary-700 focus-visible:ring-primary-600;
   }
-  
+
   .btn-secondary {
     @apply bg-gray-200 dark:bg-gray-700 text-gray-900 dark:text-gray-100 hover:bg-gray-300 dark:hover:bg-gray-600;
   }
-  
+
   .btn-ghost {
     @apply hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-700 dark:text-gray-300;
   }
-  
+
   .input {
     @apply w-full rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-3 py-2 text-sm placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-primary-600 focus:border-transparent disabled:cursor-not-allowed disabled:opacity-50;
   }

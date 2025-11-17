@@ -8,9 +8,17 @@ import { ToastService } from '../../../../core/services/toast.service';
   standalone: true,
   imports: [CommonModule],
   template: `
-    <div class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50" (click)="close()">
-      <div class="bg-white dark:bg-gray-800 rounded-lg shadow-xl max-w-4xl w-full mx-4 max-h-[90vh] overflow-hidden" (click)="$event.stopPropagation()">
-        <div class="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-700">
+    <div
+      class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
+      (click)="close()"
+    >
+      <div
+        class="bg-white dark:bg-gray-800 rounded-lg shadow-xl max-w-4xl w-full mx-4 max-h-[90vh] overflow-hidden"
+        (click)="$event.stopPropagation()"
+      >
+        <div
+          class="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-700"
+        >
           <h2 class="text-lg font-semibold text-gray-900 dark:text-gray-100">{{ note?.title }}</h2>
           <div class="flex items-center gap-2">
             <button
@@ -19,12 +27,13 @@ import { ToastService } from '../../../../core/services/toast.service';
             >
               Download
             </button>
-            <button
-              class="p-1 rounded hover:bg-gray-200 dark:hover:bg-gray-700"
-              (click)="close()"
-            >
+            <button class="p-1 rounded hover:bg-gray-200 dark:hover:bg-gray-700" (click)="close()">
               <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-                <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"/>
+                <path
+                  fill-rule="evenodd"
+                  d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
+                  clip-rule="evenodd"
+                />
               </svg>
             </button>
           </div>
@@ -37,8 +46,12 @@ import { ToastService } from '../../../../core/services/toast.service';
               <img [src]="previewUrl()!" class="max-w-full h-auto rounded" />
             } @else {
               <div class="text-center py-8">
-                <div class="text-gray-500 dark:text-gray-400 text-lg mb-2">No Preview Available</div>
-                <div class="text-sm text-gray-400">This file type cannot be previewed in the browser.</div>
+                <div class="text-gray-500 dark:text-gray-400 text-lg mb-2">
+                  No Preview Available
+                </div>
+                <div class="text-sm text-gray-400">
+                  This file type cannot be previewed in the browser.
+                </div>
                 <button
                   class="mt-4 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
                   (click)="download()"
@@ -56,7 +69,7 @@ import { ToastService } from '../../../../core/services/toast.service';
       </div>
     </div>
   `,
-  styles: []
+  styles: [],
 })
 export class DocumentPreviewModalComponent {
   @Input() note: any;

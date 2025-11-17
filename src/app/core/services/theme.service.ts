@@ -12,7 +12,7 @@ import { AuthStateService } from './auth-state.service';
 export type Theme = 'light' | 'dark' | 'auto' | 'system';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class ThemeService {
   private currentTheme = signal<Theme>('system');
@@ -73,7 +73,7 @@ export class ThemeService {
       const userId = this.auth.userId();
       if (userId) {
         // Update user's metadata with theme preference. Best-effort only.
-        this.supabase.auth.updateUser({ data: { theme } }).catch(err => {
+        this.supabase.auth.updateUser({ data: { theme } }).catch((err) => {
           console.warn('Failed to persist theme preference to Supabase:', err);
         });
       }
@@ -92,7 +92,10 @@ export class ThemeService {
    * Decide whether the given theme should result in a dark UI.
    */
   private applyTheme(theme: Theme) {
-    const prefersDark = typeof window !== 'undefined' && window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+    const prefersDark =
+      typeof window !== 'undefined' &&
+      window.matchMedia &&
+      window.matchMedia('(prefers-color-scheme: dark)').matches;
     const isNightTime = () => {
       try {
         const h = new Date().getHours();
@@ -103,7 +106,8 @@ export class ThemeService {
       }
     };
 
-    const isDark = theme === 'dark' ||
+    const isDark =
+      theme === 'dark' ||
       (theme === 'system' && prefersDark) ||
       (theme === 'auto' && isNightTime());
 

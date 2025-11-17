@@ -2,7 +2,7 @@ import { Injectable, signal, computed } from '@angular/core';
 import { User } from '@supabase/supabase-js';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class AuthStateService {
   private currentUser = signal<User | null>(null);

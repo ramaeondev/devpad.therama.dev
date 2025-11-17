@@ -18,7 +18,12 @@ import { WorkspaceStateService } from '../../../../core/services/workspace-state
       <!-- Toolbar -->
       <div class="flex-1 h-full overflow-y-auto p-3 sm:p-4 md:p-6 flex flex-col gap-3 sm:gap-4">
         <div class="flex items-center gap-2 sm:gap-3 flex-wrap">
-          <button class="px-3 sm:px-4 py-2 rounded bg-primary-600 text-white text-sm font-medium touch-manipulation" (click)="createNewNote()">New Note</button>
+          <button
+            class="px-3 sm:px-4 py-2 rounded bg-primary-600 text-white text-sm font-medium touch-manipulation"
+            (click)="createNewNote()"
+          >
+            New Note
+          </button>
           @if (selectedNoteId()) {
             <span class="text-xs text-gray-500 hidden sm:inline">ID: {{ selectedNoteId() }}</span>
           }
@@ -30,7 +35,8 @@ import { WorkspaceStateService } from '../../../../core/services/workspace-state
             class="text-lg sm:text-xl font-semibold bg-transparent border-b border-gray-300 dark:border-gray-700 focus:outline-none focus:border-primary-500 text-gray-900 dark:text-gray-100 py-2 px-1 touch-manipulation"
             [value]="title()"
             (input)="onTitleInput($event)"
-            placeholder="Note title" />
+            placeholder="Note title"
+          />
         }
 
         <!-- Content Area -->
@@ -55,11 +61,20 @@ import { WorkspaceStateService } from '../../../../core/services/workspace-state
         <!-- Actions -->
         @if (currentMode() === 'editing') {
           <div class="flex gap-2 sm:gap-3 flex-wrap">
-            <button class="px-4 sm:px-6 py-2.5 rounded bg-primary-600 text-white text-sm font-medium disabled:opacity-40 touch-manipulation min-w-[100px]" [disabled]="saving()" (click)="saveNote()">
-              {{ saving() ? 'Saving…' : (selectedNoteId() ? 'Save' : 'Create') }}
+            <button
+              class="px-4 sm:px-6 py-2.5 rounded bg-primary-600 text-white text-sm font-medium disabled:opacity-40 touch-manipulation min-w-[100px]"
+              [disabled]="saving()"
+              (click)="saveNote()"
+            >
+              {{ saving() ? 'Saving…' : selectedNoteId() ? 'Save' : 'Create' }}
             </button>
             @if (selectedNoteId()) {
-              <button class="px-4 sm:px-6 py-2.5 rounded border border-red-600 text-red-600 text-sm font-medium hover:bg-red-50 dark:hover:bg-red-900/30 touch-manipulation" (click)="deleteNote()">Delete</button>
+              <button
+                class="px-4 sm:px-6 py-2.5 rounded border border-red-600 text-red-600 text-sm font-medium hover:bg-red-50 dark:hover:bg-red-900/30 touch-manipulation"
+                (click)="deleteNote()"
+              >
+                Delete
+              </button>
             }
           </div>
         }
@@ -68,7 +83,7 @@ import { WorkspaceStateService } from '../../../../core/services/workspace-state
       </div>
     </div>
   `,
-  styles: []
+  styles: [],
 })
 export class NoteWorkspaceComponent {
   private folderService = inject(FolderService);
@@ -92,17 +107,36 @@ export class NoteWorkspaceComponent {
   isDocument = computed(() => {
     const note = this.currentNote();
     if (!note?.content || typeof note.content !== 'string') return false;
-    
+
     // Check if content starts with storage:// (indicates uploaded file)
     if (!note.content.startsWith('storage://')) return false;
-    
+
     // Extract file extension
     const path = note.content.replace('storage://notes/', '');
     const ext = path.split('.').pop()?.toLowerCase();
-    
+
     // Define document extensions that should use iframe preview
-    const documentExtensions = ['pdf', 'doc', 'docx', 'xls', 'xlsx', 'ppt', 'pptx', 'txt', 'jpg', 'jpeg', 'png', 'gif', 'webp', 'mp4', 'avi', 'mov', 'mp3', 'wav'];
-    
+    const documentExtensions = [
+      'pdf',
+      'doc',
+      'docx',
+      'xls',
+      'xlsx',
+      'ppt',
+      'pptx',
+      'txt',
+      'jpg',
+      'jpeg',
+      'png',
+      'gif',
+      'webp',
+      'mp4',
+      'avi',
+      'mov',
+      'mp3',
+      'wav',
+    ];
+
     return documentExtensions.includes(ext || '');
   });
 
@@ -113,7 +147,11 @@ export class NoteWorkspaceComponent {
 
   flatFolders = computed(() => {
     const all: FolderTree[] = [];
-    const walk = (list: FolderTree[]) => list.forEach(f => { all.push(f); if (f.children) walk(f.children); });
+    const walk = (list: FolderTree[]) =>
+      list.forEach((f) => {
+        all.push(f);
+        if (f.children) walk(f.children);
+      });
     walk(this.folders());
     return all;
   });
@@ -139,7 +177,7 @@ export class NoteWorkspaceComponent {
     await this.reloadFolders();
     // If no folder selected yet, auto-select root
     if (!this.selectedFolderId()) {
-      const root = this.folders().find(f => f.is_root);
+      const root = this.folders().find((f) => f.is_root);
       if (root) {
         this.workspaceState.setSelectedFolder(root.id);
       }
@@ -149,7 +187,7 @@ export class NoteWorkspaceComponent {
       await this.loadNotes(this.selectedFolderId()!);
     }
     // React to external note creation (e.g., from sidebar tree dropdown)
-    this.workspaceState.noteCreated$.subscribe(note => {
+    this.workspaceState.noteCreated$.subscribe((note) => {
       // Folder should already be selected by creator; if not, select now
       if (note.folder_id && note.folder_id !== this.selectedFolderId()) {
         this.workspaceState.setSelectedFolder(note.folder_id);
@@ -157,7 +195,7 @@ export class NoteWorkspaceComponent {
       if (note.folder_id === this.selectedFolderId()) {
         this.openNote(note);
         // Inject into list optimistically before full reload
-        this.notes.update(list => [note, ...list.filter(n => n.id !== note.id)]);
+        this.notes.update((list) => [note, ...list.filter((n) => n.id !== note.id)]);
         // Refresh list for authoritative data (timestamps, etc.)
         this.loadNotes(note.folder_id!);
       }
@@ -187,7 +225,7 @@ export class NoteWorkspaceComponent {
           this.content.set(full.content || '');
           this.currentNote.set(full); // Update with full note data
         }
-      } catch (e:any) {
+      } catch (e: any) {
         console.error(e);
         this.toast.error('Failed to open note');
       }
@@ -199,8 +237,9 @@ export class NoteWorkspaceComponent {
       const userId = this.auth.userId();
       const tree = await this.folderService.getFolderTree(userId);
       this.folders.set(tree);
-    } catch (e:any) {
-      console.error(e); this.toast.error('Failed to load folders');
+    } catch (e: any) {
+      console.error(e);
+      this.toast.error('Failed to load folders');
     }
   }
 
@@ -209,8 +248,9 @@ export class NoteWorkspaceComponent {
       const userId = this.auth.userId();
       const list = await this.noteService.getNotesForFolder(folderId, userId);
       this.notes.set(list);
-    } catch (e:any) {
-      console.error(e); this.toast.error('Failed to load notes');
+    } catch (e: any) {
+      console.error(e);
+      this.toast.error('Failed to load notes');
     }
   }
 
@@ -220,7 +260,10 @@ export class NoteWorkspaceComponent {
   }
 
   createNewNote() {
-    if (!this.selectedFolderId()) { this.toast.info('Select a folder first'); return; }
+    if (!this.selectedFolderId()) {
+      this.toast.info('Select a folder first');
+      return;
+    }
     this.selectedNoteId.set(null);
     this.title.set('Untitled');
     this.content.set('');
@@ -235,7 +278,11 @@ export class NoteWorkspaceComponent {
     this.saving.set(true);
     try {
       if (!this.selectedNoteId()) {
-        const created = await this.noteService.createNote(userId, { title: t, content: c, folder_id: this.selectedFolderId()! });
+        const created = await this.noteService.createNote(userId, {
+          title: t,
+          content: c,
+          folder_id: this.selectedFolderId()!,
+        });
         this.selectedNoteId.set(created.id);
         this.toast.success('Note created');
         // Notify folder tree to refresh counts/listings. Note: we do not emit
@@ -247,13 +294,18 @@ export class NoteWorkspaceComponent {
           // noop
         }
       } else {
-        const updated = await this.noteService.updateNote(this.selectedNoteId()!, userId, { title: t, content: c, folder_id: this.selectedFolderId()! });
+        const updated = await this.noteService.updateNote(this.selectedNoteId()!, userId, {
+          title: t,
+          content: c,
+          folder_id: this.selectedFolderId()!,
+        });
         this.toast.success('Note saved');
         this.title.set(updated.title);
       }
       await this.loadNotes(this.selectedFolderId()!);
-    } catch (e:any) {
-      console.error(e); this.toast.error('Failed to save note');
+    } catch (e: any) {
+      console.error(e);
+      this.toast.error('Failed to save note');
     } finally {
       this.saving.set(false);
     }
@@ -266,10 +318,12 @@ export class NoteWorkspaceComponent {
       await this.noteService.deleteNote(this.selectedNoteId()!, userId);
       this.toast.success('Note deleted');
       this.selectedNoteId.set(null);
-      this.title.set(''); this.content.set('');
+      this.title.set('');
+      this.content.set('');
       await this.loadNotes(this.selectedFolderId()!);
-    } catch (e:any) {
-      console.error(e); this.toast.error('Failed to delete note');
+    } catch (e: any) {
+      console.error(e);
+      this.toast.error('Failed to delete note');
     }
   }
 
@@ -279,11 +333,12 @@ export class NoteWorkspaceComponent {
     if (note.content === undefined) {
       // Defensive: fetch if content missing
       const userId = this.auth.userId();
-      this.noteService.getNote(note.id, userId)
-        .then(full => {
+      this.noteService
+        .getNote(note.id, userId)
+        .then((full) => {
           if (full) this.content.set(full.content || '');
         })
-        .catch(err => {
+        .catch((err) => {
           console.error(err);
           this.content.set('');
         });
@@ -292,8 +347,8 @@ export class NoteWorkspaceComponent {
     }
   }
 
-
   onTitleInput(e: Event) {
-    const input = e.target as HTMLInputElement; this.title.set(input.value);
+    const input = e.target as HTMLInputElement;
+    this.title.set(input.value);
   }
 }

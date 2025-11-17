@@ -14,7 +14,7 @@ export const authGuard: CanActivateFn = async (route, state) => {
 
   if (session) {
     authState.setUser(session.user);
-    
+
     // Initialize root folder for first-time users
     try {
       await folderService.initializeUserFolders(session.user.id);
@@ -22,12 +22,12 @@ export const authGuard: CanActivateFn = async (route, state) => {
       console.error('Error initializing user folders:', error);
       // Continue even if folder initialization fails
     }
-    
+
     return true;
   }
 
-  router.navigate(['/auth/signin'], { 
-    queryParams: { returnUrl: state.url } 
+  router.navigate(['/auth/signin'], {
+    queryParams: { returnUrl: state.url },
   });
   return false;
 };

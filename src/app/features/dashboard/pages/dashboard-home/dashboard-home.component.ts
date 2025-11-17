@@ -1,7 +1,6 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 
-
 @Component({
   selector: 'app-dashboard-home',
   standalone: true,
@@ -11,6 +10,6 @@ import { CommonModule } from '@angular/common';
       <!-- Center content intentionally left empty for now -->
     </div>
   `,
-  styles: []
+  styles: [],
 })
 export class DashboardHomeComponent {}

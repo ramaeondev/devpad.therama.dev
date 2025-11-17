@@ -1,4 +1,13 @@
-import { Component, Input, signal, inject, OnInit, OnDestroy, OnChanges, SimpleChanges } from '@angular/core';
+import {
+  Component,
+  Input,
+  signal,
+  inject,
+  OnInit,
+  OnDestroy,
+  OnChanges,
+  SimpleChanges,
+} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 
@@ -9,11 +18,18 @@ import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
   template: `
     <div class="h-full flex flex-col bg-white dark:bg-gray-800">
       <!-- Header -->
-      <div class="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-700">
+      <div
+        class="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-700"
+      >
         <div class="flex items-center gap-3">
-          <div class="w-8 h-8 text-gray-600 dark:text-gray-400 flex-shrink-0" [innerHTML]="getFileIcon()"></div>
+          <div
+            class="w-8 h-8 text-gray-600 dark:text-gray-400 flex-shrink-0"
+            [innerHTML]="getFileIcon()"
+          ></div>
           <div>
-            <h1 class="text-lg font-semibold text-gray-900 dark:text-gray-100">{{ title || 'Document Viewer' }}</h1>
+            <h1 class="text-lg font-semibold text-gray-900 dark:text-gray-100">
+              {{ title || 'Document Viewer' }}
+            </h1>
             <p class="text-sm text-gray-500 dark:text-gray-400">{{ getFileType() }} Preview</p>
           </div>
         </div>
@@ -27,8 +43,19 @@ import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
               @if (isLoading()) {
                 <span class="inline-flex items-center gap-2">
                   <svg class="animate-spin h-4 w-4" fill="none" viewBox="0 0 24 24">
-                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    <circle
+                      class="opacity-25"
+                      cx="12"
+                      cy="12"
+                      r="10"
+                      stroke="currentColor"
+                      stroke-width="4"
+                    ></circle>
+                    <path
+                      class="opacity-75"
+                      fill="currentColor"
+                      d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                    ></path>
                   </svg>
                   Loading...
                 </span>
@@ -45,9 +72,24 @@ import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
         @if (isLoading()) {
           <div class="h-full flex items-center justify-center">
             <div class="text-center">
-              <svg class="animate-spin h-8 w-8 mx-auto mb-4 text-primary-600" fill="none" viewBox="0 0 24 24">
-                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+              <svg
+                class="animate-spin h-8 w-8 mx-auto mb-4 text-primary-600"
+                fill="none"
+                viewBox="0 0 24 24"
+              >
+                <circle
+                  class="opacity-25"
+                  cx="12"
+                  cy="12"
+                  r="10"
+                  stroke="currentColor"
+                  stroke-width="4"
+                ></circle>
+                <path
+                  class="opacity-75"
+                  fill="currentColor"
+                  d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                ></path>
               </svg>
               <p class="text-gray-500 dark:text-gray-400">Loading document...</p>
             </div>
@@ -71,8 +113,13 @@ import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
           } @else {
             <div class="h-full flex items-center justify-center bg-gray-50 dark:bg-gray-900 p-8">
               <div class="text-center max-w-md">
-                <div class="w-16 h-16 mx-auto mb-4 text-gray-400 flex-shrink-0" [innerHTML]="getFileIcon()"></div>
-                <h3 class="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-2">{{ title || 'Document' }}</h3>
+                <div
+                  class="w-16 h-16 mx-auto mb-4 text-gray-400 flex-shrink-0"
+                  [innerHTML]="getFileIcon()"
+                ></div>
+                <h3 class="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-2">
+                  {{ title || 'Document' }}
+                </h3>
                 <p class="text-gray-600 dark:text-gray-400 mb-6">
                   This {{ getFileType() }} document cannot be previewed directly in the browser.
                 </p>
@@ -90,8 +137,13 @@ import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
         } @else {
           <div class="h-full flex items-center justify-center bg-gray-50 dark:bg-gray-900">
             <div class="text-center">
-              <div class="w-16 h-16 mx-auto mb-4 text-gray-400 flex-shrink-0" [innerHTML]="getFileIcon()"></div>
-              <h3 class="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-2">Preview Unavailable</h3>
+              <div
+                class="w-16 h-16 mx-auto mb-4 text-gray-400 flex-shrink-0"
+                [innerHTML]="getFileIcon()"
+              ></div>
+              <h3 class="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-2">
+                Preview Unavailable
+              </h3>
               <p class="text-gray-600 dark:text-gray-400 mb-6">
                 Unable to load preview for this document.
               </p>
@@ -109,7 +161,7 @@ import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
       </div>
     </div>
   `,
-  styles: []
+  styles: [],
 })
 export class DocumentViewerComponent implements OnInit, OnDestroy, OnChanges {
   @Input() documentUrl: string | null = null;
@@ -176,27 +228,31 @@ export class DocumentViewerComponent implements OnInit, OnDestroy, OnChanges {
     const url = this.documentUrl.toLowerCase();
 
     // Can preview PDFs, some office docs, and other embeddable formats
-    return url.includes('.pdf') ||
-           url.includes('.doc') ||
-           url.includes('.docx') ||
-           url.includes('.xls') ||
-           url.includes('.xlsx') ||
-           url.includes('.ppt') ||
-           url.includes('.pptx') ||
-           url.includes('.txt') ||
-           url.includes('docs.google.com') ||
-           url.includes('drive.google.com');
+    return (
+      url.includes('.pdf') ||
+      url.includes('.doc') ||
+      url.includes('.docx') ||
+      url.includes('.xls') ||
+      url.includes('.xlsx') ||
+      url.includes('.ppt') ||
+      url.includes('.pptx') ||
+      url.includes('.txt') ||
+      url.includes('docs.google.com') ||
+      url.includes('drive.google.com')
+    );
   }
 
   isImage(): boolean {
     if (!this.documentUrl) return false;
     const url = this.documentUrl.toLowerCase();
-    return url.includes('.jpg') ||
-           url.includes('.jpeg') ||
-           url.includes('.png') ||
-           url.includes('.gif') ||
-           url.includes('.webp') ||
-           url.includes('.svg');
+    return (
+      url.includes('.jpg') ||
+      url.includes('.jpeg') ||
+      url.includes('.png') ||
+      url.includes('.gif') ||
+      url.includes('.webp') ||
+      url.includes('.svg')
+    );
   }
 
   getFileExtension(): string {
@@ -217,27 +273,37 @@ export class DocumentViewerComponent implements OnInit, OnDestroy, OnChanges {
     const ext = this.getFileExtension();
     switch (ext) {
       case 'doc':
-      case 'docx': return 'Word';
+      case 'docx':
+        return 'Word';
       case 'xls':
-      case 'xlsx': return 'Excel';
+      case 'xlsx':
+        return 'Excel';
       case 'ppt':
-      case 'pptx': return 'PowerPoint';
-      case 'pdf': return 'PDF';
-      case 'txt': return 'Text';
+      case 'pptx':
+        return 'PowerPoint';
+      case 'pdf':
+        return 'PDF';
+      case 'txt':
+        return 'Text';
       case 'jpg':
       case 'jpeg':
       case 'png':
       case 'gif':
       case 'webp':
-      case 'svg': return 'Image';
+      case 'svg':
+        return 'Image';
       case 'mp4':
       case 'avi':
-      case 'mov': return 'Video';
+      case 'mov':
+        return 'Video';
       case 'mp3':
-      case 'wav': return 'Audio';
+      case 'wav':
+        return 'Audio';
       case 'zip':
-      case 'rar': return 'Archive';
-      default: return 'Document';
+      case 'rar':
+        return 'Archive';
+      default:
+        return 'Document';
     }
   }
 

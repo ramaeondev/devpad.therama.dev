@@ -9,14 +9,14 @@ export type AvatarSize = 'xs' | 'sm' | 'md' | 'lg' | 'xl';
   imports: [CommonModule],
   template: `
     @if (avatarUrl) {
-      <img 
-        [src]="avatarUrl" 
-        [alt]="alt" 
+      <img
+        [src]="avatarUrl"
+        [alt]="alt"
         [class]="avatarClasses()"
         class="rounded-full object-cover"
       />
     } @else {
-      <div 
+      <div
         [class]="avatarClasses()"
         class="rounded-full flex items-center justify-center font-semibold text-white"
         [ngClass]="gradientClass"
@@ -25,7 +25,7 @@ export type AvatarSize = 'xs' | 'sm' | 'md' | 'lg' | 'xl';
       </div>
     }
   `,
-  styles: []
+  styles: [],
 })
 export class AvatarComponent {
   @Input() avatarUrl: string | null = null;
@@ -39,7 +39,7 @@ export class AvatarComponent {
   initials = computed(() => {
     const f = (this.firstName || '').trim();
     const l = (this.lastName || '').trim();
-    
+
     if (f && l) return (f[0] + l[0]).toUpperCase();
     if (f) return f.slice(0, 2).toUpperCase();
     if (this.email) return this.email[0].toUpperCase();
@@ -52,7 +52,7 @@ export class AvatarComponent {
       sm: 'w-8 h-8 text-sm',
       md: 'w-9 h-9 text-sm',
       lg: 'w-12 h-12 text-base',
-      xl: 'w-16 h-16 text-lg'
+      xl: 'w-16 h-16 text-lg',
     };
     return sizeMap[this.size];
   });

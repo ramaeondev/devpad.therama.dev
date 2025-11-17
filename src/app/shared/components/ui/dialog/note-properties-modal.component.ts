@@ -19,17 +19,35 @@ export interface NoteProperties {
   standalone: true,
   imports: [CommonModule],
   template: `
-    <div class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50" (click)="cancel.emit()">
-      <div class="bg-white dark:bg-gray-800 rounded-lg shadow-xl w-full max-w-md" (click)="$event.stopPropagation()">
+    <div
+      class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50"
+      (click)="cancel.emit()"
+    >
+      <div
+        class="bg-white dark:bg-gray-800 rounded-lg shadow-xl w-full max-w-md"
+        (click)="$event.stopPropagation()"
+      >
         <!-- Header -->
-        <div class="flex items-center justify-between px-6 py-4 border-b border-gray-200 dark:border-gray-700">
+        <div
+          class="flex items-center justify-between px-6 py-4 border-b border-gray-200 dark:border-gray-700"
+        >
           <h2 class="text-lg font-semibold text-gray-900 dark:text-gray-100">Note Properties</h2>
-          <button 
+          <button
             (click)="cancel.emit()"
             class="p-1 rounded hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
           >
-            <svg class="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+            <svg
+              class="w-5 h-5 text-gray-500"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M6 18L18 6M6 6l12 12"
+              />
             </svg>
           </button>
         </div>
@@ -45,7 +63,9 @@ export interface NoteProperties {
           <!-- ID -->
           <div class="property-row">
             <label class="property-label">ID</label>
-            <div class="property-value font-mono text-xs truncate" [title]="properties.id">{{ properties.id }}</div>
+            <div class="property-value font-mono text-xs truncate" [title]="properties.id">
+              {{ properties.id }}
+            </div>
           </div>
 
           <!-- Folder -->
@@ -90,7 +110,9 @@ export interface NoteProperties {
               <label class="property-label">Tags</label>
               <div class="property-value flex flex-wrap gap-1">
                 @for (tag of properties.tags; track tag) {
-                  <span class="px-2 py-0.5 text-xs rounded-full bg-primary-100 dark:bg-primary-900 text-primary-700 dark:text-primary-300">
+                  <span
+                    class="px-2 py-0.5 text-xs rounded-full bg-primary-100 dark:bg-primary-900 text-primary-700 dark:text-primary-300"
+                  >
                     {{ tag }}
                   </span>
                 }
@@ -103,12 +125,16 @@ export interface NoteProperties {
             <label class="property-label">Status</label>
             <div class="property-value flex gap-2">
               @if (properties.is_favorite) {
-                <span class="px-2 py-0.5 text-xs rounded-full bg-yellow-100 dark:bg-yellow-900 text-yellow-700 dark:text-yellow-300">
+                <span
+                  class="px-2 py-0.5 text-xs rounded-full bg-yellow-100 dark:bg-yellow-900 text-yellow-700 dark:text-yellow-300"
+                >
                   ⭐ Favorite
                 </span>
               }
               @if (properties.is_archived) {
-                <span class="px-2 py-0.5 text-xs rounded-full bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300">
+                <span
+                  class="px-2 py-0.5 text-xs rounded-full bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300"
+                >
                   📦 Archived
                 </span>
               }
@@ -121,7 +147,7 @@ export interface NoteProperties {
 
         <!-- Footer -->
         <div class="flex justify-end gap-2 px-6 py-4 border-t border-gray-200 dark:border-gray-700">
-          <button 
+          <button
             (click)="cancel.emit()"
             class="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-600 transition-colors"
           >
@@ -131,19 +157,21 @@ export interface NoteProperties {
       </div>
     </div>
   `,
-  styles: [`
-    .property-row {
-      @apply grid grid-cols-3 gap-4 py-2;
-    }
+  styles: [
+    `
+      .property-row {
+        @apply grid grid-cols-3 gap-4 py-2;
+      }
 
-    .property-label {
-      @apply text-sm font-medium text-gray-500 dark:text-gray-400 col-span-1;
-    }
+      .property-label {
+        @apply text-sm font-medium text-gray-500 dark:text-gray-400 col-span-1;
+      }
 
-    .property-value {
-      @apply text-sm text-gray-900 dark:text-gray-100 col-span-2;
-    }
-  `]
+      .property-value {
+        @apply text-sm text-gray-900 dark:text-gray-100 col-span-2;
+      }
+    `,
+  ],
 })
 export class NotePropertiesModalComponent {
   @Input() properties!: NoteProperties;
@@ -157,17 +185,17 @@ export class NotePropertiesModalComponent {
       day: 'numeric',
       hour: '2-digit',
       minute: '2-digit',
-      second: '2-digit'
+      second: '2-digit',
     });
   }
 
   formatSize(bytes: number): string {
     if (bytes === 0) return '0 Bytes';
-    
+
     const k = 1024;
     const sizes = ['Bytes', 'KB', 'MB', 'GB'];
     const i = Math.floor(Math.log(bytes) / Math.log(k));
-    
+
     return Math.round((bytes / Math.pow(k, i)) * 100) / 100 + ' ' + sizes[i];
   }
 }

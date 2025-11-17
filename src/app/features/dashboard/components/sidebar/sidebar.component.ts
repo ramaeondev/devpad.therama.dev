@@ -12,13 +12,13 @@ import { WorkspaceStateService } from '../../../../core/services/workspace-state
   standalone: true,
   imports: [CommonModule, FolderTreeComponent],
   template: `
-    <aside class="sidebar w-64 sm:w-72 md:w-80 lg:w-64 bg-white dark:bg-gray-900 border-r border-gray-200 dark:border-gray-800 h-full overflow-y-auto touch-pan-y">
+    <aside
+      class="sidebar w-64 sm:w-72 md:w-80 lg:w-64 bg-white dark:bg-gray-900 border-r border-gray-200 dark:border-gray-800 h-full overflow-y-auto touch-pan-y"
+    >
       <div class="p-3 sm:p-4">
         <!-- Header -->
         <div class="flex items-center justify-between mb-3 sm:mb-4">
-          <h2 class="text-base sm:text-lg font-semibold text-gray-900 dark:text-white">
-            Folders
-          </h2>
+          <h2 class="text-base sm:text-lg font-semibold text-gray-900 dark:text-white">Folders</h2>
         </div>
 
         <!-- Loading State -->
@@ -43,25 +43,20 @@ import { WorkspaceStateService } from '../../../../core/services/workspace-state
         <!-- Empty State -->
         @if (!loading() && folderTree().length === 0) {
           <div class="text-center py-8">
-            <p class="text-sm text-gray-500 dark:text-gray-400">
-              No folders yet
-            </p>
-            <button 
-              class="btn btn-sm btn-primary mt-4"
-              (click)="loadFolders()"
-            >
-              Refresh
-            </button>
+            <p class="text-sm text-gray-500 dark:text-gray-400">No folders yet</p>
+            <button class="btn btn-sm btn-primary mt-4" (click)="loadFolders()">Refresh</button>
           </div>
         }
       </div>
     </aside>
   `,
-  styles: [`
-    .sidebar {
-      @apply flex flex-col;
-    }
-  `]
+  styles: [
+    `
+      .sidebar {
+        @apply flex flex-col;
+      }
+    `,
+  ],
 })
 export class SidebarComponent implements OnInit {
   private folderService = inject(FolderService);
