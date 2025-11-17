@@ -13,6 +13,14 @@ import { CommonModule } from '@angular/common';
   `,
   styles: [
     `
+      :host {
+        display: inline-block;
+        font-size: 1.5rem;
+        font-weight: 700;
+        letter-spacing: -0.025em;
+        color: inherit;
+      }
+
       @keyframes blink {
         0%,
         50% {
