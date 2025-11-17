@@ -397,16 +397,13 @@ export class FolderTreeComponent {
     
     event.stopPropagation();
 
-    // Check if it's a document (content is storage:// and not .md)
-    if (note.content && typeof note.content === 'string' && note.content.startsWith('storage://')) {
-      const path = note.content.replace('storage://notes/', '');
-      const isMarkdown = path.endsWith('.md');
-      if (!isMarkdown) {
-        // Show preview modal
-        this.previewNote.set(note);
-        this.showPreviewModal.set(true);
-        return;
-      }
+    // Check if it's a document (has a non-markdown icon)
+    const isDocument = note.icon && note.icon !== '📝';
+    if (isDocument) {
+      // Show preview modal
+      this.previewNote.set(note);
+      this.showPreviewModal.set(true);
+      return;
     }
 
     console.log('Note clicked:', note);
