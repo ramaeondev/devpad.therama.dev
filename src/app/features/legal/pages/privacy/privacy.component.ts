@@ -12,14 +12,7 @@ import { LogoComponent } from '../../../../shared/components/ui/logo/logo.compon
       <div class="max-w-4xl mx-auto px-4 py-8 sm:px-6 lg:px-8">
         <!-- Header with Logo -->
         <div class="text-center mb-12">
-          <a routerLink="/" class="inline-block mb-6 hover:opacity-80 transition-opacity">
-            <div class="flex items-center justify-center gap-3">
-              <img src="/logo.png" alt="DevPad Logo" class="w-12 h-12 rounded-xl shadow-lg">
-              <span class="text-3xl font-bold text-gray-900 dark:text-white tracking-tight">
-                <app-logo text="DevPad" [speed]="100"></app-logo>
-              </span>
-            </div>
-          </a>
+           <app-logo></app-logo>
           <h1 class="text-3xl font-bold text-gray-900 dark:text-white mb-2">Privacy Policy</h1>
           <p class="text-gray-600 dark:text-gray-400">Last Updated: November 17, 2025</p>
         </div>
