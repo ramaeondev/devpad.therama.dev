@@ -55,19 +55,21 @@ import { RelativeTimeDirective } from '../../../../shared/directives/relative-ti
         />
       }
       @for (folder of folders; track folder.id) {
-        <div class="folder-item">
+        <div 
+          class="folder-item"
+          [class.ring-2]="dragOverFolderId() === folder.id"
+          [class.ring-primary-500]="dragOverFolderId() === folder.id"
+          [class.bg-primary-50]="dragOverFolderId() === folder.id"
+          [class.dark:bg-primary-900/20]="dragOverFolderId() === folder.id"
+          (dragover)="onFolderDragOver($event, folder)"
+          (dragleave)="onFolderDragLeave($event, folder)"
+          (drop)="onFolderDrop($event, folder)"
+        >
           <div 
             class="folder-header flex items-center gap-2 px-2 sm:px-3 py-2.5 sm:py-2 rounded-lg cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors touch-manipulation"
             [class.bg-gray-100]="selectedFolderId === folder.id"
             [class.dark:bg-gray-800]="selectedFolderId === folder.id"
-            [class.ring-2]="dragOverFolderId() === folder.id"
-            [class.ring-primary-500]="dragOverFolderId() === folder.id"
-            [class.bg-primary-50]="dragOverFolderId() === folder.id"
-            [class.dark:bg-primary-900/20]="dragOverFolderId() === folder.id"
             (click)="onFolderClick(folder)"
-            (dragover)="onFolderDragOver($event, folder)"
-            (dragleave)="onFolderDragLeave($event, folder)"
-            (drop)="onFolderDrop($event, folder)"
           >
             <!-- Expand/Collapse Icon -->
             @if (folder.children && folder.children.length > 0) {
@@ -675,45 +677,77 @@ export class FolderTreeComponent {
 
   // Drag and Drop handlers
   onNoteDragStart(event: DragEvent, note: any, folder: FolderTree) {
-    this.draggedNoteId.set(note.id);
-    this.draggedNote = note;
-    this.draggedSourceFolder = folder;
-    
-    // Set drag effect and data
-    if (event.dataTransfer) {
-      event.dataTransfer.effectAllowed = 'move';
-      event.dataTransfer.setData('text/plain', note.id);
-    }
+    try {
+      this.draggedNoteId.set(note.id);
+      this.draggedNote = note;
+      this.draggedSourceFolder = folder;
 
-    // Add visual feedback
-    const target = event.target as HTMLElement;
-    target.style.opacity = '0.5';
+      // Set drag effect and data
+      if (event.dataTransfer) {
+        event.dataTransfer.effectAllowed = 'move';
+        event.dataTransfer.setData('text/plain', note.id);
+        // Use the currentTarget as drag image if available
+        const el = (event.currentTarget || event.target) as HTMLElement | null;
+        try {
+          if (el && event.dataTransfer.setDragImage) {
+            // clone to avoid layout shift
+            const img = el.cloneNode(true) as HTMLElement;
+            img.style.position = 'absolute';
+            img.style.top = '-9999px';
+            img.style.left = '-9999px';
+            document.body.appendChild(img);
+            event.dataTransfer.setDragImage(img, Math.floor(el.clientWidth / 2), Math.floor(el.clientHeight / 2));
+            // remove clone shortly after (defer)
+            setTimeout(() => img.remove(), 0);
+          }
+        } catch (err) {
+          // Non-critical if setDragImage fails in some browsers
+          console.warn('setDragImage failed', err);
+        }
+      }
+
+      // Add visual feedback on the row element (use currentTarget)
+      const row = (event.currentTarget || event.target) as HTMLElement | null;
+      if (row) row.style.opacity = '0.5';
+    } catch (err) {
+      console.error('onNoteDragStart error', err, { note, folder });
+    }
   }
 
   onNoteDragEnd(event: DragEvent) {
-    this.draggedNoteId.set(null);
-    this.draggedNote = null;
-    this.draggedSourceFolder = null;
-    this.dragOverFolderId.set(null);
+    try {
+      this.draggedNoteId.set(null);
+      this.draggedNote = null;
+      this.draggedSourceFolder = null;
+      this.dragOverFolderId.set(null);
 
-    // Reset visual feedback
-    const target = event.target as HTMLElement;
-    target.style.opacity = '1';
+      // Reset visual feedback safely using currentTarget
+      const row = (event.currentTarget || event.target) as HTMLElement | null;
+      if (row) row.style.opacity = '1';
+    } catch (err) {
+      console.error('onNoteDragEnd error', err);
+    }
   }
 
   onFolderDragOver(event: DragEvent, folder: FolderTree) {
-    if (!this.draggedNote) return;
-    
-    // Prevent default to allow drop
-    event.preventDefault();
-    event.stopPropagation();
-    
-    if (event.dataTransfer) {
-      event.dataTransfer.dropEffect = 'move';
-    }
+    try {
+      // Allow drops if dataTransfer has text/plain type (don't call getData during dragover)
+      const hasData = !!(event.dataTransfer && event.dataTransfer.types && event.dataTransfer.types.includes('text/plain'));
+      if (!hasData) return;
 
-    // Visual feedback
-    this.dragOverFolderId.set(folder.id);
+      // Prevent default to allow drop
+      event.preventDefault();
+      event.stopPropagation();
+
+      if (event.dataTransfer) {
+        event.dataTransfer.dropEffect = 'move';
+      }
+
+      // Visual feedback
+      this.dragOverFolderId.set(folder.id);
+    } catch (err) {
+      console.error('onFolderDragOver error', err, { folder });
+    }
   }
 
   onFolderDragLeave(event: DragEvent, folder: FolderTree) {
@@ -731,27 +765,34 @@ export class FolderTreeComponent {
   }
 
   async onFolderDrop(event: DragEvent, targetFolder: FolderTree) {
-    event.preventDefault();
-    event.stopPropagation();
+    console.log('onFolderDrop called', { targetFolder: targetFolder.id, dataTransfer: !!event.dataTransfer });
+      event.preventDefault();
+      event.stopPropagation();
 
-    this.dragOverFolderId.set(null);
+      this.dragOverFolderId.set(null);
 
-    if (!this.draggedNote || !this.draggedSourceFolder) {
-      console.log('Drop cancelled: no dragged note or source folder');
-      return;
-    }
+      // Determine note id from dataTransfer or local draggedNote
+      let noteId: string | null = null;
+      try {
+        if (event.dataTransfer) noteId = event.dataTransfer.getData('text/plain') || null;
+      } catch (e) { /* ignore */ }
+      if (!noteId && this.draggedNote) noteId = this.draggedNote.id;
+      if (!noteId) {
+        console.log('Drop cancelled: no note id available');
+        return;
+      }
 
-    const note = this.draggedNote;
-    const sourceFolder = this.draggedSourceFolder;
+      const note = this.draggedNote && this.draggedNote.id === noteId ? this.draggedNote : { id: noteId } as any;
+      const sourceFolder = this.draggedSourceFolder;
 
-    // Don't move if dropping on the same folder
-    if (sourceFolder.id === targetFolder.id) {
-      this.toast.info('Note is already in this folder');
-      this.draggedNoteId.set(null);
-      this.draggedNote = null;
-      this.draggedSourceFolder = null;
-      return;
-    }
+      // Don't move if dropping on the same folder (if we know the source)
+      if (sourceFolder && sourceFolder.id === targetFolder.id) {
+        this.toast.info('Note is already in this folder');
+        this.draggedNoteId.set(null);
+        this.draggedNote = null;
+        this.draggedSourceFolder = null;
+        return;
+      }
 
     try {
       const userId = this.authState.userId();
@@ -760,7 +801,7 @@ export class FolderTreeComponent {
         return;
       }
 
-      console.log('Moving note:', note.id, 'from folder:', sourceFolder.id, 'to folder:', targetFolder.id);
+      console.log('Moving note:', note.id, 'from folder:', sourceFolder?.id, 'to folder:', targetFolder.id);
       
       // Update the note's folder_id
       await this.noteService.updateNote(note.id, userId, {
@@ -769,8 +810,8 @@ export class FolderTreeComponent {
 
       console.log('Note moved successfully');
 
-      // Update local state - remove from source folder
-      if (sourceFolder.notes) {
+      // Update local state - remove from source folder if known
+      if (sourceFolder && sourceFolder.notes) {
         const index = sourceFolder.notes.findIndex((n: any) => n.id === note.id);
         if (index > -1) {
           sourceFolder.notes.splice(index, 1);
