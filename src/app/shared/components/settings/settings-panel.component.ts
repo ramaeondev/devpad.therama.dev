@@ -13,6 +13,7 @@ import { UserService } from '../../../core/services/user.service';
 import { AvatarComponent } from '../ui/avatar/avatar.component';
 import { CdkOverlayOrigin, OverlayModule } from '@angular/cdk/overlay';
 import { GoogleDriveService } from '../../../core/services/google-drive.service';
+import { OneDriveService } from '../../../core/services/onedrive.service';
 
 @Component({
   selector: 'app-settings-panel',
@@ -267,7 +268,7 @@ import { GoogleDriveService } from '../../../core/services/google-drive.service'
                 </div>
 
                 <!-- OneDrive -->
-                <div class="flex items-center justify-between p-3 rounded-lg border border-gray-200 dark:border-gray-800 opacity-50">
+                <div class="flex items-center justify-between p-3 rounded-lg border border-gray-200 dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors">
                   <div class="flex items-center space-x-3">
                     <div class="w-10 h-10 rounded-lg bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center">
                       <svg class="w-5 h-5 text-blue-600 dark:text-blue-400" viewBox="0 0 24 24" fill="currentColor">
@@ -278,17 +279,32 @@ import { GoogleDriveService } from '../../../core/services/google-drive.service'
                       <div class="text-sm font-medium text-gray-900 dark:text-gray-100">
                         OneDrive
                       </div>
-                      <div class="text-xs text-gray-500 dark:text-gray-400">
-                        Coming soon
-                      </div>
+                      @if (oneDrive.isConnected()) {
+                        <div class="text-xs text-green-600 dark:text-green-400">
+                          Connected
+                        </div>
+                      } @else {
+                        <div class="text-xs text-gray-500 dark:text-gray-400">
+                          Not connected
+                        </div>
+                      }
                     </div>
                   </div>
-                  <button
-                    class="px-3 py-1.5 text-xs font-medium rounded-lg border border-gray-300 dark:border-gray-700 text-gray-400 dark:text-gray-600 cursor-not-allowed"
-                    disabled
-                  >
-                    Connect
-                  </button>
+                  @if (oneDrive.isConnected()) {
+                    <button
+                      class="px-3 py-1.5 text-xs font-medium rounded-lg border border-gray-300 dark:border-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+                      (click)="disconnectOneDrive()"
+                    >
+                      Disconnect
+                    </button>
+                  } @else {
+                    <button
+                      class="px-3 py-1.5 text-xs font-medium rounded-lg bg-blue-600 text-white hover:bg-blue-700 transition-colors"
+                      (click)="connectOneDrive()"
+                    >
+                      Connect
+                    </button>
+                  }
                 </div>
               </div>
             </section>
@@ -384,6 +400,7 @@ export class SettingsPanelComponent {
   auth = inject(AuthStateService);
   theme = inject(ThemeService);
   googleDrive = inject(GoogleDriveService);
+  oneDrive = inject(OneDriveService);
   private supabase = inject(SupabaseService);
   private router = inject(Router);
   private loading = inject(LoadingService);
@@ -566,6 +583,26 @@ export class SettingsPanelComponent {
     } catch (error) {
       console.error('Failed to disconnect from Google Drive:', error);
       this.toast.error('Failed to disconnect from Google Drive');
+    }
+  }
+
+  async connectOneDrive() {
+    try {
+      await this.oneDrive.connect();
+      this.toast.success('Successfully connected to OneDrive');
+    } catch (error) {
+      console.error('Failed to connect to OneDrive:', error);
+      this.toast.error('Failed to connect to OneDrive');
+    }
+  }
+
+  async disconnectOneDrive() {
+    try {
+      await this.oneDrive.disconnect();
+      this.toast.success('Disconnected from OneDrive');
+    } catch (error) {
+      console.error('Failed to disconnect from OneDrive:', error);
+      this.toast.error('Failed to disconnect from OneDrive');
     }
   }
 }

@@ -8,6 +8,10 @@ export const environment = {
   google: {
     clientId: 'YOUR_GOOGLE_CLIENT_ID.apps.googleusercontent.com',
   },
+  microsoft: {
+    clientId: 'YOUR_MICROSOFT_CLIENT_ID',
+    redirectUri: 'https://devpad.therama.dev',
+  },
   apiUrl: 'https://api.therama.dev',
   appVersion: '2.0.0',
 };
