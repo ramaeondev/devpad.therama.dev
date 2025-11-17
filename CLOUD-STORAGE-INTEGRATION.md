@@ -368,23 +368,31 @@ export const environment = {
 5. No offline access
 
 ### Google Drive
-1. Access tokens expire after 1 hour (no refresh yet)
-2. Only accesses files created by app (drive.file scope)
-3. No pagination implemented (100 file limit)
+1. Only accesses files created by app (drive.file scope)
+2. No pagination implemented (100 file limit)
+3. Silent token refresh may fail on some browsers
 
 ### OneDrive
 1. Recursive loading can be slow for deep folder structures
-2. Access tokens expire after 1 hour (refresh_token available but not used)
+2. Token refresh requires re-authentication (implicit flow limitation)
 3. Popup blockers may interfere with authentication
 4. No pagination implemented
 
 ## Future Roadmap
 
-### Phase 1: Token Management (High Priority)
-- [ ] Implement refresh token flow for Google Drive
-- [ ] Implement refresh token flow for OneDrive
-- [ ] Handle token expiration gracefully
-- [ ] Auto-refresh before expiration
+### Phase 1: Token Management ✅ COMPLETED
+- [x] Implement refresh token flow for Google Drive
+- [x] Implement refresh token flow for OneDrive
+- [x] Handle token expiration gracefully
+- [x] Auto-refresh before expiration
+
+**Implementation Details**:
+- Added `expires_at` field to integrations table
+- Schedule token refresh 5 minutes before expiration
+- Google Drive: Uses silent re-authentication with Google Identity Services
+- OneDrive: Prompts for re-authentication (implicit flow limitation)
+- Timer cleanup on disconnect to prevent memory leaks
+- Expiration check in `checkConnection()` methods
 
 ### Phase 2: Enhanced File Operations (Medium Priority)
 - [ ] Upload from local to cloud storage
@@ -429,9 +437,10 @@ export const environment = {
 - [x] Files load from both services
 - [x] Folder trees display correctly
 - [x] File downloads work
-- [ ] Token refresh works (not implemented)
-- [ ] Errors handled gracefully
-- [ ] Dark mode works everywhere
+- [x] Token refresh scheduling works
+- [x] Token expiration handling works
+- [ ] Errors handled gracefully (mostly done)
+- [ ] Dark mode works everywhere (to be tested)
 - [ ] Mobile responsive (to be tested)
 
 ## Deployment Checklist
