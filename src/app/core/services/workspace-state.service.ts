@@ -1,6 +1,7 @@
 import { Injectable, signal } from '@angular/core';
 import { Subject } from 'rxjs';
 import { Note } from '../models/note.model';
+import { GoogleDriveFile } from '../models/integration.model';
 
 @Injectable({ providedIn: 'root' })
 export class WorkspaceStateService {
@@ -21,6 +22,10 @@ export class WorkspaceStateService {
   private _noteSelected$ = new Subject<Note>();
   noteSelected$ = this._noteSelected$.asObservable();
 
+  // Emits when a Google Drive file is selected for preview
+  private _googleDriveFileSelected$ = new Subject<GoogleDriveFile>();
+  googleDriveFileSelected$ = this._googleDriveFileSelected$.asObservable();
+
   setSelectedFolder(id: string | null) {
     this.selectedFolderId.set(id);
   }
@@ -40,5 +45,9 @@ export class WorkspaceStateService {
 
   setSelectedNote(id: string | null) {
     this.selectedNoteId.set(id);
+  }
+
+  emitGoogleDriveFileSelected(file: GoogleDriveFile) {
+    this._googleDriveFileSelected$.next(file);
   }
 }

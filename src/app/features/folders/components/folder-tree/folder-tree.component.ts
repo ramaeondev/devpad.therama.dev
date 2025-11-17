@@ -605,13 +605,23 @@ export class FolderTreeComponent {
       const { data, error } = await this.supabase.storage.from('notes').createSignedUrl(path, 60);
       if (error || !data?.signedUrl) throw error;
 
-      // Create a temporary link to download
+      // Extract file extension from storage path
+      const fileName = path.split('/').pop() || note.title;
+      const extension = fileName.includes('.') ? '' : '.txt';
+      const downloadName = fileName.includes('.') ? fileName : `${note.title}${extension}`;
+
+      // Fetch the file as blob and create download link
+      const response = await fetch(data.signedUrl);
+      const blob = await response.blob();
+      const blobUrl = URL.createObjectURL(blob);
+      
       const link = document.createElement('a');
-      link.href = data.signedUrl;
-      link.download = note.title;
+      link.href = blobUrl;
+      link.download = downloadName;
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
+      URL.revokeObjectURL(blobUrl);
 
       this.toast.success('Download started');
     } catch (error: any) {
