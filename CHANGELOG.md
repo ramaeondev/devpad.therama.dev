@@ -6,6 +6,7 @@ All notable changes to this project are documented in this file.
 
 ### Added
 - `app/shared/components/ui/dialog/confirm-modal.component.ts` - reusable confirmation modal component to replace native `confirm()` calls.
+- Drag and drop notes anywhere within folder areas: users can now drop notes on folder headers, notes lists, or any part of the folder container for improved usability.
 
 ### Changed
 - `src/app/features/folders/components/folder-tree/folder-tree.component.ts`
