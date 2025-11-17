@@ -14,11 +14,12 @@ import { NoteNameModalComponent } from '../../../../shared/components/ui/dialog/
 import { ConfirmModalComponent } from '../../../../shared/components/ui/dialog/confirm-modal.component';
 import { NotePropertiesModalComponent, NoteProperties } from '../../../../shared/components/ui/dialog/note-properties-modal.component';
 import { RelativeTimeDirective } from '../../../../shared/directives/relative-time.directive';
+import { DocumentPreviewModalComponent } from '../../../../shared/components/ui/dialog/document-preview-modal.component';
 
 @Component({
   selector: 'app-folder-tree',
   standalone: true,
-  imports: [CommonModule, DropdownComponent, FolderNameModalComponent, NoteNameModalComponent, ConfirmModalComponent, NotePropertiesModalComponent, RelativeTimeDirective],
+  imports: [CommonModule, DropdownComponent, FolderNameModalComponent, NoteNameModalComponent, ConfirmModalComponent, NotePropertiesModalComponent, DocumentPreviewModalComponent, RelativeTimeDirective],
   template: `
     <div class="folder-tree">
       <!-- Name modal -->
@@ -53,6 +54,14 @@ import { RelativeTimeDirective } from '../../../../shared/directives/relative-ti
         <app-note-properties-modal
           [properties]="noteProperties()!"
           (cancel)="closePropertiesModal()"
+        />
+      }
+
+      <!-- Document preview modal -->
+      @if (showPreviewModal() && previewNote()) {
+        <app-document-preview-modal
+          [note]="previewNote()!"
+          (close)="closePreviewModal()"
         />
       }
       @for (folder of folders; track folder.id) {
@@ -161,6 +170,7 @@ import { RelativeTimeDirective } from '../../../../shared/directives/relative-ti
                   (dragstart)="onNoteDragStart($event, note, folder)"
                   (dragend)="onNoteDragEnd($event)"
                 >
+                    <span class="drag-handle w-4 text-xs text-gray-400 cursor-move select-none">⋮⋮</span>
                     <span class="note-icon w-4 text-sm pointer-events-none">{{ note.icon || '📝' }}</span>
                     <span class="truncate flex-1 pointer-events-none">{{ note.title || 'Untitled' }}</span>
                   <span class="text-[10px] text-gray-400 pointer-events-none" [appRelativeTime]="note.updated_at"></span>
@@ -288,6 +298,10 @@ export class FolderTreeComponent {
   showPropertiesModal = signal(false);
   noteProperties = signal<NoteProperties | null>(null);
 
+  // Document preview modal state
+  showPreviewModal = signal(false);
+  previewNote = signal<any>(null);
+
   // Drag and drop state
   draggedNoteId = signal<string | null>(null);
   draggedNote: any = null;
@@ -387,8 +401,9 @@ export class FolderTreeComponent {
       const path = note.content.replace('storage://notes/', '');
       const isMarkdown = path.endsWith('.md');
       if (!isMarkdown) {
-        // Download document
-        this.downloadDocument(note);
+        // Show preview modal
+        this.previewNote.set(note);
+        this.showPreviewModal.set(true);
         return;
       }
     }
@@ -925,5 +940,10 @@ export class FolderTreeComponent {
       this.draggedNote = null;
       this.draggedSourceFolder = null;
     }
+  }
+
+  closePreviewModal() {
+    this.showPreviewModal.set(false);
+    this.previewNote.set(null);
   }
 }
