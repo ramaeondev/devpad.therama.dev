@@ -169,3 +169,8 @@ Example: feat(logo): add Lottie animation support
 - Keep dependencies minimal and up-to-date
 - Security: never commit secrets; use environment variables
 - Mobile-first responsive design
+
+## Changelog 
+- Maintain a detailed changelog in CHANGELOG.md for all notable changes, following semantic versioning principles.
+- Document new features, bug fixes, and breaking changes clearly for each release.
+- Read all the commits for a day to summarize them effectively in the changelog.

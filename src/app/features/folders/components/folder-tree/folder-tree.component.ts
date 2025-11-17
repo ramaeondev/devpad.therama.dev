@@ -175,6 +175,8 @@ import { DocumentPreviewModalComponent } from '../../../../shared/components/ui/
                         </svg>
                       </button>
                       <div dropdownMenu class="text-xs">
+                        <button class="dropdown-item w-full text-left px-3 py-1.5 hover:bg-gray-100 dark:hover:bg-gray-700" (click)="downloadDocument(note)">Download</button>
+                        <hr class="my-1 border-gray-200 dark:border-gray-700" />
                         <button class="dropdown-item w-full text-left px-3 py-1.5 hover:bg-gray-100 dark:hover:bg-gray-700" (click)="startNoteRename(note, folder)">Rename</button>
                         <button class="dropdown-item w-full text-left px-3 py-1.5 hover:bg-gray-100 dark:hover:bg-gray-700" (click)="showNoteProperties(note, folder)">Properties</button>
                         <hr class="my-1 border-gray-200 dark:border-gray-700" />
@@ -549,7 +551,7 @@ export class FolderTreeComponent {
     input.click();
   }
 
-  private async downloadDocument(note: any) {
+  async downloadDocument(note: any) {
     try {
       if (!note.content || !note.content.startsWith('storage://')) return;
 

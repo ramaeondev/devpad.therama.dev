@@ -2,6 +2,7 @@ import { Component, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { MarkdownEditorComponent } from '../../components/markdown-editor/markdown-editor.component';
+import { DocumentPreviewComponent } from '../../../../shared/components/ui/document-preview/document-preview.component';
 import { NoteService } from '../../../../core/services/note.service';
 import { AuthStateService } from '../../../../core/services/auth-state.service';
 import { ToastService } from '../../../../core/services/toast.service';
@@ -10,7 +11,7 @@ import { WorkspaceStateService } from '../../../../core/services/workspace-state
 @Component({
   selector: 'app-note-editor',
   standalone: true,
-  imports: [CommonModule, RouterLink, MarkdownEditorComponent],
+  imports: [CommonModule, RouterLink, MarkdownEditorComponent, DocumentPreviewComponent],
   template: `
     <div class="h-full w-full p-4 md:p-6">
       <div class="max-w-6xl mx-auto flex flex-col gap-4">
@@ -19,12 +20,15 @@ import { WorkspaceStateService } from '../../../../core/services/workspace-state
           <input
             class="w-full md:flex-1 text-2xl font-semibold bg-transparent border-b border-gray-300 dark:border-gray-700 focus:outline-none focus:border-primary-500 text-gray-900 dark:text-gray-100 py-1"
             [value]="title()"
+            [disabled]="isDocument()"
             (input)="onTitleInput($event)"
             placeholder="Note title" />
           <div class="flex gap-2">
-            <button class="px-4 py-2 rounded bg-primary-600 text-white disabled:opacity-40" [disabled]="saving()" (click)="onSave()">
-              {{ isNew() ? (saving() ? 'Creating…' : 'Create') : (saving() ? 'Saving…' : 'Save') }}
-            </button>
+            @if (!isDocument()) {
+              <button class="px-4 py-2 rounded bg-primary-600 text-white disabled:opacity-40" [disabled]="saving()" (click)="onSave()">
+                {{ isNew() ? (saving() ? 'Creating…' : 'Create') : (saving() ? 'Saving…' : 'Save') }}
+              </button>
+            }
             @if (!isNew()) {
               <button class="px-4 py-2 rounded border border-red-600 text-red-600 hover:bg-red-50 dark:hover:bg-red-900/30" (click)="onDelete()">Delete</button>
             }
@@ -33,10 +37,14 @@ import { WorkspaceStateService } from '../../../../core/services/workspace-state
         </div>
 
         <!-- Editor Component -->
-        <app-markdown-editor
-          [initialContent]="content()"
-          (contentChange)="content.set($event)"
-        ></app-markdown-editor>
+        @if (isDocument()) {
+          <app-document-preview [note]="currentNote()"></app-document-preview>
+        } @else {
+          <app-markdown-editor
+            [initialContent]="content()"
+            (contentChange)="content.set($event)"
+          ></app-markdown-editor>
+        }
       </div>
     </div>
   `
@@ -55,6 +63,7 @@ export class NoteEditorComponent {
   saving = signal(false);
   noteId = signal<string | null>(null);
   isNew = signal(true);
+  currentNote = signal<any>(null);
 
   async ngOnInit() {
     const id = this.route.snapshot.paramMap.get('id');
@@ -76,6 +85,7 @@ export class NoteEditorComponent {
         this.router.navigate(['/notes']);
         return;
       }
+      this.currentNote.set(note);
       this.title.set(note.title);
       this.content.set(note.content || '');
     } catch (e:any) {
@@ -129,6 +139,10 @@ export class NoteEditorComponent {
       this.toast.error('Failed to delete note');
     }
   }
+  isDocument(): boolean {
+    return this.content().startsWith('storage://');
+  }
+
   onTitleInput(e: Event) {
     const input = e.target as HTMLInputElement;
     this.title.set(input.value);
