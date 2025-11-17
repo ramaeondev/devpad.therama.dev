@@ -344,6 +344,29 @@ import { OneDriveService } from '../../../core/services/onedrive.service';
                 </button>
               </div>
             </section>
+
+            <!-- Legal Links -->
+            <section class="pt-4 border-t border-gray-200 dark:border-gray-800">
+              <div class="flex items-center justify-center gap-4 text-xs text-gray-500 dark:text-gray-400">
+                <a
+                  href="/privacy.html"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  class="hover:text-primary-600 dark:hover:text-primary-400 transition-colors"
+                >
+                  Privacy Policy
+                </a>
+                <span class="text-gray-300 dark:text-gray-700">|</span>
+                <a
+                  href="/terms.html"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  class="hover:text-primary-600 dark:hover:text-primary-400 transition-colors"
+                >
+                  Terms of Service
+                </a>
+              </div>
+            </section>
           </div>
         </div>
       </div>

@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Privacy Policy - DevPad</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: #f9fafb;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 40px 20px;
+            background: white;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            color: #1a202c;
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+        }
+        .updated {
+            color: #718096;
+            margin-bottom: 2rem;
+        }
+        h2 {
+            color: #2d3748;
+            font-size: 1.75rem;
+            margin-top: 2rem;
+            margin-bottom: 1rem;
+        }
+        h3 {
+            color: #4a5568;
+            font-size: 1.25rem;
+            margin-top: 1.5rem;
+            margin-bottom: 0.75rem;
+        }
+        p {
+            margin-bottom: 1rem;
+            color: #4a5568;
+        }
+        ul {
+            margin-left: 2rem;
+            margin-bottom: 1rem;
+        }
+        li {
+            margin-bottom: 0.5rem;
+            color: #4a5568;
+        }
+        a {
+            color: #3182ce;
+            text-decoration: none;
+        }
+        a:hover {
+            text-decoration: underline;
+        }
+        .highlight {
+            background: #edf2f7;
+            padding: 1rem;
+            border-radius: 0.5rem;
+            margin: 1rem 0;
+        }
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2rem;
+            }
+            h2 {
+                font-size: 1.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Privacy Policy</h1>
+        <p class="updated"><strong>Last Updated:</strong> November 17, 2025</p>
+
+        <h2>1. Introduction</h2>
+        <p>Welcome to DevPad ("we," "our," or "us"). We are committed to protecting your privacy and ensuring the security of your personal information. This Privacy Policy explains how we collect, use, disclose, and safeguard your information when you use our note-taking application.</p>
+
+        <h2>2. Information We Collect</h2>
+        
+        <h3>2.1 Account Information</h3>
+        <p>When you create an account, we collect:</p>
+        <ul>
+            <li>Email address</li>
+            <li>Password (encrypted and securely stored)</li>
+            <li>Account creation and last login dates</li>
+        </ul>
+
+        <h3>2.2 Content You Create</h3>
+        <p>We store the content you create within DevPad, including:</p>
+        <ul>
+            <li>Notes and their content (markdown text)</li>
+            <li>Folders and organizational structure</li>
+            <li>Metadata (creation dates, modification dates, titles)</li>
+        </ul>
+
+        <h3>2.3 Cloud Storage Integration Data</h3>
+        <p>When you connect cloud storage services (Google Drive, OneDrive), we store:</p>
+        <ul>
+            <li>Access tokens (encrypted)</li>
+            <li>Integration status and connection dates</li>
+            <li>Associated email address for the cloud service</li>
+        </ul>
+        <p><strong>Important:</strong> We do not store your cloud storage files locally. Access tokens are only used to facilitate file operations you explicitly request.</p>
+
+        <h3>2.4 Technical Information</h3>
+        <p>We automatically collect certain technical information:</p>
+        <ul>
+            <li>Browser type and version</li>
+            <li>Device information</li>
+            <li>IP address</li>
+            <li>Usage patterns and interactions with the app</li>
+        </ul>
+
+        <h2>3. How We Use Your Information</h2>
+        <p>We use your information to:</p>
+        <ul>
+            <li>Provide, maintain, and improve DevPad services</li>
+            <li>Authenticate your identity and manage your account</li>
+            <li>Store and sync your notes across devices</li>
+            <li>Facilitate cloud storage integrations you choose to enable</li>
+            <li>Send important service updates and security notifications</li>
+            <li>Analyze usage patterns to improve user experience</li>
+            <li>Prevent fraud and ensure platform security</li>
+        </ul>
+
+        <h2>4. Data Storage and Security</h2>
+        
+        <h3>4.1 Data Storage</h3>
+        <p>Your data is stored using Supabase (PostgreSQL database) with the following security measures:</p>
+        <ul>
+            <li>End-to-end encryption for data transmission (HTTPS/TLS)</li>
+            <li>Row Level Security (RLS) policies ensuring users can only access their own data</li>
+            <li>Regular automated backups</li>
+            <li>Data stored in secure, SOC 2 compliant data centers</li>
+        </ul>
+
+        <h3>4.2 Security Measures</h3>
+        <p>We implement industry-standard security practices:</p>
+        <ul>
+            <li>Password hashing using bcrypt</li>
+            <li>OAuth 2.0 for third-party integrations</li>
+            <li>Access token encryption</li>
+            <li>Regular security audits and updates</li>
+            <li>Secure authentication with JWT tokens</li>
+        </ul>
+
+        <h2>5. Data Sharing and Disclosure</h2>
+        <p>We do NOT sell your personal information. We may share your data only in these circumstances:</p>
+        <ul>
+            <li><strong>With your consent:</strong> When you explicitly authorize data sharing</li>
+            <li><strong>Service providers:</strong> Third-party services that help us operate (e.g., Supabase for hosting, Vercel for deployment)</li>
+            <li><strong>Legal requirements:</strong> When required by law, court order, or governmental request</li>
+            <li><strong>Security and fraud prevention:</strong> To protect against harm to our rights, property, or safety</li>
+        </ul>
+
+        <h2>6. Third-Party Services</h2>
+        <p>DevPad integrates with third-party services. When you connect these services, you are subject to their privacy policies:</p>
+        <ul>
+            <li><strong>Google Drive:</strong> <a href="https://policies.google.com/privacy" target="_blank">Google Privacy Policy</a></li>
+            <li><strong>OneDrive:</strong> <a href="https://privacy.microsoft.com/privacystatement" target="_blank">Microsoft Privacy Statement</a></li>
+            <li><strong>Supabase:</strong> <a href="https://supabase.com/privacy" target="_blank">Supabase Privacy Policy</a></li>
+        </ul>
+
+        <h2>7. Your Rights and Choices</h2>
+        
+        <h3>7.1 Access and Control</h3>
+        <p>You have the right to:</p>
+        <ul>
+            <li>Access your personal information</li>
+            <li>Update or correct your information</li>
+            <li>Delete your account and associated data</li>
+            <li>Export your data (notes and folders)</li>
+            <li>Disconnect cloud storage integrations at any time</li>
+        </ul>
+
+        <h3>7.2 Data Retention</h3>
+        <p>We retain your data as long as your account is active. Upon account deletion:</p>
+        <ul>
+            <li>All notes, folders, and integrations are permanently deleted within 30 days</li>
+            <li>Backups are purged according to our retention schedule (90 days)</li>
+            <li>Some data may be retained for legal or security purposes as required by law</li>
+        </ul>
+
+        <h2>8. Cookies and Tracking</h2>
+        <p>DevPad uses minimal cookies and local storage for:</p>
+        <ul>
+            <li>Authentication (JWT tokens)</li>
+            <li>User preferences (theme settings)</li>
+            <li>Session management</li>
+        </ul>
+        <p>We do not use third-party tracking cookies or analytics that identify individual users.</p>
+
+        <h2>9. Children's Privacy</h2>
+        <p>DevPad is not intended for children under 13 years of age. We do not knowingly collect personal information from children. If you believe we have collected information from a child, please contact us immediately.</p>
+
+        <h2>10. International Data Transfers</h2>
+        <p>Your data may be transferred to and processed in countries other than your own. We ensure appropriate safeguards are in place to protect your information in accordance with this Privacy Policy.</p>
+
+        <h2>11. Changes to This Privacy Policy</h2>
+        <p>We may update this Privacy Policy from time to time. We will notify you of significant changes by:</p>
+        <ul>
+            <li>Posting the new policy on this page</li>
+            <li>Updating the "Last Updated" date</li>
+            <li>Sending an email notification for material changes</li>
+        </ul>
+
+        <h2>12. Contact Us</h2>
+        <p>If you have questions or concerns about this Privacy Policy or our data practices, please contact us:</p>
+        <div class="highlight">
+            <p><strong>Email:</strong> privacy@devpad.therama.dev</p>
+            <p><strong>GitHub:</strong> <a href="https://github.com/ramaeondev/devpad.therama.dev" target="_blank">github.com/ramaeondev/devpad.therama.dev</a></p>
+        </div>
+
+        <h2>13. Your Consent</h2>
+        <p>By using DevPad, you consent to this Privacy Policy and agree to its terms. If you do not agree, please do not use our services.</p>
+
+        <hr style="margin: 2rem 0; border: none; border-top: 1px solid #e2e8f0;">
+        
+        <p style="text-align: center; color: #718096;">
+            <a href="/">← Back to DevPad</a> | 
+            <a href="/terms.html">Terms of Service</a>
+        </p>
+    </div>
+</body>
+</html>
