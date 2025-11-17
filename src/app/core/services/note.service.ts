@@ -214,4 +214,58 @@ export class NoteService {
       return (data as Note[]) || [];
     });
   }
+
+  async uploadDocument(userId: string, file: File, folderId: string | null): Promise<Note> {
+    return this.loading.withLoading(async () => {
+      // Validate file size
+      if (file.size > 5 * 1024 * 1024) {
+        throw new Error('File size exceeds 5MB limit');
+      }
+
+      // Validate file type - block executables
+      const ext = file.name.split('.').pop()?.toLowerCase() || '';
+      const blockedExtensions = ['exe', 'bat', 'cmd', 'com', 'pif', 'scr', 'vbs', 'wsh', 'jar', 'dll', 'msi', 'reg', 'pif', 'hta'];
+      if (blockedExtensions.includes(ext)) {
+        throw new Error('Executable files are not allowed');
+      }
+
+      // Step 1: create a stub note
+      const { data: created, error: createErr } = await this.supabase
+        .from('notes')
+        .insert({
+          title: file.name,
+          content: '', // will be replaced with storage path
+          folder_id: folderId,
+          user_id: userId,
+          tags: []
+        })
+        .select()
+        .single();
+      if (createErr) throw createErr;
+
+      const note = created as Note;
+
+      // Step 2: upload file to storage
+      const path = `${userId}/${note.id}.${ext}`;
+      const { error: uploadErr } = await this.supabase.storage
+        .from(this.BUCKET)
+        .upload(path, file, { upsert: true, contentType: file.type || 'application/octet-stream' });
+      if (uploadErr) throw uploadErr;
+
+      // Verify upload
+      await this.verifyUpload(path);
+
+      // Step 3: update note with storage ref
+      const storageRef = `storage://${this.BUCKET}/${path}`;
+      const { data: updated, error: updateErr } = await this.supabase
+        .from('notes')
+        .update({ content: storageRef, updated_at: new Date().toISOString() })
+        .eq('id', note.id)
+        .eq('user_id', userId)
+        .select()
+        .single();
+      if (updateErr) throw updateErr;
+      return updated as Note;
+    });
+  }
 }

@@ -8,6 +8,7 @@ import { DropdownComponent } from '../../../../shared/components/ui/dropdown/dro
 import { Router } from '@angular/router';
 import { NoteService } from '../../../../core/services/note.service';
 import { WorkspaceStateService } from '../../../../core/services/workspace-state.service';
+import { SupabaseService } from '../../../../core/services/supabase.service';
 import { FolderNameModalComponent } from '../../../../shared/components/ui/dialog/folder-name-modal.component';
 import { NoteNameModalComponent } from '../../../../shared/components/ui/dialog/note-name-modal.component';
 import { ConfirmModalComponent } from '../../../../shared/components/ui/dialog/confirm-modal.component';
@@ -258,6 +259,7 @@ export class FolderTreeComponent {
   private authState = inject(AuthStateService);
   private toast = inject(ToastService);
   private router = inject(Router);
+  private supabase = inject(SupabaseService);
   workspaceState = inject(WorkspaceStateService);
 
   // Inline edit state
@@ -379,6 +381,18 @@ export class FolderTreeComponent {
     if (this.draggedNoteId()) return;
     
     event.stopPropagation();
+
+    // Check if it's a document (content is storage:// and not .md)
+    if (note.content && typeof note.content === 'string' && note.content.startsWith('storage://')) {
+      const path = note.content.replace('storage://notes/', '');
+      const isMarkdown = path.endsWith('.md');
+      if (!isMarkdown) {
+        // Download document
+        this.downloadDocument(note);
+        return;
+      }
+    }
+
     console.log('Note clicked:', note);
     this.workspaceState.setSelectedFolder(folder.id);
     this.workspaceState.emitNoteSelected(note);
@@ -492,7 +506,78 @@ export class FolderTreeComponent {
   }
 
   uploadDocument(folder: FolderTree) {
-    this.toast.info('Upload document flow not implemented yet');
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = '*/*';
+    input.multiple = false;
+    input.onchange = async (event) => {
+      const file = (event.target as HTMLInputElement).files?.[0];
+      if (!file) return;
+
+      try {
+        const userId = this.authState.userId();
+        if (!userId) {
+          this.toast.error('User not authenticated');
+          return;
+        }
+
+        const created = await this.noteService.uploadDocument(userId, file, folder.id);
+        this.toast.success(`Document "${file.name}" uploaded`);
+
+        // Refresh folder tree
+        this.treeChanged.emit();
+
+        // Optimistically add to local notes
+        if (folder.notes) {
+          folder.notes.unshift({
+            id: created.id,
+            title: created.title,
+            updated_at: created.updated_at,
+            folder_id: created.folder_id,
+            icon: '📄' // document icon
+          });
+        } else {
+          folder.notes = [{
+            id: created.id,
+            title: created.title,
+            updated_at: created.updated_at,
+            folder_id: created.folder_id,
+            icon: '📄'
+          }];
+        }
+
+        // Expand folder to show the new document
+        this.expandedFolders.update(set => new Set(set.add(folder.id)));
+
+      } catch (error: any) {
+        console.error('Upload failed:', error);
+        this.toast.error(error.message || 'Failed to upload document');
+      }
+    };
+    input.click();
+  }
+
+  private async downloadDocument(note: any) {
+    try {
+      if (!note.content || !note.content.startsWith('storage://')) return;
+
+      const path = note.content.replace('storage://notes/', '');
+      const { data, error } = await this.supabase.storage.from('notes').createSignedUrl(path, 60);
+      if (error || !data?.signedUrl) throw error;
+
+      // Create a temporary link to download
+      const link = document.createElement('a');
+      link.href = data.signedUrl;
+      link.download = note.title;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+
+      this.toast.success('Download started');
+    } catch (error: any) {
+      console.error('Download failed:', error);
+      this.toast.error('Failed to download document');
+    }
   }
 
   async deleteFolder(folder: FolderTree) {
