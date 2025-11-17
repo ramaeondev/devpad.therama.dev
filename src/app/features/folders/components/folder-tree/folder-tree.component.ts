@@ -244,10 +244,11 @@ import { DocumentPreviewModalComponent } from '../../../../shared/components/ui/
     /* Drag and drop styles */
     .note-row {
       @apply transition-all duration-200;
-      
-      &[draggable="true"] {
-        cursor: move;
-      }
+      cursor: default !important;
+    }
+
+    .drag-handle {
+      cursor: move !important;
     }
 
     .folder-header {
