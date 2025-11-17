@@ -375,7 +375,7 @@ export class FolderTreeComponent {
   private async fetchNotesForFolder(folder: FolderTree) {
     try {
       const list = await this.noteService.getNotesForFolder(folder.id, this.authState.userId());
-      folder.notes = list.map(n => ({ id: n.id, title: n.title, updated_at: n.updated_at, folder_id: n.folder_id, icon: (n as any).icon || undefined }));
+      folder.notes = list.map(n => ({ id: n.id, title: n.title, updated_at: n.updated_at, folder_id: n.folder_id, content: n.content, icon: (n as any).icon || undefined }));
     } catch (e:any) {
       console.error('Failed to fetch notes for folder', folder.id, e);
     }
@@ -486,9 +486,9 @@ export class FolderTreeComponent {
       this.expandedFolders.update(set => new Set(set.add(folder.id)));
       // Optimistically insert into local notes array if present
       if ((folder as any).notes) {
-        (folder as any).notes.unshift({ id: created.id, title: created.title, updated_at: created.updated_at, folder_id: created.folder_id, icon: (created as any).icon || undefined });
+        (folder as any).notes.unshift({ id: created.id, title: created.title, updated_at: created.updated_at, folder_id: created.folder_id, content: created.content, icon: (created as any).icon || undefined });
       } else {
-        (folder as any).notes = [{ id: created.id, title: created.title, updated_at: created.updated_at, folder_id: created.folder_id, icon: (created as any).icon || undefined }];
+        (folder as any).notes = [{ id: created.id, title: created.title, updated_at: created.updated_at, folder_id: created.folder_id, content: created.content, icon: (created as any).icon || undefined }];
       }
       // Fetch latest notes for this folder in background to ensure consistency
       this.fetchNotesForFolder(folder);
@@ -528,6 +528,7 @@ export class FolderTreeComponent {
             title: created.title,
             updated_at: created.updated_at,
             folder_id: created.folder_id,
+            content: created.content,
             icon: '📄' // document icon
           });
         } else {
@@ -536,6 +537,7 @@ export class FolderTreeComponent {
             title: created.title,
             updated_at: created.updated_at,
             folder_id: created.folder_id,
+            content: created.content,
             icon: '📄'
           }];
         }
