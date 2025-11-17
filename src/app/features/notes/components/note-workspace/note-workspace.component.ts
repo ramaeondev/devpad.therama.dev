@@ -1,6 +1,7 @@
 import { Component, inject, signal, computed, effect } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MarkdownEditorComponent } from '../markdown-editor/markdown-editor.component';
+import { DocumentPreviewComponent } from '../../../../shared/components/ui/document-preview/document-preview.component';
 import { FolderTree } from '../../../../core/models/folder.model';
 import { AuthStateService } from '../../../../core/services/auth-state.service';
 import { FolderService } from '../../../folders/services/folder.service';
@@ -11,7 +12,7 @@ import { WorkspaceStateService } from '../../../../core/services/workspace-state
 @Component({
   selector: 'app-note-workspace',
   standalone: true,
-  imports: [CommonModule, MarkdownEditorComponent],
+  imports: [CommonModule, MarkdownEditorComponent, DocumentPreviewComponent],
   template: `
     <div class="h-full flex flex-col">
       <!-- Toolbar -->
@@ -32,12 +33,16 @@ import { WorkspaceStateService } from '../../../../core/services/workspace-state
             placeholder="Note title" />
         }
 
-        <!-- Editor -->
+        <!-- Content Area -->
         @if (currentMode() !== 'empty') {
-          <app-markdown-editor
-            [initialContent]="content()"
-            (contentChange)="content.set($event)"
-          />
+          @if (isDocument()) {
+            <app-document-preview [note]="currentNote()!" />
+          } @else {
+            <app-markdown-editor
+              [initialContent]="content()"
+              (contentChange)="content.set($event)"
+            />
+          }
         }
 
         <!-- Empty state -->
@@ -78,10 +83,16 @@ export class NoteWorkspaceComponent {
 
   notes = signal<any[]>([]); // could type Note
   selectedNoteId = signal<string | null>(null);
+  currentNote = signal<any>(null); // Full note object
 
   title = signal('');
   content = signal('');
   saving = signal(false);
+
+  isDocument = computed(() => {
+    const note = this.currentNote();
+    return note?.icon && note.icon !== '📝';
+  });
 
   currentMode = computed(() => {
     if (!this.selectedFolderId()) return 'empty';
@@ -104,6 +115,7 @@ export class NoteWorkspaceComponent {
         this.selectedNoteId.set(null);
         this.title.set('');
         this.content.set('');
+        this.currentNote.set(null);
         this.loadNotes(fid);
       } else {
         this.notes.set([]);
@@ -152,6 +164,7 @@ export class NoteWorkspaceComponent {
         this.title.set(noteRef.title || '');
         // optimistic placeholder while content downloads
         this.content.set('');
+        this.currentNote.set(noteRef); // Set basic note info immediately
 
         // Fetch full note to ensure content is loaded and then update fields
         const userId = this.auth.userId();
@@ -160,6 +173,7 @@ export class NoteWorkspaceComponent {
           this.selectedNoteId.set(full.id);
           this.title.set(full.title);
           this.content.set(full.content || '');
+          this.currentNote.set(full); // Update with full note data
         }
       } catch (e:any) {
         console.error(e);
@@ -198,6 +212,7 @@ export class NoteWorkspaceComponent {
     this.selectedNoteId.set(null);
     this.title.set('Untitled');
     this.content.set('');
+    this.currentNote.set(null);
   }
 
   async saveNote() {
