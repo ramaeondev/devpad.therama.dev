@@ -184,18 +184,24 @@ export class NoteService {
       const note = data as Note & { content?: string };
       const contentField = note.content || '';
       if (contentField.startsWith('storage://')) {
-        // Parse storage path and fetch content via signed URL (always use signed URLs for private buckets)
+        // Parse storage path
         const path = contentField.replace(`storage://${this.BUCKET}/`, '');
-        const { data: urlData, error: urlErr } = await this.supabase.storage
-          .from(this.BUCKET)
-          .createSignedUrl(path, 60);
-        if (urlErr || !urlData?.signedUrl) {
-          throw urlErr || new Error('Signed URL could not be created');
+        // Only fetch content for text/markdown files, keep storage path for binary files
+        const isTextFile = path.endsWith('.md') || path.endsWith('.txt');
+        if (isTextFile) {
+          const { data: urlData, error: urlErr } = await this.supabase.storage
+            .from(this.BUCKET)
+            .createSignedUrl(path, 60);
+          if (urlErr || !urlData?.signedUrl) {
+            throw urlErr || new Error('Signed URL could not be created');
+          }
+          const resp = await fetch(urlData.signedUrl);
+          if (!resp.ok) throw new Error(`Signed URL fetch failed: ${resp.status}`);
+          const signedText = await resp.text();
+          return { ...(note as Note), content: signedText } as Note;
         }
-        const resp = await fetch(urlData.signedUrl);
-        if (!resp.ok) throw new Error(`Signed URL fetch failed: ${resp.status}`);
-        const signedText = await resp.text();
-        return { ...(note as Note), content: signedText } as Note;
+        // For binary files, keep the storage path as content
+        return note as Note;
       }
       return note as Note;
     });
