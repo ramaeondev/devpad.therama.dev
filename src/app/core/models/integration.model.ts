@@ -10,6 +10,27 @@ export interface Integration {
   updated_at: string;
 }
 
+export interface OneDriveFile {
+  id: string;
+  name: string;
+  mimeType?: string;
+  size?: number;
+  webUrl?: string;
+  createdDateTime: string;
+  lastModifiedDateTime: string;
+  folder?: { childCount: number };
+  file?: { mimeType: string };
+  parentReference?: { id: string; path: string };
+  isFolder: boolean;
+}
+
+export interface OneDriveFolder {
+  id: string;
+  name: string;
+  files: OneDriveFile[];
+  folders: OneDriveFolder[];
+}
+
 export interface GoogleDriveFile {
   id: string;
   name: string;

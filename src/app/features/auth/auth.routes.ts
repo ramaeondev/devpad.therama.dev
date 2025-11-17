@@ -33,4 +33,11 @@ export default [
     loadComponent: () =>
       import('./pages/confirm-email/confirm-email.component').then((m) => m.ConfirmEmailComponent),
   },
+  {
+    path: 'callback/onedrive',
+    loadComponent: () =>
+      import('./pages/onedrive-callback/onedrive-callback.component').then(
+        (m) => m.OneDriveCallbackComponent,
+      ),
+  },
 ] as Routes;
