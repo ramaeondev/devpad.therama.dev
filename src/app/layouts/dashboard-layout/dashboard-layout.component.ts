@@ -14,7 +14,16 @@ import { AvatarComponent } from '../../shared/components/ui/avatar/avatar.compon
 @Component({
   selector: 'app-dashboard-layout',
   standalone: true,
-  imports: [CommonModule, SidebarComponent, ToastContainerComponent, GlobalSpinnerComponent, NoteWorkspaceComponent, LogoComponent, SettingsPanelComponent, AvatarComponent],
+  imports: [
+    CommonModule,
+    SidebarComponent,
+    ToastContainerComponent,
+    GlobalSpinnerComponent,
+    NoteWorkspaceComponent,
+    LogoComponent,
+    SettingsPanelComponent,
+    AvatarComponent,
+  ],
   template: `
     <div class="h-screen w-screen overflow-hidden bg-gray-50 dark:bg-gray-900 flex flex-col">
       <!-- Header -->
@@ -22,40 +31,50 @@ import { AvatarComponent } from '../../shared/components/ui/avatar/avatar.compon
         <div class="px-3 sm:px-4 py-3 sm:py-4 flex items-center justify-between">
           <div class="flex items-center gap-2 sm:gap-4 text-gray-900 dark:text-gray-100">
             <!-- Mobile menu button -->
-            <button 
-              (click)="toggleMobileSidebar()" 
+            <button
+              (click)="toggleMobileSidebar()"
               class="lg:hidden p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
               aria-label="Toggle menu"
             >
               <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 @if (showMobileSidebar()) {
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M6 18L18 6M6 6l12 12"
+                  />
                 } @else {
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M4 6h16M4 12h16M4 18h16"
+                  />
                 }
               </svg>
             </button>
             <app-logo></app-logo>
           </div>
-          <div class="flex items-center gap-2 sm:gap-4 relative">            
-            <button 
-              (click)="openSettings()" 
-              class="p-0 rounded-full border-2 border-transparent hover:border-gray-300 dark:hover:border-gray-600 transition-colors" 
-              title="Settings" 
+          <div class="flex items-center gap-2 sm:gap-4 relative">
+            <button
+              (click)="openSettings()"
+              class="p-0 rounded-full border-2 border-transparent hover:border-gray-300 dark:hover:border-gray-600 transition-colors"
+              title="Settings"
               aria-label="Open settings"
             >
-              <app-avatar 
-                [avatarUrl]="avatarUrl()" 
-                [firstName]="firstName()" 
-                [lastName]="lastName()" 
+              <app-avatar
+                [avatarUrl]="avatarUrl()"
+                [firstName]="firstName()"
+                [lastName]="lastName()"
                 [email]="auth.userEmail()"
                 size="sm"
                 class="sm:hidden"
               />
-              <app-avatar 
-                [avatarUrl]="avatarUrl()" 
-                [firstName]="firstName()" 
-                [lastName]="lastName()" 
+              <app-avatar
+                [avatarUrl]="avatarUrl()"
+                [firstName]="firstName()"
+                [lastName]="lastName()"
                 [email]="auth.userEmail()"
                 size="md"
                 class="hidden sm:block"
@@ -69,15 +88,15 @@ import { AvatarComponent } from '../../shared/components/ui/avatar/avatar.compon
       <div class="flex flex-1 min-h-0 relative">
         <!-- Mobile sidebar overlay -->
         @if (showMobileSidebar()) {
-          <div 
-            class="fixed inset-0 bg-black/50 z-30 lg:hidden" 
+          <div
+            class="fixed inset-0 bg-black/50 z-30 lg:hidden"
             (click)="closeMobileSidebar()"
             aria-hidden="true"
           ></div>
         }
 
         <!-- Sidebar -->
-        <div 
+        <div
           class="fixed lg:static inset-y-0 left-0 z-40 transform transition-transform duration-300 ease-in-out lg:transform-none"
           [class.-translate-x-full]="!showMobileSidebar()"
           [class.translate-x-0]="showMobileSidebar()"
@@ -98,7 +117,7 @@ import { AvatarComponent } from '../../shared/components/ui/avatar/avatar.compon
       <app-global-spinner />
     </div>
   `,
-  styles: []
+  styles: [],
 })
 export class DashboardLayoutComponent {
   auth = inject(AuthStateService);
@@ -143,20 +162,20 @@ export class DashboardLayoutComponent {
     }
   }
 
-  toggleMobileSidebar() { 
-    this.showMobileSidebar.update(v => !v); 
+  toggleMobileSidebar() {
+    this.showMobileSidebar.update((v) => !v);
   }
 
-  closeMobileSidebar() { 
-    this.showMobileSidebar.set(false); 
+  closeMobileSidebar() {
+    this.showMobileSidebar.set(false);
   }
 
-  openSettings() { 
+  openSettings() {
     this.showSettings.set(true);
     this.closeMobileSidebar(); // Close sidebar when opening settings
   }
 
-  closeSettings() { 
+  closeSettings() {
     this.showSettings.set(false);
     // Reload profile when settings close (in case it was updated)
     this.loadProfile();
@@ -165,7 +184,8 @@ export class DashboardLayoutComponent {
   // Close mobile sidebar on window resize to desktop
   @HostListener('window:resize')
   onResize() {
-    if (window.innerWidth >= 1024) { // lg breakpoint
+    if (window.innerWidth >= 1024) {
+      // lg breakpoint
       this.closeMobileSidebar();
     }
   }

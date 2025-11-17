@@ -9,27 +9,44 @@ import { DomSanitizer, SafeUrl } from '@angular/platform-browser';
   imports: [CommonModule, ImageCropperComponent],
   template: `
     @if (open) {
-      <div class="fixed inset-0 z-[70] flex items-end sm:items-center justify-center p-0 sm:p-4" aria-modal="true" role="dialog">
+      <div
+        class="fixed inset-0 z-[70] flex items-end sm:items-center justify-center p-0 sm:p-4"
+        aria-modal="true"
+        role="dialog"
+      >
         <div class="absolute inset-0 bg-black/60 backdrop-blur-sm" (click)="onCancel()"></div>
-        
-        <div class="relative bg-white dark:bg-gray-900 rounded-t-2xl sm:rounded-xl shadow-2xl w-full max-w-lg border-t sm:border border-gray-200 dark:border-gray-800 flex flex-col max-h-[95vh] sm:max-h-[90vh]">
+
+        <div
+          class="relative bg-white dark:bg-gray-900 rounded-t-2xl sm:rounded-xl shadow-2xl w-full max-w-lg border-t sm:border border-gray-200 dark:border-gray-800 flex flex-col max-h-[95vh] sm:max-h-[90vh]"
+        >
           <!-- Header -->
-          <div class="flex items-center justify-between px-4 sm:px-6 py-3 sm:py-4 border-b border-gray-200 dark:border-gray-800">
-            <h2 class="text-base sm:text-lg font-semibold text-gray-900 dark:text-gray-100">Crop Profile Photo</h2>
-            <button 
-              class="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-500 dark:text-gray-400 transition-colors" 
-              (click)="onCancel()" 
+          <div
+            class="flex items-center justify-between px-4 sm:px-6 py-3 sm:py-4 border-b border-gray-200 dark:border-gray-800"
+          >
+            <h2 class="text-base sm:text-lg font-semibold text-gray-900 dark:text-gray-100">
+              Crop Profile Photo
+            </h2>
+            <button
+              class="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-500 dark:text-gray-400 transition-colors"
+              (click)="onCancel()"
               aria-label="Cancel"
             >
               <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M6 18L18 6M6 6l12 12"
+                />
               </svg>
             </button>
           </div>
 
           <!-- Cropper Area -->
           <div class="flex-1 overflow-y-auto p-4 sm:p-6 touch-pan-y">
-            <div class="bg-gray-100 dark:bg-gray-800 rounded-lg overflow-hidden min-h-[300px] sm:min-h-[400px] flex items-center justify-center">
+            <div
+              class="bg-gray-100 dark:bg-gray-800 rounded-lg overflow-hidden min-h-[300px] sm:min-h-[400px] flex items-center justify-center"
+            >
               @if (imageChangedEvent) {
                 <image-cropper
                   [imageChangedEvent]="imageChangedEvent"
@@ -51,13 +68,26 @@ import { DomSanitizer, SafeUrl } from '@angular/platform-browser';
                 <div class="text-gray-500 dark:text-gray-400">No image selected</div>
               }
             </div>
-            
+
             @if (loading()) {
               <div class="mt-4 text-center">
-                <div class="inline-flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
+                <div
+                  class="inline-flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400"
+                >
                   <svg class="animate-spin h-4 w-4" fill="none" viewBox="0 0 24 24">
-                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    <circle
+                      class="opacity-25"
+                      cx="12"
+                      cy="12"
+                      r="10"
+                      stroke="currentColor"
+                      stroke-width="4"
+                    ></circle>
+                    <path
+                      class="opacity-75"
+                      fill="currentColor"
+                      d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                    ></path>
                   </svg>
                   Loading image...
                 </div>
@@ -65,13 +95,17 @@ import { DomSanitizer, SafeUrl } from '@angular/platform-browser';
             }
 
             @if (errorMessage()) {
-              <div class="mt-4 p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg">
+              <div
+                class="mt-4 p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg"
+              >
                 <p class="text-sm text-red-700 dark:text-red-300">{{ errorMessage() }}</p>
               </div>
             }
 
             <!-- Tips -->
-            <div class="mt-6 p-4 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg">
+            <div
+              class="mt-6 p-4 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg"
+            >
               <h3 class="text-sm font-medium text-blue-900 dark:text-blue-200 mb-2">Tips:</h3>
               <ul class="text-xs text-blue-700 dark:text-blue-300 space-y-1">
                 <li>• Drag to reposition your photo</li>
@@ -82,14 +116,16 @@ import { DomSanitizer, SafeUrl } from '@angular/platform-browser';
           </div>
 
           <!-- Footer Actions -->
-          <div class="flex items-center justify-end gap-2 sm:gap-3 px-4 sm:px-6 py-3 sm:py-4 border-t border-gray-200 dark:border-gray-800 safe-bottom">
-            <button 
+          <div
+            class="flex items-center justify-end gap-2 sm:gap-3 px-4 sm:px-6 py-3 sm:py-4 border-t border-gray-200 dark:border-gray-800 safe-bottom"
+          >
+            <button
               class="px-4 py-2.5 text-sm font-medium rounded-lg border border-gray-300 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors touch-manipulation"
               (click)="onCancel()"
             >
               Cancel
             </button>
-            <button 
+            <button
               class="px-4 py-2.5 text-sm font-medium rounded-lg bg-blue-600 text-white hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors touch-manipulation min-w-[100px]"
               [disabled]="!croppedImage() || loading()"
               (click)="onSave()"
@@ -101,7 +137,7 @@ import { DomSanitizer, SafeUrl } from '@angular/platform-browser';
       </div>
     }
   `,
-  styles: []
+  styles: [],
 })
 export class ImageCropDialogComponent {
   @Input() open = false;

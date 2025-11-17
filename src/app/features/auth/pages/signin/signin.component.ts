@@ -13,19 +13,27 @@ import { LogoComponent } from '../../../../shared/components/ui/logo/logo.compon
   standalone: true,
   imports: [CommonModule, ReactiveFormsModule, RouterLink, LogoComponent],
   template: `
-    <div class="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900 py-8 sm:py-12 px-4 sm:px-6 lg:px-8">
+    <div
+      class="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900 py-8 sm:py-12 px-4 sm:px-6 lg:px-8"
+    >
       <div class="max-w-md w-full space-y-6 sm:space-y-8">
         <div>
-          <h2 class="mt-4 sm:mt-6 text-center text-2xl sm:text-3xl font-extrabold text-gray-900 dark:text-white">
-          <span class="text-gray-900 dark:text-gray-100 inline-block">
-            <app-logo></app-logo>
-          </span>
+          <h2
+            class="mt-4 sm:mt-6 text-center text-2xl sm:text-3xl font-extrabold text-gray-900 dark:text-white"
+          >
+            <span class="text-gray-900 dark:text-gray-100 inline-block">
+              <app-logo></app-logo>
+            </span>
           </h2>
           <p class="mt-2 text-center text-sm text-gray-600 dark:text-gray-400">
             Sign in to your account
           </p>
         </div>
-        <form class="mt-6 sm:mt-8 space-y-5 sm:space-y-6" [formGroup]="signinForm" (ngSubmit)="onSubmit()">
+        <form
+          class="mt-6 sm:mt-8 space-y-5 sm:space-y-6"
+          [formGroup]="signinForm"
+          (ngSubmit)="onSubmit()"
+        >
           <div class="rounded-md shadow-sm space-y-3">
             <div>
               <label for="email" class="sr-only">Email address</label>
@@ -61,7 +69,10 @@ import { LogoComponent } from '../../../../shared/components/ui/logo/logo.compon
 
           <div class="flex items-center justify-between">
             <div class="text-sm">
-              <a routerLink="/auth/forgot-password" class="font-medium text-primary-600 hover:text-primary-500">
+              <a
+                routerLink="/auth/forgot-password"
+                class="font-medium text-primary-600 hover:text-primary-500"
+              >
                 Forgot your password?
               </a>
             </div>
@@ -84,7 +95,10 @@ import { LogoComponent } from '../../../../shared/components/ui/logo/logo.compon
           <div class="text-center">
             <p class="text-sm sm:text-base text-gray-600 dark:text-gray-400">
               Don't have an account?
-              <a routerLink="/auth/signup" class="font-medium text-primary-600 hover:text-primary-500 touch-manipulation">
+              <a
+                routerLink="/auth/signup"
+                class="font-medium text-primary-600 hover:text-primary-500 touch-manipulation"
+              >
                 Sign up
               </a>
             </p>
@@ -93,7 +107,7 @@ import { LogoComponent } from '../../../../shared/components/ui/logo/logo.compon
       </div>
     </div>
   `,
-  styles: []
+  styles: [],
 })
 export class SigninComponent {
   private fb = inject(FormBuilder);
@@ -108,7 +122,7 @@ export class SigninComponent {
 
   signinForm = this.fb.nonNullable.group({
     email: ['', [Validators.required, Validators.email]],
-    password: ['', [Validators.required, Validators.minLength(6)]]
+    password: ['', [Validators.required, Validators.minLength(6)]],
   });
 
   async onSubmit() {
@@ -122,14 +136,14 @@ export class SigninComponent {
     try {
       const { data, error } = await this.supabase.auth.signInWithPassword({
         email,
-        password
+        password,
       });
 
       if (error) throw error;
 
       if (data.user) {
         this.authState.setUser(data.user);
-        
+
         // Initialize root folder for first-time users
         try {
           await this.folderService.initializeUserFolders(data.user.id);
@@ -137,7 +151,7 @@ export class SigninComponent {
           console.error('Error initializing folders:', folderError);
           // Don't block sign-in if folder initialization fails
         }
-        
+
         this.toast.success('Welcome back!');
         this.router.navigate(['/dashboard']);
       }

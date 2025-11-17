@@ -24,7 +24,7 @@ import { CommonModule } from '@angular/common';
       }
     </div>
   `,
-  styles: [``]
+  styles: [``],
 })
 export class DropdownComponent {
   @Input() align: 'left' | 'right' = 'left';
@@ -34,7 +34,7 @@ export class DropdownComponent {
   @ViewChild('menu') menuRef?: ElementRef<HTMLElement>;
 
   toggle() {
-    this.open.update(v => !v);
+    this.open.update((v) => !v);
   }
 
   close() {

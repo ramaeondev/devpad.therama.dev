@@ -10,7 +10,9 @@ import { ToastService } from '../../../../core/services/toast.service';
   standalone: true,
   imports: [CommonModule, ReactiveFormsModule, RouterLink],
   template: `
-    <div class="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900 py-12 px-4">
+    <div
+      class="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900 py-12 px-4"
+    >
       <div class="max-w-md w-full space-y-8">
         <div class="text-center">
           <h2 class="text-3xl font-bold text-gray-900 dark:text-white">Forgot password?</h2>
@@ -26,7 +28,11 @@ import { ToastService } from '../../../../core/services/toast.service';
             placeholder="Email address"
             required
           />
-          <button type="submit" [disabled]="loading() || form.invalid" class="btn btn-primary w-full py-2">
+          <button
+            type="submit"
+            [disabled]="loading() || form.invalid"
+            class="btn btn-primary w-full py-2"
+          >
             {{ loading() ? 'Sending...' : 'Send Reset Link' }}
           </button>
           <div class="text-center">
@@ -37,27 +43,25 @@ import { ToastService } from '../../../../core/services/toast.service';
         </form>
       </div>
     </div>
-  `
+  `,
 })
 export class ForgotPasswordComponent {
   private fb = inject(FormBuilder);
   private supabase = inject(SupabaseService);
   private toast = inject(ToastService);
-  
+
   loading = signal(false);
-  
+
   form = this.fb.nonNullable.group({
-    email: ['', [Validators.required, Validators.email]]
+    email: ['', [Validators.required, Validators.email]],
   });
 
   async onSubmit() {
     if (this.form.invalid) return;
     this.loading.set(true);
-    
+
     try {
-      const { error } = await this.supabase.auth.resetPasswordForEmail(
-        this.form.value.email!
-      );
+      const { error } = await this.supabase.auth.resetPasswordForEmail(this.form.value.email!);
       if (error) throw error;
       this.toast.success('Password reset email sent!');
     } catch (error: any) {

@@ -12,15 +12,26 @@ import { SupabaseService } from '../../../../core/services/supabase.service';
 import { FolderNameModalComponent } from '../../../../shared/components/ui/dialog/folder-name-modal.component';
 import { NoteNameModalComponent } from '../../../../shared/components/ui/dialog/note-name-modal.component';
 import { ConfirmModalComponent } from '../../../../shared/components/ui/dialog/confirm-modal.component';
-import { NotePropertiesModalComponent, NoteProperties } from '../../../../shared/components/ui/dialog/note-properties-modal.component';
+import {
+  NotePropertiesModalComponent,
+  NoteProperties,
+} from '../../../../shared/components/ui/dialog/note-properties-modal.component';
 import { RelativeTimeDirective } from '../../../../shared/directives/relative-time.directive';
-import { DocumentPreviewModalComponent } from '../../../../shared/components/ui/dialog/document-preview-modal.component';
-import { FileIconDirective } from '../../../../shared/icons/file-icon.directive';
+import { NgIconComponent } from '@ng-icons/core';
 
 @Component({
   selector: 'app-folder-tree',
   standalone: true,
-  imports: [CommonModule, DropdownComponent, FolderNameModalComponent, NoteNameModalComponent, ConfirmModalComponent, NotePropertiesModalComponent, RelativeTimeDirective, FileIconDirective],
+  imports: [
+    CommonModule,
+    DropdownComponent,
+    FolderNameModalComponent,
+    NoteNameModalComponent,
+    ConfirmModalComponent,
+    NotePropertiesModalComponent,
+    RelativeTimeDirective,
+    NgIconComponent,
+  ],
   template: `
     <div class="folder-tree">
       <!-- Name modal -->
@@ -164,7 +175,7 @@ import { FileIconDirective } from '../../../../shared/icons/file-icon.directive'
                   (dragend)="onNoteDragEnd($event)"
                 >
                     <span class="drag-handle w-4 text-xs text-gray-400 cursor-move select-none">⋮⋮</span>
-                    <ng-icon class="note-icon w-4 text-sm pointer-events-none" [fileIcon]="getFileIcon(note)" size="16"></ng-icon>
+                    <ng-icon class="note-icon w-4 text-sm pointer-events-none" [name]="getFileIconName(note)" size="16"></ng-icon>
                     <span class="truncate flex-1 pointer-events-none">{{ note.title || 'Untitled' }}</span>
                   <span class="text-[10px] text-gray-400 pointer-events-none" [appRelativeTime]="note.updated_at"></span>
                   <!-- Note Actions Dropdown -->
@@ -207,49 +218,51 @@ import { FileIconDirective } from '../../../../shared/icons/file-icon.directive'
       }
     </div>
   `,
-  styles: [`
-    .folder-tree {
-      @apply space-y-1;
-    }
-
-    .folder-item {
-      @apply relative;
-    }
-
-    .folder-header {
-      @apply relative;
-      
-      &:hover .action-btn {
-        @apply opacity-100;
+  styles: [
+    `
+      .folder-tree {
+        @apply space-y-1;
       }
-    }
 
-    .action-btn {
-      @apply opacity-0 transition-opacity;
-    }
-
-    .expand-btn {
-      @apply transition-transform;
-      
-      &:hover {
-        @apply scale-110;
+      .folder-item {
+        @apply relative;
       }
-    }
 
-    /* Drag and drop styles */
-    .note-row {
-      @apply transition-all duration-200;
-      cursor: default !important;
-    }
+      .folder-header {
+        @apply relative;
 
-    .drag-handle {
-      cursor: move !important;
-    }
+        &:hover .action-btn {
+          @apply opacity-100;
+        }
+      }
 
-    .folder-header {
-      @apply transition-all duration-200;
-    }
-  `]
+      .action-btn {
+        @apply opacity-0 transition-opacity;
+      }
+
+      .expand-btn {
+        @apply transition-transform;
+
+        &:hover {
+          @apply scale-110;
+        }
+      }
+
+      /* Drag and drop styles */
+      .note-row {
+        @apply transition-all duration-200;
+        cursor: default !important;
+      }
+
+      .drag-handle {
+        cursor: move !important;
+      }
+
+      .folder-header {
+        @apply transition-all duration-200;
+      }
+    `,
+  ],
 })
 export class FolderTreeComponent {
   @Input() folders: FolderTree[] = [];
@@ -302,9 +315,9 @@ export class FolderTreeComponent {
 
   ngOnInit() {
     // Auto-expand root folders
-    this.folders.forEach(folder => {
+    this.folders.forEach((folder) => {
       if (folder.is_root) {
-        this.expandedFolders.update(set => {
+        this.expandedFolders.update((set) => {
           set.add(folder.id);
           return new Set(set);
         });
@@ -319,7 +332,9 @@ export class FolderTreeComponent {
     const id = this.editingId();
     if (!id) return;
     setTimeout(() => {
-      const el = document.querySelector(`[data-folder-id="${id}"] input`) as HTMLInputElement | null;
+      const el = document.querySelector(
+        `[data-folder-id="${id}"] input`,
+      ) as HTMLInputElement | null;
       if (el) {
         el.focus();
         el.select();
@@ -333,7 +348,7 @@ export class FolderTreeComponent {
 
   toggleExpand(folderId: string, event: Event) {
     event.stopPropagation();
-    this.expandedFolders.update(set => {
+    this.expandedFolders.update((set) => {
       if (set.has(folderId)) {
         set.delete(folderId);
       } else {
@@ -368,16 +383,23 @@ export class FolderTreeComponent {
           this.fetchNotesForFolder(folder);
         }
       }
-      folder.children?.forEach(child => loadFor(child));
+      folder.children?.forEach((child) => loadFor(child));
     };
-    this.folders.forEach(f => loadFor(f));
+    this.folders.forEach((f) => loadFor(f));
   }
 
   private async fetchNotesForFolder(folder: FolderTree) {
     try {
       const list = await this.noteService.getNotesForFolder(folder.id, this.authState.userId());
-      folder.notes = list.map(n => ({ id: n.id, title: n.title, updated_at: n.updated_at, folder_id: n.folder_id, content: n.content, icon: (n as any).icon || undefined }));
-    } catch (e:any) {
+      folder.notes = list.map((n) => ({
+        id: n.id,
+        title: n.title,
+        updated_at: n.updated_at,
+        folder_id: n.folder_id,
+        content: n.content,
+        icon: (n as any).icon || undefined,
+      }));
+    } catch (e: any) {
       console.error('Failed to fetch notes for folder', folder.id, e);
     }
   }
@@ -385,7 +407,7 @@ export class FolderTreeComponent {
   onNoteClick(note: any, folder: FolderTree, event: Event) {
     // Don't trigger click when dragging
     if (this.draggedNoteId()) return;
-    
+
     event.stopPropagation();
 
     console.log('Note clicked:', note);
@@ -414,7 +436,7 @@ export class FolderTreeComponent {
 
   openCreateSubfolderModal(parent: FolderTree) {
     this.pendingParentId = parent.id;
-    this.expandedFolders.update(set => new Set(set.add(parent.id)));
+    this.expandedFolders.update((set) => new Set(set.add(parent.id)));
     this.showNameModal.set(true);
   }
 
@@ -446,7 +468,7 @@ export class FolderTreeComponent {
       folder.name = updated.name;
       this.toast.success('Folder renamed');
       this.treeChanged.emit();
-    } catch (e:any) {
+    } catch (e: any) {
       console.error(e);
       this.toast.error('Failed to rename folder');
     } finally {
@@ -473,7 +495,11 @@ export class FolderTreeComponent {
       const titleBase = 'Untitled';
       const unique = this.uniqueName(titleBase, existingTitles, '.md');
       console.log('Creating note in folder:', folder.id, 'with title:', unique);
-      const created = await this.noteService.createNote(userId, { title: unique, content: '', folder_id: folder.id });
+      const created = await this.noteService.createNote(userId, {
+        title: unique,
+        content: '',
+        folder_id: folder.id,
+      });
       console.log('Note created successfully:', created);
       this.toast.success(`Note "${created.title}" created`);
       // Refresh folder tree as files changed (e.g., notes count badges)
@@ -484,16 +510,32 @@ export class FolderTreeComponent {
       this.workspaceState.setSelectedFolder(folder.id);
       this.workspaceState.emitNoteCreated(created);
       // Ensure the folder is expanded so the new note is visible
-      this.expandedFolders.update(set => new Set(set.add(folder.id)));
+      this.expandedFolders.update((set) => new Set(set.add(folder.id)));
       // Optimistically insert into local notes array if present
       if ((folder as any).notes) {
-        (folder as any).notes.unshift({ id: created.id, title: created.title, updated_at: created.updated_at, folder_id: created.folder_id, content: created.content, icon: (created as any).icon || undefined });
+        (folder as any).notes.unshift({
+          id: created.id,
+          title: created.title,
+          updated_at: created.updated_at,
+          folder_id: created.folder_id,
+          content: created.content,
+          icon: (created as any).icon || undefined,
+        });
       } else {
-        (folder as any).notes = [{ id: created.id, title: created.title, updated_at: created.updated_at, folder_id: created.folder_id, content: created.content, icon: (created as any).icon || undefined }];
+        (folder as any).notes = [
+          {
+            id: created.id,
+            title: created.title,
+            updated_at: created.updated_at,
+            folder_id: created.folder_id,
+            content: created.content,
+            icon: (created as any).icon || undefined,
+          },
+        ];
       }
       // Fetch latest notes for this folder in background to ensure consistency
       this.fetchNotesForFolder(folder);
-    } catch (e:any) {
+    } catch (e: any) {
       console.error('Failed to create note:', e);
       const errorMsg = e?.message || e?.error?.message || 'Failed to create note';
       this.toast.error(errorMsg);
@@ -530,22 +572,23 @@ export class FolderTreeComponent {
             updated_at: created.updated_at,
             folder_id: created.folder_id,
             content: created.content,
-            icon: '📄' // document icon
+            icon: '📄', // document icon
           });
         } else {
-          folder.notes = [{
-            id: created.id,
-            title: created.title,
-            updated_at: created.updated_at,
-            folder_id: created.folder_id,
-            content: created.content,
-            icon: '📄'
-          }];
+          folder.notes = [
+            {
+              id: created.id,
+              title: created.title,
+              updated_at: created.updated_at,
+              folder_id: created.folder_id,
+              content: created.content,
+              icon: '📄',
+            },
+          ];
         }
 
         // Expand folder to show the new document
-        this.expandedFolders.update(set => new Set(set.add(folder.id)));
-
+        this.expandedFolders.update((set) => new Set(set.add(folder.id)));
       } catch (error: any) {
         console.error('Upload failed:', error);
         this.toast.error(error.message || 'Failed to upload document');
@@ -589,7 +632,7 @@ export class FolderTreeComponent {
       // Optimistically remove from local tree for immediate UX feedback
       this.removeById(folder.id);
       this.treeChanged.emit();
-    } catch (e:any) {
+    } catch (e: any) {
       console.error(e);
       this.toast.error('Failed to delete folder');
     }
@@ -623,7 +666,7 @@ export class FolderTreeComponent {
       const created = await this.folderService.createFolder(userId, { name, parent_id: parentId });
       this.toast.success(`Folder "${created.name}" created`);
       this.treeChanged.emit();
-    } catch (e:any) {
+    } catch (e: any) {
       console.error(e);
       this.toast.error(e?.message || 'Failed to create folder');
     } finally {
@@ -646,7 +689,7 @@ export class FolderTreeComponent {
       note.title = newTitle;
       this.toast.success('Note renamed');
       this.treeChanged.emit();
-    } catch (e:any) {
+    } catch (e: any) {
       console.error(e);
       this.toast.error('Failed to rename note');
     }
@@ -670,7 +713,7 @@ export class FolderTreeComponent {
       this.toast.success('Note deleted');
       // Remove from local folder notes array
       if (folder.notes) {
-        const idx = folder.notes.findIndex(n => n.id === note.id);
+        const idx = folder.notes.findIndex((n) => n.id === note.id);
         if (idx !== -1) folder.notes.splice(idx, 1);
       }
       // If this was the selected note, clear selection
@@ -678,7 +721,7 @@ export class FolderTreeComponent {
         this.workspaceState.setSelectedNote(null);
       }
       this.treeChanged.emit();
-    } catch (e:any) {
+    } catch (e: any) {
       console.error(e);
       this.toast.error('Failed to delete note');
     } finally {
@@ -723,7 +766,7 @@ export class FolderTreeComponent {
     try {
       // Fetch full note details including size
       const fullNote = await this.noteService.getNote(note.id, this.authState.userId());
-      
+
       const props: NoteProperties = {
         id: note.id,
         title: note.title || 'Untitled',
@@ -734,9 +777,9 @@ export class FolderTreeComponent {
         is_favorite: fullNote?.is_favorite || false,
         is_archived: fullNote?.is_archived || false,
         owner: this.authState.user()?.email || 'You',
-        size: fullNote?.content ? new Blob([fullNote.content]).size : 0
+        size: fullNote?.content ? new Blob([fullNote.content]).size : 0,
       };
-      
+
       this.noteProperties.set(props);
       this.showPropertiesModal.set(true);
     } catch (error) {
@@ -778,7 +821,11 @@ export class FolderTreeComponent {
             img.style.top = '-9999px';
             img.style.left = '-9999px';
             document.body.appendChild(img);
-            event.dataTransfer.setDragImage(img, Math.floor(el.clientWidth / 2), Math.floor(el.clientHeight / 2));
+            event.dataTransfer.setDragImage(
+              img,
+              Math.floor(el.clientWidth / 2),
+              Math.floor(el.clientHeight / 2),
+            );
             // remove clone shortly after (defer)
             setTimeout(() => img.remove(), 0);
           }
@@ -814,7 +861,11 @@ export class FolderTreeComponent {
   onFolderDragOver(event: DragEvent, folder: FolderTree) {
     try {
       // Allow drops if dataTransfer has text/plain type (don't call getData during dragover)
-      const hasData = !!(event.dataTransfer && event.dataTransfer.types && event.dataTransfer.types.includes('text/plain'));
+      const hasData = !!(
+        event.dataTransfer &&
+        event.dataTransfer.types &&
+        event.dataTransfer.types.includes('text/plain')
+      );
       if (!hasData) return;
 
       // Prevent default to allow drop
@@ -834,11 +885,11 @@ export class FolderTreeComponent {
 
   onFolderDragLeave(event: DragEvent, folder: FolderTree) {
     event.stopPropagation();
-    
+
     // Only clear if we're actually leaving the folder element
     const relatedTarget = event.relatedTarget as HTMLElement;
     const currentTarget = event.currentTarget as HTMLElement;
-    
+
     if (!currentTarget.contains(relatedTarget)) {
       if (this.dragOverFolderId() === folder.id) {
         this.dragOverFolderId.set(null);
@@ -847,34 +898,42 @@ export class FolderTreeComponent {
   }
 
   async onFolderDrop(event: DragEvent, targetFolder: FolderTree) {
-    console.log('onFolderDrop called', { targetFolder: targetFolder.id, dataTransfer: !!event.dataTransfer });
-      event.preventDefault();
-      event.stopPropagation();
+    console.log('onFolderDrop called', {
+      targetFolder: targetFolder.id,
+      dataTransfer: !!event.dataTransfer,
+    });
+    event.preventDefault();
+    event.stopPropagation();
 
-      this.dragOverFolderId.set(null);
+    this.dragOverFolderId.set(null);
 
-      // Determine note id from dataTransfer or local draggedNote
-      let noteId: string | null = null;
-      try {
-        if (event.dataTransfer) noteId = event.dataTransfer.getData('text/plain') || null;
-      } catch (e) { /* ignore */ }
-      if (!noteId && this.draggedNote) noteId = this.draggedNote.id;
-      if (!noteId) {
-        console.log('Drop cancelled: no note id available');
-        return;
-      }
+    // Determine note id from dataTransfer or local draggedNote
+    let noteId: string | null = null;
+    try {
+      if (event.dataTransfer) noteId = event.dataTransfer.getData('text/plain') || null;
+    } catch (e) {
+      /* ignore */
+    }
+    if (!noteId && this.draggedNote) noteId = this.draggedNote.id;
+    if (!noteId) {
+      console.log('Drop cancelled: no note id available');
+      return;
+    }
 
-      const note = this.draggedNote && this.draggedNote.id === noteId ? this.draggedNote : { id: noteId } as any;
-      const sourceFolder = this.draggedSourceFolder;
+    const note =
+      this.draggedNote && this.draggedNote.id === noteId
+        ? this.draggedNote
+        : ({ id: noteId } as any);
+    const sourceFolder = this.draggedSourceFolder;
 
-      // Don't move if dropping on the same folder (if we know the source)
-      if (sourceFolder && sourceFolder.id === targetFolder.id) {
-        this.toast.info('Note is already in this folder');
-        this.draggedNoteId.set(null);
-        this.draggedNote = null;
-        this.draggedSourceFolder = null;
-        return;
-      }
+    // Don't move if dropping on the same folder (if we know the source)
+    if (sourceFolder && sourceFolder.id === targetFolder.id) {
+      this.toast.info('Note is already in this folder');
+      this.draggedNoteId.set(null);
+      this.draggedNote = null;
+      this.draggedSourceFolder = null;
+      return;
+    }
 
     try {
       const userId = this.authState.userId();
@@ -883,11 +942,18 @@ export class FolderTreeComponent {
         return;
       }
 
-      console.log('Moving note:', note.id, 'from folder:', sourceFolder?.id, 'to folder:', targetFolder.id);
-      
+      console.log(
+        'Moving note:',
+        note.id,
+        'from folder:',
+        sourceFolder?.id,
+        'to folder:',
+        targetFolder.id,
+      );
+
       // Update the note's folder_id
       await this.noteService.updateNote(note.id, userId, {
-        folder_id: targetFolder.id
+        folder_id: targetFolder.id,
       });
 
       console.log('Note moved successfully');
@@ -908,11 +974,10 @@ export class FolderTreeComponent {
       }
 
       // Expand target folder to show the moved note
-      this.expandedFolders.update(set => new Set(set.add(targetFolder.id)));
+      this.expandedFolders.update((set) => new Set(set.add(targetFolder.id)));
 
       this.toast.success(`Moved "${note.title}" to "${targetFolder.name}"`);
       this.treeChanged.emit();
-
     } catch (error: any) {
       console.error('Failed to move note:', error);
       const errorMsg = error?.message || error?.error?.message || 'Failed to move note';
@@ -924,12 +989,65 @@ export class FolderTreeComponent {
     }
   }
 
-  getFileIcon(note: any): string {
-    if (!note?.content || !note.content.startsWith('storage://')) {
-      // Default markdown note - return filename for directive to process
-      return 'markdown';
+  getFileIconName(note: any): string {
+    let extension = 'md'; // Default for markdown notes
+
+    // For uploaded documents, extract extension from title
+    if (note?.content && note.content.startsWith('storage://')) {
+      if (note.title) {
+        const parts = note.title.split('.');
+        if (parts.length > 1) {
+          extension = parts.pop()!.toLowerCase();
+        }
+      }
     }
-    const path = note.content.replace('storage://notes/', '');
-    return path; // Return the full filename, directive will extract extension
+
+    // Map extension to icon name (e.g., 'pdf' -> 'matfPdf')
+    const iconKey = 'matf' + extension.charAt(0).toUpperCase() + extension.slice(1);
+
+    // Check if icon exists in registry, otherwise use default
+    return (this as any).hasIcon(iconKey) ? iconKey : 'matfFile';
+  }
+
+  private hasIcon(iconName: string): boolean {
+    // Simple check - icons are registered globally, this will be validated at runtime
+    const validIcons = [
+      'matfPdf',
+      'matfDoc',
+      'matfDocx',
+      'matfXls',
+      'matfXlsx',
+      'matfPpt',
+      'matfPptx',
+      'matfTxt',
+      'matfJpg',
+      'matfJpeg',
+      'matfPng',
+      'matfGif',
+      'matfWebp',
+      'matfSvg',
+      'matfMp4',
+      'matfAvi',
+      'matfMov',
+      'matfMp3',
+      'matfWav',
+      'matfZip',
+      'matfRar',
+      'matfJs',
+      'matfJsx',
+      'matfTs',
+      'matfTsx',
+      'matfJson',
+      'matfHtml',
+      'matfCss',
+      'matfScss',
+      'matfSass',
+      'matfMd',
+      'matfMarkdown',
+      'matfFile',
+      'matfFolder',
+      'matfAngular',
+    ];
+    return validIcons.includes(iconName);
   }
 }

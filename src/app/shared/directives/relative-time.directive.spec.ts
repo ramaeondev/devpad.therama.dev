@@ -5,7 +5,7 @@ import { RelativeTimeDirective } from './relative-time.directive';
 @Component({
   standalone: true,
   imports: [RelativeTimeDirective],
-  template: `<span [appRelativeTime]="date"></span>`
+  template: `<span [appRelativeTime]="date"></span>`,
 })
 class HostComponent {
   date: Date = new Date();
@@ -18,7 +18,7 @@ describe('RelativeTimeDirective', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [HostComponent]
+      imports: [HostComponent],
     }).compileComponents();
 
     fixture = TestBed.createComponent(HostComponent);
@@ -28,7 +28,9 @@ describe('RelativeTimeDirective', () => {
 
   afterEach(() => {
     // Ensure clock is uninstalled if used
-    try { (jasmine as any).clock().uninstall(); } catch {}
+    try {
+      (jasmine as any).clock().uninstall();
+    } catch {}
   });
 
   function mockNow(date: Date) {
@@ -121,7 +123,7 @@ describe('RelativeTimeDirective', () => {
   it('auto-updates from Now to 1m ago after a minute', fakeAsync(() => {
     const now = new Date(Date.UTC(2025, 10, 16, 12, 0, 0));
     const thirtySecondsAgo = new Date(now.getTime() - 30 * 1000);
-    
+
     // Mock initial time
     mockNow(now);
     host.date = thirtySecondsAgo;
@@ -132,7 +134,7 @@ describe('RelativeTimeDirective', () => {
     // Advance time by 60 seconds - now the date is 90 seconds old (1m 30s)
     const futureTime = new Date(now.getTime() + 60 * 1000);
     (jasmine as any).clock().mockDate(futureTime);
-    
+
     // Trigger the interval by ticking
     tick(60000);
 

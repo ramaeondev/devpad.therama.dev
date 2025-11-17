@@ -46,7 +46,7 @@ export class NoteService {
           content: '', // will be replaced with storage path
           folder_id: dto.folder_id ?? null,
           user_id: userId,
-          tags: dto.tags ?? []
+          tags: dto.tags ?? [],
         })
         .select()
         .single();
@@ -102,7 +102,7 @@ export class NoteService {
 
       if (!cur.content || !cur.content.startsWith('storage://')) {
         // Previous rows stored raw content in DB; migrate that content (or dto.content if provided)
-        const migrateContent = dto.content !== undefined ? dto.content : (cur.content || '');
+        const migrateContent = dto.content !== undefined ? dto.content : cur.content || '';
         const file = new File([migrateContent], `${noteId}.md`, { type: 'text/markdown' });
         const { error: uploadErr } = await this.supabase.storage
           .from(this.BUCKET)
@@ -133,9 +133,9 @@ export class NoteService {
       }
 
       const updatePayload: any = {
-        updated_at: new Date().toISOString()
+        updated_at: new Date().toISOString(),
       };
-      
+
       // Only include fields that are explicitly provided
       if (dto.title !== undefined) updatePayload.title = dto.title;
       if (dto.content !== undefined || !cur.content || !cur.content.startsWith('storage://')) {
@@ -161,10 +161,10 @@ export class NoteService {
   async deleteNote(noteId: string, userId: string): Promise<void> {
     return this.loading.withLoading(async () => {
       const { error } = await this.supabase
-      .from('notes')
-      .delete()
-      .eq('id', noteId)
-      .eq('user_id', userId);
+        .from('notes')
+        .delete()
+        .eq('id', noteId)
+        .eq('user_id', userId);
       if (error) throw error;
     });
   }
@@ -217,42 +217,8 @@ export class NoteService {
       }
       const { data, error } = await query.order('updated_at', { ascending: false });
       if (error) throw error;
-      return (data as Note[]).map(n => ({
-        ...n,
-        icon: this.getIconForNote(n)
-      }));
+      return data as Note[];
     });
-  }
-
-  private getIconForNote(note: Note): string {
-    if (note.content && typeof note.content === 'string' && note.content.startsWith('storage://')) {
-      const path = note.content.replace('storage://notes/', '');
-      const ext = path.split('.').pop()?.toLowerCase();
-      switch (ext) {
-        case 'pdf': return '📄';
-        case 'doc':
-        case 'docx': return '📝';
-        case 'xls':
-        case 'xlsx': return '📊';
-        case 'ppt':
-        case 'pptx': return '📽️';
-        case 'txt': return '📄';
-        case 'md': return '📝';
-        case 'jpg':
-        case 'jpeg':
-        case 'png':
-        case 'gif': return '🖼️';
-        case 'mp4':
-        case 'avi':
-        case 'mov': return '🎥';
-        case 'mp3':
-        case 'wav': return '🎵';
-        case 'zip':
-        case 'rar': return '📦';
-        default: return '📄';
-      }
-    }
-    return '📝'; // default for notes
   }
 
   async uploadDocument(userId: string, file: File, folderId: string | null): Promise<Note> {
@@ -264,7 +230,22 @@ export class NoteService {
 
       // Validate file type - block executables
       const ext = file.name.split('.').pop()?.toLowerCase() || '';
-      const blockedExtensions = ['exe', 'bat', 'cmd', 'com', 'pif', 'scr', 'vbs', 'wsh', 'jar', 'dll', 'msi', 'reg', 'pif', 'hta'];
+      const blockedExtensions = [
+        'exe',
+        'bat',
+        'cmd',
+        'com',
+        'pif',
+        'scr',
+        'vbs',
+        'wsh',
+        'jar',
+        'dll',
+        'msi',
+        'reg',
+        'pif',
+        'hta',
+      ];
       if (blockedExtensions.includes(ext)) {
         throw new Error('Executable files are not allowed');
       }
@@ -277,7 +258,7 @@ export class NoteService {
           content: '', // will be replaced with storage path
           folder_id: folderId,
           user_id: userId,
-          tags: []
+          tags: [],
         })
         .select()
         .single();

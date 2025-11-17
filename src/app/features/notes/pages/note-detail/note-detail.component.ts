@@ -11,6 +11,6 @@ import { CommonModule } from '@angular/common';
         <h1 class="text-2xl font-bold text-gray-900 dark:text-white">Note Detail</h1>
       </div>
     </div>
-  `
+  `,
 })
 export class NoteDetailComponent {}

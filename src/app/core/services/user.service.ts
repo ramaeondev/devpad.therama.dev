@@ -4,7 +4,7 @@ import { UserProfile } from '../models/user.model';
 import { LoadingService } from './loading.service';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class UserService {
   private supabase = inject(SupabaseService);
@@ -17,10 +17,10 @@ export class UserService {
     return this.loading.withLoading(async () => {
       try {
         const { data, error } = await this.supabase
-        .from('user_profiles')
-        .select('*')
-        .eq('user_id', userId)
-        .single();
+          .from('user_profiles')
+          .select('*')
+          .eq('user_id', userId)
+          .single();
 
         if (error) {
           // If profile doesn't exist, create one
@@ -45,16 +45,16 @@ export class UserService {
     return this.loading.withLoading(async () => {
       try {
         const { data, error } = await this.supabase
-        .from('user_profiles')
-        .insert({
-          user_id: userId,
-          is_root_folder_created: false,
-          first_name: init?.first_name ?? null,
-          last_name: init?.last_name ?? null,
-          avatar_url: init?.avatar_url ?? null
-        })
-        .select()
-        .single();
+          .from('user_profiles')
+          .insert({
+            user_id: userId,
+            is_root_folder_created: false,
+            first_name: init?.first_name ?? null,
+            last_name: init?.last_name ?? null,
+            avatar_url: init?.avatar_url ?? null,
+          })
+          .select()
+          .single();
 
         if (error) throw error;
 
@@ -73,11 +73,11 @@ export class UserService {
     return this.loading.withLoading(async () => {
       try {
         const { data, error } = await this.supabase
-        .from('user_profiles')
-        .update(updates)
-        .eq('user_id', userId)
-        .select()
-        .single();
+          .from('user_profiles')
+          .update(updates)
+          .eq('user_id', userId)
+          .select()
+          .single();
 
         if (error) throw error;
 
@@ -95,7 +95,7 @@ export class UserService {
   async markRootFolderCreated(userId: string): Promise<void> {
     try {
       await this.updateUserProfile(userId, {
-        is_root_folder_created: true
+        is_root_folder_created: true,
       });
     } catch (error) {
       console.error('Error marking root folder as created:', error);
@@ -121,18 +121,16 @@ export class UserService {
     return this.loading.withLoading(async () => {
       // Always use .png extension and consistent naming: avatars/<user_id>.png
       const path = `avatars/${userId}.png`;
-      
+
       // Upload with upsert:true to replace existing avatar
-      const { error: upErr } = await this.supabase.storage
-        .from('avatars')
-        .upload(path, file, { 
-          upsert: true, 
-          cacheControl: '3600', 
-          contentType: 'image/png' 
-        });
-      
+      const { error: upErr } = await this.supabase.storage.from('avatars').upload(path, file, {
+        upsert: true,
+        cacheControl: '3600',
+        contentType: 'image/png',
+      });
+
       if (upErr) throw upErr;
-      
+
       // Add timestamp to URL to bust cache after upload
       const { data } = this.supabase.storage.from('avatars').getPublicUrl(path);
       return `${data.publicUrl}?t=${Date.now()}`;

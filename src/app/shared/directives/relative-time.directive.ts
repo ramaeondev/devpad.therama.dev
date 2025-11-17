@@ -2,11 +2,11 @@ import { Directive, ElementRef, Input, OnInit, OnDestroy, inject } from '@angula
 
 @Directive({
   selector: '[appRelativeTime]',
-  standalone: true
+  standalone: true,
 })
 export class RelativeTimeDirective implements OnInit, OnDestroy {
   @Input('appRelativeTime') timestamp!: string | Date;
-  
+
   private el = inject(ElementRef);
   private updateInterval?: number;
 
@@ -66,7 +66,20 @@ export class RelativeTimeDirective implements OnInit, OnDestroy {
     }
     // This year - show month name
     else if (this.isSameYear(date, now)) {
-      const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+      const months = [
+        'Jan',
+        'Feb',
+        'Mar',
+        'Apr',
+        'May',
+        'Jun',
+        'Jul',
+        'Aug',
+        'Sep',
+        'Oct',
+        'Nov',
+        'Dec',
+      ];
       displayText = months[date.getMonth()];
     }
     // Different year - show year
@@ -79,9 +92,11 @@ export class RelativeTimeDirective implements OnInit, OnDestroy {
   }
 
   private isSameDay(date1: Date, date2: Date): boolean {
-    return date1.getFullYear() === date2.getFullYear() &&
-           date1.getMonth() === date2.getMonth() &&
-           date1.getDate() === date2.getDate();
+    return (
+      date1.getFullYear() === date2.getFullYear() &&
+      date1.getMonth() === date2.getMonth() &&
+      date1.getDate() === date2.getDate()
+    );
   }
 
   private isYesterday(date: Date, today: Date): boolean {
@@ -94,13 +109,12 @@ export class RelativeTimeDirective implements OnInit, OnDestroy {
     const startOfWeek = new Date(today);
     startOfWeek.setDate(today.getDate() - today.getDay()); // Sunday
     startOfWeek.setHours(0, 0, 0, 0);
-    
+
     return date >= startOfWeek;
   }
 
   private isSameMonth(date: Date, today: Date): boolean {
-    return date.getFullYear() === today.getFullYear() &&
-           date.getMonth() === today.getMonth();
+    return date.getFullYear() === today.getFullYear() && date.getMonth() === today.getMonth();
   }
 
   private isSameYear(date: Date, today: Date): boolean {

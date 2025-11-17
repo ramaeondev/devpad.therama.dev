@@ -8,9 +8,8 @@ describe('DocumentViewerComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [DocumentViewerComponent]
-    })
-    .compileComponents();
+      imports: [DocumentViewerComponent],
+    }).compileComponents();
 
     fixture = TestBed.createComponent(DocumentViewerComponent);
     component = fixture.componentInstance;
@@ -29,8 +28,8 @@ describe('DocumentViewerComponent', () => {
         currentValue: 'https://example.com/document.pdf',
         previousValue: null,
         firstChange: true,
-        isFirstChange: () => true
-      }
+        isFirstChange: () => true,
+      },
     });
     expect(component.canPreviewInIframe()).toBeTruthy();
     expect(component.getFileType()).toBe('PDF');
@@ -43,8 +42,8 @@ describe('DocumentViewerComponent', () => {
         currentValue: 'https://example.com/image.jpg',
         previousValue: null,
         firstChange: true,
-        isFirstChange: () => true
-      }
+        isFirstChange: () => true,
+      },
     });
     expect(component.isImage()).toBeTruthy();
     expect(component.getFileType()).toBe('Image');

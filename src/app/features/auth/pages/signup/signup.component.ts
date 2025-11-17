@@ -12,28 +12,50 @@ import { LogoComponent } from '../../../../shared/components/ui/logo/logo.compon
   standalone: true,
   imports: [CommonModule, ReactiveFormsModule, RouterLink, LogoComponent],
   template: `
-    <div class="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900 py-8 sm:py-12 px-4 sm:px-6 lg:px-8">
+    <div
+      class="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900 py-8 sm:py-12 px-4 sm:px-6 lg:px-8"
+    >
       <div class="max-w-md w-full space-y-6 sm:space-y-8">
         <div>
-          <h2 class="mt-4 sm:mt-6 text-center text-2xl sm:text-3xl font-extrabold text-gray-900 dark:text-white">
-          <span class="text-gray-900 dark:text-gray-100 inline-block">
-            <app-logo></app-logo>
-          </span>
+          <h2
+            class="mt-4 sm:mt-6 text-center text-2xl sm:text-3xl font-extrabold text-gray-900 dark:text-white"
+          >
+            <span class="text-gray-900 dark:text-gray-100 inline-block">
+              <app-logo></app-logo>
+            </span>
           </h2>
           <p class="mt-2 text-center text-sm text-gray-600 dark:text-gray-400">
             Create your account
           </p>
         </div>
-        <form class="mt-6 sm:mt-8 space-y-5 sm:space-y-6" [formGroup]="signupForm" (ngSubmit)="onSubmit()">
+        <form
+          class="mt-6 sm:mt-8 space-y-5 sm:space-y-6"
+          [formGroup]="signupForm"
+          (ngSubmit)="onSubmit()"
+        >
           <div class="rounded-md shadow-sm space-y-3 sm:space-y-4">
             <div class="grid grid-cols-2 gap-2 sm:gap-3">
               <div>
                 <label for="firstName" class="sr-only">First name</label>
-                <input id="firstName" type="text" formControlName="firstName" class="input text-base touch-manipulation" placeholder="First name" autocomplete="given-name" />
+                <input
+                  id="firstName"
+                  type="text"
+                  formControlName="firstName"
+                  class="input text-base touch-manipulation"
+                  placeholder="First name"
+                  autocomplete="given-name"
+                />
               </div>
               <div>
                 <label for="lastName" class="sr-only">Last name</label>
-                <input id="lastName" type="text" formControlName="lastName" class="input text-base touch-manipulation" placeholder="Last name" autocomplete="family-name" />
+                <input
+                  id="lastName"
+                  type="text"
+                  formControlName="lastName"
+                  class="input text-base touch-manipulation"
+                  placeholder="Last name"
+                  autocomplete="family-name"
+                />
               </div>
             </div>
             <div>
@@ -80,7 +102,9 @@ import { LogoComponent } from '../../../../shared/components/ui/logo/logo.compon
             </div>
           }
 
-          @if (signupForm.errors?.['passwordMismatch'] && signupForm.get('confirmPassword')?.touched) {
+          @if (
+            signupForm.errors?.['passwordMismatch'] && signupForm.get('confirmPassword')?.touched
+          ) {
             <div class="rounded-md bg-yellow-50 dark:bg-yellow-900/20 p-4">
               <p class="text-sm text-yellow-800 dark:text-yellow-200">Passwords do not match</p>
             </div>
@@ -103,7 +127,10 @@ import { LogoComponent } from '../../../../shared/components/ui/logo/logo.compon
           <div class="text-center">
             <p class="text-sm sm:text-base text-gray-600 dark:text-gray-400">
               Already have an account?
-              <a routerLink="/auth/signin" class="font-medium text-primary-600 hover:text-primary-500 touch-manipulation">
+              <a
+                routerLink="/auth/signin"
+                class="font-medium text-primary-600 hover:text-primary-500 touch-manipulation"
+              >
                 Sign in
               </a>
             </p>
@@ -112,7 +139,7 @@ import { LogoComponent } from '../../../../shared/components/ui/logo/logo.compon
       </div>
     </div>
   `,
-  styles: []
+  styles: [],
 })
 export class SignupComponent {
   private fb = inject(FormBuilder);
@@ -124,13 +151,16 @@ export class SignupComponent {
   loading = signal(false);
   errorMessage = signal('');
 
-  signupForm = this.fb.nonNullable.group({
-    firstName: ['', []],
-    lastName: ['', []],
-    email: ['', [Validators.required, Validators.email]],
-    password: ['', [Validators.required, Validators.minLength(6)]],
-    confirmPassword: ['', [Validators.required]]
-  }, { validators: this.passwordMatchValidator });
+  signupForm = this.fb.nonNullable.group(
+    {
+      firstName: ['', []],
+      lastName: ['', []],
+      email: ['', [Validators.required, Validators.email]],
+      password: ['', [Validators.required, Validators.minLength(6)]],
+      confirmPassword: ['', [Validators.required]],
+    },
+    { validators: this.passwordMatchValidator },
+  );
 
   passwordMatchValidator(form: any) {
     const password = form.get('password');
@@ -155,9 +185,9 @@ export class SignupComponent {
         options: {
           data: {
             first_name: firstName?.trim() || null,
-            last_name: lastName?.trim() || null
-          }
-        }
+            last_name: lastName?.trim() || null,
+          },
+        },
       });
 
       if (error) throw error;
