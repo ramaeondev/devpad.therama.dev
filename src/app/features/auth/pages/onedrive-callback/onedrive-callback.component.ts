@@ -14,16 +14,21 @@ import { Component, OnInit } from '@angular/core';
 })
 export class OneDriveCallbackComponent implements OnInit {
   ngOnInit() {
-    // Extract access token from URL fragment
+    // Extract access token and expiration from URL fragment
     const hash = window.location.hash.substring(1);
     const params = new URLSearchParams(hash);
     const accessToken = params.get('access_token');
+    const expiresIn = params.get('expires_in');
     const error = params.get('error');
 
     // Send message to opener window
     if (window.opener) {
       window.opener.postMessage(
-        { accessToken, error },
+        { 
+          accessToken, 
+          expiresIn: expiresIn ? parseInt(expiresIn, 10) : undefined,
+          error 
+        },
         window.location.origin
       );
       window.close();
