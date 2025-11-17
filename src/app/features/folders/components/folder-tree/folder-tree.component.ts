@@ -19,7 +19,7 @@ import { DocumentPreviewModalComponent } from '../../../../shared/components/ui/
 @Component({
   selector: 'app-folder-tree',
   standalone: true,
-  imports: [CommonModule, DropdownComponent, FolderNameModalComponent, NoteNameModalComponent, ConfirmModalComponent, NotePropertiesModalComponent, DocumentPreviewModalComponent, RelativeTimeDirective],
+  imports: [CommonModule, DropdownComponent, FolderNameModalComponent, NoteNameModalComponent, ConfirmModalComponent, NotePropertiesModalComponent, RelativeTimeDirective],
   template: `
     <div class="folder-tree">
       <!-- Name modal -->
@@ -54,14 +54,6 @@ import { DocumentPreviewModalComponent } from '../../../../shared/components/ui/
         <app-note-properties-modal
           [properties]="noteProperties()!"
           (cancel)="closePropertiesModal()"
-        />
-      }
-
-      <!-- Document preview modal -->
-      @if (showPreviewModal() && previewNote()) {
-        <app-document-preview-modal
-          [note]="previewNote()!"
-          (close)="closePreviewModal()"
         />
       }
       @for (folder of folders; track folder.id) {
@@ -299,10 +291,6 @@ export class FolderTreeComponent {
   showPropertiesModal = signal(false);
   noteProperties = signal<NoteProperties | null>(null);
 
-  // Document preview modal state
-  showPreviewModal = signal(false);
-  previewNote = signal<any>(null);
-
   // Drag and drop state
   draggedNoteId = signal<string | null>(null);
   draggedNote: any = null;
@@ -396,15 +384,6 @@ export class FolderTreeComponent {
     if (this.draggedNoteId()) return;
     
     event.stopPropagation();
-
-    // Check if it's a document (has a non-markdown icon)
-    const isDocument = note.icon && note.icon !== '📝';
-    if (isDocument) {
-      // Show preview modal
-      this.previewNote.set(note);
-      this.showPreviewModal.set(true);
-      return;
-    }
 
     console.log('Note clicked:', note);
     this.workspaceState.setSelectedFolder(folder.id);
@@ -938,10 +917,5 @@ export class FolderTreeComponent {
       this.draggedNote = null;
       this.draggedSourceFolder = null;
     }
-  }
-
-  closePreviewModal() {
-    this.showPreviewModal.set(false);
-    this.previewNote.set(null);
   }
 }
