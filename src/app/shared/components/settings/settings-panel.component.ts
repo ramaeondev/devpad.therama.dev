@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { ThemeService, Theme } from '../../../core/services/theme.service';
 import { AuthStateService } from '../../../core/services/auth-state.service';
 import { SupabaseService } from '../../../core/services/supabase.service';
-import { Router } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { LoadingService } from '../../../core/services/loading.service';
 import { ConfirmModalComponent } from '../../components/ui/dialog/confirm-modal.component';
 import { TermsModalComponent } from '../../components/ui/dialog/terms-modal.component';
@@ -12,12 +12,15 @@ import { ToastService } from '../../../core/services/toast.service';
 import { UserService } from '../../../core/services/user.service';
 import { AvatarComponent } from '../ui/avatar/avatar.component';
 import { CdkOverlayOrigin, OverlayModule } from '@angular/cdk/overlay';
+import { GoogleDriveService } from '../../../core/services/google-drive.service';
+import { OneDriveService } from '../../../core/services/onedrive.service';
 
 @Component({
   selector: 'app-settings-panel',
   standalone: true,
   imports: [
     CommonModule,
+    RouterLink,
     ConfirmModalComponent,
     TermsModalComponent,
     ImageCropDialogComponent,
@@ -219,6 +222,94 @@ import { CdkOverlayOrigin, OverlayModule } from '@angular/cdk/overlay';
               </div>
             </section>
 
+            <!-- Integrations -->
+            <section class="pt-6 border-t border-gray-200 dark:border-gray-800">
+              <h3 class="text-sm font-semibold text-gray-900 dark:text-gray-100 mb-3">
+                Cloud Storage
+              </h3>
+              <div class="space-y-2">
+                <!-- Google Drive -->
+                <div class="flex items-center justify-between p-3 rounded-lg border border-gray-200 dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors">
+                  <div class="flex items-center space-x-3">
+                    <div class="w-10 h-10 rounded-lg bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center">
+                      <svg class="w-5 h-5 text-blue-600 dark:text-blue-400" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M7.71 3.5L1.15 15l3.38 5.87L11.1 9.3l-3.38-5.8zm13.14 0l-3.38 5.87L23.85 15l-6.56-11.5zM12 9.3L5.53 20.87h12.94L12 9.3z"/>
+                      </svg>
+                    </div>
+                    <div>
+                      <div class="text-sm font-medium text-gray-900 dark:text-gray-100">
+                        Google Drive
+                      </div>
+                      @if (googleDrive.isConnected()) {
+                        <div class="text-xs text-green-600 dark:text-green-400">
+                          Connected
+                        </div>
+                      } @else {
+                        <div class="text-xs text-gray-500 dark:text-gray-400">
+                          Not connected
+                        </div>
+                      }
+                    </div>
+                  </div>
+                  @if (googleDrive.isConnected()) {
+                    <button
+                      class="px-3 py-1.5 text-xs font-medium rounded-lg border border-gray-300 dark:border-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+                      (click)="disconnectGoogleDrive()"
+                    >
+                      Disconnect
+                    </button>
+                  } @else {
+                    <button
+                      class="px-3 py-1.5 text-xs font-medium rounded-lg bg-blue-600 text-white hover:bg-blue-700 transition-colors"
+                      (click)="connectGoogleDrive()"
+                    >
+                      Connect
+                    </button>
+                  }
+                </div>
+
+                <!-- OneDrive -->
+                <div class="flex items-center justify-between p-3 rounded-lg border border-gray-200 dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors">
+                  <div class="flex items-center space-x-3">
+                    <div class="w-10 h-10 rounded-lg bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center">
+                      <svg class="w-5 h-5 text-blue-600 dark:text-blue-400" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M13.98 3.37A6.5 6.5 0 0 0 7.5 9.5a6.5 6.5 0 0 0 .1 1.13A5.73 5.73 0 0 0 0 16.5C0 19.54 2.46 22 5.5 22h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96A6.5 6.5 0 0 0 13.98 3.37z"/>
+                      </svg>
+                    </div>
+                    <div>
+                      <div class="text-sm font-medium text-gray-900 dark:text-gray-100">
+                        OneDrive
+                      </div>
+                      @if (oneDrive.isConnected()) {
+                        <div class="text-xs text-green-600 dark:text-green-400">
+                          Connected
+                        </div>
+                      } @else {
+                        <div class="text-xs text-gray-500 dark:text-gray-400">
+                          Not connected
+                        </div>
+                      }
+                    </div>
+                  </div>
+                  @if (oneDrive.isConnected()) {
+                    <button
+                      class="px-3 py-1.5 text-xs font-medium rounded-lg border border-gray-300 dark:border-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+                      (click)="disconnectOneDrive()"
+                    >
+                      Disconnect
+                    </button>
+                  } @else {
+                    <button
+                      class="px-3 py-1.5 text-xs font-medium rounded-lg bg-blue-600 text-white hover:bg-blue-700 transition-colors"
+                      (click)="connectOneDrive()"
+                    >
+                      Connect
+                    </button>
+                  }
+                </div>
+              </div>
+            </section>
+
             <!-- Actions -->
             <section class="pt-6 border-t border-gray-200 dark:border-gray-800 space-y-3">
               <button
@@ -252,6 +343,27 @@ import { CdkOverlayOrigin, OverlayModule } from '@angular/cdk/overlay';
                 >
                   Delete My Account
                 </button>
+              </div>
+            </section>
+
+            <!-- Legal Links -->
+            <section class="pt-4 border-t border-gray-200 dark:border-gray-800">
+              <div class="flex items-center justify-center gap-4 text-xs text-gray-500 dark:text-gray-400">
+                <a
+                  routerLink="/privacy"
+                  (click)="onClose()"
+                  class="hover:text-primary-600 dark:hover:text-primary-400 transition-colors cursor-pointer"
+                >
+                  Privacy Policy
+                </a>
+                <span class="text-gray-300 dark:text-gray-700">|</span>
+                <a
+                  routerLink="/terms"
+                  (click)="onClose()"
+                  class="hover:text-primary-600 dark:hover:text-primary-400 transition-colors cursor-pointer"
+                >
+                  Terms of Service
+                </a>
               </div>
             </section>
           </div>
@@ -309,6 +421,8 @@ export class SettingsPanelComponent {
 
   auth = inject(AuthStateService);
   theme = inject(ThemeService);
+  googleDrive = inject(GoogleDriveService);
+  oneDrive = inject(OneDriveService);
   private supabase = inject(SupabaseService);
   private router = inject(Router);
   private loading = inject(LoadingService);
@@ -472,5 +586,45 @@ export class SettingsPanelComponent {
   }
   closeTerms() {
     this.showTerms.set(false);
+  }
+
+  async connectGoogleDrive() {
+    try {
+      await this.googleDrive.connect();
+      this.toast.success('Successfully connected to Google Drive');
+    } catch (error) {
+      console.error('Failed to connect to Google Drive:', error);
+      this.toast.error('Failed to connect to Google Drive');
+    }
+  }
+
+  async disconnectGoogleDrive() {
+    try {
+      await this.googleDrive.disconnect();
+      this.toast.success('Disconnected from Google Drive');
+    } catch (error) {
+      console.error('Failed to disconnect from Google Drive:', error);
+      this.toast.error('Failed to disconnect from Google Drive');
+    }
+  }
+
+  async connectOneDrive() {
+    try {
+      await this.oneDrive.connect();
+      this.toast.success('Successfully connected to OneDrive');
+    } catch (error) {
+      console.error('Failed to connect to OneDrive:', error);
+      this.toast.error('Failed to connect to OneDrive');
+    }
+  }
+
+  async disconnectOneDrive() {
+    try {
+      await this.oneDrive.disconnect();
+      this.toast.success('Disconnected from OneDrive');
+    } catch (error) {
+      console.error('Failed to disconnect from OneDrive:', error);
+      this.toast.error('Failed to disconnect from OneDrive');
+    }
   }
 }

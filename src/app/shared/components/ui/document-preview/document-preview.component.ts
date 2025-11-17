@@ -58,19 +58,39 @@ import { SupabaseService } from '../../../../core/services/supabase.service';
               />
             </div>
           } @else if (isOfficeDocument()) {
-            <div class="h-full flex items-center justify-center bg-gray-50 dark:bg-gray-900 p-8">
-              <div class="text-center max-w-md">
-                <div
-                  class="w-16 h-16 mx-auto mb-4 text-gray-400 flex-shrink-0"
-                  [innerHTML]="getFileIcon()"
-                ></div>
-                <h3 class="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-2">
-                  {{ note?.title }}
-                </h3>
-                <p class="text-gray-600 dark:text-gray-400">
-                  This {{ getFileType() }} document cannot be previewed directly in the browser.
-                </p>
-              </div>
+            <div class="h-full w-full">
+              <iframe
+                [src]="safeOfficePreviewUrl()"
+                class="w-full h-full border-0"
+                [title]="note?.title + ' Preview'"
+              ></iframe>
+            </div>
+          } @else if (isVideo()) {
+            <div class="h-full w-full bg-black">
+              <iframe
+                [src]="safePreviewUrl()"
+                class="w-full h-full border-0"
+                [title]="note?.title + ' Video'"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                allowfullscreen
+              ></iframe>
+            </div>
+          } @else if (isAudio()) {
+            <div class="h-full w-full">
+              <iframe
+                [src]="safePreviewUrl()"
+                class="w-full h-full border-0"
+                [title]="note?.title + ' Audio'"
+                allow="autoplay"
+              ></iframe>
+            </div>
+          } @else if (isText()) {
+            <div class="h-full w-full">
+              <iframe
+                [src]="safePreviewUrl()"
+                class="w-full h-full border-0 bg-white dark:bg-gray-900"
+                [title]="note?.title + ' Text'"
+              ></iframe>
             </div>
           } @else {
             <div class="h-full flex items-center justify-center bg-gray-50 dark:bg-gray-900 p-8">
@@ -121,6 +141,14 @@ export class DocumentPreviewComponent implements OnInit, OnDestroy {
   safePreviewUrl = computed(() => {
     const url = this.previewUrl();
     return url ? this.sanitizer.bypassSecurityTrustResourceUrl(url) : null;
+  });
+
+  safeOfficePreviewUrl = computed(() => {
+    const url = this.previewUrl();
+    if (!url) return null;
+    // Use Microsoft Office Online Viewer
+    const viewerUrl = `https://view.officeapps.live.com/op/embed.aspx?src=${encodeURIComponent(url)}`;
+    return this.sanitizer.bypassSecurityTrustResourceUrl(viewerUrl);
   });
 
   ngOnInit() {
@@ -200,6 +228,27 @@ export class DocumentPreviewComponent implements OnInit, OnDestroy {
     return ['doc', 'docx', 'xls', 'xlsx', 'ppt', 'pptx'].includes(ext || '');
   }
 
+  isVideo(): boolean {
+    if (!this.note?.content) return false;
+    const path = this.note.content.replace('storage://notes/', '');
+    const ext = path.split('.').pop()?.toLowerCase();
+    return ['mp4', 'avi', 'mov', 'webm', 'mkv'].includes(ext || '');
+  }
+
+  isAudio(): boolean {
+    if (!this.note?.content) return false;
+    const path = this.note.content.replace('storage://notes/', '');
+    const ext = path.split('.').pop()?.toLowerCase();
+    return ['mp3', 'wav', 'ogg', 'flac', 'm4a'].includes(ext || '');
+  }
+
+  isText(): boolean {
+    if (!this.note?.content) return false;
+    const path = this.note.content.replace('storage://notes/', '');
+    const ext = path.split('.').pop()?.toLowerCase();
+    return ['txt', 'md', 'json', 'xml', 'csv', 'log', 'html', 'css', 'js', 'ts'].includes(ext || '');
+  }
+
   getFileExtension(): string {
     if (!this.note?.content) return '';
     const path = this.note.content.replace('storage://notes/', '');
@@ -245,8 +294,6 @@ export class DocumentPreviewComponent implements OnInit, OnDestroy {
 
   getFileIcon(): string {
     const ext = this.getFileExtension();
-    console.log('Getting icon for extension:', ext);
-
     switch (ext) {
       case 'pdf':
         return `<svg class="w-full h-full fill-current text-red-500" viewBox="0 0 24 24"><path d="M8.5 2H15.5L19 5.5V22H5V2H8.5ZM15 3.5V7H18.5L15 3.5ZM7 4V20H17V9H13V4H7ZM9 12H11V18H9V12ZM13 10H15V18H13V10Z"/></svg>`;
