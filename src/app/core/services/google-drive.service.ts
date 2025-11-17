@@ -96,14 +96,19 @@ export class GoogleDriveService {
       const userId = this.auth.userId();
       const { data, error } = await this.supabase
         .from('integrations')
-        .upsert({
-          user_id: userId,
-          provider: 'google_drive',
-          access_token: accessToken,
-          expires_at: expiresAt,
-          email: userInfo.email,
-          updated_at: new Date().toISOString(),
-        })
+        .upsert(
+          {
+            user_id: userId,
+            provider: 'google_drive',
+            access_token: accessToken,
+            expires_at: expiresAt,
+            email: userInfo.email,
+            updated_at: new Date().toISOString(),
+          },
+          {
+            onConflict: 'user_id,provider',
+          }
+        )
         .select()
         .single();
 
@@ -130,15 +135,25 @@ export class GoogleDriveService {
    * Get user info from Google
    */
   private async getUserInfo(accessToken: string): Promise<{ email: string }> {
-    const response = await this.http
-      .get<{ email: string }>('https://www.googleapis.com/oauth2/v2/userinfo', {
-        headers: new HttpHeaders({
-          Authorization: `Bearer ${accessToken}`,
-        }),
-      })
-      .toPromise();
+    try {
+      const response = await fetch('https://www.googleapis.com/oauth2/v2/userinfo', {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${accessToken}`,
+          'Accept': 'application/json',
+        },
+      });
 
-    return response!;
+      if (!response.ok) {
+        throw new Error(`Failed to get user info: ${response.status} ${response.statusText}`);
+      }
+
+      const data = await response.json();
+      return data;
+    } catch (error) {
+      console.error('getUserInfo error:', error);
+      throw error;
+    }
   }
 
   /**
@@ -227,21 +242,29 @@ export class GoogleDriveService {
       const accessToken = this.integration()?.access_token;
       if (!accessToken) return;
 
-      const response = await this.http
-        .get<any>('https://www.googleapis.com/drive/v3/files', {
-          params: {
-            pageSize: '100',
-            fields:
-              'files(id,name,mimeType,modifiedTime,size,webViewLink,iconLink,parents)',
-            q: "trashed=false",
-          },
-          headers: new HttpHeaders({
-            Authorization: `Bearer ${accessToken}`,
-          }),
-        })
-        .toPromise();
+      const params = new URLSearchParams({
+        pageSize: '100',
+        fields: 'files(id,name,mimeType,modifiedTime,size,webViewLink,iconLink,parents)',
+        q: 'trashed=false',
+      });
 
-      const files: GoogleDriveFile[] = response!.files.map((file: any) => ({
+      const response = await fetch(
+        `https://www.googleapis.com/drive/v3/files?${params}`,
+        {
+          method: 'GET',
+          headers: {
+            'Authorization': `Bearer ${accessToken}`,
+            'Accept': 'application/json',
+          },
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error(`Drive API error: ${response.status} ${response.statusText}`);
+      }
+
+      const data = await response.json();
+      const files: GoogleDriveFile[] = data.files.map((file: any) => ({
         id: file.id,
         name: file.name,
         mimeType: file.mimeType,
@@ -327,27 +350,31 @@ export class GoogleDriveService {
       );
       formData.append('file', file);
 
-      const response = await this.http
-        .post<any>(
-          'https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart&fields=id,name,mimeType,modifiedTime,size,webViewLink,iconLink,parents',
-          formData,
-          {
-            headers: new HttpHeaders({
-              Authorization: `Bearer ${accessToken}`,
-            }),
-          }
-        )
-        .toPromise();
+      const response = await fetch(
+        'https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart&fields=id,name,mimeType,modifiedTime,size,webViewLink,iconLink,parents',
+        {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${accessToken}`,
+          },
+          body: formData,
+        }
+      );
 
+      if (!response.ok) {
+        throw new Error(`Upload failed: ${response.status} ${response.statusText}`);
+      }
+
+      const data = await response.json();
       const uploadedFile: GoogleDriveFile = {
-        id: response!.id,
-        name: response!.name,
-        mimeType: response!.mimeType,
-        modifiedTime: response!.modifiedTime,
-        size: response!.size,
-        webViewLink: response!.webViewLink,
-        iconLink: response!.iconLink,
-        parents: response!.parents,
+        id: data.id,
+        name: data.name,
+        mimeType: data.mimeType,
+        modifiedTime: data.modifiedTime,
+        size: data.size,
+        webViewLink: data.webViewLink,
+        iconLink: data.iconLink,
+        parents: data.parents,
         isFolder: false,
       };
 
@@ -366,7 +393,7 @@ export class GoogleDriveService {
   /**
    * Download file from Google Drive
    */
-  async downloadFile(fileId: string): Promise<Blob | null> {
+  async downloadFile(fileId: string, mimeType?: string): Promise<Blob | null> {
     try {
       this.loading.start();
       const accessToken = this.integration()?.access_token;
@@ -375,16 +402,37 @@ export class GoogleDriveService {
         return null;
       }
 
-      const response = await this.http
-        .get(`https://www.googleapis.com/drive/v3/files/${fileId}?alt=media`, {
-          headers: new HttpHeaders({
-            Authorization: `Bearer ${accessToken}`,
-          }),
-          responseType: 'blob',
-        })
-        .toPromise();
+      // Check if it's a Google Workspace file that needs to be exported
+      const exportMapping: Record<string, string> = {
+        'application/vnd.google-apps.document': 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', // .docx
+        'application/vnd.google-apps.spreadsheet': 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', // .xlsx
+        'application/vnd.google-apps.presentation': 'application/vnd.openxmlformats-officedocument.presentationml.presentation', // .pptx
+        'application/vnd.google-apps.drawing': 'image/png',
+        'application/vnd.google-apps.script': 'application/vnd.google-apps.script+json',
+      };
 
-      return response!;
+      let url: string;
+      if (mimeType && exportMapping[mimeType]) {
+        // Use export endpoint for Google Workspace files
+        url = `https://www.googleapis.com/drive/v3/files/${fileId}/export?mimeType=${encodeURIComponent(exportMapping[mimeType])}`;
+      } else {
+        // Use regular download for binary files
+        url = `https://www.googleapis.com/drive/v3/files/${fileId}?alt=media`;
+      }
+
+      const response = await fetch(url, {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${accessToken}`,
+        },
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(`Download failed: ${response.status} ${response.statusText} - ${JSON.stringify(errorData)}`);
+      }
+
+      return await response.blob();
     } catch (error: any) {
       console.error('Failed to download file:', error);
       this.toast.error('Failed to download file from Google Drive');
@@ -406,13 +454,19 @@ export class GoogleDriveService {
         return false;
       }
 
-      await this.http
-        .delete(`https://www.googleapis.com/drive/v3/files/${fileId}`, {
-          headers: new HttpHeaders({
-            Authorization: `Bearer ${accessToken}`,
-          }),
-        })
-        .toPromise();
+      const response = await fetch(
+        `https://www.googleapis.com/drive/v3/files/${fileId}`,
+        {
+          method: 'DELETE',
+          headers: {
+            'Authorization': `Bearer ${accessToken}`,
+          },
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error(`Delete failed: ${response.status} ${response.statusText}`);
+      }
 
       this.toast.success('File deleted from Google Drive');
       await this.loadFiles(); // Refresh file list
@@ -444,21 +498,29 @@ export class GoogleDriveService {
         ...(parentId && { parents: [parentId] }),
       };
 
-      const response = await this.http
-        .post<any>('https://www.googleapis.com/drive/v3/files', metadata, {
-          headers: new HttpHeaders({
-            Authorization: `Bearer ${accessToken}`,
+      const response = await fetch(
+        'https://www.googleapis.com/drive/v3/files',
+        {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${accessToken}`,
             'Content-Type': 'application/json',
-          }),
-        })
-        .toPromise();
+          },
+          body: JSON.stringify(metadata),
+        }
+      );
 
+      if (!response.ok) {
+        throw new Error(`Create folder failed: ${response.status} ${response.statusText}`);
+      }
+
+      const data = await response.json();
       const folder: GoogleDriveFile = {
-        id: response!.id,
-        name: response!.name,
-        mimeType: response!.mimeType,
-        modifiedTime: response!.modifiedTime,
-        parents: response!.parents,
+        id: data.id,
+        name: data.name,
+        mimeType: data.mimeType,
+        modifiedTime: data.modifiedTime,
+        parents: data.parents,
         isFolder: true,
       };
 
@@ -469,6 +531,46 @@ export class GoogleDriveService {
       console.error('Failed to create folder:', error);
       this.toast.error('Failed to create folder in Google Drive');
       return null;
+    } finally {
+      this.loading.stop();
+    }
+  }
+
+  /**
+   * Rename file or folder in Google Drive
+   */
+  async renameFile(fileId: string, newName: string): Promise<boolean> {
+    try {
+      this.loading.start();
+      const accessToken = this.integration()?.access_token;
+      if (!accessToken) {
+        this.toast.error('Not connected to Google Drive');
+        return false;
+      }
+
+      const response = await fetch(
+        `https://www.googleapis.com/drive/v3/files/${fileId}`,
+        {
+          method: 'PATCH',
+          headers: {
+            'Authorization': `Bearer ${accessToken}`,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ name: newName }),
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error(`Rename failed: ${response.status} ${response.statusText}`);
+      }
+
+      this.toast.success('File renamed successfully');
+      await this.loadFiles(); // Refresh file list
+      return true;
+    } catch (error: any) {
+      console.error('Failed to rename file:', error);
+      this.toast.error('Failed to rename file');
+      return false;
     } finally {
       this.loading.stop();
     }

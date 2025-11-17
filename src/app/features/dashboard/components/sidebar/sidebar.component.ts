@@ -1,6 +1,7 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FolderTreeComponent } from '../../../folders/components/folder-tree/folder-tree.component';
+import { GoogleDriveTreeComponent } from '../../../integrations/components/google-drive-tree/google-drive-tree.component';
 import { FolderService } from '../../../folders/services/folder.service';
 import { AuthStateService } from '../../../../core/services/auth-state.service';
 import { FolderTree } from '../../../../core/models/folder.model';
@@ -10,7 +11,7 @@ import { WorkspaceStateService } from '../../../../core/services/workspace-state
 @Component({
   selector: 'app-sidebar',
   standalone: true,
-  imports: [CommonModule, FolderTreeComponent],
+  imports: [CommonModule, FolderTreeComponent, GoogleDriveTreeComponent],
   template: `
     <aside
       class="sidebar w-64 sm:w-72 md:w-80 lg:w-64 bg-white dark:bg-gray-900 border-r border-gray-200 dark:border-gray-800 h-full overflow-y-auto touch-pan-y"
@@ -47,6 +48,15 @@ import { WorkspaceStateService } from '../../../../core/services/workspace-state
             <button class="btn btn-sm btn-primary mt-4" (click)="loadFolders()">Refresh</button>
           </div>
         }
+
+        <!-- Divider -->
+        <div class="my-4 border-t border-gray-200 dark:border-gray-700"></div>
+
+        <!-- Google Drive Integration -->
+        <div>
+          <h3 class="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2 px-1">Cloud Storage</h3>
+          <app-google-drive-tree />
+        </div>
       </div>
     </aside>
   `,
