@@ -29,6 +29,8 @@ export class GoogleDriveService {
     'https://www.googleapis.com/auth/userinfo.email',
   ].join(' ');
 
+  private tokenRefreshTimer?: number;
+
   /**
    * Initialize Google Drive OAuth
    */
@@ -65,7 +67,7 @@ export class GoogleDriveService {
             return;
           }
 
-          await this.handleAuthSuccess(response.access_token);
+          await this.handleAuthSuccess(response.access_token, response.expires_in);
         },
       });
 
@@ -79,12 +81,16 @@ export class GoogleDriveService {
   /**
    * Handle successful OAuth
    */
-  private async handleAuthSuccess(accessToken: string): Promise<void> {
+  private async handleAuthSuccess(accessToken: string, expiresIn?: number): Promise<void> {
     try {
       this.loading.start();
 
       // Get user info
       const userInfo = await this.getUserInfo(accessToken);
+
+      // Calculate expiration time (default to 3600 seconds if not provided)
+      const expiresInMs = (expiresIn || 3600) * 1000;
+      const expiresAt = Date.now() + expiresInMs;
 
       // Save integration to database
       const userId = this.auth.userId();
@@ -94,6 +100,7 @@ export class GoogleDriveService {
           user_id: userId,
           provider: 'google_drive',
           access_token: accessToken,
+          expires_at: expiresAt,
           email: userInfo.email,
           updated_at: new Date().toISOString(),
         })
@@ -105,6 +112,9 @@ export class GoogleDriveService {
       this.integration.set(data as Integration);
       this.isConnected.set(true);
       this.toast.success('Google Drive connected successfully');
+
+      // Schedule token refresh (refresh 5 minutes before expiration)
+      this.scheduleTokenRefresh(expiresInMs - 5 * 60 * 1000);
 
       // Load files
       await this.loadFiles();
@@ -145,7 +155,26 @@ export class GoogleDriveService {
         .single();
 
       if (!error && data) {
-        this.integration.set(data as Integration);
+        const integration = data as Integration;
+        
+        // Check if token is expired or will expire soon (within 5 minutes)
+        if (integration.expires_at) {
+          const expiresAt = typeof integration.expires_at === 'string' 
+            ? parseInt(integration.expires_at) 
+            : integration.expires_at;
+          const timeUntilExpiry = expiresAt - Date.now();
+          
+          if (timeUntilExpiry <= 5 * 60 * 1000) {
+            // Token expired or expiring soon, need to refresh
+            await this.refreshToken();
+            return;
+          }
+          
+          // Schedule refresh for later
+          this.scheduleTokenRefresh(timeUntilExpiry - 5 * 60 * 1000);
+        }
+        
+        this.integration.set(integration);
         this.isConnected.set(true);
         await this.loadFiles();
       }
@@ -160,6 +189,13 @@ export class GoogleDriveService {
   async disconnect(): Promise<void> {
     try {
       this.loading.start();
+      
+      // Clear token refresh timer
+      if (this.tokenRefreshTimer) {
+        window.clearTimeout(this.tokenRefreshTimer);
+        this.tokenRefreshTimer = undefined;
+      }
+      
       const userId = this.auth.userId();
 
       const { error } = await this.supabase
@@ -435,6 +471,67 @@ export class GoogleDriveService {
       return null;
     } finally {
       this.loading.stop();
+    }
+  }
+
+  /**
+   * Schedule token refresh
+   */
+  private scheduleTokenRefresh(delayMs: number): void {
+    // Clear existing timer
+    if (this.tokenRefreshTimer) {
+      window.clearTimeout(this.tokenRefreshTimer);
+    }
+
+    // Don't schedule if delay is negative or too short
+    if (delayMs < 60000) { // Less than 1 minute
+      console.warn('Token refresh delay too short, refreshing immediately');
+      this.refreshToken();
+      return;
+    }
+
+    // Schedule refresh
+    this.tokenRefreshTimer = window.setTimeout(() => {
+      this.refreshToken();
+    }, delayMs);
+
+    console.log(`Token refresh scheduled in ${Math.round(delayMs / 1000 / 60)} minutes`);
+  }
+
+  /**
+   * Refresh access token
+   */
+  private async refreshToken(): Promise<void> {
+    try {
+      console.log('Refreshing Google Drive token...');
+      
+      // Google's implicit flow doesn't support refresh tokens
+      // Need to re-authenticate the user
+      await this.initGoogleAuth();
+
+      const tokenClient = google.accounts.oauth2.initTokenClient({
+        client_id: environment.google.clientId,
+        scope: this.SCOPES,
+        prompt: '', // Use empty prompt for silent refresh
+        callback: async (response: any) => {
+          if (response.error) {
+            console.error('Failed to refresh token:', response.error);
+            // If silent refresh fails, user needs to re-authenticate
+            this.isConnected.set(false);
+            this.toast.error('Google Drive session expired. Please reconnect.');
+            return;
+          }
+
+          await this.handleAuthSuccess(response.access_token, response.expires_in);
+          console.log('Google Drive token refreshed successfully');
+        },
+      });
+
+      tokenClient.requestAccessToken();
+    } catch (error: any) {
+      console.error('Token refresh error:', error);
+      this.isConnected.set(false);
+      this.toast.error('Google Drive session expired. Please reconnect.');
     }
   }
 }

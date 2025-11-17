@@ -24,6 +24,8 @@ export class OneDriveService {
   private readonly SCOPES = 'Files.ReadWrite.All offline_access User.Read';
   private readonly AUTHORITY = 'https://login.microsoftonline.com/common';
   private readonly GRAPH_API = 'https://graph.microsoft.com/v1.0';
+  
+  private tokenRefreshTimer?: number;
 
   /**
    * Connect OneDrive using OAuth 2.0 Implicit Flow
@@ -78,7 +80,7 @@ export class OneDriveService {
   private handleOAuthCallback = async (event: MessageEvent) => {
     if (event.origin !== window.location.origin) return;
 
-    const { accessToken, error } = event.data;
+    const { accessToken, expiresIn, error } = event.data;
 
     if (error) {
       this.toast.error('Failed to connect OneDrive');
@@ -86,19 +88,23 @@ export class OneDriveService {
     }
 
     if (accessToken) {
-      await this.handleAuthSuccess(accessToken);
+      await this.handleAuthSuccess(accessToken, expiresIn);
     }
   };
 
   /**
    * Handle successful OAuth
    */
-  private async handleAuthSuccess(accessToken: string): Promise<void> {
+  private async handleAuthSuccess(accessToken: string, expiresIn?: number): Promise<void> {
     try {
       this.loading.start();
 
       // Get user info
       const userInfo = await this.getUserInfo(accessToken);
+
+      // Calculate expiration time (default to 3600 seconds if not provided)
+      const expiresInMs = (expiresIn || 3600) * 1000;
+      const expiresAt = Date.now() + expiresInMs;
 
       // Save integration to database
       const userId = this.auth.userId();
@@ -108,6 +114,7 @@ export class OneDriveService {
           user_id: userId,
           provider: 'onedrive',
           access_token: accessToken,
+          expires_at: expiresAt,
           email: userInfo.email,
           updated_at: new Date().toISOString(),
         })
@@ -120,6 +127,9 @@ export class OneDriveService {
       this.isConnected.set(true);
       this.toast.success('OneDrive connected successfully');
 
+      // Schedule token refresh (refresh 5 minutes before expiration)
+      this.scheduleTokenRefresh(expiresInMs - 5 * 60 * 1000);
+
       // Load files
       await this.loadFiles();
     } catch (error: any) {
@@ -127,6 +137,48 @@ export class OneDriveService {
       this.toast.error('Failed to save OneDrive connection');
     } finally {
       this.loading.stop();
+    }
+  }
+
+  /**
+   * Schedule token refresh
+   */
+  private scheduleTokenRefresh(delayMs: number): void {
+    // Clear any existing timer
+    if (this.tokenRefreshTimer !== undefined) {
+      window.clearTimeout(this.tokenRefreshTimer);
+    }
+
+    // Don't schedule if delay is too short (less than 1 minute)
+    if (delayMs < 60 * 1000) {
+      console.warn('Token expires too soon, will refresh on next API call');
+      return;
+    }
+
+    console.log(`Scheduling OneDrive token refresh in ${Math.round(delayMs / 1000 / 60)} minutes`);
+    
+    this.tokenRefreshTimer = window.setTimeout(() => {
+      this.refreshToken();
+    }, delayMs);
+  }
+
+  /**
+   * Refresh OneDrive access token
+   * Since we use implicit flow, we need to trigger re-authentication
+   */
+  private async refreshToken(): Promise<void> {
+    console.log('Refreshing OneDrive token...');
+    
+    try {
+      // OneDrive implicit flow requires re-authentication to get new token
+      // We'll trigger a silent re-authentication by opening the auth URL in a hidden iframe
+      // For now, we'll just mark as disconnected and let user reconnect
+      this.isConnected.set(false);
+      this.toast.error('OneDrive session expired. Please reconnect.');
+    } catch (error) {
+      console.error('Failed to refresh OneDrive token:', error);
+      this.isConnected.set(false);
+      this.toast.error('OneDrive session expired. Please reconnect.');
     }
   }
 
@@ -173,14 +225,20 @@ export class OneDriveService {
    */
   async disconnect(): Promise<void> {
     try {
-      this.loading.start();
-      const userId = this.auth.userId();
+      // Clear token refresh timer
+      if (this.tokenRefreshTimer !== undefined) {
+        window.clearTimeout(this.tokenRefreshTimer);
+        this.tokenRefreshTimer = undefined;
+      }
 
+      const integration = this.integration();
+      if (!integration) return;
+
+      // Delete integration from database
       const { error } = await this.supabase
         .from('integrations')
         .delete()
-        .eq('user_id', userId)
-        .eq('provider', 'onedrive');
+        .eq('id', integration.id);
 
       if (error) throw error;
 
@@ -188,12 +246,10 @@ export class OneDriveService {
       this.isConnected.set(false);
       this.files.set([]);
       this.rootFolder.set(null);
-      this.toast.success('OneDrive disconnected');
+      this.toast.success('OneDrive disconnected successfully');
     } catch (error: any) {
-      console.error('Failed to disconnect:', error);
+      console.error('Failed to disconnect OneDrive:', error);
       this.toast.error('Failed to disconnect OneDrive');
-    } finally {
-      this.loading.stop();
     }
   }
 
