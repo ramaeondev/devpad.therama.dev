@@ -2,11 +2,12 @@ import { Component, Input, signal, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { SupabaseService } from '../../../../core/services/supabase.service';
 import { ToastService } from '../../../../core/services/toast.service';
+import { IconComponent } from '../icon/icon.component';
 
 @Component({
   selector: 'app-document-preview-modal',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, IconComponent],
   template: `
     <div
       class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
@@ -22,19 +23,14 @@ import { ToastService } from '../../../../core/services/toast.service';
           <h2 class="text-lg font-semibold text-gray-900 dark:text-gray-100">{{ note?.title }}</h2>
           <div class="flex items-center gap-2">
             <button
-              class="px-3 py-1 text-sm bg-blue-500 text-white rounded hover:bg-blue-600"
+              class="px-3 py-1 text-sm bg-blue-500 text-white rounded hover:bg-blue-600 flex items-center gap-1"
               (click)="download()"
             >
-              Download
+              <app-icon name="download" [size]="16"></app-icon>
+              <span>Download</span>
             </button>
             <button class="p-1 rounded hover:bg-gray-200 dark:hover:bg-gray-700" (click)="close()">
-              <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-                <path
-                  fill-rule="evenodd"
-                  d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
-                  clip-rule="evenodd"
-                />
-              </svg>
+              <app-icon name="close" [size]="20"></app-icon>
             </button>
           </div>
         </div>
@@ -53,10 +49,11 @@ import { ToastService } from '../../../../core/services/toast.service';
                   This file type cannot be previewed in the browser.
                 </div>
                 <button
-                  class="mt-4 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+                  class="mt-4 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 flex items-center gap-2"
                   (click)="download()"
                 >
-                  Download File
+                  <app-icon name="download" [size]="20"></app-icon>
+                  <span>Download File</span>
                 </button>
               </div>
             }

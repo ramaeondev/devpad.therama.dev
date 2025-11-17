@@ -1,23 +1,24 @@
 import { Component, inject, signal, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { IconDirective, FileSizeDirective } from '../../../../shared/directives';
+import { getIconNameFromNameAndMime } from '../../../../shared/utils/file-type.util';
 import { OneDriveService } from '../../../../core/services/onedrive.service';
-import { OneDriveFolder, OneDriveFile } from '../../../../core/models/integration.model';
+import { OneDriveFile } from '../../../../core/models/integration.model';
 import { NoteService } from '../../../../core/services/note.service';
 import { AuthStateService } from '../../../../core/services/auth-state.service';
 import { ToastService } from '../../../../core/services/toast.service';
+import { IconComponent } from '../../../../shared/components/ui/icon/icon.component';
 
 @Component({
   selector: 'app-onedrive-tree',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, IconDirective, FileSizeDirective, IconComponent],
   template: `
     <div class="onedrive-tree">
       @if (!oneDrive.isConnected()) {
         <div class="text-center py-8">
           <div class="text-gray-500 dark:text-gray-400 mb-4">
-            <svg class="w-16 h-16 mx-auto mb-2" fill="currentColor" viewBox="0 0 24 24">
-              <path d="M13.98 3.37A6.5 6.5 0 0 0 7.5 9.5a6.5 6.5 0 0 0 .1 1.13A5.73 5.73 0 0 0 0 16.5C0 19.54 2.46 22 5.5 22h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96A6.5 6.5 0 0 0 13.98 3.37z"/>
-            </svg>
+            <app-icon name="onedrive" [size]="64"></app-icon>
             <p>OneDrive not connected</p>
           </div>
           <button
@@ -36,7 +37,7 @@ import { ToastService } from '../../../../core/services/toast.service';
                 class="text-sm text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 transition-colors"
                 (click)="oneDrive.loadFiles()"
               >
-                Refresh
+                <app-icon name="refresh" [size]="16"></app-icon>
               </button>
             </div>
             <div class="space-y-1">
@@ -72,16 +73,16 @@ import { ToastService } from '../../../../core/services/toast.service';
       <!-- Render files -->
       @for (file of folder.files; track file.id) {
         <div class="file-item" [style.padding-left.rem]="level * 1.5">
-          <span class="text-base">{{ getFileIcon(file) }}</span>
+          <span class="w-5 h-5 text-gray-600 dark:text-gray-300 flex-shrink-0" appIcon [appIcon]="getFileIconName(file)" [size]="20"></span>
           <span class="flex-1 truncate text-gray-900 dark:text-gray-100">{{ file.name }}</span>
           <span class="text-xs text-gray-500 dark:text-gray-400 mr-2">
-            {{ formatFileSize(file.size) }}
+            <span appFileSize [appFileSize]="file.size"></span>
           </span>
           <button
             class="text-xs text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 px-2 py-1 rounded hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-colors"
             (click)="downloadToLocal(file)"
           >
-            Download
+            <app-icon name="download" [size]="16"></app-icon>
           </button>
         </div>
       }
@@ -135,29 +136,8 @@ export class OneDriveTreeComponent implements OnInit {
     });
   }
 
-  getFileIcon(file: OneDriveFile): string {
-    const name = file.name.toLowerCase();
-    const mimeType = file.mimeType?.toLowerCase() || '';
-
-    if (file.isFolder) return '📁';
-    if (name.endsWith('.docx') || name.endsWith('.doc')) return '📝';
-    if (name.endsWith('.xlsx') || name.endsWith('.xls')) return '📊';
-    if (name.endsWith('.pptx') || name.endsWith('.ppt')) return '📽️';
-    if (name.endsWith('.pdf')) return '📄';
-    if (mimeType.includes('image') || /\.(jpg|jpeg|png|gif|bmp|svg)$/.test(name)) return '🖼️';
-    if (mimeType.includes('video') || /\.(mp4|mov|avi|wmv)$/.test(name)) return '🎬';
-    if (mimeType.includes('audio') || /\.(mp3|wav|ogg|m4a)$/.test(name)) return '🎵';
-    if (name.endsWith('.zip') || name.endsWith('.rar')) return '📦';
-    if (name.endsWith('.txt')) return '📋';
-    return '📄';
-  }
-
-  formatFileSize(bytes?: number): string {
-    if (!bytes) return '';
-    if (bytes < 1024) return `${bytes} B`;
-    if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
-    if (bytes < 1024 * 1024 * 1024) return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
-    return `${(bytes / (1024 * 1024 * 1024)).toFixed(1)} GB`;
+  getFileIconName(file: OneDriveFile): string {
+    return getIconNameFromNameAndMime(file?.name, file?.mimeType);
   }
 
   async downloadToLocal(file: OneDriveFile) {

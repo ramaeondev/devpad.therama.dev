@@ -5,7 +5,6 @@ import { FolderService } from '../../../folders/services/folder.service';
 import { AuthStateService } from '../../../../core/services/auth-state.service';
 import { ToastService } from '../../../../core/services/toast.service';
 import { DropdownComponent } from '../../../../shared/components/ui/dropdown/dropdown.component';
-import { Router } from '@angular/router';
 import { NoteService } from '../../../../core/services/note.service';
 import { WorkspaceStateService } from '../../../../core/services/workspace-state.service';
 import { SupabaseService } from '../../../../core/services/supabase.service';
@@ -16,8 +15,11 @@ import {
   NotePropertiesModalComponent,
   NoteProperties,
 } from '../../../../shared/components/ui/dialog/note-properties-modal.component';
-import { RelativeTimeDirective } from '../../../../shared/directives/relative-time.directive';
-import { NgIconComponent } from '@ng-icons/core';
+import {
+  IconDirective,
+} from '../../../../shared/directives';
+import { NoteIconPipe } from '../../../../shared/pipes/note-icon.pipe';
+import { IconComponent } from '../../../../shared/components/ui/icon/icon.component';
 
 @Component({
   selector: 'app-folder-tree',
@@ -29,8 +31,9 @@ import { NgIconComponent } from '@ng-icons/core';
     NoteNameModalComponent,
     ConfirmModalComponent,
     NotePropertiesModalComponent,
-    RelativeTimeDirective,
-    NgIconComponent,
+    IconDirective,
+    NoteIconPipe,
+    IconComponent,
   ],
   template: `
     <div class="folder-tree">
@@ -71,10 +74,9 @@ import { NgIconComponent } from '@ng-icons/core';
       @for (folder of folders; track folder.id) {
         <div 
           class="folder-item"
-          [class.ring-2]="dragOverFolderId() === folder.id"
-          [class.ring-primary-500]="dragOverFolderId() === folder.id"
-          [class.bg-primary-50]="dragOverFolderId() === folder.id"
-          [class.dark:bg-primary-900/20]="dragOverFolderId() === folder.id"
+          [ngClass]="{
+            'ring-2 ring-primary-500 bg-primary-50 dark:bg-primary-900': dragOverFolderId() === folder.id
+          }"
           (dragover)="onFolderDragOver($event, folder)"
           (dragleave)="onFolderDragLeave($event, folder)"
           (drop)="onFolderDrop($event, folder)"
@@ -92,13 +94,9 @@ import { NgIconComponent } from '@ng-icons/core';
                 (click)="toggleExpand(folder.id, $event)"
               >
                 @if (isExpanded(folder.id)) {
-                  <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
-                    <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd"/>
-                  </svg>
+                  <app-icon name="chevron-down" [size]="12"></app-icon>
                 } @else {
-                  <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
-                    <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"/>
-                  </svg>
+                  <app-icon name="chevron-right" [size]="12"></app-icon>
                 }
               </button>
             } @else {
@@ -141,20 +139,36 @@ import { NgIconComponent } from '@ng-icons/core';
             <!-- Actions Dropdown (root: limited, others: full) -->
             <app-dropdown align="right">
               <button dropdownTrigger class="p-1 rounded hover:bg-gray-200 dark:hover:bg-gray-700">
-                <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                  <path d="M10 6a2 2 0 110-4 2 2 0 010 4zM10 12a2 2 0 110-4 2 2 0 010 4zM10 18a2 2 0 110-4 2 2 0 010 4z"/>
-                </svg>
+                <app-icon name="more_vert" [size]="16"></app-icon>
               </button>
               <div dropdownMenu class="text-sm">
-                <button class="dropdown-item w-full text-left px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700" (click)="openCreateSubfolderModal(folder)">New Subfolder</button>
-                <button class="dropdown-item w-full text-left px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700" (click)="createNoteDirect(folder)">New Note (.md)</button>
-                <button class="dropdown-item w-full text-left px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700" (click)="uploadDocument(folder)">Upload Document</button>
+                <button class="dropdown-item w-full text-left px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 flex items-center justify-between" (click)="openCreateSubfolderModal(folder)">
+                  <span>New Subfolder</span>
+                  <app-icon name="create_new_folder" [size]="16"></app-icon>
+                </button>
+                <button class="dropdown-item w-full text-left px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 flex items-center justify-between" (click)="createNoteDirect(folder)">
+                  <span>New Note (.md)</span>
+                  <app-icon name="note_add" [size]="16"></app-icon>
+                </button>
+                <button class="dropdown-item w-full text-left px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 flex items-center justify-between" (click)="uploadDocument(folder)">
+                  <span>Upload Document</span>
+                  <app-icon name="file_upload" [size]="16"></app-icon>
+                </button>
                 <hr class="my-1 border-gray-200 dark:border-gray-700" />
-                <button class="dropdown-item w-full text-left px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700" (click)="startRename(folder)">Rename Folder</button>
+                <button class="dropdown-item w-full text-left px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 flex items-center justify-between" (click)="startRename(folder)">
+                  <span>Rename Folder</span>
+                  <app-icon name="edit" [size]="16"></app-icon>
+                </button>
                 @if (!folder.is_root) {
-                  <button class="dropdown-item w-full text-left px-4 py-2 text-red-600 hover:bg-red-50 dark:hover:bg-red-900/30" (click)="deleteFolder(folder)">Delete Folder</button>
+                  <button class="dropdown-item w-full text-left px-4 py-2 text-red-600 hover:bg-red-50 dark:hover:bg-red-900/30 flex items-center justify-between" (click)="deleteFolder(folder)">
+                    <span>Delete Folder</span>
+                    <app-icon name="delete" [size]="16"></app-icon>
+                  </button>
                 } @else {
-                  <button class="dropdown-item w-full text-left px-4 py-2 text-gray-400 cursor-not-allowed" disabled>Delete Folder (root)</button>
+                  <button class="dropdown-item w-full text-left px-4 py-2 text-gray-400 cursor-not-allowed flex items-center justify-between" disabled>
+                    <span>Delete Folder (root)</span>
+                    <app-icon name="delete" [size]="16"></app-icon>
+                  </button>
                 }
               </div>
             </app-dropdown>
@@ -175,24 +189,34 @@ import { NgIconComponent } from '@ng-icons/core';
                   (dragend)="onNoteDragEnd($event)"
                 >
                     <span class="drag-handle w-4 text-xs text-gray-400 cursor-move select-none">⋮⋮</span>
-                    <ng-icon class="note-icon w-4 text-sm pointer-events-none" [name]="getFileIconName(note)" size="16"></ng-icon>
-                    <span class="truncate flex-1 pointer-events-none">{{ note.title || 'Untitled' }}</span>
-                  <span class="text-[10px] text-gray-400 pointer-events-none" [appRelativeTime]="note.updated_at"></span>
+                    <span class="note-icon w-4 h-4 pointer-events-none" appIcon [appIcon]="note | noteIcon" [size]="16"></span>
+                    <span class="truncate flex-1" [title]="note.title || 'Untitled'">{{ note.title || 'Untitled' }}</span>
+                  <!-- <span class="text-[10px] text-gray-400 pointer-events-none mr-2" [appRelativeTime]="note.updated_at"></span> -->
                   <!-- Note Actions Dropdown -->
                   <div class="dropdown-wrapper" (click)="$event.stopPropagation()">
                     <app-dropdown align="right">
                       <button dropdownTrigger class="p-0.5 rounded hover:bg-gray-200 dark:hover:bg-gray-600">
-                        <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
-                          <path d="M10 6a2 2 0 110-4 2 2 0 010 4zM10 12a2 2 0 110-4 2 2 0 010 4zM10 18a2 2 0 110-4 2 2 0 010 4z"/>
-                        </svg>
+                        <app-icon name="more_vert" [size]="16"></app-icon>
                       </button>
                       <div dropdownMenu class="text-xs">
-                        <button class="dropdown-item w-full text-left px-3 py-1.5 hover:bg-gray-100 dark:hover:bg-gray-700" (click)="downloadDocument(note)">Download</button>
+                        <button class="dropdown-item w-full text-left px-3 py-1.5 hover:bg-gray-100 dark:hover:bg-gray-700 flex items-center justify-between" (click)="downloadDocument(note)">
+                          <span>Download</span>
+                          <app-icon name="download" [size]="16"></app-icon>
+                        </button>
                         <hr class="my-1 border-gray-200 dark:border-gray-700" />
-                        <button class="dropdown-item w-full text-left px-3 py-1.5 hover:bg-gray-100 dark:hover:bg-gray-700" (click)="startNoteRename(note, folder)">Rename</button>
-                        <button class="dropdown-item w-full text-left px-3 py-1.5 hover:bg-gray-100 dark:hover:bg-gray-700" (click)="showNoteProperties(note, folder)">Properties</button>
+                        <button class="dropdown-item w-full text-left px-3 py-1.5 hover:bg-gray-100 dark:hover:bg-gray-700 flex items-center justify-between" (click)="startNoteRename(note, folder)">
+                          <span>Rename</span>
+                          <app-icon name="edit" [size]="16"></app-icon>
+                        </button>
+                        <button class="dropdown-item w-full text-left px-3 py-1.5 hover:bg-gray-100 dark:hover:bg-gray-700 flex items-center justify-between" (click)="showNoteProperties(note, folder)">
+                          <span>Properties</span>
+                          <app-icon name="info" [size]="16"></app-icon>
+                        </button>
                         <hr class="my-1 border-gray-200 dark:border-gray-700" />
-                        <button class="dropdown-item w-full text-left px-3 py-1.5 text-red-600 hover:bg-red-50 dark:hover:bg-red-900/30" (click)="deleteNote(note, folder)">Delete</button>
+                        <button class="dropdown-item w-full text-left px-3 py-1.5 text-red-600 hover:bg-red-50 dark:hover:bg-red-900/30 flex items-center justify-between" (click)="deleteNote(note, folder)">
+                          <span>Delete</span>
+                          <app-icon name="delete" [size]="16"></app-icon>
+                        </button>
                       </div>
                     </app-dropdown>
                   </div>
@@ -277,7 +301,6 @@ export class FolderTreeComponent {
   private noteService = inject(NoteService);
   private authState = inject(AuthStateService);
   private toast = inject(ToastService);
-  private router = inject(Router);
   private supabase = inject(SupabaseService);
   workspaceState = inject(WorkspaceStateService);
 
@@ -301,7 +324,6 @@ export class FolderTreeComponent {
   confirmTitle = signal('');
   confirmMessage = signal('');
   private pendingDeleteNote: { note: any; folder: FolderTree } | null = null;
-  private pendingDeleteFolder: FolderTree | null = null;
 
   // Note properties modal state
   showPropertiesModal = signal(false);
@@ -477,6 +499,7 @@ export class FolderTreeComponent {
   }
 
   cancelRename(folder: FolderTree) {
+    void folder;
     const id = this.editingId();
     if (!id) return;
     this._editingId.set(null);
@@ -693,6 +716,7 @@ export class FolderTreeComponent {
   }
 
   async renameNote(note: any, folder: FolderTree, newTitle: string) {
+    void folder;
     const userId = this.authState.userId();
     try {
       await this.noteService.updateNote(note.id, userId, { title: newTitle });
@@ -743,7 +767,6 @@ export class FolderTreeComponent {
   closeConfirmModal() {
     this.showConfirmModal.set(false);
     this.pendingDeleteNote = null;
-    this.pendingDeleteFolder = null;
     this.confirmTitle.set('');
     this.confirmMessage.set('');
   }
@@ -999,65 +1022,5 @@ export class FolderTreeComponent {
     }
   }
 
-  getFileIconName(note: any): string {
-    let extension = 'md'; // Default for markdown notes
 
-    // For uploaded documents, extract extension from title
-    if (note?.content && note.content.startsWith('storage://')) {
-      if (note.title) {
-        const parts = note.title.split('.');
-        if (parts.length > 1) {
-          extension = parts.pop()!.toLowerCase();
-        }
-      }
-    }
-
-    // Map extension to icon name (e.g., 'pdf' -> 'matfPdf')
-    const iconKey = 'matf' + extension.charAt(0).toUpperCase() + extension.slice(1);
-
-    // Check if icon exists in registry, otherwise use default
-    return (this as any).hasIcon(iconKey) ? iconKey : 'matfFile';
-  }
-
-  private hasIcon(iconName: string): boolean {
-    // Simple check - icons are registered globally, this will be validated at runtime
-    const validIcons = [
-      'matfPdf',
-      'matfDoc',
-      'matfDocx',
-      'matfXls',
-      'matfXlsx',
-      'matfPpt',
-      'matfPptx',
-      'matfTxt',
-      'matfJpg',
-      'matfJpeg',
-      'matfPng',
-      'matfGif',
-      'matfWebp',
-      'matfSvg',
-      'matfMp4',
-      'matfAvi',
-      'matfMov',
-      'matfMp3',
-      'matfWav',
-      'matfZip',
-      'matfRar',
-      'matfJs',
-      'matfJsx',
-      'matfTs',
-      'matfTsx',
-      'matfJson',
-      'matfHtml',
-      'matfCss',
-      'matfScss',
-      'matfSass',
-      'matfMd',
-      'matfMarkdown',
-      'matfFile',
-      'matfFolder',
-      'matfAngular',
-    ];
-    return validIcons.includes(iconName);
-  }
 }

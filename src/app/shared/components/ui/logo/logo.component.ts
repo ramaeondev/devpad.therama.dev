@@ -1,4 +1,4 @@
-import { Component, Input, AfterViewInit, ElementRef, Renderer2, OnInit } from '@angular/core';
+import { Component, Input, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 
 @Component({
@@ -54,7 +54,7 @@ export class LogoComponent implements OnInit {
   }
 
   initializeLetters() {
-    this.letters = this.text.split('').map((char, index) => ({
+    this.letters = this.text.split('').map((char) => ({
       char,
       visible: false,
       delay: 0,

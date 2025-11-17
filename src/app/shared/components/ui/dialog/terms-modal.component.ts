@@ -71,9 +71,8 @@ export class TermsModalComponent implements OnChanges {
     }
   }
 
-  private trustSrc(path: string): SafeResourceUrl {
+  private trustSrc(_path: string): SafeResourceUrl {
     try {
-      const base = typeof window !== 'undefined' ? window.location.origin : '';
       // For Angular, just use the route directly
       return this.sanitizer.bypassSecurityTrustResourceUrl(this.termsSrc);
     } catch {

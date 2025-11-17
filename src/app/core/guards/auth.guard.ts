@@ -4,7 +4,7 @@ import { SupabaseService } from '../services/supabase.service';
 import { AuthStateService } from '../services/auth-state.service';
 import { FolderService } from '../../features/folders/services/folder.service';
 
-export const authGuard: CanActivateFn = async (route, state) => {
+export const authGuard: CanActivateFn = async (_route, state) => {
   const supabase = inject(SupabaseService);
   const authState = inject(AuthStateService);
   const folderService = inject(FolderService);

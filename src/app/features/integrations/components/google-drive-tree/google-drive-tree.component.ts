@@ -1,26 +1,27 @@
 import { Component, inject, signal, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { GoogleDriveService } from '../../../../core/services/google-drive.service';
-import { GoogleDriveFolder, GoogleDriveFile } from '../../../../core/models/integration.model';
+import { GoogleDriveFile } from '../../../../core/models/integration.model';
 import { NoteService } from '../../../../core/services/note.service';
 import { AuthStateService } from '../../../../core/services/auth-state.service';
 import { ToastService } from '../../../../core/services/toast.service';
 import { WorkspaceStateService } from '../../../../core/services/workspace-state.service';
 import { FolderService } from '../../../folders/services/folder.service';
 import { PropertiesModalComponent, PropertyItem } from '../../../../shared/components/ui/properties-modal/properties-modal.component';
+import { IconDirective } from '../../../../shared/directives';
+import { GoogleDriveIconPipe } from '../../../../shared/pipes/google-drive-icon.pipe';
+import { IconComponent } from '../../../../shared/components/ui/icon/icon.component';
 
 @Component({
   selector: 'app-google-drive-tree',
   standalone: true,
-  imports: [CommonModule, PropertiesModalComponent],
+  imports: [CommonModule, PropertiesModalComponent, IconDirective, GoogleDriveIconPipe, IconComponent],
   template: `
     <div class="google-drive-tree-container">
       @if (!googleDrive.isConnected()) {
         <div class="text-center py-8">
           <div class="text-gray-500 dark:text-gray-400 mb-4">
-            <svg class="w-16 h-16 mx-auto mb-2" fill="currentColor" viewBox="0 0 24 24">
-              <path d="M7.71 3.5L1.15 15l3.38 5.87L11.1 9.3l-3.38-5.8zm13.14 0l-3.38 5.87L23.85 15l-6.56-11.5zM12 9.3L5.53 20.87h12.94L12 9.3z"/>
-            </svg>
+            <app-icon name="google-drive" [size]="64" />
             <p>Google Drive not connected</p>
           </div>
           <button
@@ -50,9 +51,7 @@ import { PropertiesModalComponent, PropertyItem } from '../../../../shared/compo
                 class="text-sm text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 transition-colors"
                 title="Refresh"
               >
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
-                </svg>
+                <app-icon name="refresh" [size]="16"></app-icon>
               </button>
             </div>
             
@@ -96,7 +95,7 @@ import { PropertiesModalComponent, PropertyItem } from '../../../../shared/compo
           [style.padding-left.rem]="level * 1.5"
         >
           <div class="flex items-center gap-2 flex-1 min-w-0 cursor-pointer" (click)="onFileClick(file)">
-            <span class="text-base flex-shrink-0">{{ getFileIcon(file) }}</span>
+            <span class="w-4 h-4 flex-shrink-0" appIcon [appIcon]="file | googleDriveIcon" [size]="16"></span>
             <span class="flex-1 truncate text-gray-900 dark:text-gray-100">{{ file.name }}</span>
           </div>
           
@@ -107,67 +106,53 @@ import { PropertiesModalComponent, PropertyItem } from '../../../../shared/compo
               class="p-1.5 rounded hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors opacity-0 group-hover:opacity-100"
               [class.opacity-100]="openMenuId() === file.id"
             >
-              <svg class="w-4 h-4 text-gray-600 dark:text-gray-400" fill="currentColor" viewBox="0 0 24 24">
-                <circle cx="12" cy="5" r="2"/>
-                <circle cx="12" cy="12" r="2"/>
-                <circle cx="12" cy="19" r="2"/>
-              </svg>
+              <app-icon name="more_vert" [size]="16"></app-icon>
             </button>
             
             @if (openMenuId() === file.id) {
               <div class="absolute right-0 mt-1 w-48 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 z-20">
                 <button
                   (click)="handleDownload(file); $event.stopPropagation()"
-                  class="w-full text-left px-3 py-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors flex items-center gap-2 rounded-t-lg"
+                  class="w-full text-left px-3 py-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors flex items-center justify-between gap-2 rounded-t-lg"
                 >
-                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
-                  </svg>
                   <span>Download</span>
+                  <app-icon name="download" [size]="16"></app-icon>
                 </button>
                 
                 <button
                   (click)="handleImportToDevPad(file); $event.stopPropagation()"
-                  class="w-full text-left px-3 py-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors flex items-center gap-2"
+                  class="w-full text-left px-3 py-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors flex items-center justify-between gap-2"
                 >
-                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/>
-                  </svg>
                   <span>Import to DevPad</span>
+                  <app-icon name="file_upload" [size]="16"></app-icon>
                 </button>
                 
                 <button
                   (click)="handleRename(file); $event.stopPropagation()"
-                  class="w-full text-left px-3 py-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors flex items-center gap-2"
+                  class="w-full text-left px-3 py-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors flex items-center justify-between gap-2"
                 >
-                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"/>
-                  </svg>
                   <span>Rename</span>
+                  <app-icon name="edit" [size]="16"></app-icon>
                 </button>
                 
                 <div class="border-t border-gray-200 dark:border-gray-700"></div>
                 
                 <button
                   (click)="handleProperties(file); $event.stopPropagation()"
-                  class="w-full text-left px-3 py-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors flex items-center gap-2"
+                  class="w-full text-left px-3 py-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors flex items-center justify-between gap-2"
                 >
-                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                  </svg>
                   <span>Properties</span>
+                  <app-icon name="info" [size]="16"></app-icon>
                 </button>
                 
                 <div class="border-t border-gray-200 dark:border-gray-700"></div>
                 
                 <button
                   (click)="handleDelete(file); $event.stopPropagation()"
-                  class="w-full text-left px-3 py-2 text-sm hover:bg-red-50 dark:hover:bg-red-900/20 text-red-600 dark:text-red-400 transition-colors flex items-center gap-2 rounded-b-lg"
+                  class="w-full text-left px-3 py-2 text-sm hover:bg-red-50 dark:hover:bg-red-900/20 text-red-600 dark:text-red-400 transition-colors flex items-center justify-between gap-2 rounded-b-lg"
                 >
-                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
-                  </svg>
                   <span>Delete</span>
+                  <app-icon name="delete" [size]="16"></app-icon>
                 </button>
               </div>
             }
@@ -377,16 +362,6 @@ export class GoogleDriveTreeComponent implements OnInit {
       }
       return newSet;
     });
-  }
-
-  getFileIcon(file: GoogleDriveFile): string {
-    if (file.mimeType.includes('folder')) return '📁';
-    if (file.mimeType.includes('document')) return '📝';
-    if (file.mimeType.includes('spreadsheet')) return '📊';
-    if (file.mimeType.includes('presentation')) return '📽️';
-    if (file.mimeType.includes('pdf')) return '📄';
-    if (file.mimeType.includes('image')) return '🖼️';
-    return '📄';
   }
 
   async downloadToLocal(file: GoogleDriveFile) {

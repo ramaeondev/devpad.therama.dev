@@ -2,6 +2,18 @@
 
 All notable changes to this project are documented in this file.
 
+## [Unreleased] - 2025-11-18
+
+### Changed
+- **Iconography Overhaul**: Replaced all custom SVG icons with Google Material Icons for a consistent and modern UI.
+  - Refactored the `IconComponent` to dynamically render Material Icons.
+  - Replaced loading spinners with animated `autorenew` icon.
+  - Standardized icon usage across all components, including buttons, menus, and file trees.
+
+### Fixed
+- **UI Consistency**: Corrected icon alignment and visibility issues in dropdown menus and the folder tree.
+- **Kebab Menus**: Ensured kebab menu icons (`more_vert`) are consistent and properly sized across the application.
+
 ## [Unreleased] - 2025-11-17
 
 ### Added - Google Drive Integration Epic
