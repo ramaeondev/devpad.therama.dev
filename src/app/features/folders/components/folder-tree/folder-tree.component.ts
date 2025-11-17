@@ -163,7 +163,7 @@ import { DocumentPreviewModalComponent } from '../../../../shared/components/ui/
                   (dragend)="onNoteDragEnd($event)"
                 >
                     <span class="drag-handle w-4 text-xs text-gray-400 cursor-move select-none">⋮⋮</span>
-                    <span class="note-icon w-4 text-sm pointer-events-none">{{ note.icon || '📝' }}</span>
+                    <span class="note-icon w-4 text-sm pointer-events-none">{{ getFileIcon(note) }}</span>
                     <span class="truncate flex-1 pointer-events-none">{{ note.title || 'Untitled' }}</span>
                   <span class="text-[10px] text-gray-400 pointer-events-none" [appRelativeTime]="note.updated_at"></span>
                   <!-- Note Actions Dropdown -->
@@ -916,6 +916,35 @@ export class FolderTreeComponent {
       this.draggedNoteId.set(null);
       this.draggedNote = null;
       this.draggedSourceFolder = null;
+    }
+  }
+
+  getFileIcon(note: any): string {
+    if (!note?.content || !note.content.startsWith('storage://')) return '📝';
+    const path = note.content.replace('storage://notes/', '');
+    const ext = path.split('.').pop()?.toLowerCase();
+    switch (ext) {
+      case 'pdf': return '📄';
+      case 'doc':
+      case 'docx': return '📝';
+      case 'xls':
+      case 'xlsx': return '📊';
+      case 'ppt':
+      case 'pptx': return '📽️';
+      case 'txt': return '📄';
+      case 'jpg':
+      case 'jpeg':
+      case 'png':
+      case 'gif':
+      case 'webp': return '🖼️';
+      case 'mp4':
+      case 'avi':
+      case 'mov': return '🎥';
+      case 'mp3':
+      case 'wav': return '🎵';
+      case 'zip':
+      case 'rar': return '📦';
+      default: return '📄';
     }
   }
 }
