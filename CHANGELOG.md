@@ -2,6 +2,42 @@
 
 All notable changes to this project are documented in this file.
 
+## [Unreleased] - 2025-11-17
+
+### Added
+- **Material File Icons Integration**: Implemented proper Material Design file type icons using `@ng-icons/core` and `@ng-icons/material-file-icons` packages
+  - 34+ colored icons for different file types (PDF, Word, Excel, PowerPoint, images, videos, audio, archives, code files)
+  - Icons automatically display based on file extension extracted from note title
+  - Fallback icon system for unsupported file types
+- Icon validation system with `hasIcon()` helper method to verify icon availability
+- `FILE_ICONS_REGISTRY` central registry for all Material File Icons
+
+### Changed
+- **File Icon System Overhaul**:
+  - `src/app/features/folders/components/folder-tree/folder-tree.component.ts`
+    - Added `getFileIconName()` method to extract file extensions from note titles (not storage paths)
+    - Replaced emoji icons with proper Material File Icons using `<ng-icon>` component
+    - Icons now show correct colors: PDFs (red), Word docs (blue), images (purple), Excel (green), etc.
+  - `src/app/core/services/note.service.ts`
+    - Removed obsolete `getIconForNote()` emoji-based icon mapping method
+    - Stopped adding `icon` property in `getNotesForFolder()` - icons now handled by UI layer
+  - `src/app/app.config.ts`
+    - Registered `FILE_ICONS_REGISTRY` globally with `NgIconsModule.withIcons()`
+- **Code Formatting**: Applied Prettier formatting to 59+ files for consistency
+
+### Removed
+- `src/app/shared/icons/file-icon.directive.ts` - Removed directive-based approach as `NgIconComponent.name` is read-only
+- Emoji-based icon system replaced with proper SVG Material File Icons
+
+### Fixed
+- PDF file extension extraction now correctly reads from note title instead of storage path
+- Icons properly render for all supported file types with accurate visual representation
+
+### Technical Notes
+- Material File Icons imported from `@ng-icons/material-file-icons/colored` for colored variants
+- Direct icon name computation in component (not directive-based) due to Angular API constraints
+- Icons are registered globally for app-wide availability
+
 ## [Unreleased] - 2025-11-13
 
 ### Added
