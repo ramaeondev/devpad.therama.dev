@@ -8,6 +8,9 @@ All notable changes to this project are documented in this file.
 - `app/shared/components/ui/dialog/confirm-modal.component.ts` - reusable confirmation modal component to replace native `confirm()` calls.
 - Drag and drop notes anywhere within folder areas: users can now drop notes on folder headers, notes lists, or any part of the folder container for improved usability.
 - Document upload feature: upload any general documents less than 5MB, excluding executable files (exe, bat, cmd, etc.). Documents are stored in Supabase storage and appear in the folder tree with download functionality.
+- Document preview modal: preview PDFs and images directly in the browser; shows "No Preview Available" for unsupported file types.
+- File type-specific icons: documents display appropriate icons based on file extension (PDF 📄, Word 📝, Excel 📊, etc.).
+- Drag handle indicator: added visual drag handles (⋮⋮) to note rows for better drag-and-drop usability.
 
 ### Changed
 - `src/app/features/folders/components/folder-tree/folder-tree.component.ts`
