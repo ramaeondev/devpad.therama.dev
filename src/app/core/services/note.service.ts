@@ -211,8 +211,42 @@ export class NoteService {
       }
       const { data, error } = await query.order('updated_at', { ascending: false });
       if (error) throw error;
-      return (data as Note[]) || [];
+      return (data as Note[]).map(n => ({
+        ...n,
+        icon: this.getIconForNote(n)
+      }));
     });
+  }
+
+  private getIconForNote(note: Note): string {
+    if (note.content && typeof note.content === 'string' && note.content.startsWith('storage://')) {
+      const path = note.content.replace('storage://notes/', '');
+      const ext = path.split('.').pop()?.toLowerCase();
+      switch (ext) {
+        case 'pdf': return '📄';
+        case 'doc':
+        case 'docx': return '📝';
+        case 'xls':
+        case 'xlsx': return '📊';
+        case 'ppt':
+        case 'pptx': return '📽️';
+        case 'txt': return '📄';
+        case 'md': return '📝';
+        case 'jpg':
+        case 'jpeg':
+        case 'png':
+        case 'gif': return '🖼️';
+        case 'mp4':
+        case 'avi':
+        case 'mov': return '🎥';
+        case 'mp3':
+        case 'wav': return '🎵';
+        case 'zip':
+        case 'rar': return '📦';
+        default: return '📄';
+      }
+    }
+    return '📝'; // default for notes
   }
 
   async uploadDocument(userId: string, file: File, folderId: string | null): Promise<Note> {
