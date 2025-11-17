@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { ThemeService, Theme } from '../../../core/services/theme.service';
 import { AuthStateService } from '../../../core/services/auth-state.service';
 import { SupabaseService } from '../../../core/services/supabase.service';
-import { Router } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { LoadingService } from '../../../core/services/loading.service';
 import { ConfirmModalComponent } from '../../components/ui/dialog/confirm-modal.component';
 import { TermsModalComponent } from '../../components/ui/dialog/terms-modal.component';
@@ -20,6 +20,7 @@ import { OneDriveService } from '../../../core/services/onedrive.service';
   standalone: true,
   imports: [
     CommonModule,
+    RouterLink,
     ConfirmModalComponent,
     TermsModalComponent,
     ImageCropDialogComponent,
@@ -349,19 +350,17 @@ import { OneDriveService } from '../../../core/services/onedrive.service';
             <section class="pt-4 border-t border-gray-200 dark:border-gray-800">
               <div class="flex items-center justify-center gap-4 text-xs text-gray-500 dark:text-gray-400">
                 <a
-                  href="/privacy.html"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  class="hover:text-primary-600 dark:hover:text-primary-400 transition-colors"
+                  routerLink="/privacy"
+                  (click)="onClose()"
+                  class="hover:text-primary-600 dark:hover:text-primary-400 transition-colors cursor-pointer"
                 >
                   Privacy Policy
                 </a>
                 <span class="text-gray-300 dark:text-gray-700">|</span>
                 <a
-                  href="/terms.html"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  class="hover:text-primary-600 dark:hover:text-primary-400 transition-colors"
+                  routerLink="/terms"
+                  (click)="onClose()"
+                  class="hover:text-primary-600 dark:hover:text-primary-400 transition-colors cursor-pointer"
                 >
                   Terms of Service
                 </a>
