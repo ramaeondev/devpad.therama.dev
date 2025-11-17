@@ -15,11 +15,12 @@ import { ConfirmModalComponent } from '../../../../shared/components/ui/dialog/c
 import { NotePropertiesModalComponent, NoteProperties } from '../../../../shared/components/ui/dialog/note-properties-modal.component';
 import { RelativeTimeDirective } from '../../../../shared/directives/relative-time.directive';
 import { DocumentPreviewModalComponent } from '../../../../shared/components/ui/dialog/document-preview-modal.component';
+import { FileIconDirective } from '../../../../shared/icons/file-icon.directive';
 
 @Component({
   selector: 'app-folder-tree',
   standalone: true,
-  imports: [CommonModule, DropdownComponent, FolderNameModalComponent, NoteNameModalComponent, ConfirmModalComponent, NotePropertiesModalComponent, RelativeTimeDirective],
+  imports: [CommonModule, DropdownComponent, FolderNameModalComponent, NoteNameModalComponent, ConfirmModalComponent, NotePropertiesModalComponent, RelativeTimeDirective, FileIconDirective],
   template: `
     <div class="folder-tree">
       <!-- Name modal -->
@@ -163,7 +164,7 @@ import { DocumentPreviewModalComponent } from '../../../../shared/components/ui/
                   (dragend)="onNoteDragEnd($event)"
                 >
                     <span class="drag-handle w-4 text-xs text-gray-400 cursor-move select-none">⋮⋮</span>
-                    <span class="note-icon w-4 text-sm pointer-events-none" [innerHTML]="getFileIcon(note)"></span>
+                    <ng-icon class="note-icon w-4 text-sm pointer-events-none" [fileIcon]="getFileIcon(note)" size="16"></ng-icon>
                     <span class="truncate flex-1 pointer-events-none">{{ note.title || 'Untitled' }}</span>
                   <span class="text-[10px] text-gray-400 pointer-events-none" [appRelativeTime]="note.updated_at"></span>
                   <!-- Note Actions Dropdown -->
@@ -925,66 +926,10 @@ export class FolderTreeComponent {
 
   getFileIcon(note: any): string {
     if (!note?.content || !note.content.startsWith('storage://')) {
-      // Default markdown note icon
-      return `<svg class="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
-      </svg>`;
+      // Default markdown note - return filename for directive to process
+      return 'markdown';
     }
     const path = note.content.replace('storage://notes/', '');
-    const ext = path.split('.').pop()?.toLowerCase();
-    switch (ext) {
-      case 'pdf':
-        return `<svg class="w-4 h-4 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"/>
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 9h6m-6 4h6m-6 4h4"/>
-        </svg>`;
-      case 'doc':
-      case 'docx':
-        return `<svg class="w-4 h-4 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
-        </svg>`;
-      case 'xls':
-      case 'xlsx':
-        return `<svg class="w-4 h-4 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
-        </svg>`;
-      case 'ppt':
-      case 'pptx':
-        return `<svg class="w-4 h-4 text-orange-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 4V2a1 1 0 011-1h8a1 1 0 011 1v2m-9 0h10m-9 0V1m10 3V1m0 3l1 1v16a2 2 0 01-2 2H6a2 2 0 01-2-2V5l1-1z"/>
-        </svg>`;
-      case 'txt':
-        return `<svg class="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
-        </svg>`;
-      case 'jpg':
-      case 'jpeg':
-      case 'png':
-      case 'gif':
-      case 'webp':
-        return `<svg class="w-4 h-4 text-purple-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
-        </svg>`;
-      case 'mp4':
-      case 'avi':
-      case 'mov':
-        return `<svg class="w-4 h-4 text-pink-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"/>
-        </svg>`;
-      case 'mp3':
-      case 'wav':
-        return `<svg class="w-4 h-4 text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM9 10l12-3"/>
-        </svg>`;
-      case 'zip':
-      case 'rar':
-        return `<svg class="w-4 h-4 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4"/>
-        </svg>`;
-      default:
-        return `<svg class="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
-        </svg>`;
-    }
+    return path; // Return the full filename, directive will extract extension
   }
 }
