@@ -91,7 +91,19 @@ export class NoteWorkspaceComponent {
 
   isDocument = computed(() => {
     const note = this.currentNote();
-    return note?.icon && note.icon !== '📝';
+    if (!note?.content || typeof note.content !== 'string') return false;
+    
+    // Check if content starts with storage:// (indicates uploaded file)
+    if (!note.content.startsWith('storage://')) return false;
+    
+    // Extract file extension
+    const path = note.content.replace('storage://notes/', '');
+    const ext = path.split('.').pop()?.toLowerCase();
+    
+    // Define document extensions that should use iframe preview
+    const documentExtensions = ['pdf', 'doc', 'docx', 'xls', 'xlsx', 'ppt', 'pptx', 'txt', 'jpg', 'jpeg', 'png', 'gif', 'webp', 'mp4', 'avi', 'mov', 'mp3', 'wav'];
+    
+    return documentExtensions.includes(ext || '');
   });
 
   currentMode = computed(() => {
