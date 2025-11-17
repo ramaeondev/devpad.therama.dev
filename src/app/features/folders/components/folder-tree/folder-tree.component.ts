@@ -161,7 +161,7 @@ import { DocumentPreviewModalComponent } from '../../../../shared/components/ui/
             <ul class="ml-8 mt-1 space-y-0.5">
               @for (note of folder.notes; track note.id) {
                 <li
-                  class="note-row flex items-center gap-2 px-2 py-1 rounded cursor-move text-xs hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+                  class="note-row flex items-center gap-2 px-2 py-1 rounded cursor-default text-xs hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
                   [class.bg-gray-200]="workspaceState.selectedNoteId() === note.id"
                   [class.dark:bg-gray-600]="workspaceState.selectedNoteId() === note.id"
                   [class.opacity-50]="draggedNoteId() === note.id"
