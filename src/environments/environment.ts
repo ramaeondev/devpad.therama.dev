@@ -7,6 +7,8 @@ export const environment = {
   },
   google: {
     clientId: '1054129590650-c4qqjfphqdejcfdcasel8q3a14b5p7kk.apps.googleusercontent.com',
+    // Local refresh server used to obtain refresh tokens and refresh access tokens
+    refreshHost: 'http://localhost:3001',
   },
   microsoft: {
     clientId: 'dd8a33f5-bd38-416e-ad5d-042f73a212b8',
