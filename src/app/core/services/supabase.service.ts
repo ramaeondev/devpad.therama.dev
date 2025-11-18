@@ -1,17 +1,31 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { createClient, SupabaseClient } from '@supabase/supabase-js';
-import { environment } from '../../../environments/environment';
+import { ConfigService } from './config.service';
 
 @Injectable({
   providedIn: 'root',
 })
 export class SupabaseService {
-  private supabase: SupabaseClient;
+  private _supabase: SupabaseClient | null = null;
   private sessionCache: any = null;
   private sessionPromise: Promise<any> | null = null;
+  private configService = inject(ConfigService);
 
   constructor() {
-    this.supabase = createClient(environment.supabase.url, environment.supabase.anonKey, {
+    // No client initialization here to avoid circular dependency
+  }
+
+  private get supabase(): SupabaseClient {
+    if (this._supabase) {
+      return this._supabase;
+    }
+
+    const config = this.configService.config();
+    if (!config) {
+      throw new Error('Configuration not loaded! Cannot initialize Supabase client.');
+    }
+
+    this._supabase = createClient(config.supabase.url, config.supabase.anonKey, {
       auth: {
         storageKey: 'sb-auth-token',
         autoRefreshToken: true,
@@ -19,6 +33,8 @@ export class SupabaseService {
         detectSessionInUrl: true,
       },
     });
+
+    return this._supabase;
   }
 
   // Cached session getter to prevent lock conflicts

@@ -276,7 +276,7 @@ import { LogoComponent } from '../../../../shared/components/ui/logo/logo.compon
               If you have questions or concerns about this Privacy Policy or our data practices, please contact us:
             </p>
             <div class="bg-gray-50 dark:bg-gray-700 rounded-lg p-4">
-              <p class="text-gray-700 dark:text-gray-300 mb-2"><strong class="text-primary-600 dark:text-primary-400">Email:</strong> privacy&#64;devpad.therama.dev</p>
+              <p class="text-gray-700 dark:text-gray-300 mb-2"><strong class="text-primary-600 dark:text-primary-400">Email:</strong> notes&#64;therama.dev</p>
               <p class="text-gray-700 dark:text-gray-300"><strong class="text-primary-600 dark:text-primary-400">GitHub:</strong> 
                 <a href="https://github.com/ramaeondev/devpad.therama.dev" target="_blank" rel="noopener noreferrer" class="text-primary-600 dark:text-primary-400 hover:underline">
                   github.com/ramaeondev/devpad.therama.dev

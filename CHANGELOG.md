@@ -4,6 +4,12 @@ All notable changes to this project are documented in this file.
 
 ## [Unreleased] - 2025-11-18
 
+### Security
+- **Runtime Configuration**: Moved sensitive credentials (API keys for Supabase, Google Drive, OneDrive) from build-time environment files to Vercel Environment Variables.
+- **Serverless Function**: Created a Vercel serverless function (`/api/config`) to securely provide configuration to the application at runtime.
+- **APP_INITIALIZER**: Implemented an `APP_INITIALIZER` to ensure that the runtime configuration is loaded before the application starts.
+- **Local Development**: Added support for a `.env.local` file for local development, which is excluded from version control.
+
 ### Added
 - **Homepage**: Created a new homepage to serve as a landing page for the application.
 - **Features Section**: Added a "Key Features" section to the homepage to highlight application capabilities.

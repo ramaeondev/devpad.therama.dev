@@ -4,7 +4,7 @@ import { AuthStateService } from './auth-state.service';
 import { ToastService } from './toast.service';
 import { LoadingService } from './loading.service';
 import { Integration, GoogleDriveFile, GoogleDriveFolder } from '../models/integration.model';
-import { environment } from '../../../environments/environment';
+import { ConfigService } from './config.service';
 
 declare const google: any;
 
@@ -14,6 +14,7 @@ export class GoogleDriveService {
   private auth = inject(AuthStateService);
   private toast = inject(ToastService);
   private loading = inject(LoadingService);
+  private configService = inject(ConfigService);
 
   // State
   isConnected = signal(false);
@@ -28,6 +29,12 @@ export class GoogleDriveService {
   ].join(' ');
 
   private tokenRefreshTimer?: number;
+
+  constructor() {
+    if (!this.configService.config()) {
+      throw new Error('Configuration not loaded! Cannot initialize GoogleDriveService.');
+    }
+  }
 
   /**
    * Initialize Google Drive OAuth
@@ -55,9 +62,13 @@ export class GoogleDriveService {
   async connect(): Promise<void> {
     try {
       await this.initGoogleAuth();
+      const config = this.configService.config();
+      if (!config) {
+        throw new Error('Configuration not loaded!');
+      }
 
       const tokenClient = google.accounts.oauth2.initTokenClient({
-        client_id: environment.google.clientId,
+        client_id: config.google.clientId,
         scope: this.SCOPES,
         callback: async (response: any) => {
           if (response.error) {
@@ -609,8 +620,12 @@ export class GoogleDriveService {
       // Need to re-authenticate the user
       await this.initGoogleAuth();
 
+      const config = this.configService.config();
+      if (!config) {
+        throw new Error('Configuration not loaded!');
+      }
       const tokenClient = google.accounts.oauth2.initTokenClient({
-        client_id: environment.google.clientId,
+        client_id: config.google.clientId,
         scope: this.SCOPES,
         prompt: '', // Use empty prompt for silent refresh
         callback: async (response: any) => {

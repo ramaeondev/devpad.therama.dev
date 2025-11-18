@@ -5,7 +5,7 @@ import { AuthStateService } from './auth-state.service';
 import { ToastService } from './toast.service';
 import { LoadingService } from './loading.service';
 import { Integration, OneDriveFile, OneDriveFolder } from '../models/integration.model';
-import { environment } from '../../../environments/environment';
+import { ConfigService } from './config.service';
 
 @Injectable({ providedIn: 'root' })
 export class OneDriveService {
@@ -14,6 +14,7 @@ export class OneDriveService {
   private auth = inject(AuthStateService);
   private toast = inject(ToastService);
   private loading = inject(LoadingService);
+  private configService = inject(ConfigService);
 
   // State
   isConnected = signal(false);
@@ -26,6 +27,12 @@ export class OneDriveService {
   private readonly GRAPH_API = 'https://graph.microsoft.com/v1.0';
   
   private tokenRefreshTimer?: number;
+
+  constructor() {
+    if (!this.configService.config()) {
+      throw new Error('Configuration not loaded! Cannot initialize OneDriveService.');
+    }
+  }
 
   /**
    * Connect OneDrive using OAuth 2.0 Implicit Flow
@@ -63,10 +70,14 @@ export class OneDriveService {
    * Build OAuth authorization URL
    */
   private buildAuthUrl(): string {
+    const config = this.configService.config();
+    if (!config) {
+      throw new Error('Configuration not loaded!');
+    }
     const params = new URLSearchParams({
-      client_id: environment.microsoft.clientId,
+      client_id: config.microsoft.clientId,
       response_type: 'token',
-      redirect_uri: environment.microsoft.redirectUri + '/auth/callback/onedrive',
+      redirect_uri: config.microsoft.redirectUri + '/auth/callback/onedrive',
       scope: this.SCOPES,
       response_mode: 'fragment',
     });

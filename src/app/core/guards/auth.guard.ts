@@ -1,14 +1,17 @@
-import { inject } from '@angular/core';
+import { inject, Injector } from '@angular/core';
 import { Router, CanActivateFn } from '@angular/router';
 import { SupabaseService } from '../services/supabase.service';
 import { AuthStateService } from '../services/auth-state.service';
 import { FolderService } from '../../features/folders/services/folder.service';
 
 export const authGuard: CanActivateFn = async (_route, state) => {
-  const supabase = inject(SupabaseService);
+  const injector = inject(Injector);
   const authState = inject(AuthStateService);
-  const folderService = inject(FolderService);
   const router = inject(Router);
+
+  // Lazily inject services to avoid circular dependencies with APP_INITIALIZER
+  const supabase = injector.get(SupabaseService);
+  const folderService = injector.get(FolderService);
 
   const { session } = await supabase.getSession();
 
