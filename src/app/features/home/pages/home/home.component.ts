@@ -37,6 +37,10 @@ import { IconComponent } from '../../../../shared/components/ui/icon/icon.compon
                 <p class="mx-auto max-w-[700px] text-gray-500 md:text-xl dark:text-gray-400">
                   DevPad is a modern note-taking application built with Angular, Tailwind CSS, and Supabase. It offers a clean, intuitive interface for capturing your ideas.
                 </p>
+                <p class="mt-2 text-sm text-gray-600 dark:text-gray-400">
+                  DevPad is an open source project — view the source on
+                  <a href="https://github.com/ramaeondev/devpad.therama.dev" target="_blank" rel="noopener noreferrer" class="font-medium text-primary-600 dark:text-primary-400 hover:underline">GitHub</a>.
+                </p>
               </div>
               <div class="space-x-4">
                 <a
