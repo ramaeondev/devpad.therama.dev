@@ -14,7 +14,7 @@ import { LogoComponent } from '../../../../shared/components/ui/logo/logo.compon
         <div class="text-center mb-12">
            <app-logo></app-logo>
           <h1 class="text-3xl font-bold text-gray-900 dark:text-white mb-2">Privacy Policy</h1>
-          <p class="text-gray-600 dark:text-gray-400">Last Updated: November 17, 2025</p>
+          <p class="text-gray-600 dark:text-gray-400">Last Updated: November 18, 2025</p>
         </div>
 
         <!-- Content -->
@@ -122,7 +122,7 @@ import { LogoComponent } from '../../../../shared/components/ui/logo/logo.compon
               <li><strong>With your consent:</strong> When you explicitly authorize data sharing</li>
               <li><strong>Service providers:</strong> Third-party services that help us operate (e.g., Supabase for hosting, Vercel for deployment)</li>
               <li><strong>Legal requirements:</strong> When required by law, court order, or governmental request</li>
-              <li><strong>Security and fraud prevention:</strong> To protect against harm to our rights, property, or safety</li>
+              <li><strong>Security and fraud prevention:</strong> To protect against our rights, property, or safety</li>
             </ul>
           </section>
 
@@ -139,11 +139,66 @@ import { LogoComponent } from '../../../../shared/components/ui/logo/logo.compon
             </ul>
           </section>
 
+          <!-- Google User Data -->
+          <section>
+            <h2 class="text-2xl font-semibold text-gray-900 dark:text-white mb-4">6. Google User Data and Limited Use Policy</h2>
+            <div class="bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg p-4 mb-6">
+              <p class="text-sm text-yellow-900 dark:text-yellow-200">
+                DevPad's use and transfer to any other app of information received from Google APIs will adhere to the 
+                <a href="https://developers.google.com/terms/api-services-user-data-policy#limited-use-policy" target="_blank" rel="noopener noreferrer" class="font-semibold hover:underline">Google API Services User Data Policy</a>, 
+                including the Limited Use requirements.
+              </p>
+            </div>
+            
+            <h3 class="text-xl font-medium text-gray-900 dark:text-white mb-3 mt-6">6.1 Data Accessed from Google</h3>
+            <p class="text-gray-700 dark:text-gray-300 leading-relaxed mb-3">
+              When you connect your Google Drive account, DevPad requests access to the following data:
+            </p>
+            <ul class="list-disc list-inside text-gray-700 dark:text-gray-300 space-y-2 ml-4">
+              <li><strong>Google Drive files and folders:</strong> We request permission to view, edit, create, and delete files you have opened or created with DevPad. We do not access any other files.</li>
+              <li><strong>User profile information:</strong> We access your email address to identify your Google account.</li>
+            </ul>
+
+            <h3 class="text-xl font-medium text-gray-900 dark:text-white mb-3 mt-6">6.2 How We Use Google Data</h3>
+            <p class="text-gray-700 dark:text-gray-300 leading-relaxed mb-3">
+              We use your Google data solely to provide and improve the Google Drive integration feature. Specifically, we use it to:
+            </p>
+            <ul class="list-disc list-inside text-gray-700 dark:text-gray-300 space-y-2 ml-4">
+              <li>Allow you to browse, open, and edit your notes stored in Google Drive.</li>
+              <li>Save new notes and changes to existing notes directly to your Google Drive.</li>
+              <li>Display file and folder names within the DevPad interface.</li>
+            </ul>
+            <p class="text-gray-700 dark:text-gray-300 leading-relaxed mt-3">
+              Your Google data is never used for advertising, analytics, or any purpose other than the core functionality of the integration.
+            </p>
+
+            <h3 class="text-xl font-medium text-gray-900 dark:text-white mb-3 mt-6">6.3 Data Sharing with Third Parties</h3>
+            <p class="text-gray-700 dark:text-gray-300 leading-relaxed">
+              We do not share your Google user data with any third parties, other than as required to interact with Google's own APIs to provide the service.
+            </p>
+
+            <h3 class="text-xl font-medium text-gray-900 dark:text-white mb-3 mt-6">6.4 Data Storage and Protection</h3>
+            <p class="text-gray-700 dark:text-gray-300 leading-relaxed mb-3">
+              We do not store your Google Drive files on our servers. The only Google-related data we store is:
+            </p>
+            <ul class="list-disc list-inside text-gray-700 dark:text-gray-300 space-y-2 ml-4">
+              <li>An encrypted OAuth 2.0 access token, which is required to maintain the connection to your Google Drive account.</li>
+            </ul>
+            <p class="text-gray-700 dark:text-gray-300 leading-relaxed mt-3">
+              This token is stored securely and is only used for the authorized operations you perform.
+            </p>
+
+            <h3 class="text-xl font-medium text-gray-900 dark:text-white mb-3 mt-6">6.5 Data Retention and Deletion</h3>
+            <p class="text-gray-700 dark:text-gray-300 leading-relaxed">
+              You can disconnect your Google Drive account from DevPad at any time through the application's settings. Disconnecting will immediately delete the stored access token from our database. For complete deletion of all your data, please refer to Section 7.2.
+            </p>
+          </section>
+
           <!-- Your Rights -->
           <section>
-            <h2 class="text-2xl font-semibold text-gray-900 dark:text-white mb-4">6. Your Rights and Choices</h2>
+            <h2 class="text-2xl font-semibold text-gray-900 dark:text-white mb-4">7. Your Rights and Choices</h2>
             
-            <h3 class="text-xl font-medium text-gray-900 dark:text-white mb-3 mt-4">6.1 Access and Control</h3>
+            <h3 class="text-xl font-medium text-gray-900 dark:text-white mb-3 mt-4">7.1 Access and Control</h3>
             <p class="text-gray-700 dark:text-gray-300 leading-relaxed mb-3">You have the right to:</p>
             <ul class="list-disc list-inside text-gray-700 dark:text-gray-300 space-y-2 ml-4">
               <li>Access your personal information</li>
@@ -153,7 +208,7 @@ import { LogoComponent } from '../../../../shared/components/ui/logo/logo.compon
               <li>Disconnect cloud storage integrations at any time</li>
             </ul>
 
-            <h3 class="text-xl font-medium text-gray-900 dark:text-white mb-3 mt-6">6.2 Data Retention</h3>
+            <h3 class="text-xl font-medium text-gray-900 dark:text-white mb-3 mt-6">7.2 Data Retention and Deletion</h3>
             <p class="text-gray-700 dark:text-gray-300 leading-relaxed mb-3">
               We retain your data as long as your account is active. Upon account deletion:
             </p>
@@ -162,11 +217,14 @@ import { LogoComponent } from '../../../../shared/components/ui/logo/logo.compon
               <li>Backups are purged according to our retention schedule (90 days)</li>
               <li>Some data may be retained for legal or security purposes as required by law</li>
             </ul>
+             <p class="text-gray-700 dark:text-gray-300 leading-relaxed mt-3">
+              You can delete your account from the settings page within the application or by contacting us at the email address provided in Section 12.
+            </p>
           </section>
 
           <!-- Cookies -->
           <section>
-            <h2 class="text-2xl font-semibold text-gray-900 dark:text-white mb-4">7. Cookies and Tracking</h2>
+            <h2 class="text-2xl font-semibold text-gray-900 dark:text-white mb-4">8. Cookies and Tracking</h2>
             <p class="text-gray-700 dark:text-gray-300 leading-relaxed mb-3">
               DevPad uses minimal cookies and local storage for:
             </p>
@@ -182,7 +240,7 @@ import { LogoComponent } from '../../../../shared/components/ui/logo/logo.compon
 
           <!-- Children's Privacy -->
           <section>
-            <h2 class="text-2xl font-semibold text-gray-900 dark:text-white mb-4">8. Children's Privacy</h2>
+            <h2 class="text-2xl font-semibold text-gray-900 dark:text-white mb-4">9. Children's Privacy</h2>
             <p class="text-gray-700 dark:text-gray-300 leading-relaxed">
               DevPad is not intended for children under 13 years of age. We do not knowingly collect personal information from children. 
               If you believe we have collected information from a child, please contact us immediately.
@@ -191,7 +249,7 @@ import { LogoComponent } from '../../../../shared/components/ui/logo/logo.compon
 
           <!-- International Transfers -->
           <section>
-            <h2 class="text-2xl font-semibold text-gray-900 dark:text-white mb-4">9. International Data Transfers</h2>
+            <h2 class="text-2xl font-semibold text-gray-900 dark:text-white mb-4">10. International Data Transfers</h2>
             <p class="text-gray-700 dark:text-gray-300 leading-relaxed">
               Your data may be transferred to and processed in countries other than your own. We ensure appropriate safeguards are in place 
               to protect your information in accordance with this Privacy Policy.
@@ -200,7 +258,7 @@ import { LogoComponent } from '../../../../shared/components/ui/logo/logo.compon
 
           <!-- Changes -->
           <section>
-            <h2 class="text-2xl font-semibold text-gray-900 dark:text-white mb-4">10. Changes to This Privacy Policy</h2>
+            <h2 class="text-2xl font-semibold text-gray-900 dark:text-white mb-4">11. Changes to This Privacy Policy</h2>
             <p class="text-gray-700 dark:text-gray-300 leading-relaxed mb-3">
               We may update this Privacy Policy from time to time. We will notify you of significant changes by:
             </p>
@@ -213,7 +271,7 @@ import { LogoComponent } from '../../../../shared/components/ui/logo/logo.compon
 
           <!-- Contact -->
           <section>
-            <h2 class="text-2xl font-semibold text-gray-900 dark:text-white mb-4">11. Contact Us</h2>
+            <h2 class="text-2xl font-semibold text-gray-900 dark:text-white mb-4">12. Contact Us</h2>
             <p class="text-gray-700 dark:text-gray-300 leading-relaxed mb-3">
               If you have questions or concerns about this Privacy Policy or our data practices, please contact us:
             </p>
@@ -229,7 +287,7 @@ import { LogoComponent } from '../../../../shared/components/ui/logo/logo.compon
 
           <!-- Consent -->
           <section>
-            <h2 class="text-2xl font-semibold text-gray-900 dark:text-white mb-4">12. Your Consent</h2>
+            <h2 class="text-2xl font-semibold text-gray-900 dark:text-white mb-4">13. Your Consent</h2>
             <p class="text-gray-700 dark:text-gray-300 leading-relaxed">
               By using DevPad, you consent to this Privacy Policy and agree to its terms. If you do not agree, please do not use our services.
             </p>
