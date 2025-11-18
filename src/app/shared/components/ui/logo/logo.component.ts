@@ -6,10 +6,14 @@ import { CommonModule } from '@angular/common';
   standalone: true,
   imports: [CommonModule],
   template: `
-    <span *ngFor="let letter of letters" [class.hidden]="!letter.visible">
+  @for(letter of letters ; track i; let i= $index){
+    <span [class.hidden]="!letter.visible">
       {{ letter.char }}
     </span>
-    <span *ngIf="showCursor" class="animate-blink">|</span>
+    }
+    @if(showCursor){
+    <span class="animate-blink">|</span>
+    }
   `,
   styles: [
     `
