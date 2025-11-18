@@ -24,6 +24,7 @@ DevPad is a modern note-taking application built with Angular 18+ (standalone co
 - Use @if and @for directives in templates for conditional rendering and loops
 - Use DestroyRef for automatic unsubscription in components
 - Use takeuntilDestroyed for observables in components
+- Create separate html and css files for larger components
 
 ### File Structure
 - Components: `<name>.component.ts` (inline templates/styles for small components)
