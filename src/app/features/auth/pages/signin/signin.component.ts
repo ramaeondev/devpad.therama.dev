@@ -3,9 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { SupabaseService } from '../../../../core/services/supabase.service';
-import { AuthStateService } from '../../../../core/services/auth-state.service';
 import { ToastService } from '../../../../core/services/toast.service';
-import { FolderService } from '../../../folders/services/folder.service';
 import { LogoComponent } from '../../../../shared/components/ui/logo/logo.component';
 
 @Component({
@@ -113,9 +111,7 @@ export class SigninComponent {
   private fb = inject(FormBuilder);
   private router = inject(Router);
   private supabase = inject(SupabaseService);
-  private authState = inject(AuthStateService);
   private toast = inject(ToastService);
-  private folderService = inject(FolderService);
 
   loading = signal(false);
   errorMessage = signal('');
@@ -134,27 +130,16 @@ export class SigninComponent {
     const { email, password } = this.signinForm.getRawValue();
 
     try {
-      const { data, error } = await this.supabase.auth.signInWithPassword({
+      const { error } = await this.supabase.auth.signInWithPassword({
         email,
         password,
       });
 
       if (error) throw error;
 
-      if (data.user) {
-        this.authState.setUser(data.user);
-
-        // Initialize root folder for first-time users
-        try {
-          await this.folderService.initializeUserFolders(data.user.id);
-        } catch (folderError) {
-          console.error('Error initializing folders:', folderError);
-          // Don't block sign-in if folder initialization fails
-        }
-
-        this.toast.success('Welcome back!');
-        this.router.navigate(['/dashboard']);
-      }
+      // Auth guard will handle setting user state and folder initialization
+      this.toast.success('Welcome back!');
+      this.router.navigate(['/dashboard']);
     } catch (error: any) {
       this.errorMessage.set(error.message || 'Failed to sign in');
       this.toast.error('Failed to sign in');
