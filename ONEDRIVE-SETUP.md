@@ -38,19 +38,64 @@ This guide walks you through setting up OneDrive OAuth integration for DevPad.
 ## Step 3: Configure Authentication
 
 1. Click "Authentication" in the left sidebar
-2. Under "Implicit grant and hybrid flows":
+2. Under "Platform configurations", click "Add a platform" if not already added, select "Single-page application"
+3. Add **BOTH** redirect URIs (must match exactly - no trailing slashes):
+   - Production: `https://devpad.therama.dev/auth/callback/onedrive`
+   - Development: `http://localhost:4200/auth/callback/onedrive`
+   
+   **Important**: The URIs must match EXACTLY what your app sends. Azure is case-sensitive and checks for exact matches including the path.
+
+4. Under "Front-channel logout URL", add (this is for Azure AD to notify your app during sign-out):
+   - Production: `https://devpad.therama.dev/auth/logout`
+   - Development: `http://localhost:4200/auth/logout`
+   
+5. Under "Implicit grant and hybrid flows":
    - ✅ Check "Access tokens (used for implicit flows)"
    - ✅ Check "ID tokens (used for implicit and hybrid flows)"
-3. Under "Allow public client flows": Select "No"
-4. Click "Save"
+   
+6. Under "Allow public client flows": Select "No"
+7. Click "Save" at the bottom
 
-## Step 4: Get Application (Client) ID
+**⚠️ Common Mistakes:**
+- Adding trailing slash: `https://devpad.therama.dev/auth/callback/onedrive/` ❌
+- Wrong protocol: `http://devpad.therama.dev/auth/callback/onedrive` ❌  
+- Wrong path: `https://devpad.therama.dev/callback/onedrive` ❌
+- Correct format: `https://devpad.therama.dev/auth/callback/onedrive` ✅
+
+## Step 4: Verify Publisher (Recommended)
+
+**Note**: Becoming a verified publisher increases customer trust and removes the "unverified" warning during OAuth consent.
+
+### Option 1: Domain Ownership Verification (Recommended for Web Apps)
+
+1. In your app registration, go to "Branding & properties"
+2. Click "Add a verified domain" or "Configure publisher verification"
+3. Enter your domain: `devpad.therama.dev`
+4. Azure will provide a JSON file to host at: `https://devpad.therama.dev/.well-known/microsoft-identity-association.json`
+5. The file is already created in your project at: `public/.well-known/microsoft-identity-association.json`
+6. Deploy your app (the file will be publicly accessible)
+7. Return to Azure Portal and click "Verify and save domain"
+8. Azure will check the file and verify your domain ownership
+
+**Service Management Reference**: This field references application context information from a Service or Asset Management database (if applicable to your organization).
+
+### Option 2: Microsoft Partner Network (MPN) Verification
+
+1. Create or link a Microsoft Partner Network (MPN) account
+2. Follow the verification wizard in Azure Portal
+3. This option is typically for larger organizations or ISVs
+
+For more details: [Publisher Verification Documentation](https://docs.microsoft.com/en-us/azure/active-directory/develop/publisher-verification-overview)
+
+**If you skip verification**: Users will see "Unverified" during consent, which is acceptable for personal/development apps.
+
+## Step 5: Get Application (Client) ID
 
 1. In your app registration, go to "Overview"
 2. Copy the "Application (client) ID" (looks like: `12345678-1234-1234-1234-123456789abc`)
 3. Keep this ID safe - you'll need it for configuration
 
-## Step 5: Configure DevPad
+## Step 6: Configure DevPad
 
 ### Development Environment
 
@@ -96,7 +141,7 @@ export const environment = {
 };
 ```
 
-## Step 6: Verify Supabase Database
+## Step 7: Verify Supabase Database
 
 The `integrations` table should already exist from the Google Drive setup. If not, run `supabase-integrations.sql` in Supabase SQL Editor.
 
@@ -105,7 +150,7 @@ The table already supports OneDrive with:
 - Same token storage structure
 - Row Level Security policies
 
-## Step 7: Test the Integration
+## Step 8: Test the Integration
 
 1. Start your development server: `npm start`
 2. Open the app in your browser
