@@ -4,17 +4,21 @@ import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { SupabaseService } from '../../../../core/services/supabase.service';
 import { ToastService } from '../../../../core/services/toast.service';
+import { LogoComponent } from '../../../../shared/components/ui/logo/logo.component';
 
 @Component({
   selector: 'app-forgot-password',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, RouterLink],
+  imports: [CommonModule, ReactiveFormsModule, RouterLink, LogoComponent],
   template: `
     <div
       class="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900 py-12 px-4"
     >
       <div class="max-w-md w-full space-y-8">
         <div class="text-center">
+          <div class="flex justify-center mb-4">
+            <app-logo></app-logo>
+          </div>
           <h2 class="text-3xl font-bold text-gray-900 dark:text-white">Forgot password?</h2>
           <p class="mt-2 text-sm text-gray-600 dark:text-gray-400">
             Enter your email and we'll send you a reset link
