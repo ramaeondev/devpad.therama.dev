@@ -2,7 +2,7 @@ import { Routes } from '@angular/router';
 
 export const legalRoutes: Routes = [
   {
-    path: 'privacy',
+    path: 'policy',
     loadComponent: () =>
       import('./pages/privacy/privacy.component').then((m) => m.PrivacyComponent),
     title: 'Privacy Policy - DevPad',

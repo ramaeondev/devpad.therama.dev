@@ -4,6 +4,20 @@ All notable changes to this project are documented in this file.
 
 ## [Unreleased] - 2025-11-18
 
+### Added
+- **Homepage**: Created a new homepage to serve as a landing page for the application.
+- **Features Section**: Added a "Key Features" section to the homepage to highlight application capabilities.
+- **Google User Data Policy**: Added a new section to the privacy policy to comply with Google's API Services User Data Policy.
+
+### Changed
+- **Routing**: Updated application routing to direct root URL to the new homepage.
+- **Branding**: Replaced the default SVG with the `app-logo` component for consistent branding on the homepage.
+- **Privacy Policy Path**: The privacy policy is now accessible at `/policy`.
+- **UI**: Added a GitHub repository link with an icon in the homepage header.
+
+### Fixed
+- **Google OAuth Compliance**: Addressed issues from the Google OAuth verification team by providing a homepage with a privacy policy link and updating the privacy policy content.
+
 ### Changed
 - **Iconography Overhaul**: Replaced all custom SVG icons with Google Material Icons for a consistent and modern UI.
   - Refactored the `IconComponent` to dynamically render Material Icons.
