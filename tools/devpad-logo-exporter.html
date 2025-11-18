@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DevPad Logo PNG Exporter</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 40px 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+        
+        h1 {
+            color: #1e293b;
+            margin-bottom: 10px;
+            font-size: 32px;
+        }
+        
+        .subtitle {
+            color: #64748b;
+            margin-bottom: 30px;
+            font-size: 16px;
+        }
+        
+        .preview {
+            background: repeating-conic-gradient(#e2e8f0 0% 25%, white 0% 50%) 50% / 20px 20px;
+            border-radius: 12px;
+            padding: 40px;
+            margin-bottom: 30px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            border: 2px solid #e2e8f0;
+        }
+        
+        #logoPreview {
+            max-width: 100%;
+            height: auto;
+        }
+        
+        .sizes-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+        
+        .size-card {
+            background: #f8fafc;
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 20px;
+            text-align: center;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        
+        .size-card:hover {
+            border-color: #667eea;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.2);
+        }
+        
+        .size-name {
+            font-weight: 600;
+            color: #1e293b;
+            margin-bottom: 8px;
+            font-size: 16px;
+        }
+        
+        .size-dimensions {
+            color: #64748b;
+            font-size: 14px;
+            margin-bottom: 15px;
+        }
+        
+        .download-btn {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            width: 100%;
+        }
+        
+        .download-btn:hover {
+            background: #5568d3;
+            transform: scale(1.05);
+        }
+        
+        .download-all {
+            background: #1e293b;
+            color: white;
+            border: none;
+            padding: 16px 32px;
+            border-radius: 12px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            width: 100%;
+            transition: all 0.3s ease;
+        }
+        
+        .download-all:hover {
+            background: #334155;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+        }
+        
+        .info {
+            background: #eff6ff;
+            border-left: 4px solid #667eea;
+            padding: 16px;
+            border-radius: 8px;
+            margin-top: 30px;
+            color: #1e293b;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎨 DevPad Logo Exporter</h1>
+        <p class="subtitle">Export your logo in all required dimensions with transparent backgrounds</p>
+        
+        <div class="preview">
+            <svg id="logoPreview" width="300" height="90" viewBox="0 0 400 120" xmlns="http://www.w3.org/2000/svg">
+                <g transform="translate(20, 30)">
+                    <path d="M 15 5 L 5 20 L 15 35" 
+                          stroke="#1e293b" 
+                          stroke-width="4" 
+                          fill="none" 
+                          stroke-linecap="round" 
+                          stroke-linejoin="round"/>
+                    <path d="M 25 5 L 35 20 L 25 35" 
+                          stroke="#1e293b" 
+                          stroke-width="4" 
+                          fill="none" 
+                          stroke-linecap="round" 
+                          stroke-linejoin="round"/>
+                </g>
+                <text x="60" y="65" 
+                      font-family="'Inter', 'SF Pro Display', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif" 
+                      font-size="48" 
+                      font-weight="700" 
+                      fill="#1e293b">
+                    DevPad
+                </text>
+            </svg>
+        </div>
+        
+        <div class="sizes-grid" id="sizesGrid"></div>
+        
+        <button class="download-all" onclick="downloadAll()">⬇️ Download All Sizes (ZIP)</button>
+        
+        <div class="info">
+            <strong>📦 Included Sizes:</strong><br>
+            • App Icons: 16x16 to 1024x1024<br>
+            • Web: Favicon, Open Graph, Twitter Card<br>
+            • Marketing: Hero banners and promotional sizes<br>
+            All exports include transparent backgrounds and are optimized for their use case.
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    <script>
+        const sizes = [
+            { name: "Favicon", width: 32, height: 32 },
+            { name: "Small Icon", width: 64, height: 64 },
+            { name: "App Icon", width: 128, height: 128 },
+            { name: "Medium Icon", width: 256, height: 256 },
+            { name: "Large Icon", width: 512, height: 512 },
+            { name: "Extra Large", width: 1024, height: 1024 },
+            { name: "Web Header", width: 1200, height: 400 },
+            { name: "Banner", width: 1920, height: 600 },
+            { name: "Social Media", width: 1200, height: 630 },
+            { name: "Twitter Card", width: 800, height: 418 },
+            { name: "Wide Logo", width: 600, height: 200 },
+            { name: "Standard", width: 400, height: 120 }
+        ];
+
+        function createSizeCards() {
+            const grid = document.getElementById('sizesGrid');
+            sizes.forEach(size => {
+                const card = document.createElement('div');
+                card.className = 'size-card';
+                card.innerHTML = `
+                    <div class="size-name">${size.name}</div>
+                    <div class="size-dimensions">${size.width} × ${size.height}px</div>
+                    <button class="download-btn" onclick="downloadSize(${size.width}, ${size.height}, '${size.name}')">
+                        Download PNG
+                    </button>
+                `;
+                grid.appendChild(card);
+            });
+        }
+
+        function createCanvas(width, height) {
+            const canvas = document.createElement('canvas');
+            canvas.width = width;
+            canvas.height = height;
+            const ctx = canvas.getContext('2d');
+            
+            // Calculate scaling to fit logo centered
+            const logoAspect = 400 / 120;
+            const canvasAspect = width / height;
+            
+            let drawWidth, drawHeight, x, y;
+            
+            if (canvasAspect > logoAspect) {
+                // Canvas is wider, fit to height
+                drawHeight = height * 0.6;
+                drawWidth = drawHeight * logoAspect;
+                x = (width - drawWidth) / 2;
+                y = (height - drawHeight) / 2;
+            } else {
+                // Canvas is taller, fit to width
+                drawWidth = width * 0.8;
+                drawHeight = drawWidth / logoAspect;
+                x = (width - drawWidth) / 2;
+                y = (height - drawHeight) / 2;
+            }
+            
+            return { canvas, ctx, x, y, drawWidth, drawHeight };
+        }
+
+        function drawLogo(ctx, x, y, width, height) {
+            const scale = width / 400;
+            
+            ctx.save();
+            ctx.translate(x, y);
+            ctx.scale(scale, scale);
+            
+            // Draw brackets
+            ctx.strokeStyle = '#1e293b';
+            ctx.lineWidth = 4;
+            ctx.lineCap = 'round';
+            ctx.lineJoin = 'round';
+            
+            // Left bracket
+            ctx.beginPath();
+            ctx.moveTo(35, 35);
+            ctx.lineTo(25, 50);
+            ctx.lineTo(35, 65);
+            ctx.stroke();
+            
+            // Right bracket
+            ctx.beginPath();
+            ctx.moveTo(45, 35);
+            ctx.lineTo(55, 50);
+            ctx.lineTo(45, 65);
+            ctx.stroke();
+            
+            // Draw text
+            ctx.fillStyle = '#1e293b';
+            ctx.font = `700 ${48}px 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif`;
+            ctx.textBaseline = 'middle';
+            ctx.fillText('DevPad', 60, 65);
+            
+            ctx.restore();
+        }
+
+        function downloadSize(width, height, name) {
+            const { canvas, ctx, x, y, drawWidth, drawHeight } = createCanvas(width, height);
+            drawLogo(ctx, x, y, drawWidth, drawHeight);
+            
+            canvas.toBlob(blob => {
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `devpad-logo-${width}x${height}.png`;
+                a.click();
+                URL.revokeObjectURL(url);
+            });
+        }
+
+        async function downloadAll() {
+            const zip = new JSZip();
+            
+            for (const size of sizes) {
+                const { canvas, ctx, x, y, drawWidth, drawHeight } = createCanvas(size.width, size.height);
+                drawLogo(ctx, x, y, drawWidth, drawHeight);
+                
+                const blob = await new Promise(resolve => canvas.toBlob(resolve));
+                zip.file(`devpad-logo-${size.width}x${size.height}.png`, blob);
+            }
+            
+            const content = await zip.generateAsync({ type: 'blob' });
+            const url = URL.createObjectURL(content);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'devpad-logos-all-sizes.zip';
+            a.click();
+            URL.revokeObjectURL(url);
+        }
+
+        createSizeCards();
+    </script>
+</body>
+</html>
