@@ -14,7 +14,7 @@ import { IconComponent } from '../../../../shared/components/ui/icon/icon.compon
         <a class="flex items-center justify-center" routerLink="/">
           <app-logo></app-logo>
         </a>
-        <nav class="ml-auto flex items-center gap-4 sm:gap-6">
+        <!-- <nav class="ml-auto flex items-center gap-4 sm:gap-6">
           <a class="text-sm font-medium hover:underline underline-offset-4" routerLink="/policy">
             Privacy Policy
           </a>
@@ -24,7 +24,13 @@ import { IconComponent } from '../../../../shared/components/ui/icon/icon.compon
           <a href="https://github.com/ramaeondev/devpad.therama.dev" target="_blank" rel="noopener noreferrer" aria-label="GitHub Repository">
             <app-icon name="github" [size]="24"></app-icon>
           </a>
+        </nav> -->
+        <nav class="ml-auto flex items-center gap-4 sm:gap-6">
+          <a href="https://github.com/ramaeondev/devpad.therama.dev" target="_blank" rel="noopener noreferrer" aria-label="GitHub Repository">
+            <app-icon name="github" [size]="24"></app-icon>
+          </a>
         </nav>
+        
       </header>
       <main class="flex-1">
         <section class="w-full py-12 md:py-24 lg:py-32">
