@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="250" height="56" viewBox="0 0 250 56" role="img" aria-label="DevPad logo">
+  <title>&lt;&gt; DevPad</title>
+
+  <!-- Rounded white background filling the entire canvas (no extra empty space) -->
+  <rect x="0" y="0" width="250" height="56" rx="10" ry="10" fill="#ffffff"/>
+
+  <!-- Text positioned with a left padding of 20px and vertically centered -->
+  <text x="20" y="28" font-family="Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif"
+        font-weight="700" font-size="28" fill="#000000" xml:space="preserve" dominant-baseline="middle">
+    &lt;&gt; DevPad
+  </text>
+</svg>
