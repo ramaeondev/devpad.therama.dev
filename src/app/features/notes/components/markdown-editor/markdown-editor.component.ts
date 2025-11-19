@@ -1,4 +1,6 @@
-import { Component, Input, Output, EventEmitter, signal, computed } from '@angular/core';
+import { Component, Input, Output, EventEmitter, signal, computed, inject } from '@angular/core';
+import { SupabaseService } from '../../../../core/services/supabase.service';
+import { ToastService } from '../../../../core/services/toast.service';
 import { CommonModule } from '@angular/common';
 import { marked } from 'marked';
 import { IconComponent } from '../../../../shared/components/ui/icon/icon.component';
@@ -7,151 +9,9 @@ import { IconComponent } from '../../../../shared/components/ui/icon/icon.compon
   selector: 'app-markdown-editor',
   standalone: true,
   imports: [CommonModule, IconComponent],
-  template: `
-    <div class="flex flex-col gap-3 sm:gap-4">
-      <ng-content select="[editor-header]"></ng-content>
-      <!-- Toolbar with horizontal scrolling on mobile -->
-      <div
-        class="flex gap-2 items-center bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-md px-2 sm:px-3 py-2 overflow-x-auto scrollbar-thin"
-      >
-        <button
-          type="button"
-          class="toolbar-btn flex-shrink-0"
-          (click)="wrapSelection('**', '**')"
-          title="Bold"
-        >
-          <app-icon name="format_bold" [size]="20"></app-icon>
-        </button>
-        <button
-          type="button"
-          class="toolbar-btn italic flex-shrink-0"
-          (click)="wrapSelection('*', '*')"
-          title="Italic"
-        >
-          <app-icon name="format_italic" [size]="20"></app-icon>
-        </button>
-        <button
-          type="button"
-          class="toolbar-btn flex-shrink-0"
-          (click)="prependLine('# ')"
-          title="H1"
-        >
-          <app-icon name="looks_one" [size]="20"></app-icon>
-        </button>
-        <button
-          type="button"
-          class="toolbar-btn flex-shrink-0"
-          (click)="prependLine('## ')"
-          title="H2"
-        >
-          <app-icon name="looks_two" [size]="20"></app-icon>
-        </button>
-        <button
-          type="button"
-          class="toolbar-btn flex-shrink-0"
-          (click)="prependLine('### ')"
-          title="H3"
-        >
-          <app-icon name="looks_3" [size]="20"></app-icon>
-        </button>
-        <button
-          type="button"
-          class="toolbar-btn flex-shrink-0"
-          (click)="insertInlineCode()"
-          title="Inline Code"
-        >
-          <app-icon name="code" [size]="20"></app-icon>
-        </button>
-        <button
-          type="button"
-          class="toolbar-btn flex-shrink-0"
-          (click)="insertCodeBlock()"
-          title="Code Block"
-        >
-          <app-icon name="integration_instructions" [size]="20"></app-icon>
-        </button>
-        <button
-          type="button"
-          class="toolbar-btn flex-shrink-0"
-          (click)="prependLine('- ')"
-          title="Bullet List"
-        >
-          <app-icon name="format_list_bulleted" [size]="20"></app-icon>
-        </button>
-        <button type="button" class="toolbar-btn flex-shrink-0" (click)="insertLink()" title="Link">
-          <app-icon name="link" [size]="20"></app-icon>
-        </button>
-        <button
-          type="button"
-          class="toolbar-btn flex-shrink-0"
-          (click)="insertImage()"
-          title="Image"
-        >
-          <app-icon name="image" [size]="20"></app-icon>
-        </button>
-        <div class="flex-1 min-w-[16px]"></div>
-        <button
-          type="button"
-          class="toolbar-btn flex-shrink-0"
-          (click)="togglePreview()"
-          [class.bg-primary-600]="preview()"
-          [class.text-white]="preview()"
-          title="Toggle Preview"
-        >
-          <span class="hidden sm:inline">{{ preview() ? 'Edit' : 'Preview' }}</span>
-          <span class="sm:hidden">
-            @if (preview()) {
-              <app-icon name="edit" [size]="16"></app-icon>
-            } @else {
-              <app-icon name="visibility" [size]="16"></app-icon>
-            }
-          </span>
-        </button>
-      </div>
-      <!-- Editor/Preview area - toggle on mobile, side-by-side on desktop when preview active -->
-      <div class="grid gap-3 sm:gap-4" [class.lg:grid-cols-2]="preview()">
-        <!-- Editor - hidden on mobile when preview active, always shown on desktop -->
-        <div class="flex flex-col" [class.hidden]="preview()" [class.lg:block]="preview()">
-          <textarea
-            #textarea
-            class="flex-1 min-h-[40vh] sm:min-h-[50vh] resize-y w-full font-mono text-xs sm:text-sm bg-white dark:bg-gray-900 border border-gray-300 dark:border-gray-700 rounded-md p-3 sm:p-4 leading-relaxed text-gray-800 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-primary-500 touch-manipulation"
-            [value]="content()"
-            (input)="onInput($event)"
-            (keydown.tab)="handleTab($event)"
-            (scroll)="syncScroll($event)"
-          ></textarea>
-        </div>
-        <!-- Preview - shown when preview active -->
-        @if (preview()) {
-          <div
-            class="prose prose-sm sm:prose dark:prose-invert max-w-none overflow-auto border border-gray-200 dark:border-gray-700 rounded-md bg-white dark:bg-gray-900 p-3 sm:p-4 min-h-[40vh] sm:min-h-[50vh] touch-pan-y"
-            [innerHTML]="rendered()"
-          ></div>
-        }
-      </div>
-    </div>
-  `,
-  styles: [
-    `
-      .toolbar-btn {
-        @apply px-2.5 py-1.5 text-xs sm:text-sm rounded bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-100 hover:bg-gray-200 dark:hover:bg-gray-600 transition touch-manipulation;
-        min-width: 32px;
-        min-height: 32px;
-      }
-      .scrollbar-thin::-webkit-scrollbar {
-        height: 6px;
-      }
-      .scrollbar-thin::-webkit-scrollbar-thumb {
-        @apply bg-gray-300 dark:bg-gray-600 rounded;
-      }
-      textarea::-webkit-scrollbar {
-        width: 8px;
-      }
-      textarea::-webkit-scrollbar-thumb {
-        @apply bg-gray-300 dark:bg-gray-600 rounded;
-      }
-    `,
-  ],
+  templateUrl: './markdown-editor.component.html',
+  styleUrls: ['./markdown-editor.component.scss'],
+
 })
 export class MarkdownEditorComponent {
   private _initial = '';
@@ -165,15 +25,171 @@ export class MarkdownEditorComponent {
     return this._initial;
   }
   @Output() contentChange = new EventEmitter<string>();
+  /** If provided, used to upload pasted images */
+  @Input() userId?: string;
+  /** If provided, used to upload pasted images into a note-specific folder */
+  @Input() noteId?: string;
+  /** Emitted after a pasted image is uploaded. Parent can use this to persist/replace temporary URLs */
+  @Output() imagePasted = new EventEmitter<{ storagePath: string; signedUrl: string; placeholder: string }>();
+  /** Emitted when an image is pasted but noteId is missing; parent should create note and upload the file */
+  @Output() imageUploadRequested = new EventEmitter<{ file: File; placeholderToken: string; placeholderMarkdown: string }>();
+  /** Number of active uploads */
+  uploadingCount = signal(0);
+  /** Mapping from storage path -> signed url */
+  storageUrlMap = signal<Record<string, string>>({});
   private _content = signal('');
   preview = signal(false);
   content = this._content.asReadonly();
+
+  private supabase = inject(SupabaseService);
+  private toast = inject(ToastService);
 
   ngOnInit() {
     this._content.set(this.initialContent);
   }
 
-  rendered = computed(() => marked.parse(this._content()));
+  // Simple uuid generator for filenames
+  private genId() {
+    return `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 9)}`;
+  }
+
+  private async uploadImageFile(file: File): Promise<{ path: string; signedUrl: string } | null> {
+    this.uploadingCount.update((v) => v + 1);
+    try {
+      if (!this.userId || !this.noteId) throw new Error('Missing userId or noteId for upload');
+      // validate size (5MB limit)
+      if (file.size > 5 * 1024 * 1024) {
+        throw new Error('File size exceeds 5MB limit');
+      }
+      const ext = (file.name.split('.').pop() || 'png').toLowerCase();
+      const id = this.genId();
+      const path = `${this.userId}/${this.noteId}/images/${id}.${ext}`;
+      const { error: upErr } = await this.supabase.storage.from('notes').upload(path, file, {
+        upsert: true,
+        contentType: file.type || `image/${ext}`,
+      });
+      if (upErr) {
+        console.error('Upload error', upErr);
+        throw upErr;
+      }
+      // Create a signed URL valid for 1 hour so preview can load immediately
+      const { data: urlData, error: urlErr } = await this.supabase.storage.from('notes').createSignedUrl(path, 3600);
+      if (urlErr || !urlData?.signedUrl) {
+        console.error('Signed URL error', urlErr);
+        throw urlErr || new Error('Failed to create signed URL');
+      }
+      return { path, signedUrl: urlData.signedUrl };
+    } catch (e) {
+      console.error('Image upload failed', e);
+      return null;
+    } finally {
+      this.uploadingCount.update((v) => Math.max(0, v - 1));
+    }
+  }
+
+  async handlePaste(e: ClipboardEvent) {
+    const clipboard = e.clipboardData;
+    if (!clipboard) return;
+    // Find image file in clipboard items
+    const item = Array.from(clipboard.items || []).find((it) => it.type.startsWith('image'));
+    if (!item) return;
+    e.preventDefault();
+    const file = item.getAsFile();
+    if (!file) return;
+
+    // Validate size early and show toast
+    if (file.size > 5 * 1024 * 1024) {
+      this.toast.error('Image is too large. Max size is 5MB.');
+      return;
+    }
+
+    // Insert immediate placeholder so user gets visual feedback
+    const id = this.genId();
+    const placeholderToken = `upload://${id}`;
+    const placeholderMarkdown = `![Uploading image...](${placeholderToken})`;
+    const ta = this.getTextarea();
+    if (!ta) return;
+    const start = ta.selectionStart;
+    const end = ta.selectionEnd;
+    const before = ta.value.substring(0, start);
+    const after = ta.value.substring(end);
+    const withPlaceholder = before + placeholderMarkdown + after;
+    ta.value = withPlaceholder;
+    this._content.set(withPlaceholder);
+    this.contentChange.emit(withPlaceholder);
+    ta.selectionStart = ta.selectionEnd = start + placeholderMarkdown.length;
+    ta.focus();
+
+    // If we don't have a noteId yet, delegate upload to parent (it will create note and upload)
+    if (!this.noteId) {
+      this.imageUploadRequested.emit({ file, placeholderToken, placeholderMarkdown });
+      return;
+    }
+
+    // Begin upload in background and replace placeholder when done
+    try {
+      const result = await this.uploadImageFile(file);
+      if (!result) throw new Error('Upload failed');
+      // Replace placeholder token in the current textarea value
+      const newValue = ta.value.replace(placeholderToken, result.signedUrl);
+      ta.value = newValue;
+      this._content.set(newValue);
+      this.contentChange.emit(newValue);
+      // Emit event with storage path so parent can persist a durable reference
+      this.imagePasted.emit({ storagePath: result.path, signedUrl: result.signedUrl, placeholder: placeholderToken });
+    } catch (err: any) {
+      console.error('handlePaste upload error', err);
+      // Replace placeholder with an error note
+      const errorText = '[Image upload failed]';
+      const newValue = ta.value.replace(placeholderMarkdown, errorText);
+      ta.value = newValue;
+      this._content.set(newValue);
+      this.contentChange.emit(newValue);
+      this.toast.error(err?.message || 'Failed to upload image');
+    }
+  }
+
+  // Public API for parent to replace a placeholder token with a real URL
+  replacePlaceholderToken(token: string, replacement: string) {
+    const ta = this.getTextarea();
+    if (!ta) return;
+    ta.value = ta.value.replace(token, replacement);
+    this._content.set(ta.value);
+    this.contentChange.emit(ta.value);
+  }
+
+  // Resolve storage:// links to signed URLs for preview rendering
+  private async resolveStorageLinks(content: string) {
+    // find storage://notes/<path> occurrences
+    const regex = /storage:\/\/notes\/(\S+)/g;
+    let match: RegExpExecArray | null;
+    const toResolve: string[] = [];
+    while ((match = regex.exec(content)) !== null) {
+      const path = match[1];
+      const map = this.storageUrlMap();
+      if (!map[path]) toResolve.push(path);
+    }
+    if (toResolve.length === 0) return;
+    for (const path of toResolve) {
+      try {
+        const { data, error } = await this.supabase.storage.from('notes').createSignedUrl(path, 3600);
+          if (!error && data?.signedUrl) {
+            this.storageUrlMap.update((prev) => ({ ...prev, [path]: data.signedUrl }));
+          }
+      } catch (e) {
+        console.error('Failed to resolve storage link', path, e);
+      }
+    }
+  }
+
+    rendered = computed(() => {
+      const raw = this._content();
+      // kick off async resolution of any storage:// links (non-blocking)
+      void this.resolveStorageLinks(raw);
+      const map = this.storageUrlMap();
+      const md = raw.replace(/storage:\/\/notes\/(\S+)/g, (_m, p) => map[p] ?? `storage://${p}`);
+      return marked.parse(md);
+    });
 
   onInput(e: Event) {
     const target = e.target as HTMLTextAreaElement;

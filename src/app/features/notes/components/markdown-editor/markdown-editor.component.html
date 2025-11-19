@@ -1,0 +1,71 @@
+<div class="flex flex-col gap-3 sm:gap-4">
+  <ng-content select="[editor-header]"></ng-content>
+  <!-- Toolbar with horizontal scrolling on mobile -->
+  <div
+    class="flex gap-2 items-center bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-md px-2 sm:px-3 py-2 overflow-x-auto scrollbar-thin">
+    <button type="button" class="toolbar-btn flex-shrink-0" (click)="wrapSelection('**', '**')" title="Bold">
+      <app-icon name="format_bold" [size]="20"></app-icon>
+    </button>
+    <button type="button" class="toolbar-btn italic flex-shrink-0" (click)="wrapSelection('*', '*')" title="Italic">
+      <app-icon name="format_italic" [size]="20"></app-icon>
+    </button>
+    <button type="button" class="toolbar-btn flex-shrink-0" (click)="prependLine('# ')" title="H1">
+      <app-icon name="looks_one" [size]="20"></app-icon>
+    </button>
+    <button type="button" class="toolbar-btn flex-shrink-0" (click)="prependLine('## ')" title="H2">
+      <app-icon name="looks_two" [size]="20"></app-icon>
+    </button>
+    <button type="button" class="toolbar-btn flex-shrink-0" (click)="prependLine('### ')" title="H3">
+      <app-icon name="looks_3" [size]="20"></app-icon>
+    </button>
+    <button type="button" class="toolbar-btn flex-shrink-0" (click)="insertInlineCode()" title="Inline Code">
+      <app-icon name="code" [size]="20"></app-icon>
+    </button>
+    <button type="button" class="toolbar-btn flex-shrink-0" (click)="insertCodeBlock()" title="Code Block">
+      <app-icon name="integration_instructions" [size]="20"></app-icon>
+    </button>
+    <button type="button" class="toolbar-btn flex-shrink-0" (click)="prependLine('- ')" title="Bullet List">
+      <app-icon name="format_list_bulleted" [size]="20"></app-icon>
+    </button>
+    <button type="button" class="toolbar-btn flex-shrink-0" (click)="insertLink()" title="Link">
+      <app-icon name="link" [size]="20"></app-icon>
+    </button>
+    <button type="button" class="toolbar-btn flex-shrink-0" (click)="insertImage()" title="Image">
+      <app-icon name="image" [size]="20"></app-icon>
+    </button>
+    <div class="flex-1 min-w-[16px]"></div>
+    <button type="button" class="toolbar-btn flex-shrink-0" (click)="togglePreview()" [class.bg-primary-600]="preview()"
+      [class.text-white]="preview()" title="Toggle Preview">
+      <span class="hidden sm:inline">{{ preview() ? 'Edit' : 'Preview' }}</span>
+      <span class="sm:hidden">
+        @if (preview()) {
+        <app-icon name="edit" [size]="16"></app-icon>
+        } @else {
+        <app-icon name="visibility" [size]="16"></app-icon>
+        }
+      </span>
+    </button>
+  </div>
+  <!-- Editor/Preview area - toggle on mobile, side-by-side on desktop when preview active -->
+  <div class="grid gap-3 sm:gap-4 items-stretch" [class.lg:grid-cols-2]="preview()">
+    <!-- Editor - hidden on mobile when preview active, always shown on desktop -->
+    <div class="flex flex-col h-full relative" [class.hidden]="preview()" [class.lg.block]="preview()">
+      <textarea #textarea
+        class="flex-1 h-full overflow-auto min-h-[40vh] sm:min-h-[50vh] resize-y w-full font-mono text-xs sm:text-sm bg-white dark:bg-gray-900 border border-gray-300 dark:border-gray-700 rounded-md p-3 sm:p-4 leading-relaxed text-gray-800 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-primary-500 touch-manipulation"
+        [value]="content()" (input)="onInput($event)" (keydown.tab)="handleTab($event)"
+        (scroll)="syncScroll($event)" (paste)="handlePaste($event)"></textarea>
+      @if (uploadingCount() > 0) {
+      <div class="absolute top-2 right-2 z-20 flex items-center gap-2 bg-white/90 dark:bg-gray-800/80 rounded px-2 py-1 shadow">
+        <app-icon name="progress_activity" [size]="16" class="animate-spin"></app-icon>
+        <span class="text-sm text-gray-700 dark:text-gray-200">Uploading…</span>
+      </div>
+      }
+    </div>
+    <!-- Preview - shown when preview active -->
+    @if (preview()) {
+    <div
+      class="prose prose-sm sm:prose dark:prose-invert max-w-none overflow-auto h-full border border-gray-200 dark:border-gray-700 rounded-md bg-white dark:bg-gray-900 p-3 sm:p-4 min-h-[40vh] sm:min-h-[50vh] touch-pan-y"
+      [innerHTML]="rendered()"></div>
+    }
+  </div>
+</div>

@@ -1,9 +1,10 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, inject, signal, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { MarkdownEditorComponent } from '../../components/markdown-editor/markdown-editor.component';
 import { DocumentPreviewComponent } from '../../../../shared/components/ui/document-preview/document-preview.component';
 import { NoteService } from '../../../../core/services/note.service';
+import { SupabaseService } from '../../../../core/services/supabase.service';
 import { AuthStateService } from '../../../../core/services/auth-state.service';
 import { ToastService } from '../../../../core/services/toast.service';
 import { WorkspaceStateService } from '../../../../core/services/workspace-state.service';
@@ -54,10 +55,14 @@ import { WorkspaceStateService } from '../../../../core/services/workspace-state
         @if (isDocument()) {
           <app-document-preview [note]="currentNote()"></app-document-preview>
         } @else {
-          <app-markdown-editor
-            [initialContent]="content()"
-            (contentChange)="content.set($event)"
-          ></app-markdown-editor>
+            <app-markdown-editor #mdEditor
+              [initialContent]="content()"
+              [userId]="auth.userId()"
+              [noteId]="noteId()"
+              (contentChange)="content.set($event)"
+              (imagePasted)="onImagePasted($event)"
+              (imageUploadRequested)="onImageUploadRequested($event)"
+            ></app-markdown-editor>
         }
       </div>
     </div>
@@ -70,6 +75,7 @@ export class NoteEditorComponent {
   private auth = inject(AuthStateService);
   private toast = inject(ToastService);
   private workspaceState = inject(WorkspaceStateService);
+  private supabase = inject(SupabaseService);
 
   // state signals
   title = signal('');
@@ -78,6 +84,7 @@ export class NoteEditorComponent {
   noteId = signal<string | null>(null);
   isNew = signal(true);
   currentNote = signal<any>(null);
+  @ViewChild('mdEditor') mdEditor?: MarkdownEditorComponent;
 
   async ngOnInit() {
     const id = this.route.snapshot.paramMap.get('id');
@@ -167,5 +174,94 @@ export class NoteEditorComponent {
   onTitleInput(e: Event) {
     const input = e.target as HTMLInputElement;
     this.title.set(input.value);
+  }
+
+  async onImagePasted(e: { storagePath: string; signedUrl: string; placeholder: string }) {
+    // Replace the temporary signed URL with a persistent storage reference and save the note
+    if (this.isNew()) {
+      this.toast.error('Please save the note before adding images.');
+      return;
+    }
+    if (!this.noteId()) {
+      this.toast.error('Note ID missing');
+      return;
+    }
+    const userId = this.auth.userId();
+    try {
+      const storageRef = `storage://notes/${e.storagePath}`;
+      const updatedContent = this.content().replace(e.signedUrl, storageRef);
+      this.content.set(updatedContent);
+      // Persist the updated content to the note
+      await this.noteService.updateNote(this.noteId()!, userId, { content: updatedContent });
+      this.toast.success('Image saved');
+    } catch (err: any) {
+      console.error('Failed to persist pasted image', err);
+      this.toast.error('Failed to save image to note');
+    }
+  }
+
+  async onImageUploadRequested(e: { file: File; placeholderToken: string; placeholderMarkdown: string }) {
+    const userId = this.auth.userId();
+    if (!userId) {
+      this.toast.error('User not authenticated');
+      return;
+    }
+
+    // If this is a new note, create it first using current title/content (which already contains placeholder)
+    try {
+      if (this.isNew()) {
+        const created = await this.noteService.createNote(userId, {
+          title: (this.title() || 'Untitled').trim(),
+          content: this.content(),
+          folder_id: null,
+        });
+        this.toast.success('Note created');
+        try {
+          this.workspaceState.emitNoteCreated(created);
+          this.workspaceState.emitFoldersChanged();
+        } catch (err) {}
+        this.isNew.set(false);
+        this.noteId.set(created.id);
+        // navigate to edit route
+        this.router.navigate(['/notes', created.id, 'edit']);
+      }
+
+      if (!this.noteId()) {
+        this.toast.error('Note ID unavailable');
+        return;
+      }
+
+      // Upload the file to storage under notes bucket
+      const file = e.file;
+      const ext = (file.name.split('.').pop() || 'png').toLowerCase();
+      const id = `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 9)}`;
+      const path = `${userId}/${this.noteId()}/images/${id}.${ext}`;
+      const { error: upErr } = await this.supabase.storage.from('notes').upload(path, file, {
+        upsert: true,
+        contentType: file.type || `image/${ext}`,
+      });
+      if (upErr) throw upErr;
+
+      // Create signed URL for immediate preview
+      const { data: urlData, error: urlErr } = await this.supabase.storage.from('notes').createSignedUrl(path, 3600);
+      if (urlErr || !urlData?.signedUrl) throw urlErr || new Error('Failed to create signed URL');
+
+      // Replace placeholder in editor with signed URL for immediate preview
+      this.mdEditor?.replacePlaceholderToken(e.placeholderToken, urlData.signedUrl);
+
+      // Persist note content by replacing signed URL with storage:// reference and saving
+      const storageRef = `storage://notes/${path}`;
+      const updatedContent = this.content().replace(urlData.signedUrl, storageRef);
+      this.content.set(updatedContent);
+      // Also update editor textarea to show storage ref instead of the expiring signed URL
+      this.mdEditor?.replacePlaceholderToken(urlData.signedUrl, storageRef);
+      await this.noteService.updateNote(this.noteId()!, userId, { content: updatedContent });
+      this.toast.success('Image saved');
+    } catch (err: any) {
+      console.error('Image upload requested failed', err);
+      this.toast.error(err?.message || 'Failed to upload pasted image');
+      // Replace placeholder with error text in editor
+      this.mdEditor?.replacePlaceholderToken(e.placeholderToken, '[Image upload failed]');
+    }
   }
 }

@@ -1,0 +1,21 @@
+ .toolbar-btn {
+   @apply px-2.5 py-1.5 text-xs sm:text-sm rounded bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-100 hover:bg-gray-200 dark:hover:bg-gray-600 transition touch-manipulation;
+   min-width: 32px;
+   min-height: 32px;
+ }
+
+ .scrollbar-thin::-webkit-scrollbar {
+   height: 6px;
+ }
+
+ .scrollbar-thin::-webkit-scrollbar-thumb {
+   @apply bg-gray-300 dark:bg-gray-600 rounded;
+ }
+
+ textarea::-webkit-scrollbar {
+   width: 8px;
+ }
+
+ textarea::-webkit-scrollbar-thumb {
+   @apply bg-gray-300 dark:bg-gray-600 rounded;
+ }
