@@ -1,4 +1,4 @@
-import { Component, Input, Output, EventEmitter, signal, computed, inject } from '@angular/core';
+import { Component, Input, Output, EventEmitter, signal, computed, inject, ViewChild, ElementRef } from '@angular/core';
 import { SupabaseService } from '../../../../core/services/supabase.service';
 import { ToastService } from '../../../../core/services/toast.service';
 import { CommonModule } from '@angular/common';
@@ -28,7 +28,14 @@ export class MarkdownEditorComponent {
   /** If provided, used to upload pasted images */
   @Input() userId?: string;
   /** If provided, used to upload pasted images into a note-specific folder */
-  @Input() noteId?: string;
+  private _noteId?: string;
+  @Input()
+  set noteId(val: string | undefined) {
+    this._noteId = val;
+  }
+  get noteId() {
+    return this._noteId;
+  }
   /** Emitted after a pasted image is uploaded. Parent can use this to persist/replace temporary URLs */
   @Output() imagePasted = new EventEmitter<{ storagePath: string; signedUrl: string; placeholder: string }>();
   /** Emitted when an image is pasted but noteId is missing; parent should create note and upload the file */
@@ -40,6 +47,8 @@ export class MarkdownEditorComponent {
   private _content = signal('');
   preview = signal(false);
   content = this._content.asReadonly();
+  
+  @ViewChild('textarea', { static: false }) textareaRef?: ElementRef<HTMLTextAreaElement>;
 
   private supabase = inject(SupabaseService);
   private toast = inject(ToastService);
@@ -54,9 +63,13 @@ export class MarkdownEditorComponent {
   }
 
   private async uploadImageFile(file: File): Promise<{ path: string; signedUrl: string } | null> {
+    console.log('uploadImageFile called');
     this.uploadingCount.update((v) => v + 1);
     try {
-      if (!this.userId || !this.noteId) throw new Error('Missing userId or noteId for upload');
+      if (!this.userId || !this.noteId) {
+        console.error('Missing userId or noteId:', { userId: this.userId, noteId: this.noteId });
+        throw new Error('Missing userId or noteId for upload');
+      }
       // validate size (5MB limit)
       if (file.size > 5 * 1024 * 1024) {
         throw new Error('File size exceeds 5MB limit');
@@ -64,6 +77,7 @@ export class MarkdownEditorComponent {
       const ext = (file.name.split('.').pop() || 'png').toLowerCase();
       const id = this.genId();
       const path = `${this.userId}/${this.noteId}/images/${id}.${ext}`;
+      console.log('Uploading to path:', path);
       const { error: upErr } = await this.supabase.storage.from('notes').upload(path, file, {
         upsert: true,
         contentType: file.type || `image/${ext}`,
@@ -89,13 +103,21 @@ export class MarkdownEditorComponent {
 
   async handlePaste(e: ClipboardEvent) {
     const clipboard = e.clipboardData;
-    if (!clipboard) return;
+    if (!clipboard) {
+      console.log('No clipboard data');
+      return;
+    }
     // Find image file in clipboard items
     const item = Array.from(clipboard.items || []).find((it) => it.type.startsWith('image'));
     if (!item) return;
     e.preventDefault();
     const file = item.getAsFile();
-    if (!file) return;
+    if (!file) {
+      console.log('Could not get file from clipboard item');
+      return;
+    }
+
+    console.log('Image pasted:', file.name, file.size, 'bytes');
 
     // Validate size early and show toast
     if (file.size > 5 * 1024 * 1024) {
@@ -103,12 +125,18 @@ export class MarkdownEditorComponent {
       return;
     }
 
+    // Get textarea from event target or ViewChild
+    const ta = (e.target as HTMLTextAreaElement) || this.textareaRef?.nativeElement;
+    if (!ta) {
+      console.error('Could not find textarea element');
+      return;
+    }
+    console.log('Textarea found, uploading image...');
+
     // Insert immediate placeholder so user gets visual feedback
     const id = this.genId();
     const placeholderToken = `upload://${id}`;
     const placeholderMarkdown = `![Uploading image...](${placeholderToken})`;
-    const ta = this.getTextarea();
-    if (!ta) return;
     const start = ta.selectionStart;
     const end = ta.selectionEnd;
     const before = ta.value.substring(0, start);
@@ -121,10 +149,19 @@ export class MarkdownEditorComponent {
     ta.focus();
 
     // If we don't have a noteId yet, delegate upload to parent (it will create note and upload)
+    // Wait for noteId to be set, up to 1s
+    let waited = 0;
+    while (!this.noteId && waited < 1000) {
+      await new Promise(res => setTimeout(res, 50));
+      waited += 50;
+    }
     if (!this.noteId) {
+      console.log('No noteId after waiting, delegating upload to parent');
       this.imageUploadRequested.emit({ file, placeholderToken, placeholderMarkdown });
       return;
     }
+
+    console.log('Starting upload with noteId:', this.noteId, 'userId:', this.userId);
 
     // Begin upload in background and replace placeholder when done
     try {
@@ -200,7 +237,7 @@ export class MarkdownEditorComponent {
     this.preview.update((v) => !v);
   }
   private getTextarea(): HTMLTextAreaElement | null {
-    return document.querySelector('app-markdown-editor textarea');
+    return this.textareaRef?.nativeElement || null;
   }
   wrapSelection(before: string, after: string) {
     const ta = this.getTextarea();

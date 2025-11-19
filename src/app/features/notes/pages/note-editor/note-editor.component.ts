@@ -201,6 +201,7 @@ export class NoteEditorComponent {
   }
 
   async onImageUploadRequested(e: { file: File; placeholderToken: string; placeholderMarkdown: string }) {
+    console.log('onImageUploadRequested called', { isNew: this.isNew(), noteId: this.noteId() });
     const userId = this.auth.userId();
     if (!userId) {
       this.toast.error('User not authenticated');
