@@ -58,7 +58,7 @@ import { WorkspaceStateService } from '../../../../core/services/workspace-state
             <app-markdown-editor #mdEditor
               [initialContent]="content()"
               [userId]="auth.userId()"
-              [noteId]="noteId()"
+              [noteId]="noteId() ?? undefined"
               (contentChange)="content.set($event)"
               (imagePasted)="onImagePasted($event)"
               (imageUploadRequested)="onImageUploadRequested($event)"
@@ -72,7 +72,7 @@ export class NoteEditorComponent {
   private route = inject(ActivatedRoute);
   private router = inject(Router);
   private noteService = inject(NoteService);
-  private auth = inject(AuthStateService);
+  auth = inject(AuthStateService);
   private toast = inject(ToastService);
   private workspaceState = inject(WorkspaceStateService);
   private supabase = inject(SupabaseService);

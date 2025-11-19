@@ -2,7 +2,11 @@ name: CI/CD Pipeline
 
 on:
   push: {}
-  pull_request: {}
+  # Use pull_request_target so steps that require repository secrets
+  # (e.g., Codecov, Vercel deploy) run in the context of the base
+  # repository and can access `secrets`. This is intentional so CI
+  # steps that need secrets don't fail for forked PRs.
+  pull_request_target: {}
 
 env:
   NODE_VERSION: '20.x'
@@ -51,7 +55,7 @@ jobs:
 
       - name: Upload coverage reports
         uses: codecov/codecov-action@v4
-        if: always()
+        if: always() && github.event_name == 'push'
         with:
           files: ./coverage/devpad/lcov.info
           flags: unittests
@@ -111,18 +115,21 @@ jobs:
         run: npm install -g vercel@latest
 
       - name: Pull Vercel environment information
+        if: github.event_name == 'push'
         run: vercel pull --yes --environment=production --token=${{ secrets.VERCEL_TOKEN }}
         env:
           VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
           VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
 
       - name: Build project artifacts
+        if: github.event_name == 'push'
         run: vercel build --prod --token=${{ secrets.VERCEL_TOKEN }}
         env:
           VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
           VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
 
       - name: Deploy to Vercel
+        if: github.event_name == 'push'
         id: deploy
         run: |
           URL=$(vercel deploy --prebuilt --prod --token=${{ secrets.VERCEL_TOKEN }})
