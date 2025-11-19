@@ -10,7 +10,7 @@ export const environment = {
   },
   microsoft: {
     clientId: 'dd8a33f5-bd38-416e-ad5d-042f73a212b8',
-    redirectUri: 'http://localhost:4200',
+    redirectUri: 'https://devpad.therama.dev',
   },
   apiUrl: 'https://api.therama.dev',
   appVersion: '2.0.0',
