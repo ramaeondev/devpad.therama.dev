@@ -137,6 +137,9 @@ export class SigninComponent {
 
       if (error) throw error;
 
+      // Ensure session is persisted before navigating
+      await this.supabase.getSession();
+
       // Auth guard will handle setting user state and folder initialization
       this.toast.success('Welcome back!');
       this.router.navigate(['/dashboard']);

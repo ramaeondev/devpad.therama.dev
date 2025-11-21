@@ -25,6 +25,8 @@ DevPad is a modern note-taking application built with Angular 18+ (standalone co
 - Use DestroyRef for automatic unsubscription in components
 - Use takeuntilDestroyed for observables in components
 - Create separate html and css files for larger components
+- Dont Use Alerts or  window.confirm, use custom modal components instead
+- Use Custom components for showing confirmation modals
 
 ### File Structure
 - Components: `<name>.component.ts` (inline templates/styles for small components)
