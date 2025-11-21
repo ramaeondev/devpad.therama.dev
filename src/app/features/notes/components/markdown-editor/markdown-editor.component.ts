@@ -1,12 +1,11 @@
 import { Component, Input, Output, EventEmitter, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { marked } from 'marked';
-import { IconComponent } from '../../../../shared/components/ui/icon/icon.component';
 
 @Component({
   selector: 'app-markdown-editor',
   standalone: true,
-  imports: [CommonModule, IconComponent],
+  imports: [CommonModule],
   template: `
     <div class="flex flex-col gap-3 sm:gap-4">
       <ng-content select="[editor-header]"></ng-content>
@@ -20,7 +19,7 @@ import { IconComponent } from '../../../../shared/components/ui/icon/icon.compon
           (click)="wrapSelection('**', '**')"
           title="Bold"
         >
-          <app-icon name="format_bold" [size]="20"></app-icon>
+          <i class="fa-solid fa-bold text-base"></i>
         </button>
         <button
           type="button"
@@ -28,7 +27,7 @@ import { IconComponent } from '../../../../shared/components/ui/icon/icon.compon
           (click)="wrapSelection('*', '*')"
           title="Italic"
         >
-          <app-icon name="format_italic" [size]="20"></app-icon>
+          <i class="fa-solid fa-italic text-base"></i>
         </button>
         <button
           type="button"
@@ -36,7 +35,7 @@ import { IconComponent } from '../../../../shared/components/ui/icon/icon.compon
           (click)="prependLine('# ')"
           title="H1"
         >
-          <app-icon name="looks_one" [size]="20"></app-icon>
+          <i class="fa-solid fa-heading text-base"></i>
         </button>
         <button
           type="button"
@@ -44,7 +43,7 @@ import { IconComponent } from '../../../../shared/components/ui/icon/icon.compon
           (click)="prependLine('## ')"
           title="H2"
         >
-          <app-icon name="looks_two" [size]="20"></app-icon>
+          <i class="fa-solid fa-heading text-base"></i>
         </button>
         <button
           type="button"
@@ -52,7 +51,7 @@ import { IconComponent } from '../../../../shared/components/ui/icon/icon.compon
           (click)="prependLine('### ')"
           title="H3"
         >
-          <app-icon name="looks_3" [size]="20"></app-icon>
+          <i class="fa-solid fa-heading text-base"></i>
         </button>
         <button
           type="button"
@@ -60,7 +59,7 @@ import { IconComponent } from '../../../../shared/components/ui/icon/icon.compon
           (click)="insertInlineCode()"
           title="Inline Code"
         >
-          <app-icon name="code" [size]="20"></app-icon>
+          <i class="fa-solid fa-code text-base"></i>
         </button>
         <button
           type="button"
@@ -68,7 +67,7 @@ import { IconComponent } from '../../../../shared/components/ui/icon/icon.compon
           (click)="insertCodeBlock()"
           title="Code Block"
         >
-          <app-icon name="integration_instructions" [size]="20"></app-icon>
+          <i class="fa-solid fa-file-code text-base"></i>
         </button>
         <button
           type="button"
@@ -76,10 +75,10 @@ import { IconComponent } from '../../../../shared/components/ui/icon/icon.compon
           (click)="prependLine('- ')"
           title="Bullet List"
         >
-          <app-icon name="format_list_bulleted" [size]="20"></app-icon>
+          <i class="fa-solid fa-list-ul text-base"></i>
         </button>
         <button type="button" class="toolbar-btn flex-shrink-0" (click)="insertLink()" title="Link">
-          <app-icon name="link" [size]="20"></app-icon>
+          <i class="fa-solid fa-link text-base"></i>
         </button>
         <button
           type="button"
@@ -87,7 +86,7 @@ import { IconComponent } from '../../../../shared/components/ui/icon/icon.compon
           (click)="insertImage()"
           title="Image"
         >
-          <app-icon name="image" [size]="20"></app-icon>
+          <i class="fa-solid fa-image text-base"></i>
         </button>
         <div class="flex-1 min-w-[16px]"></div>
         <button
@@ -101,9 +100,9 @@ import { IconComponent } from '../../../../shared/components/ui/icon/icon.compon
           <span class="hidden sm:inline">{{ preview() ? 'Edit' : 'Preview' }}</span>
           <span class="sm:hidden">
             @if (preview()) {
-              <app-icon name="edit" [size]="16"></app-icon>
+              <i class="fa-solid fa-pen text-xs"></i>
             } @else {
-              <app-icon name="visibility" [size]="16"></app-icon>
+              <i class="fa-solid fa-eye text-xs"></i>
             }
           </span>
         </button>

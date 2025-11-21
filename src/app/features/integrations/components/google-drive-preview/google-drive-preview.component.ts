@@ -3,14 +3,13 @@ import { CommonModule } from '@angular/common';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { GoogleDriveFile } from '../../../../core/models/integration.model';
 import { IconDirective, RelativeTimeDirective, FileSizeDirective } from '../../../../shared/directives';
-import { IconComponent } from '../../../../shared/components/ui/icon/icon.component';
 import { getIconNameFromNameAndMime } from '../../../../shared/utils/file-type.util';
 
 
 @Component({
   selector: 'app-google-drive-preview',
   standalone: true,
-  imports: [CommonModule, IconDirective, RelativeTimeDirective, FileSizeDirective, IconComponent],
+  imports: [CommonModule, IconDirective, RelativeTimeDirective, FileSizeDirective],
   template: `
     <div class="google-drive-preview h-full flex flex-col bg-white dark:bg-gray-900">
       <!-- Header -->
@@ -36,7 +35,7 @@ import { getIconNameFromNameAndMime } from '../../../../shared/utils/file-type.u
             (click)="onClose.emit()"
             class="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
           >
-            <app-icon name="close" [size]="20" class="text-gray-600 dark:text-gray-400"></app-icon>
+            <i class="fa-solid fa-xmark text-gray-600 dark:text-gray-400 text-xl"></i>
           </button>
         </div>
       </div>

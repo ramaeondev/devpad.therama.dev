@@ -13,7 +13,7 @@
       <button
         class="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-500 dark:text-gray-400 transition-colors"
         (click)="onClose()" aria-label="Close settings">
-        <app-icon name="close" [size]="20"></app-icon>
+        <i class="fa-solid fa-xmark text-lg"></i>
       </button>
     </div>
 
@@ -33,7 +33,7 @@
           <label
             class="px-4 py-2 text-sm rounded-lg bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 cursor-pointer inline-flex items-center gap-2 transition-colors touch-manipulation">
             <input type="file" accept="image/*" class="hidden" (change)="onImageSelected($event)" />
-            <app-icon name="photo_camera" [size]="16"></app-icon>
+            <i class="fa-solid fa-camera text-xs"></i>
             <span>
               @if (uploading()) {
               Uploading...
@@ -120,7 +120,7 @@
             class="flex items-center justify-between p-3 rounded-lg border border-gray-200 dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors">
             <div class="flex items-center space-x-3">
               <div class="w-10 h-10 rounded-lg bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center">
-                <app-icon name="google-drive" [size]="20"></app-icon>
+                <i class="fa-brands fa-google-drive text-base"></i>
               </div>
               <div>
                 <div class="text-sm font-medium text-gray-900 dark:text-gray-100">
@@ -157,7 +157,7 @@
             class="flex items-center justify-between p-3 rounded-lg border border-gray-200 dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors">
             <div class="flex items-center space-x-3">
               <div class="w-10 h-10 rounded-lg bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center">
-                <app-icon name="onedrive" [size]="20"></app-icon>
+                <i class="fa-brands fa-microsoft text-base"></i>
               </div>
               <div>
                 <div class="text-sm font-medium text-gray-900 dark:text-gray-100">

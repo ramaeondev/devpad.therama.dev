@@ -1,12 +1,10 @@
 import { Component, computed, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ToastService, Toast } from '../../../../core/services/toast.service';
-import { IconComponent } from '../icon/icon.component';
-
 @Component({
   selector: 'app-toast-container',
   standalone: true,
-  imports: [CommonModule, IconComponent],
+  imports: [CommonModule],
   template: `
     <div class="fixed top-4 right-4 z-50 space-y-3 w-80" role="region" aria-label="Notifications">
       @for (t of toasts(); track t.id) {
@@ -35,10 +33,10 @@ import { IconComponent } from '../icon/icon.component';
               }"
               aria-hidden="true"
             >
-              @if (t.type === 'success') { <app-icon name="check" size="14"></app-icon> }
-              @if (t.type === 'error') { <app-icon name="error" size="14"></app-icon> }
-              @if (t.type === 'info') { <app-icon name="info" size="14"></app-icon> }
-              @if (t.type === 'warning') { <app-icon name="warning" size="14"></app-icon> }
+              @if (t.type === 'success') { <i class="fa-solid fa-check text-xs"></i> }
+              @if (t.type === 'error') { <i class="fa-solid fa-xmark text-xs"></i> }
+              @if (t.type === 'info') { <i class="fa-solid fa-info text-xs"></i> }
+              @if (t.type === 'warning') { <i class="fa-solid fa-exclamation text-xs"></i> }
             </span>
           </div>
 
@@ -52,7 +50,7 @@ import { IconComponent } from '../icon/icon.component';
             class="text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-300"
             aria-label="Dismiss notification"
           >
-            <app-icon name="close" size="16"></app-icon>
+            <i class="fa-solid fa-xmark text-base"></i>
           </button>
         </div>
       }

@@ -10,19 +10,18 @@ import { FolderService } from '../../../folders/services/folder.service';
 import { PropertiesModalComponent, PropertyItem } from '../../../../shared/components/ui/properties-modal/properties-modal.component';
 import { IconDirective } from '../../../../shared/directives';
 import { GoogleDriveIconPipe } from '../../../../shared/pipes/google-drive-icon.pipe';
-import { IconComponent } from '../../../../shared/components/ui/icon/icon.component';
 import { DropdownComponent } from '../../../../shared/components/ui/dropdown/dropdown.component';
 
 @Component({
   selector: 'app-google-drive-tree',
   standalone: true,
-  imports: [CommonModule, PropertiesModalComponent, IconDirective, GoogleDriveIconPipe, IconComponent, DropdownComponent],
+  imports: [CommonModule, PropertiesModalComponent, IconDirective, GoogleDriveIconPipe, DropdownComponent],
   template: `
     <div class="google-drive-tree-container p-2">
       @if (!googleDrive.isConnected()) {
         <div class="text-center py-8">
           <div class="text-gray-500 dark:text-gray-400 mb-4">
-            <app-icon name="google-drive" [size]="64" />
+            <i class="fa-brands fa-google-drive text-6xl"></i>
             <p>Google Drive not connected</p>
           </div>
           <button
@@ -54,7 +53,7 @@ import { DropdownComponent } from '../../../../shared/components/ui/dropdown/dro
                 class="p-1 rounded hover:bg-gray-200 dark:hover:bg-gray-700"
                 title="Refresh"
               >
-                <app-icon name="refresh" [size]="16"></app-icon>
+                <i class="fa-solid fa-rotate-right text-base"></i>
               </button>
             </div>
             
@@ -84,9 +83,9 @@ import { DropdownComponent } from '../../../../shared/components/ui/dropdown/dro
                   (click)="toggleFolder(subFolder.id); $event.stopPropagation()"
                 >
                   @if (isExpanded(subFolder.id)) {
-                    <app-icon name="expand_more" [size]="16"></app-icon>
+                    <i class="fa-solid fa-chevron-down text-xs"></i>
                   } @else {
-                    <app-icon name="chevron_right" [size]="16"></app-icon>
+                    <i class="fa-solid fa-chevron-right text-xs"></i>
                   }
                 </button>
               } @else {
@@ -122,30 +121,30 @@ import { DropdownComponent } from '../../../../shared/components/ui/dropdown/dro
             <div class="dropdown-wrapper" (click)="$event.stopPropagation()">
               <app-dropdown align="right">
                 <button dropdownTrigger class="p-0.5 rounded hover:bg-gray-200 dark:hover:bg-gray-600">
-                  <app-icon name="more_vert" [size]="16"></app-icon>
+                  <i class="fa-solid fa-ellipsis-vertical text-xs"></i>
                 </button>
                 <div dropdownMenu class="text-xs">
                   <button class="dropdown-item" (click)="handleDownload(file)">
                     <span>Download</span>
-                    <app-icon name="download" [size]="16"></app-icon>
+                    <i class="fa-solid fa-download text-xs"></i>
                   </button>
                   <button class="dropdown-item" (click)="handleImportToDevPad(file)">
                     <span>Import to DevPad</span>
-                    <app-icon name="file_upload" [size]="16"></app-icon>
+                    <i class="fa-solid fa-upload text-xs"></i>
                   </button>
                   <button class="dropdown-item" (click)="handleRename(file)">
                     <span>Rename</span>
-                    <app-icon name="edit" [size]="16"></app-icon>
+                    <i class="fa-solid fa-pen text-xs"></i>
                   </button>
                   <hr class="my-1 border-gray-200 dark:border-gray-700" />
                   <button class="dropdown-item" (click)="handleProperties(file)">
                     <span>Properties</span>
-                    <app-icon name="info" [size]="16"></app-icon>
+                    <i class="fa-solid fa-circle-info text-xs"></i>
                   </button>
                   <hr class="my-1 border-gray-200 dark:border-gray-700" />
                   <button class="dropdown-item text-red-600 hover:bg-red-50 dark:hover:bg-red-900/30" (click)="handleDelete(file)">
                     <span>Delete</span>
-                    <app-icon name="delete" [size]="16"></app-icon>
+                    <i class="fa-solid fa-trash text-xs"></i>
                   </button>
                 </div>
               </app-dropdown>

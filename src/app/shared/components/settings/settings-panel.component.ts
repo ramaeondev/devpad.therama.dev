@@ -14,7 +14,6 @@ import { AvatarComponent } from '../ui/avatar/avatar.component';
 import { OverlayModule } from '@angular/cdk/overlay';
 import { GoogleDriveService } from '../../../core/services/google-drive.service';
 import { OneDriveService } from '../../../core/services/onedrive.service';
-import { IconComponent } from '../ui/icon/icon.component';
 
 @Component({
   selector: 'app-settings-panel',
@@ -27,7 +26,6 @@ import { IconComponent } from '../ui/icon/icon.component';
     ImageCropDialogComponent,
     AvatarComponent,
     OverlayModule,
-    IconComponent,
   ],
  templateUrl: './settings-panel.component.html',
   styles: [],

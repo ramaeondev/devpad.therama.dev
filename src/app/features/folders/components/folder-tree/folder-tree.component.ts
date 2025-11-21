@@ -19,8 +19,6 @@ import {
   IconDirective,
 } from '../../../../shared/directives';
 import { NoteIconPipe } from '../../../../shared/pipes/note-icon.pipe';
-import { IconComponent } from '../../../../shared/components/ui/icon/icon.component';
-
 @Component({
   selector: 'app-folder-tree',
   standalone: true,
@@ -33,7 +31,6 @@ import { IconComponent } from '../../../../shared/components/ui/icon/icon.compon
     NotePropertiesModalComponent,
     IconDirective,
     NoteIconPipe,
-    IconComponent,
   ],
   template: `
     <div class="folder-tree">
@@ -93,11 +90,11 @@ import { IconComponent } from '../../../../shared/components/ui/icon/icon.compon
                 class="expand-btn w-6 h-6 sm:w-4 sm:h-4 flex items-center justify-center touch-manipulation"
                 (click)="toggleExpand(folder.id, $event)"
               >
-                @if (isExpanded(folder.id)) {
-                  <app-icon name="chevron-down" [size]="12"></app-icon>
-                } @else {
-                  <app-icon name="chevron-right" [size]="12"></app-icon>
-                }
+                  @if (isExpanded(folder.id)) {
+                    <i class="fa-solid fa-chevron-down text-xs"></i>
+                  } @else {
+                    <i class="fa-solid fa-chevron-right text-xs"></i>
+                  }
               </button>
             } @else {
               <span class="w-4"></span>
@@ -139,35 +136,35 @@ import { IconComponent } from '../../../../shared/components/ui/icon/icon.compon
             <!-- Actions Dropdown (root: limited, others: full) -->
             <app-dropdown align="right">
               <button dropdownTrigger class="p-1 rounded hover:bg-gray-200 dark:hover:bg-gray-700">
-                <app-icon name="more_vert" [size]="16"></app-icon>
+                  <i class="fa-solid fa-ellipsis-vertical text-base"></i>
               </button>
               <div dropdownMenu class="text-sm">
                 <button class="dropdown-item w-full text-left px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 flex items-center justify-between" (click)="openCreateSubfolderModal(folder)">
                   <span>New Subfolder</span>
-                  <app-icon name="create_new_folder" [size]="16"></app-icon>
+                    <i class="fa-solid fa-folder-plus text-base"></i>
                 </button>
                 <button class="dropdown-item w-full text-left px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 flex items-center justify-between" (click)="createNoteDirect(folder)">
                   <span>New Note (.md)</span>
-                  <app-icon name="note_add" [size]="16"></app-icon>
+                    <i class="fa-solid fa-file-circle-plus text-base"></i>
                 </button>
                 <button class="dropdown-item w-full text-left px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 flex items-center justify-between" (click)="uploadDocument(folder)">
                   <span>Upload Document</span>
-                  <app-icon name="file_upload" [size]="16"></app-icon>
+                    <i class="fa-solid fa-upload text-base"></i>
                 </button>
                 <hr class="my-1 border-gray-200 dark:border-gray-700" />
                 <button class="dropdown-item w-full text-left px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 flex items-center justify-between" (click)="startRename(folder)">
                   <span>Rename Folder</span>
-                  <app-icon name="edit" [size]="16"></app-icon>
+                    <i class="fa-solid fa-pen text-base"></i>
                 </button>
                 @if (!folder.is_root) {
                   <button class="dropdown-item w-full text-left px-4 py-2 text-red-600 hover:bg-red-50 dark:hover:bg-red-900/30 flex items-center justify-between" (click)="deleteFolder(folder)">
                     <span>Delete Folder</span>
-                    <app-icon name="delete" [size]="16"></app-icon>
+                      <i class="fa-solid fa-trash text-base"></i>
                   </button>
                 } @else {
                   <button class="dropdown-item w-full text-left px-4 py-2 text-gray-400 cursor-not-allowed flex items-center justify-between" disabled>
                     <span>Delete Folder (root)</span>
-                    <app-icon name="delete" [size]="16"></app-icon>
+                      <i class="fa-solid fa-trash text-base"></i>
                   </button>
                 }
               </div>
@@ -196,26 +193,26 @@ import { IconComponent } from '../../../../shared/components/ui/icon/icon.compon
                   <div class="dropdown-wrapper" (click)="$event.stopPropagation()">
                     <app-dropdown align="right">
                       <button dropdownTrigger class="p-0.5 rounded hover:bg-gray-200 dark:hover:bg-gray-600">
-                        <app-icon name="more_vert" [size]="16"></app-icon>
+                        <i class="fa-solid fa-ellipsis-vertical text-xs"></i>
                       </button>
                       <div dropdownMenu class="text-xs">
                         <button class="dropdown-item w-full text-left px-3 py-1.5 hover:bg-gray-100 dark:hover:bg-gray-700 flex items-center justify-between" (click)="downloadDocument(note)">
                           <span>Download</span>
-                          <app-icon name="download" [size]="16"></app-icon>
+                          <i class="fa-solid fa-download text-xs"></i>
                         </button>
                         <hr class="my-1 border-gray-200 dark:border-gray-700" />
                         <button class="dropdown-item w-full text-left px-3 py-1.5 hover:bg-gray-100 dark:hover:bg-gray-700 flex items-center justify-between" (click)="startNoteRename(note, folder)">
                           <span>Rename</span>
-                          <app-icon name="edit" [size]="16"></app-icon>
+                          <i class="fa-solid fa-pen text-xs"></i>
                         </button>
                         <button class="dropdown-item w-full text-left px-3 py-1.5 hover:bg-gray-100 dark:hover:bg-gray-700 flex items-center justify-between" (click)="showNoteProperties(note, folder)">
                           <span>Properties</span>
-                          <app-icon name="info" [size]="16"></app-icon>
+                          <i class="fa-solid fa-circle-info text-xs"></i>
                         </button>
                         <hr class="my-1 border-gray-200 dark:border-gray-700" />
                         <button class="dropdown-item w-full text-left px-3 py-1.5 text-red-600 hover:bg-red-50 dark:hover:bg-red-900/30 flex items-center justify-between" (click)="deleteNote(note, folder)">
                           <span>Delete</span>
-                          <app-icon name="delete" [size]="16"></app-icon>
+                          <i class="fa-solid fa-trash text-xs"></i>
                         </button>
                       </div>
                     </app-dropdown>

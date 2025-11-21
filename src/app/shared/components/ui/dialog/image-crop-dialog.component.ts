@@ -1,13 +1,12 @@
 import { Component, EventEmitter, Input, Output, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ImageCroppedEvent, ImageCropperComponent, LoadedImage } from 'ngx-image-cropper';
-import { IconComponent } from '../icon/icon.component';
 import { DomSanitizer, SafeUrl } from '@angular/platform-browser';
 
 @Component({
   selector: 'app-image-crop-dialog',
   standalone: true,
-  imports: [CommonModule, ImageCropperComponent, IconComponent],
+  imports: [CommonModule, ImageCropperComponent],
   template: `
     @if (open) {
       <div
@@ -32,7 +31,7 @@ import { DomSanitizer, SafeUrl } from '@angular/platform-browser';
               (click)="onCancel()"
               aria-label="Cancel"
             >
-              <app-icon name="close" size="20"></app-icon>
+              <i class="fa-solid fa-xmark text-lg"></i>
             </button>
           </div>
 
@@ -68,7 +67,7 @@ import { DomSanitizer, SafeUrl } from '@angular/platform-browser';
                 <div
                   class="inline-flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400"
                 >
-                  <app-icon name="spinner" size="16"></app-icon>
+                  <i class="fa-solid fa-spinner fa-spin text-xs"></i>
                   Loading image...
                 </div>
               </div>

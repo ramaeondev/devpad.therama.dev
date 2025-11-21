@@ -7,18 +7,16 @@ import { OneDriveFile } from '../../../../core/models/integration.model';
 import { NoteService } from '../../../../core/services/note.service';
 import { AuthStateService } from '../../../../core/services/auth-state.service';
 import { ToastService } from '../../../../core/services/toast.service';
-import { IconComponent } from '../../../../shared/components/ui/icon/icon.component';
-
 @Component({
   selector: 'app-onedrive-tree',
   standalone: true,
-  imports: [CommonModule, IconDirective, FileSizeDirective, IconComponent],
+  imports: [CommonModule, IconDirective, FileSizeDirective],
   template: `
     <div class="onedrive-tree">
       @if (!oneDrive.isConnected()) {
         <div class="text-center py-8">
           <div class="text-gray-500 dark:text-gray-400 mb-4">
-            <app-icon name="onedrive" [size]="64"></app-icon>
+            <i class="fa-brands fa-microsoft text-6xl"></i>
             <p>OneDrive not connected</p>
           </div>
           <button
@@ -37,7 +35,7 @@ import { IconComponent } from '../../../../shared/components/ui/icon/icon.compon
                 class="text-sm text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 transition-colors"
                 (click)="oneDrive.loadFiles()"
               >
-                <app-icon name="refresh" [size]="16"></app-icon>
+                <i class="fa-solid fa-rotate-right text-base"></i>
               </button>
             </div>
             <div class="space-y-1">
@@ -82,7 +80,7 @@ import { IconComponent } from '../../../../shared/components/ui/icon/icon.compon
             class="text-xs text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 px-2 py-1 rounded hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-colors"
             (click)="downloadToLocal(file)"
           >
-            <app-icon name="download" [size]="16"></app-icon>
+            <i class="fa-solid fa-download text-xs"></i>
           </button>
         </div>
       }
