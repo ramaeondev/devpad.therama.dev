@@ -7,8 +7,6 @@ export const environment = {
   },
   google: {
     clientId: '1054129590650-c4qqjfphqdejcfdcasel8q3a14b5p7kk.apps.googleusercontent.com',
-    // Production refresh host (update to your deployed refresh server)
-    refreshHost: 'https://api.therama.dev',
   },
   microsoft: {
     clientId: 'dd8a33f5-bd38-416e-ad5d-042f73a212b8',

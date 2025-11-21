@@ -5,6 +5,7 @@ import { ToastService } from './toast.service';
 import { LoadingService } from './loading.service';
 import { Integration, GoogleDriveFile, GoogleDriveFolder } from '../models/integration.model';
 import { environment } from '../../../environments/environment';
+import { HttpClient } from '@angular/common/http';
 
 declare const google: any;
 
@@ -14,6 +15,7 @@ export class GoogleDriveService {
   private auth = inject(AuthStateService);
   private toast = inject(ToastService);
   private loading = inject(LoadingService);
+  private http = inject(HttpClient);
 
   // State
   isConnected = signal(false);
@@ -56,20 +58,21 @@ export class GoogleDriveService {
     try {
       await this.initGoogleAuth();
 
-      const tokenClient = google.accounts.oauth2.initTokenClient({
+      const codeClient = google.accounts.oauth2.initCodeClient({
         client_id: environment.google.clientId,
         scope: this.SCOPES,
+        access_type: 'offline',
         callback: async (response: any) => {
           if (response.error) {
             this.toast.error('Failed to connect Google Drive');
             return;
           }
-
-          await this.handleAuthSuccess(response.access_token, response.expires_in);
+          // Send response.code to backend to exchange for tokens
+          await this.handleAuthCode(response.code);
         },
       });
 
-      tokenClient.requestAccessToken();
+      codeClient.requestCode();
     } catch (error: any) {
       console.error('Google Drive connection error:', error);
       this.toast.error('Failed to connect Google Drive');
@@ -77,35 +80,37 @@ export class GoogleDriveService {
   }
 
   /**
-   * Handle successful OAuth
+   * Handle OAuth code: send to backend for token exchange
    */
-  private async handleAuthSuccess(accessToken: string, expiresIn?: number): Promise<void> {
+  private async handleAuthCode(code: string): Promise<void> {
     try {
       this.loading.start();
-
-      // Get user info
-      const userInfo = await this.getUserInfo(accessToken);
-
-      // Calculate expiration time (default to 3600 seconds if not provided)
-      const expiresInMs = (expiresIn || 3600) * 1000;
-      const expiresAt = Date.now() + expiresInMs;
-
-      // Save integration to database
       const userId = this.auth.userId();
-      const { data, error } = await this.supabase
+      // Call backend to exchange code for tokens
+      const data: any = await this.http.post(
+        `${environment.supabase.url}/functions/v1/google-exchange`,
+        { code, user_id: userId }
+      ).toPromise();
+
+      if (!data?.access_token) {
+        throw new Error('No access token returned from backend');
+      }
+
+      // Save integration to database (including refresh_token if present)
+      const expiresAt = Date.now() + (data.expires_in || 3600) * 1000;
+      const { error } = await this.supabase
         .from('integrations')
         .upsert(
           {
             user_id: userId,
             provider: 'google_drive',
-            access_token: accessToken,
+            access_token: data.access_token,
+            refresh_token: data.refresh_token ?? null,
             expires_at: expiresAt,
-            email: userInfo.email,
+            email: data.email,
             updated_at: new Date().toISOString(),
           },
-          {
-            onConflict: 'user_id,provider',
-          }
+          { onConflict: 'user_id,provider' }
         )
         .select()
         .single();
@@ -115,7 +120,6 @@ export class GoogleDriveService {
       this.integration.set(data as Integration);
       this.isConnected.set(true);
       this.toast.success('Google Drive connected successfully');
-      // Load files
       await this.loadFiles();
     } catch (error: any) {
       console.error('Failed to save integration:', error);
@@ -125,30 +129,6 @@ export class GoogleDriveService {
     }
   }
 
-  /**
-   * Get user info from Google
-   */
-  private async getUserInfo(accessToken: string): Promise<{ email: string }> {
-    try {
-      const response = await fetch('https://www.googleapis.com/oauth2/v2/userinfo', {
-        method: 'GET',
-        headers: {
-          'Authorization': `Bearer ${accessToken}`,
-          'Accept': 'application/json',
-        },
-      });
-
-      if (!response.ok) {
-        throw new Error(`Failed to get user info: ${response.status} ${response.statusText}`);
-      }
-
-      const data = await response.json();
-      return data;
-    } catch (error) {
-      console.error('getUserInfo error:', error);
-      throw error;
-    }
-  }
 
   /**
    * Check existing connection
@@ -522,20 +502,9 @@ export class GoogleDriveService {
         return await fetch(url, { ...options, headers });
       }
 
-      // Prompt user with a modal to reconnect (open server-side auth to obtain refresh_token)
+      // If refresh fails, mark as disconnected and notify user
       this.isConnected.set(false);
-      try {
-        const reconnect = window.confirm('Google Drive session expired. Would you like to re-authorize Google Drive now?');
-        if (reconnect) {
-          const userId = this.auth.userId();
-          const authUrl = `${environment.google.refreshHost}/api/google/auth?user_id=${encodeURIComponent(userId)}`;
-          window.open(authUrl, '_blank', 'noopener');
-        } else {
-          this.toast.error('Google Drive session expired. Please reconnect.');
-        }
-      } catch (e) {
-        this.toast.error('Google Drive session expired. Please reconnect.');
-      }
+      this.toast.error('Google Drive session expired. Please reconnect.');
     }
 
     return resp;
@@ -544,19 +513,12 @@ export class GoogleDriveService {
   private async refreshViaServer(): Promise<boolean> {
     try {
       const userId = this.auth.userId();
-      // Call a server endpoint that will refresh the token using stored refresh_token
-      const resp = await fetch('/api/google/refresh', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ user_id: userId }),
-      });
+      // Call Supabase Edge Function for token refresh
+      const data: any = await this.http.post(
+        `${environment.supabase.url}/functions/v1/google-refresh`,
+        { user_id: userId }
+      ).toPromise();
 
-      if (!resp.ok) {
-        console.warn('Server refresh failed:', resp.status);
-        return false;
-      }
-
-      const data = await resp.json();
       if (data?.access_token) {
         // Update local integration state
         const current = this.integration ? this.integration() ?? {} : {};
