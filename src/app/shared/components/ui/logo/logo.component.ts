@@ -6,14 +6,16 @@ import { CommonModule } from '@angular/common';
   standalone: true,
   imports: [CommonModule],
   template: `
-  @for(letter of letters ; track i; let i= $index){
+            <span class="text-2xl font-bold tracking-tight text-gray-900 dark:text-white">DevPad</span>
+
+  <!-- @for(letter of letters ; track i; let i= $index){
     <span [class.hidden]="!letter.visible">
       {{ letter.char }}
     </span>
     }
     @if(showCursor){
     <span class="animate-blink">|</span>
-    }
+    } -->
   `,
   styles: [
     `

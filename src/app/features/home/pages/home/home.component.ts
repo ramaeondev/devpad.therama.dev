@@ -1,20 +1,20 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
-import { LogoComponent } from '../../../../shared/components/ui/logo/logo.component';
+// import { LogoComponent } from '../../../../shared/components/ui/logo/logo.component';
 import { IconComponent } from '../../../../shared/components/ui/icon/icon.component';
 
 @Component({
   selector: 'app-home',
   standalone: true,
-  imports: [CommonModule, RouterLink, LogoComponent, IconComponent],
+  imports: [CommonModule, RouterLink, IconComponent],
   template: `
     <div class="flex flex-col min-h-screen bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100">
-      <header class="px-4 lg:px-6 h-14 flex items-center">
-        <a class="flex items-center justify-center" routerLink="/">
-          <app-logo></app-logo>
-        </a>
-        <!-- <nav class="ml-auto flex items-center gap-4 sm:gap-6">
+      <header class="px-4 lg:px-6 h-20 flex items-center justify-between">
+        <div class="flex items-center gap-3">
+          <span class="text-2xl font-bold tracking-tight text-gray-900 dark:text-white">DevPad</span>
+        </div>
+        <nav class="flex items-center gap-4 sm:gap-6">
           <a class="text-sm font-medium hover:underline underline-offset-4" routerLink="/policy">
             Privacy Policy
           </a>
@@ -24,24 +24,24 @@ import { IconComponent } from '../../../../shared/components/ui/icon/icon.compon
           <a href="https://github.com/ramaeondev/devpad.therama.dev" target="_blank" rel="noopener noreferrer" aria-label="GitHub Repository">
             <app-icon name="github" [size]="24"></app-icon>
           </a>
-        </nav> -->
-        <nav class="ml-auto flex items-center gap-4 sm:gap-6">
-          <a href="https://github.com/ramaeondev/devpad.therama.dev" target="_blank" rel="noopener noreferrer" aria-label="GitHub Repository">
-            <app-icon name="github" [size]="24"></app-icon>
-          </a>
         </nav>
-        
       </header>
       <main class="flex-1">
         <section class="w-full py-12 md:py-24 lg:py-32">
           <div class="container px-4 md:px-6">
             <div class="flex flex-col items-center space-y-6 text-center">
               <div class="space-y-2">
-                <h1 class="text-3xl font-bold tracking-tighter sm:text-4xl md:text-5xl lg:text-6xl/none">
-                  Modern Note-Taking, Simplified
+                <h1 class="text-4xl font-extrabold tracking-tight sm:text-5xl md:text-6xl lg:text-7xl/none mb-2">
+                  Welcome to <span class="text-primary-600 dark:text-primary-400">DevPad</span>
                 </h1>
-                <p class="mx-auto max-w-[700px] text-gray-500 md:text-xl dark:text-gray-400">
-                  DevPad is a modern note-taking application built with Angular, Tailwind CSS, and Supabase. It offers a clean, intuitive interface for capturing your ideas.
+                <div class="flex flex-col items-center gap-2">
+                  <span class="text-lg font-semibold text-gray-700 dark:text-gray-200">The modern, secure, and open source note-taking app</span>
+                </div>
+                <p class="mx-auto max-w-[700px] text-gray-500 md:text-xl dark:text-gray-400 mt-2">
+                  DevPad helps you organize your thoughts, ideas, and projects with a beautiful, intuitive interface. Built with Angular, Tailwind CSS, and Supabase, DevPad is designed for privacy, accessibility, and seamless cloud integration.
+                </p>
+                <p class="mt-2 text-sm text-gray-600 dark:text-gray-400">
+                  <strong>Brand Promise:</strong> <span class="text-primary-700 dark:text-primary-300">Your notes, your privacy, your way.</span>
                 </p>
                 <p class="mt-2 text-sm text-gray-600 dark:text-gray-400">
                   DevPad is an open source project — view the source on
