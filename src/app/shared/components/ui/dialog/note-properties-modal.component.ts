@@ -1,7 +1,5 @@
 import { Component, Input, Output, EventEmitter } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { IconComponent } from '../icon/icon.component';
-
 export interface NoteProperties {
   id: string;
   title: string;
@@ -18,7 +16,7 @@ export interface NoteProperties {
 @Component({
   selector: 'app-note-properties-modal',
   standalone: true,
-  imports: [CommonModule, IconComponent],
+  imports: [CommonModule],
   template: `
     <div
       class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50"
@@ -37,7 +35,7 @@ export interface NoteProperties {
             (click)="cancel.emit()"
             class="p-1 rounded hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
           >
-            <app-icon name="close" [size]="20"></app-icon>
+            <i class="fa-solid fa-xmark text-lg"></i>
           </button>
         </div>
 

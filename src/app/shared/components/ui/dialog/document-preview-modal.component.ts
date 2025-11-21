@@ -2,12 +2,10 @@ import { Component, Input, signal, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { SupabaseService } from '../../../../core/services/supabase.service';
 import { ToastService } from '../../../../core/services/toast.service';
-import { IconComponent } from '../icon/icon.component';
-
 @Component({
   selector: 'app-document-preview-modal',
   standalone: true,
-  imports: [CommonModule, IconComponent],
+  imports: [CommonModule],
   template: `
     <div
       class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
@@ -26,11 +24,11 @@ import { IconComponent } from '../icon/icon.component';
               class="px-3 py-1 text-sm bg-blue-500 text-white rounded hover:bg-blue-600 flex items-center gap-1"
               (click)="download()"
             >
-              <app-icon name="download" [size]="16"></app-icon>
+              <i class="fa-solid fa-download text-base"></i>
               <span>Download</span>
             </button>
             <button class="p-1 rounded hover:bg-gray-200 dark:hover:bg-gray-700" (click)="close()">
-              <app-icon name="close" [size]="20"></app-icon>
+              <i class="fa-solid fa-xmark text-xl"></i>
             </button>
           </div>
         </div>
@@ -52,7 +50,7 @@ import { IconComponent } from '../icon/icon.component';
                   class="mt-4 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 flex items-center gap-2"
                   (click)="download()"
                 >
-                  <app-icon name="download" [size]="20"></app-icon>
+                  <i class="fa-solid fa-download text-xl"></i>
                   <span>Download File</span>
                 </button>
               </div>

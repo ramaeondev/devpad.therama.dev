@@ -1,6 +1,5 @@
 import { Component, Input, Output, EventEmitter } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { IconComponent } from '../icon/icon.component';
 
 export interface PropertyItem {
   label: string;
@@ -11,7 +10,7 @@ export interface PropertyItem {
 @Component({
   selector: 'app-properties-modal',
   standalone: true,
-  imports: [CommonModule, IconComponent],
+  imports: [CommonModule],
   template: `
     @if (isOpen) {
       <div class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50" (click)="close()">
@@ -23,7 +22,7 @@ export interface PropertyItem {
               (click)="close()"
               class="p-1 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
             >
-              <app-icon name="close" [size]="20" class="text-gray-500 dark:text-gray-400"></app-icon>
+              <i class="fa-solid fa-xmark text-lg text-gray-500 dark:text-gray-400"></i>
             </button>
           </div>
 

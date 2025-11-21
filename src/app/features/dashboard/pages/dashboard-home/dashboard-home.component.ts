@@ -4,12 +4,11 @@ import { GoogleDrivePreviewComponent } from '../../../integrations/components/go
 import { WorkspaceStateService } from '../../../../core/services/workspace-state.service';
 import { GoogleDriveService } from '../../../../core/services/google-drive.service';
 import { GoogleDriveFile } from '../../../../core/models/integration.model';
-import { IconComponent } from '../../../../shared/components/ui/icon/icon.component';
 
 @Component({
   selector: 'app-dashboard-home',
   standalone: true,
-  imports: [CommonModule, GoogleDrivePreviewComponent, IconComponent],
+  imports: [CommonModule, GoogleDrivePreviewComponent],
   template: `
     <div class="h-full">
       @if (selectedGoogleDriveFile()) {
@@ -21,7 +20,7 @@ import { IconComponent } from '../../../../shared/components/ui/icon/icon.compon
       } @else {
         <div class="flex items-center justify-center h-full">
           <div class="text-center">
-            <app-icon name="file" [size]="80" class="mx-auto mb-4 text-gray-400"></app-icon>
+            <i class="fa-solid fa-file"></i>
             <h3 class="text-xl font-semibold text-gray-900 dark:text-white mb-2">Welcome to DevPad</h3>
             <p class="text-gray-600 dark:text-gray-400">Select a file from the sidebar to get started</p>
           </div>

@@ -10,8 +10,6 @@ import { GlobalSpinnerComponent } from '../../shared/components/ui/spinner/globa
 import { NoteWorkspaceComponent } from '../../features/notes/components/note-workspace/note-workspace.component';
 import { UserService } from '../../core/services/user.service';
 import { AvatarComponent } from '../../shared/components/ui/avatar/avatar.component';
-import { IconComponent } from '../../shared/components/ui/icon/icon.component';
-
 @Component({
   selector: 'app-dashboard-layout',
   standalone: true,
@@ -23,8 +21,7 @@ import { IconComponent } from '../../shared/components/ui/icon/icon.component';
     NoteWorkspaceComponent,
     LogoComponent,
     SettingsPanelComponent,
-    AvatarComponent,
-    IconComponent,
+    AvatarComponent
   ],
   template: `
     <div class="h-screen w-screen overflow-hidden bg-gray-50 dark:bg-gray-900 flex flex-col">
@@ -38,7 +35,11 @@ import { IconComponent } from '../../shared/components/ui/icon/icon.component';
               class="lg:hidden p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
               aria-label="Toggle menu"
             >
-              <app-icon [name]="showMobileSidebar() ? 'close' : 'menu'" [size]="24"></app-icon>
+              @if (showMobileSidebar()) {
+                <i class="fa-solid fa-xmark text-2xl"></i>
+              } @else {
+                <i class="fa-solid fa-bars text-2xl"></i>
+              }
             </button>
             <app-logo></app-logo>
           </div>

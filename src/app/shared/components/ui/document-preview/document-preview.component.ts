@@ -7,12 +7,11 @@ import { NoteService } from '../../../../core/services/note.service';
 import { AuthStateService } from '../../../../core/services/auth-state.service';
 import { ToastService } from '../../../../core/services/toast.service';
 import { SupabaseService } from '../../../../core/services/supabase.service';
-import { IconComponent } from '../icon/icon.component';
 
 @Component({
   selector: 'app-document-preview',
   standalone: true,
-  imports: [CommonModule, IconDirective, IconComponent],
+  imports: [CommonModule, IconDirective],
   template: `
     <div class="h-screen flex flex-col bg-white dark:bg-gray-800 relative">
       <!-- Content -->
@@ -20,7 +19,7 @@ import { IconComponent } from '../icon/icon.component';
         @if (isLoading()) {
           <div class="h-full flex items-center justify-center">
             <div class="text-center">
-              <app-icon name="progress_activity" [size]="32" class="animate-spin mx-auto mb-4 text-primary-600"></app-icon>
+              <i class="fa-solid fa-spinner fa-spin text-3xl mx-auto mb-4 text-primary-600"></i>
               <p class="text-gray-500 dark:text-gray-400">Loading document...</p>
             </div>
           </div>

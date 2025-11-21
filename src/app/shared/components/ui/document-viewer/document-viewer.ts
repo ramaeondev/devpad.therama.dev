@@ -12,12 +12,11 @@ import { CommonModule } from '@angular/common';
 import { IconDirective } from '../../../../shared/directives';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { getExtensionFromPath, getIconNameFromExt, getTypeLabelFromExt } from '../../../utils/file-type.util';
-import { IconComponent } from '../icon/icon.component';
 
 @Component({
   selector: 'app-document-viewer',
   standalone: true,
-  imports: [CommonModule, IconDirective, IconComponent],
+  imports: [CommonModule, IconDirective],
   template: `
     <div class="h-full flex flex-col bg-white dark:bg-gray-800">
       <!-- Header -->
@@ -47,7 +46,7 @@ import { IconComponent } from '../icon/icon.component';
             >
               @if (isLoading()) {
                 <span class="inline-flex items-center gap-2">
-                  <app-icon name="progress_activity" class="animate-spin"></app-icon>
+                  <i class="fa-solid fa-spinner fa-spin"></i>
                   Loading...
                 </span>
               } @else {
@@ -63,7 +62,7 @@ import { IconComponent } from '../icon/icon.component';
         @if (isLoading()) {
           <div class="h-full flex items-center justify-center">
             <div class="text-center">
-              <app-icon name="progress_activity" [size]="32" class="animate-spin mx-auto mb-4 text-primary-600"></app-icon>
+              <i class="fa-solid fa-spinner fa-spin text-3xl mx-auto mb-4 text-primary-600"></i>
               <p class="text-gray-500 dark:text-gray-400">Loading document...</p>
             </div>
           </div>
