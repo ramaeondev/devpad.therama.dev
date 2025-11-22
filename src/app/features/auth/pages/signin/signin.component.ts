@@ -130,19 +130,23 @@ export class SigninComponent {
     const { email, password } = this.signinForm.getRawValue();
 
     try {
-      const { error } = await this.supabase.auth.signInWithPassword({
+      const { data, error } = await this.supabase.auth.signInWithPassword({
         email,
         password,
       });
 
       if (error) throw error;
 
-      // Ensure session is persisted before navigating
-      await this.supabase.getSession();
+      // Wait for session to be fully established
+      if (data.session) {
+        // Give auth state time to propagate
+        await new Promise(resolve => setTimeout(resolve, 100));
 
-      // Auth guard will handle setting user state and folder initialization
-      this.toast.success('Welcome back!');
-      this.router.navigate(['/dashboard']);
+        this.toast.success('Welcome back!');
+
+        // Use replaceUrl to avoid navigation issues
+        await this.router.navigate(['/dashboard'], { replaceUrl: true });
+      }
     } catch (error: any) {
       this.errorMessage.set(error.message || 'Failed to sign in');
       this.toast.error('Failed to sign in');
