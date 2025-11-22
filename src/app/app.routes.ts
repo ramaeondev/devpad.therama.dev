@@ -4,7 +4,11 @@ import { authGuard } from './core/guards/auth.guard';
 export const routes: Routes = [
   {
     path: '',
-    loadChildren: () => import('./features/home/home.routes').then(m => m.homeRoutes),
+    loadComponent: () => import('./features/home/pages/home/home.component').then(m => m.HomeComponent),
+  },
+  {
+    path: 'changelog',
+    loadChildren: () => import('./features/home/pages/changelog/changelog.routes').then(m => m.changelogRoutes),
   },
   {
     path: 'auth',
@@ -26,7 +30,7 @@ export const routes: Routes = [
     loadChildren: () => import('./features/folders/folders.routes'),
   },
   {
-    path: '',
+    path: 'legal',
     loadChildren: () => import('./features/legal/legal.routes').then(m => m.legalRoutes),
   },
   {

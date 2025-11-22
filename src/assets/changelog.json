@@ -1,0 +1,147 @@
+[
+  {
+    "date": "2025-11-22",
+    "changes": [
+      "Migrates Google Drive auth to server exchange flow",
+      "Replaces custom icon components with Font Awesome icons"
+    ]
+  },
+  {
+    "date": "2025-11-21",
+    "changes": [
+      "Add SVG logo for DevPad with gradient background and code bracket icon"
+    ]
+  },
+  {
+    "date": "2025-11-19",
+    "changes": [
+      "Merge branch 'master' of https://github.com/ramaeondev/devpad.therama.dev",
+      "fix(environment): update Microsoft redirect URI to production URL"
+    ]
+  },
+  {
+    "date": "2025-11-18",
+    "changes": [
+      "feat(icons): replace svgs with material icons",
+      "feat(ui): make google-drive-tree styles consistent with folder-tree",
+      "feat(home): improve homepage and update privacy policy",
+      "chore(home): note that DevPad is open source (link to GitHub)",
+      "Update contact email in privacy policy",
+      "feat(OneDrive): OneDrive setup added",
+      "fix(auth): resolve double-click login button issue",
+      "ci: add GitHub Actions CI/CD pipeline",
+      "chore(home): Home page minor mods",
+      "chore(home): Home page minor mods",
+      "Unchecked"
+    ]
+  },
+  {
+    "date": "2025-11-17",
+    "changes": [
+      "feat(drag-drop): allow dropping notes anywhere inside folder area",
+      "docs(changelog): add drag-drop enhancement to unreleased",
+      "feat(upload): implement document upload feature",
+      "docs(changelog): add document upload feature to unreleased",
+      "feat(documents): enhance document upload and preview features",
+      "docs(changelog): update unreleased with document enhancements",
+      "fix(ui): show drag cursor only on drag handle, not entire row",
+      "fix(ui): show drag cursor only on drag handle, not entire row",
+      "fix(ui): PDFs and documents now open in preview modal instead of note editor",
+      "feat(ui): add document preview component for center section",
+      "fix(ui): PDFs and documents now open in center section instead of modal",
+      "feat(ui): replace emoji icons with SVG icons and use file extensions for document detection",
+      "feat: add download option to folder tree kebab menu and remove unnecessary menu from document preview",
+      "feat: replace emoji icons with proper SVG icons in folder tree",
+      "fix: add content field to FolderTree notes interface and include in note mappings",
+      "feat: implement ng-icons with Material File Icons for folder tree",
+      "feat(icons): implement Material File Icons for file types",
+      "Update CHANGELOG.md",
+      "feat(integrations): add Google Drive OAuth integration",
+      "docs: add Google Drive integration implementation summary",
+      "feat(integrations): add OneDrive OAuth integration",
+      "docs: add OneDrive integration implementation summary",
+      "docs: add comprehensive cloud storage integration summary",
+      "feat(integrations): implement token refresh and expiration handling",
+      "docs(integrations): mark Phase 1 Token Management as complete",
+      "feat(legal): add Privacy Policy and Terms of Service pages",
+      "feat(legal): add DevPad logo and branding to legal pages",
+      "refactor(legal): use logo.png asset instead of inline SVG",
+      "refactor(legal): convert to Angular components with app-logo",
+      "refactor(legal): remove terms.html references and use Angular routes",
+      "fix(logo): add host styles for proper display and sizing",
+      "feat(integrations): complete Google Drive integration with file management and preview",
+      "Merge branch 'google-oauth' - Complete Google Drive integration"
+    ]
+  },
+  {
+    "date": "2025-11-16",
+    "changes": [
+      "feat(profile): add avatar upload with circular image cropping",
+      "feat(mobile): add comprehensive mobile responsiveness",
+      "feat(notes): add drag and drop to move notes between folders",
+      "fix(notes): resolve note creation in subfolders and drag-drop issues",
+      "fix(folders): show newly created subfolder notes immediately\\n\\n- Auto-expand target folder on creation\\n- Optimistically insert new note into folder.notes with minimal fields\\n- Trigger background refresh of notes for consistency",
+      "fix(folders): show notes in leaf folders\\n\\n- Render notes without expand when no child folders\\n- Load notes on folder header click for leaf nodes\\n- Keeps expand behavior for folders with child folders",
+      "feat(ui): add relative time directive for smart timestamps",
+      "feat(notes): add properties modal to note kebab menu",
+      "test(directives): add comprehensive tests for RelativeTimeDirective",
+      "docs(legal): append MIT License and developer details to Terms;"
+    ]
+  },
+  {
+    "date": "2025-11-15",
+    "changes": [
+      "chore: switch from GitHub Pages to Vercel deployment",
+      "docs: add GitHub Copilot instructions for consistent context",
+      "refactor(logo): simplify to letter-by-letter typing animation",
+      "feat(settings): add Terms & Conditions modal and link under Legal section\\n\\n- Add TermsModalComponent with iframe loading /terms.html\\n- Add public/terms.html placeholder content\\n- Wire Legal section and modal toggles in settings panel\\n- Replace header theme/signout with Settings gear button and overlay",
+      "docs(legal): append MIT License and developer details to Terms; add root LICENSE",
+      "fix(terms): sanitize iframe src with DomSanitizer to resolve NG0904",
+      "style(terms): switch to serif legal font and refined typography",
+      "docs(terms): include r.svg mark in developer footer",
+      "feat(settings): load profile on open via @Input setter; add reusable Avatar component and use in header/settings; docs: add storage bucket setup + manual delete user guide"
+    ]
+  },
+  {
+    "date": "2025-11-14",
+    "changes": [
+      "Add CHANGELOG.md and commit recent UI/storage/template changes (modals, storage->Supabase bucket, signed-URL reads, editor/selection fixes, @if/@for template conversions)",
+      "Emit foldersChanged and noteCreated when creating notes from center; subscribe in Sidebar to reload folders (refresh folder tree on center-created notes)",
+      "Skip storage verification for intentionally empty uploads in NoteService (avoid 'Uploaded file is empty' when creating empty notes)",
+      "Add optional note.icon in FolderTree model; render note icon in FolderTree and avoid duplicate noteCreated emission in workspace save flow",
+      "Branding: change app name to DevPad in UI, README and package metadata (DevPad)",
+      "Add `LogoComponent` (typewriter-style DevPad logo with typing animation)",
+      "Replace static app name with <app-logo> component in dashboard header and auth pages; import LogoComponent where needed",
+      "LogoComponent: add animate control (once/always/false) and use ElementRef+Renderer2 for reliable host styling",
+      "LogoComponent: persist 'shown' state in localStorage so typing animation plays only once per user (persisted-once)",
+      "Logo: play typing animation once and persist shown state in header and auth pages",
+      "UI: add Dark/Light Toggle button to dashboard header",
+      "UX: icon-based theme toggle in header + persist theme to user metadata; slow logo typing animation",
+      "Theme: add 'auto' mode (time-based default for first login), persist preference to user metadata; make logo color inherit for dark mode",
+      "UX: ensure logo visible in auth pages (wrap logo with color classes)",
+      "UX: add theme selector menu (light/dark/auto/system) to header and compute slower default logo typing speed",
+      "i(pages): configure custom domain devpad.therama.dev via actions",
+      "chore(pages): trigger cert issuance after DNS fix",
+      "Create CNAME",
+      "chore(pages): trigger cert issuance after DNS fix",
+      "Merge branch 'master' of https://github.com/ramaeondev/devpad.therama.dev"
+    ]
+  },
+  {
+    "date": "2025-11-13",
+    "changes": [
+      "Fix build errors and update dependencies",
+      "feat: modal-based folder creation, global spinner, toast system, duplicate folder guard",
+      "docs: add Nov 13 implementation changelog summary",
+      "feat(notes): implement markdown editor, note editor page, navigation from folder tree",
+      "feat(workspace): embed note workspace in dashboard and folder-linked note creation",
+      "feat(notes): storage-backed notes via signed URLs; editor & UI fixes"
+    ]
+  },
+  {
+    "date": "2025-11-12",
+    "changes": [
+      "Initial commit: CloudNotes V2 with Angular 20, Signals, and Tailwind CSS"
+    ]
+  }
+]
