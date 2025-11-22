@@ -1,84 +1,22 @@
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, Input } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { RouterModule } from '@angular/router';
 
 @Component({
   selector: 'app-logo',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, RouterModule],
   template: `
-            <span class="text-2xl font-bold tracking-tight text-gray-900 dark:text-white">DevPad</span>
-
-  <!-- @for(letter of letters ; track i; let i= $index){
-    <span [class.hidden]="!letter.visible">
-      {{ letter.char }}
-    </span>
-    }
-    @if(showCursor){
-    <span class="animate-blink">|</span>
-    } -->
+  @if(isClickable) {
+    <a routerLink="/">
+      <span class="text-2xl font-bold tracking-tight text-gray-900 dark:text-white">DevPad</span>
+    </a>
+  } @else {
+    <span class="text-2xl font-bold tracking-tight text-gray-900 dark:text-white">DevPad</span>ß
+  }      
   `,
-  styles: [
-    `
-      :host {
-        display: inline-block;
-        font-size: 1.5rem;
-        font-weight: 700;
-        letter-spacing: -0.025em;
-        color: inherit;
-      }
-
-      @keyframes blink {
-        0%,
-        50% {
-          opacity: 1;
-        }
-        51%,
-        100% {
-          opacity: 0;
-        }
-      }
-
-      .animate-blink {
-        animation: blink 0.8s infinite;
-      }
-
-      .hidden {
-        visibility: hidden;
-      }
-    `,
-  ],
+  styles: [],
 })
-export class LogoComponent implements OnInit {
-  @Input() text = 'DevPad';
-  @Input() speed: number = 200;
-  @Input() showCursor = false;
-  letters: Array<{ char: string; visible: boolean; delay: number }> = [];
-
-  ngOnInit() {
-    this.initializeLetters();
-    this.typeText();
-  }
-
-  initializeLetters() {
-    this.letters = this.text.split('').map((char) => ({
-      char,
-      visible: false,
-      delay: 0,
-    }));
-  }
-
-  typeText() {
-    this.letters.forEach((letter, index) => {
-      setTimeout(() => {
-        letter.visible = true;
-
-        // Show and start blinking cursor after last letter
-        if (index === this.letters.length - 1) {
-          setTimeout(() => {
-            this.showCursor = true;
-          }, 100);
-        }
-      }, index * this.speed);
-    });
-  }
+export class LogoComponent {
+  @Input() isClickable: boolean = false;
 }
