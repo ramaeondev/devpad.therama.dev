@@ -1,6 +1,7 @@
 import { Component, EventEmitter, Input, Output, inject, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ThemeService, Theme } from '../../../core/services/theme.service';
+import { ChangelogModalComponent } from '../ui/changelog-modal.component';
 import { AuthStateService } from '../../../core/services/auth-state.service';
 import { SupabaseService } from '../../../core/services/supabase.service';
 import { Router, RouterLink } from '@angular/router';
@@ -26,11 +27,13 @@ import { OneDriveService } from '../../../core/services/onedrive.service';
     ImageCropDialogComponent,
     AvatarComponent,
     OverlayModule,
+    ChangelogModalComponent,
   ],
  templateUrl: './settings-panel.component.html',
   styles: [],
 })
 export class SettingsPanelComponent {
+  showChangelog = signal(false);
   private _open = false;
   @Input() set open(val: boolean) {
     const opening = !this._open && !!val;
