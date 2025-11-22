@@ -2,7 +2,15 @@
 
 All notable changes to this project are documented in this file.
 
-## [Unreleased] - 2025-11-18
+
+## [Unreleased] - 2025-11-22
+
+### Changed
+- **Iconography Overhaul**: Migrated all document/file type icons from custom SVGs and local assets to Font Awesome CDN icons for consistency and performance.
+  - Removed all usages of local SVG icon assets and custom icon directive (`appIcon`).
+  - Updated all components and pipes to use `<i class="fa-solid ...">` with dynamic FA class names.
+  - Ensured no local icon requests are made; all icons now load from the CDN.
+
 
 ### Added
 - **Homepage**: Created a new homepage to serve as a landing page for the application.

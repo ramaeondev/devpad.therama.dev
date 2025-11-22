@@ -2,20 +2,20 @@ import { Component, Input, Output, EventEmitter, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { GoogleDriveFile } from '../../../../core/models/integration.model';
-import { IconDirective, RelativeTimeDirective, FileSizeDirective } from '../../../../shared/directives';
+import { RelativeTimeDirective, FileSizeDirective } from '../../../../shared/directives';
 import { getIconNameFromNameAndMime } from '../../../../shared/utils/file-type.util';
 
 
 @Component({
   selector: 'app-google-drive-preview',
   standalone: true,
-  imports: [CommonModule, IconDirective, RelativeTimeDirective, FileSizeDirective],
+  imports: [CommonModule, RelativeTimeDirective, FileSizeDirective],
   template: `
     <div class="google-drive-preview h-full flex flex-col bg-white dark:bg-gray-900">
       <!-- Header -->
       <div class="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-800">
         <div class="flex items-center gap-3 flex-1">
-          <span class="w-6 h-6 text-gray-600 dark:text-gray-300 flex-shrink-0" appIcon [appIcon]="getFileIconName(file)" [size]="24"></span>
+          <i class="fa-solid {{ getFileIconName(file) }} w-6 h-6 text-gray-600 dark:text-gray-300 flex-shrink-0" style="font-size:24px;"></i>
           <div class="flex-1">
             <h2 class="text-lg font-semibold text-gray-900 dark:text-white">
               {{ file.name }}
@@ -51,7 +51,7 @@ import { getIconNameFromNameAndMime } from '../../../../shared/utils/file-type.u
         } @else {
           <div class="flex items-center justify-center h-full">
             <div class="text-center">
-              <span class="w-16 h-16 mx-auto mb-4 text-gray-400 flex-shrink-0" appIcon [appIcon]="getFileIconName(file)" [size]="64"></span>
+              <i class="fa-solid {{ getFileIconName(file) }} w-16 h-16 mx-auto mb-4 text-gray-400 flex-shrink-0" style="font-size:64px;"></i>
               <p class="text-gray-600 dark:text-gray-400">Preview not available</p>
             </div>
           </div>

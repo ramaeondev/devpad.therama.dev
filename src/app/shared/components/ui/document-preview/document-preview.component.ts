@@ -1,7 +1,6 @@
 import { Component, Input, signal, inject, OnInit, OnDestroy, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { DomSanitizer } from '@angular/platform-browser';
-import { IconDirective } from '../../../directives';
 import { getExtensionFromPath, getIconNameFromExt, getTypeLabelFromExt } from '../../../utils/file-type.util';
 import { NoteService } from '../../../../core/services/note.service';
 import { AuthStateService } from '../../../../core/services/auth-state.service';
@@ -11,7 +10,7 @@ import { SupabaseService } from '../../../../core/services/supabase.service';
 @Component({
   selector: 'app-document-preview',
   standalone: true,
-  imports: [CommonModule, IconDirective],
+  imports: [CommonModule],
   template: `
     <div class="h-screen flex flex-col bg-white dark:bg-gray-800 relative">
       <!-- Content -->
@@ -78,7 +77,7 @@ import { SupabaseService } from '../../../../core/services/supabase.service';
           } @else {
             <div class="h-full flex items-center justify-center bg-gray-50 dark:bg-gray-900 p-8">
               <div class="text-center max-w-md">
-                <span class="w-16 h-16 mx-auto mb-4 text-gray-400 flex-shrink-0" appIcon [appIcon]="getFileIconName()" [size]="64"></span>
+                <i class="fa-solid {{ getFileIconName() }} w-16 h-16 mx-auto mb-4 text-gray-400 flex-shrink-0" style="font-size:64px;"></i>
                 <h3 class="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-2">
                   {{ note?.title }}
                 </h3>
@@ -91,7 +90,7 @@ import { SupabaseService } from '../../../../core/services/supabase.service';
         } @else {
           <div class="h-full flex items-center justify-center bg-gray-50 dark:bg-gray-900">
             <div class="text-center">
-              <span class="w-16 h-16 mx-auto mb-4 text-gray-400 flex-shrink-0" appIcon [appIcon]="getFileIconName()" [size]="64"></span>
+              <i class="fa-solid {{ getFileIconName() }} w-16 h-16 mx-auto mb-4 text-gray-400 flex-shrink-0" style="font-size:64px;"></i>
               <h3 class="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-2">
                 Preview Unavailable
               </h3>

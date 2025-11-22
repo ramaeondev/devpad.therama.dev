@@ -114,7 +114,7 @@ import { DropdownComponent } from '../../../../shared/components/ui/dropdown/dro
             (click)="onFileClick(file)"
           >
             <span class="w-4"></span> <!-- Spacer -->
-            <span class="note-icon w-4 h-4 pointer-events-none" appIcon [appIcon]="file | googleDriveIcon" [size]="16"></span>
+            <i class="fa-solid {{ file | googleDriveIcon }} note-icon w-4 h-4 pointer-events-none" style="font-size:16px;"></i>
             <span class="truncate flex-1" [title]="file.name">{{ file.name }}</span>
             
             <!-- Kebab Menu -->

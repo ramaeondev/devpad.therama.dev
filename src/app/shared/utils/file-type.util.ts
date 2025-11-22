@@ -67,53 +67,80 @@ export function getTypeLabelFromExt(ext: string): string {
   }
 }
 
+// Font Awesome icon imports (to be imported in the file or a shared icons file)
+// import { faFilePdf, faFileWord, faFileExcel, faFilePowerpoint, faFileImage, faFileAudio, faFileVideo, faFileArchive, faFileAlt, faFileCsv, faFile } from '@fortawesome/free-solid-svg-icons';
+
+// For now, return string names for FA icons. Later, replace with actual icon objects after FA integration.
 export function getIconNameFromExt(ext: string): string {
-  const map: Record<string, string> = {
-    pdf: 'pdf-icon',
-    doc: 'doc-icon',
-    docx: 'docx-icon',
-    xls: 'xls-icon',
-    xlsx: 'xlsx-icon',
-    xlsm: 'xlsm-icon',
-    xla: 'xla-icon',
-    xlam: 'xlam-icon',
-    xlt: 'xlt-icon',
-    xltm: 'xltm-icon',
-    xltx: 'xltx-icon',
-    csv: 'csv-icon',
-    ppt: 'ppt-icon',
-    pptx: 'pptx-icon',
-    pot: 'pot-icon',
-    potx: 'potx-icon',
-    ppsx: 'ppsx-icon',
-    txt: 'txt-icon',
-    md: 'markdown-icon',
-    markdown: 'markdown-icon',
-    jpg: 'jpg-icon',
-    jpeg: 'jpeg-icon',
-    gif: 'gif-icon',
-  };
-  if (map[ext]) return map[ext];
-  if (ext.startsWith('xl')) return 'excel-icon';
-  if (ext.startsWith('ppt')) return 'ppt-icon';
-  if (ext.startsWith('doc')) return 'doc-icon';
-  return 'doc-icon';
+  switch (ext) {
+    case 'pdf':
+      return 'fa-file-pdf';
+    case 'doc':
+    case 'docx':
+      return 'fa-file-word';
+    case 'xls':
+    case 'xlsx':
+    case 'xlsm':
+    case 'xlt':
+    case 'xltm':
+    case 'xltx':
+    case 'xla':
+    case 'xlam':
+      return 'fa-file-excel';
+    case 'csv':
+      return 'fa-file-csv';
+    case 'ppt':
+    case 'pptx':
+    case 'pot':
+    case 'potx':
+    case 'ppsx':
+      return 'fa-file-powerpoint';
+    case 'txt':
+      return 'fa-file-lines';
+    case 'md':
+    case 'markdown':
+      return 'fa-file-lines';
+    case 'jpg':
+    case 'jpeg':
+    case 'png':
+    case 'gif':
+    case 'webp':
+    case 'svg':
+      return 'fa-file-image';
+    case 'mp4':
+    case 'avi':
+    case 'mov':
+    case 'webm':
+    case 'mkv':
+      return 'fa-file-video';
+    case 'mp3':
+    case 'wav':
+    case 'ogg':
+    case 'flac':
+    case 'm4a':
+      return 'fa-file-audio';
+    case 'zip':
+    case 'rar':
+      return 'fa-file-zipper';
+    default:
+      return 'fa-file';
+  }
 }
 
 export function getIconNameFromMime(mime: string): string {
   const m = (mime || '').toLowerCase();
-  if (!m) return 'doc-icon';
-  if (m.includes('spreadsheet')) return 'excel-icon';
-  if (m.includes('presentation')) return 'ppt-icon';
-  if (m.includes('document')) return 'doc-icon';
-  if (m.includes('pdf')) return 'pdf-icon';
-  if (m.includes('image')) return 'jpg-icon';
-  return 'doc-icon';
+  if (!m) return 'fa-file';
+  if (m.includes('spreadsheet')) return 'fa-file-excel';
+  if (m.includes('presentation')) return 'fa-file-powerpoint';
+  if (m.includes('document')) return 'fa-file-word';
+  if (m.includes('pdf')) return 'fa-file-pdf';
+  if (m.includes('image')) return 'fa-file-image';
+  return 'fa-file';
 }
 
 export function getIconNameFromNameAndMime(name?: string, mime?: string): string {
   const ext = getExtensionFromPath(name ?? '');
   if (ext) return getIconNameFromExt(ext);
   if (mime) return getIconNameFromMime(mime);
-  return 'doc-icon';
+  return 'fa-file';
 }
