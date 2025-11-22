@@ -8,14 +8,13 @@ import { ToastService } from '../../../../core/services/toast.service';
 import { WorkspaceStateService } from '../../../../core/services/workspace-state.service';
 import { FolderService } from '../../../folders/services/folder.service';
 import { PropertiesModalComponent, PropertyItem } from '../../../../shared/components/ui/properties-modal/properties-modal.component';
-import { IconDirective } from '../../../../shared/directives';
 import { GoogleDriveIconPipe } from '../../../../shared/pipes/google-drive-icon.pipe';
 import { DropdownComponent } from '../../../../shared/components/ui/dropdown/dropdown.component';
 
 @Component({
   selector: 'app-google-drive-tree',
   standalone: true,
-  imports: [CommonModule, PropertiesModalComponent, IconDirective, GoogleDriveIconPipe, DropdownComponent],
+  imports: [CommonModule, PropertiesModalComponent, GoogleDriveIconPipe, DropdownComponent],
   template: `
     <div class="google-drive-tree-container p-2">
       @if (!googleDrive.isConnected()) {

@@ -20,7 +20,7 @@ import { LogoComponent } from '../../../../shared/components/ui/logo/logo.compon
             class="mt-4 sm:mt-6 text-center text-2xl sm:text-3xl font-extrabold text-gray-900 dark:text-white"
           >
             <span class="text-gray-900 dark:text-gray-100 inline-block">
-              <app-logo></app-logo>
+              <app-logo [isClickable]="true"></app-logo>
             </span>
           </h2>
           <p class="mt-2 text-center text-sm text-gray-600 dark:text-gray-400">

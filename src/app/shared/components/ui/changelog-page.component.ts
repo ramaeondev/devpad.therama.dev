@@ -8,7 +8,7 @@ import { LogoComponent } from './logo/logo.component';
   imports: [CommonModule, LogoComponent],
   template: `
     <div class="min-h-screen bg-white dark:bg-gray-900 flex flex-col items-center py-10 px-4">
-      <app-logo class="mb-6"></app-logo>
+      <app-logo class="mb-6" [isClickable]="true"></app-logo>
       <h1 class="text-3xl font-bold mb-6 text-gray-900 dark:text-gray-100">Changelog</h1>
       <div class="prose dark:prose-invert max-w-2xl w-full text-sm">
         <ng-container *ngFor="let entry of sortedChangelog()">

@@ -13,7 +13,7 @@ import { LogoComponent } from '../../../../shared/components/ui/logo/logo.compon
     >
       <div class="max-w-md w-full text-center space-y-6">
         <div class="flex justify-center mb-4">
-          <app-logo></app-logo>
+          <app-logo [isClickable]="true"></app-logo>
         </div>
         <div class="text-6xl">📧</div>
         <h2 class="text-3xl font-bold text-gray-900 dark:text-white">Check your email</h2>

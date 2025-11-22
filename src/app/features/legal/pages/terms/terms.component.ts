@@ -12,7 +12,7 @@ import { LogoComponent } from '../../../../shared/components/ui/logo/logo.compon
       <div class="max-w-4xl mx-auto px-4 py-8 sm:px-6 lg:px-8">
         <!-- Header with Logo -->
         <div class="text-center mb-12">
-          <app-logo class="mx-auto mb-4"></app-logo>
+          <app-logo class="mx-auto mb-4" [isClickable]="true"></app-logo>
           <h1 class="text-3xl font-bold text-gray-900 dark:text-white mb-2">Terms of Service</h1>
           <p class="text-gray-600 dark:text-gray-400">Last Updated: November 17, 2025</p>
         </div>
