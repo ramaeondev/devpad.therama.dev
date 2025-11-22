@@ -15,9 +15,6 @@ import {
   NotePropertiesModalComponent,
   NoteProperties,
 } from '../../../../shared/components/ui/dialog/note-properties-modal.component';
-import {
-  IconDirective,
-} from '../../../../shared/directives';
 import { NoteIconPipe } from '../../../../shared/pipes/note-icon.pipe';
 @Component({
   selector: 'app-folder-tree',
@@ -29,7 +26,6 @@ import { NoteIconPipe } from '../../../../shared/pipes/note-icon.pipe';
     NoteNameModalComponent,
     ConfirmModalComponent,
     NotePropertiesModalComponent,
-    IconDirective,
     NoteIconPipe,
   ],
   template: `
@@ -186,7 +182,7 @@ import { NoteIconPipe } from '../../../../shared/pipes/note-icon.pipe';
                   (dragend)="onNoteDragEnd($event)"
                 >
                     <span class="drag-handle w-4 text-xs text-gray-400 cursor-move select-none">⋮⋮</span>
-                    <span class="note-icon w-4 h-4 pointer-events-none" appIcon [appIcon]="note | noteIcon" [size]="16"></span>
+                    <i class="fa-solid {{ note | noteIcon }} note-icon w-4 h-4 pointer-events-none" style="font-size:16px;"></i>
                     <span class="truncate flex-1" [title]="note.title || 'Untitled'">{{ note.title || 'Untitled' }}</span>
                   <!-- <span class="text-[10px] text-gray-400 pointer-events-none mr-2" [appRelativeTime]="note.updated_at"></span> -->
                   <!-- Note Actions Dropdown -->

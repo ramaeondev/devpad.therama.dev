@@ -3,7 +3,7 @@
     "date": "2025-11-22",
     "changes": [
       "Migrates Google Drive auth to server exchange flow",
-      "Replaces custom icon components with Font Awesome icons"
+      "Migrated all document/file type icons from custom SVGs and local assets to Font Awesome CDN icons. Removed custom icon directive and ensured all icons load from CDN."
     ]
   },
   {

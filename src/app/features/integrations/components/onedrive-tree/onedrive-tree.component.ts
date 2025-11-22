@@ -1,6 +1,6 @@
 import { Component, inject, signal, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { IconDirective, FileSizeDirective } from '../../../../shared/directives';
+import { FileSizeDirective } from '../../../../shared/directives';
 import { getIconNameFromNameAndMime } from '../../../../shared/utils/file-type.util';
 import { OneDriveService } from '../../../../core/services/onedrive.service';
 import { OneDriveFile } from '../../../../core/models/integration.model';
@@ -10,7 +10,7 @@ import { ToastService } from '../../../../core/services/toast.service';
 @Component({
   selector: 'app-onedrive-tree',
   standalone: true,
-  imports: [CommonModule, IconDirective, FileSizeDirective],
+  imports: [CommonModule, FileSizeDirective],
   template: `
     <div class="onedrive-tree">
       @if (!oneDrive.isConnected()) {
@@ -71,7 +71,7 @@ import { ToastService } from '../../../../core/services/toast.service';
       <!-- Render files -->
       @for (file of folder.files; track file.id) {
         <div class="file-item" [style.padding-left.rem]="level * 1.5">
-          <span class="w-5 h-5 text-gray-600 dark:text-gray-300 flex-shrink-0" appIcon [appIcon]="getFileIconName(file)" [size]="20"></span>
+          <i class="fa-solid {{ getFileIconName(file) }} w-5 h-5 text-gray-600 dark:text-gray-300 flex-shrink-0" style="font-size:20px;"></i>
           <span class="flex-1 truncate text-gray-900 dark:text-gray-100">{{ file.name }}</span>
           <span class="text-xs text-gray-500 dark:text-gray-400 mr-2">
             <span appFileSize [appFileSize]="file.size"></span>
