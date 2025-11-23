@@ -13,10 +13,8 @@ All notable changes to this project are documented in this file.
 
 
 ### Added
-- **Homepage**: Created a new homepage to serve as a landing page for the application.
 - **Features Section**: Added a "Key Features" section to the homepage to highlight application capabilities.
 - **Google User Data Policy**: Added a new section to the privacy policy to comply with Google's API Services User Data Policy.
-
 ### Changed
 - **Routing**: Updated application routing to direct root URL to the new homepage.
 - **Branding**: Replaced the default SVG with the `app-logo` component for consistent branding on the homepage.

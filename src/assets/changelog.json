@@ -1,5 +1,18 @@
 [
   {
+    "date": "2025-11-23",
+    "changes": [
+      "Add account dropdown menu with sign out and theme options"
+    ]
+  },
+  {
+    "date": "2025-11-22",
+    "changes": [
+      "feat(proxy): implement proxy endpoint with CORS support and authentication",
+      "Improves sign-in flow and updates environment config"
+    ]
+  },
+  {
     "date": "2025-11-22",
     "changes": [
       "Migrates Google Drive auth to server exchange flow",
