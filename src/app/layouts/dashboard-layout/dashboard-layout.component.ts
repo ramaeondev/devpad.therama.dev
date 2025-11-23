@@ -10,6 +10,9 @@ import { GlobalSpinnerComponent } from '../../shared/components/ui/spinner/globa
 import { NoteWorkspaceComponent } from '../../features/notes/components/note-workspace/note-workspace.component';
 import { UserService } from '../../core/services/user.service';
 import { AvatarComponent } from '../../shared/components/ui/avatar/avatar.component';
+import { SupabaseService } from '../../core/services/supabase.service';
+import { LoadingService } from '../../core/services/loading.service';
+import { Router } from '@angular/router';
 @Component({
   selector: 'app-dashboard-layout',
   standalone: true,
@@ -45,10 +48,10 @@ import { AvatarComponent } from '../../shared/components/ui/avatar/avatar.compon
           </div>
           <div class="flex items-center gap-2 sm:gap-4 relative">
             <button
-              (click)="openSettings()"
+              (click)="toggleDropdown()"
               class="p-0 rounded-full border-2 border-transparent hover:border-gray-300 dark:hover:border-gray-600 transition-colors"
-              title="Settings"
-              aria-label="Open settings"
+              title="Account menu"
+              aria-label="Open account menu"
             >
               <app-avatar
                 [avatarUrl]="avatarUrl()"
@@ -67,6 +70,35 @@ import { AvatarComponent } from '../../shared/components/ui/avatar/avatar.compon
                 class="hidden sm:block"
               />
             </button>
+            @if (showDropdown()) {
+              <div class="absolute right-0 top-full mt-2 min-w-[16rem] max-w-xs bg-white dark:bg-gray-800 rounded-lg shadow-xl z-50 border border-gray-200 dark:border-gray-700 flex flex-col gap-1" style="min-width: 16rem;">
+                <div class="px-4 py-3 text-sm text-gray-900 dark:text-gray-100 font-semibold border-b border-gray-100 dark:border-gray-700 truncate" title="{{ auth.userEmail() }}">
+                  {{ auth.userEmail() }}
+                </div>
+                <button class="flex items-center gap-2 px-4 py-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors text-left" (click)="openSettings()" aria-label="Account">
+                  <i class="fa-regular fa-user text-lg"></i>
+                  Account
+                </button>
+                <button class="flex items-center gap-2 px-4 py-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors text-left" (click)="signOut()" aria-label="Sign out">
+                  <i class="fa-solid fa-arrow-right-from-bracket text-lg"></i>
+                  Sign out
+                </button>
+                <div class="flex items-center justify-between px-4 py-2 text-sm">
+                  <span>Theme</span>
+                  <div class="flex gap-1">
+                    <button class="p-1 rounded hover:bg-gray-100 dark:hover:bg-gray-700" (click)="setTheme('light')" aria-label="Light mode">
+                      <i class="fa-solid fa-sun"></i>
+                    </button>
+                    <button class="p-1 rounded hover:bg-gray-100 dark:hover:bg-gray-700" (click)="setTheme('dark')" aria-label="Dark mode">
+                      <i class="fa-solid fa-moon"></i>
+                    </button>
+                    <button class="p-1 rounded hover:bg-gray-100 dark:hover:bg-gray-700" (click)="setTheme('system')" aria-label="System mode">
+                      <i class="fa-solid fa-circle-half-stroke"></i>
+                    </button>
+                  </div>
+                </div>
+              </div>
+            }
           </div>
         </div>
       </header>
@@ -111,7 +143,11 @@ export class DashboardLayoutComponent {
   theme = inject(ThemeService);
   showSettings = signal(false);
   showMobileSidebar = signal(false);
+  showDropdown = signal(false);
   private userService = inject(UserService);
+  private loading = inject(LoadingService);
+  private supabase = inject(SupabaseService);
+  private router = inject(Router);
 
   // Profile state
   firstName = signal<string>('');
@@ -160,6 +196,24 @@ export class DashboardLayoutComponent {
   openSettings() {
     this.showSettings.set(true);
     this.closeMobileSidebar(); // Close sidebar when opening settings
+    this.showDropdown.set(false);
+  }
+  toggleDropdown() {
+    this.showDropdown.update((v) => !v);
+  }
+
+  async signOut() {
+    await this.loading.withLoading(async () => {
+      await this.supabase.auth.signOut();
+    });
+    this.auth.clear();
+    this.router.navigate(['/auth/signin']);
+  }
+
+
+  setTheme(theme: 'light' | 'dark' | 'system' | 'auto') {
+    this.theme.setTheme(theme);
+    this.showDropdown.set(false);
   }
 
   closeSettings() {

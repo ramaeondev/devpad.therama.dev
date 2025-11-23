@@ -12,7 +12,7 @@ import { RouterModule } from '@angular/router';
       <span class="text-2xl font-bold tracking-tight text-gray-900 dark:text-white">DevPad</span>
     </a>
   } @else {
-    <span class="text-2xl font-bold tracking-tight text-gray-900 dark:text-white">DevPad</span>ß
+    <span class="text-2xl font-bold tracking-tight text-gray-900 dark:text-white">DevPad</span>
   }      
   `,
   styles: [],
