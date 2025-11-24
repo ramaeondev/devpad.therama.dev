@@ -247,6 +247,9 @@ CREATE TRIGGER update_notes_updated_at
   FOR EACH ROW
   EXECUTE FUNCTION update_updated_at_column();
 
+-- Migration: Add encrypted_key column to notes table
+ALTER TABLE notes ADD COLUMN encrypted_key TEXT;
+
 -- Comments for documentation
 COMMENT ON TABLE folders IS 'Stores folder hierarchy for organizing notes';
 COMMENT ON TABLE notes IS 'Stores user notes with markdown content';
