@@ -11,6 +11,7 @@ declare const google: any;
 
 @Injectable({ providedIn: 'root' })
 export class GoogleDriveService {
+    pickerLoaded = signal(false);
   private supabase = inject(SupabaseService);
   private auth = inject(AuthStateService);
   private toast = inject(ToastService);
@@ -25,7 +26,6 @@ export class GoogleDriveService {
 
   private readonly SCOPES = [
     'https://www.googleapis.com/auth/drive.file',
-    'https://www.googleapis.com/auth/drive.readonly',
     'https://www.googleapis.com/auth/userinfo.email',
   ].join(' ');
 
@@ -36,17 +36,38 @@ export class GoogleDriveService {
    */
   async initGoogleAuth(): Promise<void> {
     return new Promise((resolve, reject) => {
+      let loaded = 0;
+      const checkLoaded = () => {
+        loaded++;
+        if (loaded === 2) {
+          this.pickerLoaded.set(true);
+          resolve();
+        }
+      };
+      // Load Google Identity Services script
       if (typeof google === 'undefined') {
-        // Load Google Identity Services script
         const script = document.createElement('script');
         script.src = 'https://accounts.google.com/gsi/client';
         script.async = true;
         script.defer = true;
-        script.onload = () => resolve();
+        script.onload = checkLoaded;
         script.onerror = () => reject(new Error('Failed to load Google Identity Services'));
         document.head.appendChild(script);
       } else {
-        resolve();
+        checkLoaded();
+      }
+      // Load Google Picker API script
+      if (!(window as any).gapi) {
+        const pickerScript = document.createElement('script');
+        pickerScript.src = 'https://apis.google.com/js/api.js';
+        pickerScript.async = true;
+        pickerScript.onload = () => {
+          (window as any).gapi.load('picker', checkLoaded);
+        };
+        pickerScript.onerror = () => reject(new Error('Failed to load Google Picker API'));
+        document.head.appendChild(pickerScript);
+      } else {
+        (window as any).gapi.load('picker', checkLoaded);
       }
     });
   }
@@ -120,7 +141,7 @@ export class GoogleDriveService {
       this.integration.set(data as Integration);
       this.isConnected.set(true);
       this.toast.success('Google Drive connected successfully');
-      await this.loadFiles();
+      // Do not auto-list files. User must trigger listing via UI.
     } catch (error: any) {
       console.error('Failed to save integration:', error);
       this.toast.error('Failed to save Google Drive connection');
@@ -150,7 +171,7 @@ export class GoogleDriveService {
         // Do not attempt silent refresh — token remains stored server-side.
         this.integration.set(integration);
         this.isConnected.set(true);
-        await this.loadFiles();
+        // Do not auto-list files. User must trigger listing via UI.
       }
     } catch (error) {
       console.error('Failed to check Google Drive connection:', error);
@@ -190,39 +211,120 @@ export class GoogleDriveService {
   }
 
   /**
-   * Load files from Google Drive
+   * User-triggered: Pick files using Google Picker
    */
-  async loadFiles(): Promise<void> {
-    try {
-      const params = new URLSearchParams({
-        pageSize: '100',
-        fields: 'files(id,name,mimeType,modifiedTime,size,webViewLink,iconLink,parents)',
-        q: 'trashed=false',
-      });
+  async pickFiles(): Promise<void> {
+    await this.showPicker('files');
+  }
 
-      const url = `https://www.googleapis.com/drive/v3/files?${params}`;
+  /**
+   * User-triggered: Pick a folder using Google Picker
+   */
+  async pickFolder(): Promise<void> {
+    await this.showPicker('folder');
+  }
 
-      const response = await this.authFetch(url, { method: 'GET', headers: { 'Accept': 'application/json' } });
+  /**
+   * User-triggered: Pick files shared with me
+   */
+  async pickSharedWithMe(): Promise<void> {
+    await this.showPicker('shared');
+  }
 
-      const data = await response.json();
-      const files: GoogleDriveFile[] = data.files.map((file: any) => ({
-        id: file.id,
-        name: file.name,
-        mimeType: file.mimeType,
-        modifiedTime: file.modifiedTime,
-        size: file.size,
-        webViewLink: file.webViewLink,
-        iconLink: file.iconLink,
-        parents: file.parents,
-        isFolder: file.mimeType === 'application/vnd.google-apps.folder',
-      }));
+  /**
+   * User-triggered: Search files by name
+   */
+  async searchFilesByName(query: string): Promise<void> {
+    await this.showPicker('search', query);
+  }
 
-      this.files.set(files);
-      this.buildFolderTree(files);
-    } catch (error: any) {
-      console.error('Failed to load files:', error);
-      this.toast.error('Failed to load Google Drive files');
+  /**
+   * User-triggered: List Google Docs only
+   */
+  async listGoogleDocs(): Promise<void> {
+    await this.showPicker('docs');
+  }
+
+  /**
+   * Centralized Picker logic
+   */
+  private async showPicker(type: 'files' | 'folder' | 'shared' | 'search' | 'docs', query?: string): Promise<void> {
+    if (!this.pickerLoaded()) {
+      await this.initGoogleAuth();
     }
+    const accessToken = this.integration()?.access_token;
+    if (!accessToken) {
+      this.toast.error('Not connected to Google Drive');
+      return;
+    }
+    let view: any;
+    const gPicker = (window as any).google?.picker;
+    if (!gPicker) {
+      this.toast.error('Google Picker API not loaded');
+      return;
+    }
+    switch (type) {
+      case 'files':
+        view = new gPicker.DocsView()
+          .setIncludeFolders(true)
+          .setSelectFolderEnabled(false);
+        break;
+      case 'folder':
+        view = new gPicker.DocsView()
+          .setIncludeFolders(true)
+          .setSelectFolderEnabled(true);
+        break;
+      case 'shared':
+        view = new gPicker.DocsView()
+          .setIncludeFolders(true)
+          .setOwnedByMe(false);
+        break;
+      case 'search':
+        view = new gPicker.DocsView()
+          .setIncludeFolders(true)
+          .setQuery(query ?? '');
+        break;
+      case 'docs':
+        view = new gPicker.DocsView()
+          .setIncludeFolders(true)
+          .setMimeTypes('application/vnd.google-apps.document');
+        break;
+      default:
+        view = new gPicker.DocsView();
+    }
+    // Only declare picker once, use gPicker for all references
+    const pickerInstance = new gPicker.PickerBuilder()
+      .addView(view)
+      .setOAuthToken(accessToken)
+      .setDeveloperKey(environment.google.apiKey)
+      .setCallback((data: any) => {
+        if (data.action === gPicker.Action.PICKED) {
+          const newFiles: GoogleDriveFile[] = data.docs.map((doc: any) => ({
+            id: doc.id,
+            name: doc.name,
+            mimeType: doc.mimeType,
+            modifiedTime: doc.lastEditedUtc,
+            size: doc.sizeBytes,
+            webViewLink: doc.url,
+            iconLink: doc.iconUrl,
+            parents: doc.parents,
+            isFolder: doc.mimeType === 'application/vnd.google-apps.folder',
+          }));
+          // Merge new selection with existing files, avoiding duplicates by id
+          const existingFiles = this.files() ?? [];
+          const mergedFilesMap = new Map<string, GoogleDriveFile>();
+          [...existingFiles, ...newFiles].forEach(file => {
+            mergedFilesMap.set(file.id, file);
+          });
+          const mergedFiles = Array.from(mergedFilesMap.values());
+          this.files.set(mergedFiles);
+          this.buildFolderTree(mergedFiles);
+          this.toast.success('Files added from Google Drive');
+        }
+      })
+      .enableFeature(gPicker.Feature.MULTISELECT_ENABLED)
+      .build();
+    pickerInstance.setVisible(true);
   }
 
   /**
@@ -309,7 +411,7 @@ export class GoogleDriveService {
       };
 
       this.toast.success('File uploaded to Google Drive');
-      await this.loadFiles(); // Refresh file list
+      // Optionally, trigger picker or refresh UI if needed
       return uploadedFile;
     } catch (error: any) {
       console.error('Failed to upload file:', error);
@@ -381,7 +483,7 @@ export class GoogleDriveService {
       }
 
       this.toast.success('File deleted from Google Drive');
-      await this.loadFiles(); // Refresh file list
+      // Optionally, trigger picker or refresh UI if needed
       return true;
     } catch (error: any) {
       console.error('Failed to delete file:', error);
@@ -428,7 +530,7 @@ export class GoogleDriveService {
       };
 
       this.toast.success('Folder created in Google Drive');
-      await this.loadFiles(); // Refresh file list
+      // Optionally, trigger picker or refresh UI if needed
       return folder;
     } catch (error: any) {
       console.error('Failed to create folder:', error);
@@ -453,7 +555,7 @@ export class GoogleDriveService {
       }
 
       this.toast.success('File renamed successfully');
-      await this.loadFiles(); // Refresh file list
+      // Optionally, trigger picker or refresh UI if needed
       return true;
     } catch (error: any) {
       console.error('Failed to rename file:', error);
