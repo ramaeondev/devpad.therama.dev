@@ -1,0 +1,16 @@
+Subject: Confirming Narrower Scopes for DevPad Google Drive Integration
+
+Hello Google Developer Team,
+
+Thank you for your review and guidance regarding our Drive API scopes.
+
+We have updated our application to use only the recommended non-sensitive scope:
+- https://www.googleapis.com/auth/drive.file
+
+We have removed the broader drive.readonly scope from our Cloud Console project and codebase. Our app now only requests access to files created by DevPad or files explicitly selected by the user via the Google Picker API. This change ensures we comply with the Workspace API user data and developer policy and only request the minimum necessary permissions.
+
+Please proceed with the review using the updated, narrower scopes.
+
+Best regards,
+DevPad Team
+https://devpad.therama.dev

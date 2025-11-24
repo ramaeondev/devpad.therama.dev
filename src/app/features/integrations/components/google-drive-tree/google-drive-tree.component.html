@@ -1,0 +1,169 @@
+<div class="google-drive-tree-container p-2">
+  @if (!googleDrive.isConnected()) {
+  <div class="text-center py-8">
+    <div class="text-gray-500 dark:text-gray-400 mb-4">
+      <i class="fa-brands fa-google-drive text-6xl"></i>
+      <p>Google Drive not connected</p>
+    </div>
+    <button class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+      (click)="connectGoogleDrive()">
+      Connect Google Drive
+    </button>
+  </div>
+  } @else {
+  @if (googleDrive.rootFolder(); as root) {
+  <div class="folder-item">
+    <!-- Root Folder Accordion Header -->
+    <div
+      class="folder-header flex items-center gap-2 px-2 sm:px-3 py-2.5 sm:py-2 rounded-lg cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+      (click)="toggleRootFolder()">
+      <div class="flex items-center gap-2 flex-1 min-w-0">
+        <span class="text-lg">{{ isRootExpanded() ? '📂' : '📁' }}</span>
+        <h3 class="font-semibold text-gray-700 dark:text-gray-300 flex-1 truncate">{{ root.name }}</h3>
+      </div>
+      @if (root.files.length + root.folders.length > 0) {
+      <span
+        class="notes-count px-2 py-0.5 text-xs rounded-full bg-primary-100 dark:bg-primary-900 text-primary-700 dark:text-primary-300">
+        {{ root.files.length + root.folders.length }}
+      </span>
+      }
+      <app-dropdown align="right">
+        <button dropdownTrigger class="p-1 rounded hover:bg-gray-200 dark:hover:bg-gray-700" title="Actions">
+          <i class="fa-solid fa-rotate-right text-base"></i>
+        </button>
+        <div dropdownMenu class="text-xs">
+          <button class="dropdown-item" (click)="googleDrive.pickFiles(); $event.stopPropagation()">
+            <span>Pick Files</span>
+            <i class="fa-solid fa-file text-xs"></i>
+          </button>
+          <button class="dropdown-item" (click)="googleDrive.pickFolder(); $event.stopPropagation()">
+            <span>Pick Folder</span>
+            <i class="fa-solid fa-folder text-xs"></i>
+          </button>
+          <button class="dropdown-item" (click)="googleDrive.pickSharedWithMe(); $event.stopPropagation()">
+            <span>Files Shared With Me</span>
+            <i class="fa-solid fa-share-nodes text-xs"></i>
+          </button>
+          <button class="dropdown-item" (click)="googleDrive.listGoogleDocs(); $event.stopPropagation()">
+            <span>List Google Docs</span>
+            <i class="fa-brands fa-google-drive text-xs"></i>
+          </button>
+        </div>
+      </app-dropdown>
+    </div>
+
+    <!-- Root Folder Content -->
+    @if (isRootExpanded()) {
+    <div class="space-y-1 mt-1">
+      <ng-container *ngTemplateOutlet="folderTemplate; context: { $implicit: root, level: 1 }"></ng-container>
+    </div>
+    }
+  </div>
+  } @else {
+  <div class="text-center py-8 text-gray-500 dark:text-gray-400">
+    <div class="mb-4">
+      <i class="fa-brands fa-google-drive text-6xl"></i>
+      <p class="mt-2">No files or folders selected from Google Drive.</p>
+      <p class="text-sm">Use the actions menu to pick files or folders, or click below:</p>
+    </div>
+    <button class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors" (click)="googleDrive.pickFiles()">
+      Pick Files from Google Drive
+    </button>
+    <button class="ml-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors" (click)="googleDrive.pickFolder()">
+      Pick Folder from Google Drive
+    </button>
+  </div>
+  }
+  }
+</div>
+
+<!-- Recursive folder template -->
+<ng-template #folderTemplate let-folder let-level="level">
+  <div [style.padding-left.rem]="level * 1.5">
+    <!-- Render subfolders -->
+    @for (subFolder of folder.folders; track subFolder.id) {
+    <div class="folder-item">
+      <div
+        class="folder-header flex items-center gap-2 px-2 py-1.5 rounded-lg cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-800"
+        (click)="toggleFolder(subFolder.id)">
+        @if (subFolder.folders.length > 0) {
+        <button class="expand-btn w-4 h-4 flex items-center justify-center"
+          (click)="toggleFolder(subFolder.id); $event.stopPropagation()">
+          @if (isExpanded(subFolder.id)) {
+          <i class="fa-solid fa-chevron-down text-xs"></i>
+          } @else {
+          <i class="fa-solid fa-chevron-right text-xs"></i>
+          }
+        </button>
+        } @else {
+        <span class="w-4"></span>
+        }
+        <span class="text-lg">📂</span>
+        <span class="flex-1 text-sm font-medium text-gray-700 dark:text-gray-300 truncate">{{ subFolder.name }}</span>
+        @if (subFolder.files.length + subFolder.folders.length > 0) {
+        <span
+          class="notes-count px-2 py-0.5 text-xs rounded-full bg-gray-200 dark:bg-gray-700 text-gray-600 dark:text-gray-300">
+          {{ subFolder.files.length + subFolder.folders.length }}
+        </span>
+        }
+      </div>
+      @if (isExpanded(subFolder.id)) {
+      <div class="mt-1">
+        <ng-container
+          *ngTemplateOutlet="folderTemplate; context: { $implicit: subFolder, level: level + 1 }"></ng-container>
+      </div>
+      }
+    </div>
+    }
+
+    <!-- Render files -->
+    @for (file of folder.files; track file.id) {
+    <div
+      class="note-row flex items-center gap-2 px-2 py-1 rounded cursor-pointer text-xs hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+      (click)="onFileClick(file)">
+      <span class="w-4"></span> <!-- Spacer -->
+      <i class="fa-solid {{ file | googleDriveIcon }} note-icon w-4 h-4 pointer-events-none"
+        style="font-size:16px;"></i>
+      <span class="truncate flex-1" [title]="file.name">{{ file.name }}</span>
+
+      <!-- Kebab Menu -->
+      <div class="dropdown-wrapper" (click)="$event.stopPropagation()">
+        <app-dropdown align="right">
+          <button dropdownTrigger class="p-0.5 rounded hover:bg-gray-200 dark:hover:bg-gray-600">
+            <i class="fa-solid fa-ellipsis-vertical text-xs"></i>
+          </button>
+          <div dropdownMenu class="text-xs">
+            <button class="dropdown-item" (click)="handleDownload(file)">
+              <span>Download</span>
+              <i class="fa-solid fa-download text-xs"></i>
+            </button>
+            <button class="dropdown-item" (click)="handleImportToDevPad(file)">
+              <span>Import to DevPad</span>
+              <i class="fa-solid fa-upload text-xs"></i>
+            </button>
+            <button class="dropdown-item" (click)="handleRename(file)">
+              <span>Rename</span>
+              <i class="fa-solid fa-pen text-xs"></i>
+            </button>
+            <hr class="my-1 border-gray-200 dark:border-gray-700" />
+            <button class="dropdown-item" (click)="handleProperties(file)">
+              <span>Properties</span>
+              <i class="fa-solid fa-circle-info text-xs"></i>
+            </button>
+            <hr class="my-1 border-gray-200 dark:border-gray-700" />
+            <button class="dropdown-item text-red-600 hover:bg-red-50 dark:hover:bg-red-900/30"
+              (click)="handleDelete(file)">
+              <span>Delete</span>
+              <i class="fa-solid fa-trash text-xs"></i>
+            </button>
+          </div>
+        </app-dropdown>
+      </div>
+    </div>
+    }
+  </div>
+</ng-template>
+
+<!-- Properties Modal -->
+<app-properties-modal [isOpen]="showPropertiesModal()" [title]="propertiesModalTitle()"
+  [properties]="propertiesModalData()" (onClose)="closePropertiesModal()" />

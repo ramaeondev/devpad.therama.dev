@@ -7,6 +7,7 @@ export const environment = {
   },
   google: {
     clientId: '1054129590650-c4qqjfphqdejcfdcasel8q3a14b5p7kk.apps.googleusercontent.com',
+    apiKey: 'AIzaSyAI6Wn4Ttl_aGjJ6FUEJyppd0kcohxyE9g',
   },
   microsoft: {
     clientId: 'dd8a33f5-bd38-416e-ad5d-042f73a212b8',
