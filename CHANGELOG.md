@@ -207,3 +207,15 @@ All notable changes to this project are documented in this file.
 - Signed URL TTL is currently set to 60 seconds. Consider increasing TTL or returning signed URLs to the UI for direct use if needed.
 - Folder-delete still uses the existing delete flow; can be wired to the confirm modal on request.
 
+## [2025-11-25]
+### Changed
+- Privacy policy and terms routes updated to top-level (`/policy`, `/terms`).
+- Navigation links updated for Google OAuth compliance.
+- Removed redundant `/legal` route.
+- Simplifies legal routes and updates navigation links.
+- Integrates Google Picker for user-driven file selection.
+
+## [2025-11-24]
+### Changed
+- Updates changelog entries and removes homepage note.
+
