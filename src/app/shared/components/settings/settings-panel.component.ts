@@ -33,6 +33,7 @@ import { OneDriveService } from '../../../core/services/onedrive.service';
   styles: [],
 })
 export class SettingsPanelComponent {
+    deleteInput = '';
   showChangelog = signal(false);
   private _open = false;
   @Input() set open(val: boolean) {
@@ -206,7 +207,17 @@ export class SettingsPanelComponent {
 
   async onConfirm2() {
     this.showConfirm2.set(false);
-    this.toast.error('Account deletion requires server-side action. Please contact support.');
+    // Disable user account immediately
+    const userId = this.auth.userId();
+    if (userId) {
+      await this.userService.disableUser(userId);
+    }
+    // Log out user
+    this.auth.clear();
+    // Show toast notification
+    this.toast.info('Your account will be deleted in 24 hours. You will be notified. You are now logged out and cannot log in again.');
+    // Redirect to login page
+    this.router.navigate(['/auth/login']);
   }
 
   openTerms() {

@@ -254,6 +254,13 @@
         </div>
       </section>
     </div>
+    <!-- Mobile Close Button -->
+    <button
+      class="fixed bottom-4 left-1/2 -translate-x-1/2 px-5 py-2 rounded-xl bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-200 shadow-lg sm:hidden z-[61] border border-gray-300 dark:border-gray-700"
+      (click)="onClose()"
+      aria-label="Close settings panel">
+      <i class="fa-solid fa-xmark mr-2"></i> Close
+    </button>
   </div>
 </div>
 
@@ -263,8 +270,12 @@
   confirmLabel="Yes, continue" cancelLabel="Cancel" (confirm)="onConfirm1()" (cancel)="onCancelConfirm()" />
 }
 @if (showConfirm2()) {
-<app-confirm-modal title="Final confirmation" message="This action is irreversible. Proceed to delete your account?"
-  confirmLabel="Delete permanently" cancelLabel="Cancel" (confirm)="onConfirm2()" (cancel)="onCancelConfirm()" />
+<app-confirm-modal title="Final confirmation"
+  message="This action is irreversible. To confirm, please type 'Delete' below and press Delete permanently."
+  confirmLabel="Delete permanently" cancelLabel="Cancel"
+  [showInput]="true" [inputPlaceholder]="'Type Delete to confirm'" [inputValue]="deleteInput" (inputChange)="deleteInput = $event"
+  [confirmDisabled]="deleteInput !== 'Delete'"
+  (confirm)="onConfirm2()" (cancel)="onCancelConfirm()" />
 }
 @if (showTerms()) {
 <app-terms-modal (close)="closeTerms()" />
