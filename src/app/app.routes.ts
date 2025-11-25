@@ -30,8 +30,14 @@ export const routes: Routes = [
     loadChildren: () => import('./features/folders/folders.routes'),
   },
   {
-    path: 'legal',
-    loadChildren: () => import('./features/legal/legal.routes').then(m => m.legalRoutes),
+    path: 'policy',
+    loadComponent: () => import('./features/legal/pages/privacy/privacy.component').then(m => m.PrivacyComponent),
+    title: 'Privacy Policy - DevPad',
+  },
+  {
+    path: 'terms',
+    loadComponent: () => import('./features/legal/pages/terms/terms.component').then(m => m.TermsComponent),
+    title: 'Terms of Service - DevPad',
   },
   {
     path: '**',
