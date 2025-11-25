@@ -212,6 +212,9 @@ export class SettingsPanelComponent {
   openTerms() {
     this.showTerms.set(true);
   }
+  openPrivacy() {
+    this.router.navigate(['/privacy']);
+  }
   closeTerms() {
     this.showTerms.set(false);
   }
