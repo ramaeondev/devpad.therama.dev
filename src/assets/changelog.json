@@ -1,5 +1,21 @@
 [
   {
+    "date": "2025-11-25",
+    "changes": [
+      "Privacy policy and terms routes updated to top-level (/policy, /terms)",
+      "Navigation links updated for Google OAuth compliance",
+      "Removed redundant /legal route",
+      "Simplifies legal routes and updates navigation links",
+      "Integrates Google Picker for user-driven file selection"
+    ]
+  },
+  {
+    "date": "2025-11-24",
+    "changes": [
+      "Updates changelog entries and removes homepage note"
+    ]
+  },
+  {
     "date": "2025-11-23",
     "changes": [
       "Add account dropdown menu with sign out and theme options"

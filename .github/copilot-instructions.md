@@ -27,6 +27,8 @@ DevPad is a modern note-taking application built with Angular 18+ (standalone co
 - Create separate html and css files for larger components
 - Dont Use Alerts or  window.confirm, use custom modal components instead
 - Use Custom components for showing confirmation modals
+- Changelogs should be maintained in CHANGELOG.md
+- Changelogs should summarize all commits day wise in the src/assets/changelog.json file by reading all the commits of that day
 
 ### File Structure
 - Components: `<name>.component.ts` (inline templates/styles for small components)
