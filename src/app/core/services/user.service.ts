@@ -7,6 +7,11 @@ import { LoadingService } from './loading.service';
   providedIn: 'root',
 })
 export class UserService {
+    /** Disable user account immediately */
+    async disableUser(userId: string): Promise<void> {
+      // Defensive: ensure 'disabled' field exists in DB
+      await this.updateUserProfile(userId, { disabled: true } as Partial<UserProfile>);
+    }
   private supabase = inject(SupabaseService);
   private loading = inject(LoadingService);
 

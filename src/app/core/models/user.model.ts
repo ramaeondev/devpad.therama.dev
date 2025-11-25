@@ -16,6 +16,7 @@ export interface UserProfile {
   last_name?: string | null;
   avatar_url?: string | null;
   is_root_folder_created: boolean;
+  disabled?: boolean;
   created_at: string;
   updated_at: string;
 }
