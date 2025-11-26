@@ -1,4 +1,5 @@
 import { Component, inject, signal } from '@angular/core';
+import { AuthStateService } from '../../../../core/services/auth-state.service';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
@@ -112,6 +113,7 @@ export class SigninComponent {
   private router = inject(Router);
   private supabase = inject(SupabaseService);
   private toast = inject(ToastService);
+  private authState = inject(AuthStateService);
 
   loading = signal(false);
   errorMessage = signal('');
@@ -137,16 +139,15 @@ export class SigninComponent {
 
       if (error) throw error;
 
-      // Wait for session to be fully established
-      if (data.session) {
-        // Give auth state time to propagate
-        await new Promise(resolve => setTimeout(resolve, 100));
-
-        this.toast.success('Welcome back!');
-
-        // Use replaceUrl to avoid navigation issues
-        await this.router.navigate(['/dashboard'], { replaceUrl: true });
+      // Set auth state directly from the returned session
+      if (data.session?.user) {
+        this.authState.setUser(data.session.user);
       }
+
+      this.toast.success('Welcome back!');
+
+      // Navigate to dashboard after auth state is set
+      await this.router.navigate(['/dashboard'], { replaceUrl: true });
     } catch (error: any) {
       this.errorMessage.set(error.message || 'Failed to sign in');
       this.toast.error('Failed to sign in');
