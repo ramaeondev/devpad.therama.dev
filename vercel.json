@@ -1,5 +1,8 @@
 {
   "version": 2,
+  "git": {
+    "deploymentEnabled": false
+  },
   "buildCommand": "npm run build:prod",
   "outputDirectory": "dist/devpad/browser",
   "framework": "angular",
