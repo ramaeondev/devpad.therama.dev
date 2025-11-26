@@ -79,10 +79,6 @@ import { Router } from '@angular/router';
                   <i class="fa-regular fa-user text-lg"></i>
                   Account
                 </button>
-                <button class="flex items-center gap-2 px-4 py-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors text-left" (click)="signOut()" aria-label="Sign out">
-                  <i class="fa-solid fa-arrow-right-from-bracket text-lg"></i>
-                  Sign out
-                </button>
                 <div class="flex items-center justify-between px-4 py-2 text-sm">
                   <span>Theme</span>
                   <div class="flex gap-1">
@@ -97,6 +93,10 @@ import { Router } from '@angular/router';
                     </button>
                   </div>
                 </div>
+                <button class="flex items-center gap-2 px-4 py-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors text-left" (click)="signOut()" aria-label="Sign out">
+                  <i class="fa-solid fa-arrow-right-from-bracket text-lg"></i>
+                  Sign out
+                </button>
               </div>
             }
           </div>
