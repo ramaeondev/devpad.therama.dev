@@ -109,35 +109,60 @@ import { LogoComponent } from '../../../../shared/components/ui/logo/logo.compon
             </div>
           }
 
-          <div>
-            <button
-              type="submit"
-              [disabled]="loading() || signupForm.invalid"
-              class="btn btn-primary w-full py-3 px-4 text-base font-medium touch-manipulation"
-            >
-              @if (loading()) {
-                <span>Creating account...</span>
-              } @else {
-                <span>Sign up</span>
-              }
-            </button>
-          </div>
+            <div class="flex items-start">
+              <div class="flex items-center h-5">
+                <input
+                  id="terms"
+                  type="checkbox"
+                  formControlName="termsAccepted"
+                  class="h-4 w-4 rounded border-gray-300 text-primary-600 focus:ring-primary-500 dark:border-gray-600 dark:bg-gray-700 dark:ring-offset-gray-800 touch-manipulation"
+                />
+              </div>
+              <div class="ml-3 text-sm">
+                <label for="terms" class="font-medium text-gray-700 dark:text-gray-300">
+                  I agree to the
+                  <a routerLink="/terms" class="text-primary-600 hover:text-primary-500 dark:text-primary-400 dark:hover:text-primary-300">Terms and Conditions</a>
+                  and
+                  <a routerLink="/policy" class="text-primary-600 hover:text-primary-500 dark:text-primary-400 dark:hover:text-primary-300">Privacy Policy</a>
+                </label>
+              </div>
+            </div>
 
-          <div class="text-center">
-            <p class="text-sm sm:text-base text-gray-600 dark:text-gray-400">
-              Already have an account?
-              <a
-                routerLink="/auth/signin"
-                class="font-medium text-primary-600 hover:text-primary-500 touch-manipulation"
+            @if (signupForm.get('termsAccepted')?.touched && signupForm.get('termsAccepted')?.invalid) {
+              <div class="rounded-md bg-red-50 dark:bg-red-900/20 p-4">
+                <p class="text-sm text-red-800 dark:text-red-200">You must accept the terms and conditions</p>
+              </div>
+            }
+
+            <div>
+              <button
+                type="submit"
+                [disabled]="loading() || signupForm.invalid"
+                class="btn btn-primary w-full py-3 px-4 text-base font-medium touch-manipulation"
               >
-                Sign in
-              </a>
-            </p>
-          </div>
-        </form>
+                @if (loading()) {
+                  <span>Creating account...</span>
+                } @else {
+                  <span>Sign up</span>
+                }
+              </button>
+            </div>
+
+            <div class="text-center">
+              <p class="text-sm sm:text-base text-gray-600 dark:text-gray-400">
+                Already have an account?
+                <a
+                  routerLink="/auth/signin"
+                  class="font-medium text-primary-600 hover:text-primary-500 touch-manipulation"
+                >
+                  Sign in
+                </a>
+              </p>
+            </div>
+          </form>
+        </div>
       </div>
-    </div>
-  `,
+    `,
   styles: [],
 })
 export class SignupComponent {
@@ -156,6 +181,7 @@ export class SignupComponent {
       email: ['', [Validators.required, Validators.email]],
       password: ['', [Validators.required, Validators.minLength(6)]],
       confirmPassword: ['', [Validators.required]],
+      termsAccepted: [false, [Validators.requiredTrue]],
     },
     { validators: this.passwordMatchValidator },
   );
