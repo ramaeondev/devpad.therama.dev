@@ -1,4 +1,4 @@
-import { Component, signal } from '@angular/core';
+import { Component, signal, EventEmitter, Output } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { LogoComponent } from './logo/logo.component';
 
@@ -7,7 +7,7 @@ import { LogoComponent } from './logo/logo.component';
   standalone: true,
   imports: [CommonModule, LogoComponent],
   template: `
-    <div class="fixed inset-0 z-[100] flex items-center justify-center bg-black/50" (click)="close()">
+    <div class="fixed inset-0 z-[100] flex items-center justify-center bg-black/50" (click)="onClose()">
       <div class="bg-white dark:bg-gray-900 rounded-lg shadow-xl max-w-2xl w-full mx-4 overflow-auto max-h-[90vh] p-6 relative" (click)="$event.stopPropagation()">
         <div class="flex flex-col items-center mb-4">
           <app-logo></app-logo>
@@ -21,7 +21,7 @@ import { LogoComponent } from './logo/logo.component';
             </ul>
           </ng-container>
         </div>
-        <button class="absolute top-4 right-4 text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-300" (click)="close()" aria-label="Close">
+        <button class="absolute top-4 right-4 text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-300" (click)="onClose()" aria-label="Close">
           <i class="fa-solid fa-xmark text-lg"></i>
         </button>
       </div>
@@ -33,6 +33,8 @@ export class ChangelogModalComponent {
   changelog = signal<{ date: string; changes: string[] }[]>([]);
   show = signal(false);
 
+  @Output() close = new EventEmitter<void>();
+
   sortedChangelog() {
     return [...this.changelog()].sort((a, b) => b.date.localeCompare(a.date));
   }
@@ -43,7 +45,8 @@ export class ChangelogModalComponent {
       .then(data => this.changelog.set(data));
   }
 
-  close() {
+  onClose() {
+    this.close.emit();
     this.show.set(false);
   }
 }

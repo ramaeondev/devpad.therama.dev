@@ -196,30 +196,30 @@
         <div class="grid grid-cols-2 gap-3">
           <button
             class="w-full flex items-center justify-center gap-2 px-4 py-2.5 text-sm font-medium rounded-lg border border-gray-300 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
-            (click)="openTerms()">            
+            (click)="openTerms()">
             Terms
             <i class="fa-solid fa-file-contract text-base"></i>
           </button>
           <button
             class="w-full flex items-center justify-center gap-2 px-4 py-2.5 text-sm font-medium rounded-lg border border-gray-300 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
-            (click)="openPrivacy()">            
+            (click)="openPrivacy()">
             Privacy
             <i class="fa-solid fa-shield-halved text-base"></i>
           </button>
         </div>
         <button
           class="w-full px-4 py-2.5 text-sm font-medium rounded-lg border border-gray-300 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
-          (click)="showChangelog.set(true)">           
+          (click)="showChangelog.set(true)">
           View Changelog
           <i class="fa-solid fa-clock-rotate-left"></i>
         </button>
         <button
           class="w-full px-4 py-2.5 text-sm font-medium rounded-lg border border-gray-300 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
-          (click)="signOut()">          
+          (click)="signOut()">
           Sign out
           <i class="fa-solid fa-sign-out-alt"></i>
         </button>
-        
+
       </section>
 
       <!-- Danger Zone -->
@@ -257,8 +257,7 @@
     <!-- Mobile Close Button -->
     <button
       class="fixed bottom-4 left-1/2 -translate-x-1/2 px-5 py-2 rounded-xl bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-200 shadow-lg sm:hidden z-[61] border border-gray-300 dark:border-gray-700"
-      (click)="onClose()"
-      aria-label="Close settings panel">
+      (click)="onClose()" aria-label="Close settings panel">
       <i class="fa-solid fa-xmark mr-2"></i> Close
     </button>
   </div>
@@ -272,10 +271,9 @@
 @if (showConfirm2()) {
 <app-confirm-modal title="Final confirmation"
   message="This action is irreversible. To confirm, please type 'Delete' below and press Delete permanently."
-  confirmLabel="Delete permanently" cancelLabel="Cancel"
-  [showInput]="true" [inputPlaceholder]="'Type Delete to confirm'" [inputValue]="deleteInput" (inputChange)="deleteInput = $event"
-  [confirmDisabled]="deleteInput !== 'Delete'"
-  (confirm)="onConfirm2()" (cancel)="onCancelConfirm()" />
+  confirmLabel="Delete permanently" cancelLabel="Cancel" [showInput]="true"
+  [inputPlaceholder]="'Type Delete to confirm'" [inputValue]="deleteInput" (inputChange)="deleteInput = $event"
+  [confirmDisabled]="deleteInput !== 'Delete'" (confirm)="onConfirm2()" (cancel)="onCancelConfirm()" />
 }
 @if (showTerms()) {
 <app-terms-modal (close)="closeTerms()" />
@@ -283,6 +281,6 @@
 <app-image-crop-dialog [open]="showImageCrop()" [imageChangedEvent]="imageChangeEvent()" [cropSize]="200"
   (cancel)="closeCropDialog()" (save)="onCroppedImage($event)" />
 @if (showChangelog()) {
-  <app-changelog-modal (click)="showChangelog.set(false)"></app-changelog-modal>
+<app-changelog-modal (close)="showChangelog.set(false)"></app-changelog-modal>
 }
 }
