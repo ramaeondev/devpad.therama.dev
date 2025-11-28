@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { createClient, SupabaseClient } from '@supabase/supabase-js';
-import { environment } from '../../../environments/environment';
+import { config } from '../../../config';
 
 @Injectable({
   providedIn: 'root',
@@ -11,7 +11,7 @@ export class SupabaseService {
   private sessionPromise: Promise<any> | null = null;
 
   constructor() {
-    this.supabase = createClient(environment.supabase.url, environment.supabase.anonKey, {
+    this.supabase = createClient(config.supabase.url, config.supabase.anonKey, {
       auth: {
         storageKey: 'sb-auth-token',
         autoRefreshToken: true,

@@ -42,3 +42,8 @@ __screenshots__/
 .DS_Store
 Thumbs.db
 .vercel
+
+# Environment variables
+.env
+.env.local
+.env.*.local
