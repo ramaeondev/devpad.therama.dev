@@ -16,6 +16,7 @@ import { AvatarComponent } from '../ui/avatar/avatar.component';
 import { OverlayModule } from '@angular/cdk/overlay';
 import { GoogleDriveService } from '../../../core/services/google-drive.service';
 import { OneDriveService } from '../../../core/services/onedrive.service';
+import { AboutMeModalComponent } from '../ui/dialog/about-me-modal.component';
 
 @Component({
   selector: 'app-settings-panel',
@@ -30,6 +31,7 @@ import { OneDriveService } from '../../../core/services/onedrive.service';
     AvatarComponent,
     OverlayModule,
     ChangelogModalComponent,
+    AboutMeModalComponent,
   ],
  templateUrl: './settings-panel.component.html',
   styles: [],
@@ -65,6 +67,7 @@ export class SettingsPanelComponent {
   showTerms = signal(false);
   showImageCrop = signal(false);
   showChangePassword = signal(false);
+  showAboutMe = signal(false);
   imageChangeEvent = signal<Event | null>(null);
 
   // Profile state
@@ -283,5 +286,13 @@ export class SettingsPanelComponent {
 
   onPasswordChanged() {
     this.showChangePassword.set(false);
+  }
+
+  openAboutMe() {
+    this.showAboutMe.set(true);
+  }
+
+  closeAboutMe() {
+    this.showAboutMe.set(false);
   }
 }
