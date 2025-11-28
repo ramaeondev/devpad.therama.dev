@@ -17,6 +17,7 @@ import { OverlayModule } from '@angular/cdk/overlay';
 import { GoogleDriveService } from '../../../core/services/google-drive.service';
 import { OneDriveService } from '../../../core/services/onedrive.service';
 import { AboutMeModalComponent } from '../ui/dialog/about-me-modal.component';
+import { UserDevicesComponent } from '../user-devices/user-devices.component';
 
 @Component({
   selector: 'app-settings-panel',
@@ -32,12 +33,13 @@ import { AboutMeModalComponent } from '../ui/dialog/about-me-modal.component';
     OverlayModule,
     ChangelogModalComponent,
     AboutMeModalComponent,
+    UserDevicesComponent,
   ],
- templateUrl: './settings-panel.component.html',
+  templateUrl: './settings-panel.component.html',
   styles: [],
 })
 export class SettingsPanelComponent {
-    deleteInput = '';
+  deleteInput = '';
   showChangelog = signal(false);
   private _open = false;
   @Input() set open(val: boolean) {
@@ -86,7 +88,7 @@ export class SettingsPanelComponent {
     return email ? email[0].toUpperCase() : '?';
   });
 
-  constructor() {}
+  constructor() { }
 
   private async loadProfile() {
     const userId = this.auth.userId();
