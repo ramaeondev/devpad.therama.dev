@@ -221,12 +221,20 @@
             <i class="fa-solid fa-shield-halved text-base"></i>
           </button>
         </div>
-        <button
-          class="w-full px-4 py-2.5 text-sm font-medium rounded-lg border border-gray-300 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
-          (click)="showChangelog.set(true)">
-          View Changelog
-          <i class="fa-solid fa-clock-rotate-left"></i>
-        </button>
+        <div class="grid grid-cols-2 gap-3">
+          <button
+            class="w-full px-4 py-2.5 text-sm font-medium rounded-lg border border-gray-300 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
+            (click)="showContactUs.set(true)">
+            Contact Us
+            <i class="fa-solid fa-envelope"></i>
+          </button>
+          <button
+            class="w-full px-4 py-2.5 text-sm font-medium rounded-lg border border-gray-300 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
+            (click)="showChangelog.set(true)">
+            View Changelog
+            <i class="fa-solid fa-clock-rotate-left"></i>
+          </button>
+        </div>
         <button
           class="w-full px-4 py-2.5 text-sm font-medium rounded-lg border border-gray-300 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
           (click)="signOut()">
@@ -307,5 +315,9 @@
 }
 @if (showAboutMe()) {
 <app-about-me-modal (close)="closeAboutMe()"></app-about-me-modal>
+}
+
+@if( showContactUs()){
+<app-contact-us-modal (close)="closeContactUs()"></app-contact-us-modal>
 }
 }
