@@ -3,7 +3,7 @@
   "git": {
     "deploymentEnabled": false
   },
-  "buildCommand": "npm run build:prod",
+  "buildCommand": "npm run inject-env && npm run build:prod",
   "outputDirectory": "dist/devpad/browser",
   "framework": "angular",
   "rewrites": [

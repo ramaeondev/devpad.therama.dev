@@ -37,14 +37,18 @@
   ],
   "scripts": {
     "ng": "ng",
+    "prestart": "npm run inject-env",
     "start": "ng serve",
+    "prebuild": "npm run inject-env",
     "build": "ng build",
+    "prebuild:prod": "npm run inject-env",
     "build:prod": "ng build --configuration production",
     "watch": "ng build --watch --configuration development",
     "test": "ng test",
     "test:coverage": "ng test --code-coverage",
     "format": "prettier --write \"src/**/*.{ts,html,scss,css,json}\"",
-    "analyze": "ng build --configuration production --stats-json && webpack-bundle-analyzer dist/devpad/stats.json"
+    "analyze": "ng build --configuration production --stats-json && webpack-bundle-analyzer dist/devpad/stats.json",
+    "inject-env": "node scripts/inject-env.js"
   },
   "prettier": {
     "printWidth": 100,
@@ -70,6 +74,7 @@
     "@angular/service-worker": "^20.3.11",
     "@fingerprintjs/fingerprintjs": "^5.0.1",
     "@supabase/supabase-js": "^2.81.1",
+    "dotenv": "^16.3.1",
     "highlight.js": "^11.11.1",
     "marked": "^17.0.0",
     "marked-highlight": "^2.2.3",
@@ -86,6 +91,7 @@
     "@tailwindcss/typography": "^0.5.19",
     "@types/jasmine": "~5.1.0",
     "@types/marked": "^5.0.2",
+    "@types/node": "^20.8.0",
     "autoprefixer": "^10.4.22",
     "jasmine-core": "~5.9.0",
     "karma": "~6.4.0",

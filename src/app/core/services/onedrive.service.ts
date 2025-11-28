@@ -5,7 +5,7 @@ import { AuthStateService } from './auth-state.service';
 import { ToastService } from './toast.service';
 import { LoadingService } from './loading.service';
 import { Integration, OneDriveFile, OneDriveFolder } from '../models/integration.model';
-import { environment } from '../../../environments/environment';
+import { config } from '../../../config';
 
 @Injectable({ providedIn: 'root' })
 export class OneDriveService {
@@ -64,9 +64,9 @@ export class OneDriveService {
    */
   private buildAuthUrl(): string {
     const params = new URLSearchParams({
-      client_id: environment.microsoft.clientId,
+      client_id: config.microsoft.clientId,
       response_type: 'token',
-      redirect_uri: environment.microsoft.redirectUri + '/auth/callback/onedrive',
+      redirect_uri: config.microsoft.redirectUri + '/auth/callback/onedrive',
       scope: this.SCOPES,
       response_mode: 'fragment',
     });

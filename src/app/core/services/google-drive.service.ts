@@ -4,7 +4,7 @@ import { AuthStateService } from './auth-state.service';
 import { ToastService } from './toast.service';
 import { LoadingService } from './loading.service';
 import { Integration, GoogleDriveFile, GoogleDriveFolder } from '../models/integration.model';
-import { environment } from '../../../environments/environment';
+import { config } from '../../../config';
 import { HttpClient } from '@angular/common/http';
 
 declare const google: any;
@@ -80,7 +80,7 @@ export class GoogleDriveService {
       await this.initGoogleAuth();
 
       const codeClient = google.accounts.oauth2.initCodeClient({
-        client_id: environment.google.clientId,
+        client_id: config.google.clientId,
         scope: this.SCOPES,
         access_type: 'offline',
         callback: async (response: any) => {
@@ -109,7 +109,7 @@ export class GoogleDriveService {
       const userId = this.auth.userId();
       // Call backend to exchange code for tokens
       const data: any = await this.http.post(
-        `${environment.supabase.url}/functions/v1/google-exchange`,
+        `${config.supabase.url}/functions/v1/google-exchange`,
         { code, user_id: userId }
       ).toPromise();
 
@@ -296,7 +296,7 @@ export class GoogleDriveService {
     const pickerInstance = new gPicker.PickerBuilder()
       .addView(view)
       .setOAuthToken(accessToken)
-      .setDeveloperKey(environment.google.apiKey)
+      .setDeveloperKey(config.google.apiKey)
       .setCallback((data: any) => {
         if (data.action === gPicker.Action.PICKED) {
           const newFiles: GoogleDriveFile[] = data.docs.map((doc: any) => ({
@@ -617,7 +617,7 @@ export class GoogleDriveService {
       const userId = this.auth.userId();
       // Call Supabase Edge Function for token refresh
       const data: any = await this.http.post(
-        `${environment.supabase.url}/functions/v1/google-refresh`,
+        `${config.supabase.url}/functions/v1/google-refresh`,
         { user_id: userId }
       ).toPromise();
 
