@@ -6,7 +6,7 @@ import { ToastService, Toast } from '../../../../core/services/toast.service';
   standalone: true,
   imports: [CommonModule],
   template: `
-    <div class="fixed top-4 right-4 z-50 space-y-3 w-80" role="region" aria-label="Notifications">
+    <div class="fixed top-4 right-4 z-[100] space-y-3 w-80" role="region" aria-label="Notifications">
       @for (t of toasts(); track t.id) {
         <div
           class="flex items-start gap-3 rounded-lg shadow-lg px-4 py-3 border text-sm transition transform bg-white dark:bg-gray-800"

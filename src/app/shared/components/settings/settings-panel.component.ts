@@ -9,6 +9,7 @@ import { LoadingService } from '../../../core/services/loading.service';
 import { ConfirmModalComponent } from '../../components/ui/dialog/confirm-modal.component';
 import { TermsModalComponent } from '../../components/ui/dialog/terms-modal.component';
 import { ImageCropDialogComponent } from '../../components/ui/dialog/image-crop-dialog.component';
+import { ChangePasswordModalComponent } from '../../components/ui/dialog/change-password-modal.component';
 import { ToastService } from '../../../core/services/toast.service';
 import { UserService } from '../../../core/services/user.service';
 import { AvatarComponent } from '../ui/avatar/avatar.component';
@@ -25,6 +26,7 @@ import { OneDriveService } from '../../../core/services/onedrive.service';
     ConfirmModalComponent,
     TermsModalComponent,
     ImageCropDialogComponent,
+    ChangePasswordModalComponent,
     AvatarComponent,
     OverlayModule,
     ChangelogModalComponent,
@@ -62,6 +64,7 @@ export class SettingsPanelComponent {
   showConfirm2 = signal(false);
   showTerms = signal(false);
   showImageCrop = signal(false);
+  showChangePassword = signal(false);
   imageChangeEvent = signal<Event | null>(null);
 
   // Profile state
@@ -268,5 +271,17 @@ export class SettingsPanelComponent {
       console.error('Failed to disconnect from OneDrive:', error);
       this.toast.error('Failed to disconnect from OneDrive');
     }
+  }
+
+  openChangePassword() {
+    this.showChangePassword.set(true);
+  }
+
+  closeChangePassword() {
+    this.showChangePassword.set(false);
+  }
+
+  onPasswordChanged() {
+    this.showChangePassword.set(false);
   }
 }
