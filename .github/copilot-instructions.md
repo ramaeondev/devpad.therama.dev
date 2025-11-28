@@ -29,6 +29,7 @@ DevPad is a modern note-taking application built with Angular 18+ (standalone co
 - Use Custom components for showing confirmation modals
 - Changelogs should be maintained in CHANGELOG.md
 - Changelogs should summarize all commits day wise in the src/assets/changelog.json file by reading all the commits of that day
+- Always Use WritableSignals with Type Definitions and avoid using any
 
 ### File Structure
 - Components: `<name>.component.ts` (inline templates/styles for small components)
