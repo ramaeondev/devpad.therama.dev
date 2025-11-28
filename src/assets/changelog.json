@@ -1,5 +1,29 @@
 [
   {
+    "date": "2025-11-28",
+    "changes": [
+      "feat: Add change password functionality to settings panel"
+    ]
+  },
+  {
+    "date": "2025-11-27",
+    "changes": [
+      "feat: Implement dashboard layout with responsive header, sidebar, and main content area",
+      "feat: Integrate AuthStateService to manage user state directly after sign-in and simplify post-signin navigation logic.",
+      "ci: trigger CI/CD workflow on pushes to the master branch",
+      "ci: Replace multi-stage CI/CD pipeline with a streamlined Vercel production deployment workflow.",
+      "refactor: Update changelog modal to emit a close event and consume it in the settings panel.",
+      "feat: add terms and conditions acceptance checkbox and validation to signup form"
+    ]
+  },
+  {
+    "date": "2025-11-25",
+    "changes": [
+      "Enhances user account management: adds 'disabled' field to UserProfile, implements user disabling functionality, and updates confirmation modal for account deletion.",
+      "Adds Privacy button and improves settings actions UI"
+    ]
+  },
+  {
     "date": "2025-11-25",
     "changes": [
       "Privacy policy and terms routes updated to top-level (/policy, /terms)",
