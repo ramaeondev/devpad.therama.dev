@@ -5,6 +5,7 @@ import { Router, RouterLink } from '@angular/router';
 import { SupabaseService } from '../../../../core/services/supabase.service';
 import { ToastService } from '../../../../core/services/toast.service';
 import { LogoComponent } from '../../../../shared/components/ui/logo/logo.component';
+import { DeviceFingerprintService } from '../../../../core/services/device-fingerprint.service';
 
 @Component({
   selector: 'app-signup',
@@ -170,6 +171,7 @@ export class SignupComponent {
   private router = inject(Router);
   private supabase = inject(SupabaseService);
   private toast = inject(ToastService);
+  private deviceFingerprint = inject(DeviceFingerprintService);
 
   loading = signal(false);
   errorMessage = signal('');
@@ -203,7 +205,7 @@ export class SignupComponent {
     const { email, password, firstName, lastName } = this.signupForm.getRawValue();
 
     try {
-      const { error } = await this.supabase.auth.signUp({
+      const { data, error } = await this.supabase.auth.signUp({
         email,
         password,
         options: {
@@ -215,6 +217,16 @@ export class SignupComponent {
       });
 
       if (error) throw error;
+
+      // Register device fingerprint if user is immediately confirmed
+      if (data.user?.id) {
+        try {
+          await this.deviceFingerprint.registerDevice(data.user.id);
+        } catch (deviceError) {
+          console.error('Failed to register device:', deviceError);
+          // Don't block signup if device registration fails
+        }
+      }
 
       this.toast.success('Account created! Please check your email to confirm.');
       this.router.navigate(['/auth/confirm-email']);

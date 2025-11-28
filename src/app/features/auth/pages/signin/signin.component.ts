@@ -6,6 +6,7 @@ import { Router, RouterLink } from '@angular/router';
 import { SupabaseService } from '../../../../core/services/supabase.service';
 import { ToastService } from '../../../../core/services/toast.service';
 import { LogoComponent } from '../../../../shared/components/ui/logo/logo.component';
+import { DeviceFingerprintService } from '../../../../core/services/device-fingerprint.service';
 
 @Component({
   selector: 'app-signin',
@@ -114,6 +115,7 @@ export class SigninComponent {
   private supabase = inject(SupabaseService);
   private toast = inject(ToastService);
   private authState = inject(AuthStateService);
+  private deviceFingerprint = inject(DeviceFingerprintService);
 
   loading = signal(false);
   errorMessage = signal('');
@@ -142,6 +144,14 @@ export class SigninComponent {
       // Set auth state directly from the returned session
       if (data.session?.user) {
         this.authState.setUser(data.session.user);
+
+        // Register device fingerprint
+        try {
+          await this.deviceFingerprint.registerDevice(data.session.user.id);
+        } catch (deviceError) {
+          console.error('Failed to register device:', deviceError);
+          // Don't block sign-in if device registration fails
+        }
       }
 
       this.toast.success('Welcome back!');
