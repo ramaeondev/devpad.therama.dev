@@ -3,6 +3,39 @@
 All notable changes to this project are documented in this file.
 
 
+## [Unreleased] - 2025-11-28
+
+### Added
+- **Change Password**: Added change password functionality to settings panel.
+
+## [Unreleased] - 2025-11-27
+
+### Added
+- **Dashboard Layout**: Implemented responsive header, sidebar, and main content area.
+- **AuthStateService**: Integrated to manage user state directly after sign-in and simplify post-signin navigation logic.
+- **Terms and Conditions**: Added acceptance checkbox and validation to signup form.
+
+### Changed
+- **CI/CD Workflow**: Triggered on pushes to the master branch.
+- **Vercel Deployment**: Replaced multi-stage CI/CD pipeline with streamlined workflow.
+
+### Refactored
+- **Changelog Modal**: Updated to emit a close event and consume it in the settings panel.
+
+## [Unreleased] - 2025-11-25
+
+### Changed
+- Privacy policy and terms routes updated to top-level (`/policy`, `/terms`).
+- Navigation links updated for Google OAuth compliance.
+- Removed redundant `/legal` route.
+- Simplifies legal routes and updates navigation links.
+- Integrates Google Picker for user-driven file selection.
+
+## [2025-11-24]
+### Changed
+- Updates changelog entries and removes homepage note.
+
+
 ## [Unreleased] - 2025-11-22
 
 ### Changed
@@ -206,16 +239,4 @@ All notable changes to this project are documented in this file.
 ### Notes
 - Signed URL TTL is currently set to 60 seconds. Consider increasing TTL or returning signed URLs to the UI for direct use if needed.
 - Folder-delete still uses the existing delete flow; can be wired to the confirm modal on request.
-
-## [2025-11-25]
-### Changed
-- Privacy policy and terms routes updated to top-level (`/policy`, `/terms`).
-- Navigation links updated for Google OAuth compliance.
-- Removed redundant `/legal` route.
-- Simplifies legal routes and updates navigation links.
-- Integrates Google Picker for user-driven file selection.
-
-## [2025-11-24]
-### Changed
-- Updates changelog entries and removes homepage note.
 
