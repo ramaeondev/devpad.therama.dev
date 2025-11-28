@@ -18,6 +18,7 @@ import { GoogleDriveService } from '../../../core/services/google-drive.service'
 import { OneDriveService } from '../../../core/services/onedrive.service';
 import { AboutMeModalComponent } from '../ui/dialog/about-me-modal.component';
 import { UserDevicesComponent } from '../user-devices/user-devices.component';
+import { ContactUsModalComponent } from '../ui/dialog/contact-us-modal.component';
 
 @Component({
   selector: 'app-settings-panel',
@@ -34,6 +35,7 @@ import { UserDevicesComponent } from '../user-devices/user-devices.component';
     ChangelogModalComponent,
     AboutMeModalComponent,
     UserDevicesComponent,
+    ContactUsModalComponent,
   ],
   templateUrl: './settings-panel.component.html',
   styles: [],
@@ -41,6 +43,7 @@ import { UserDevicesComponent } from '../user-devices/user-devices.component';
 export class SettingsPanelComponent {
   deleteInput = '';
   showChangelog = signal(false);
+  showContactUs = signal(false);
   private _open = false;
   @Input() set open(val: boolean) {
     const opening = !this._open && !!val;
@@ -296,5 +299,9 @@ export class SettingsPanelComponent {
 
   closeAboutMe() {
     this.showAboutMe.set(false);
+  }
+
+  closeContactUs() {
+    this.showContactUs.set(false);
   }
 }
