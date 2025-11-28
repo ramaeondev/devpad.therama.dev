@@ -257,6 +257,11 @@
             class="hover:text-primary-600 dark:hover:text-primary-400 transition-colors cursor-pointer">
             Terms of Service
           </a>
+          <span class="text-gray-300 dark:text-gray-700">|</span>
+          <a (click)="openAboutMe()"
+            class="hover:text-primary-600 dark:hover:text-primary-400 transition-colors cursor-pointer">
+            About Us
+          </a>
         </div>
       </section>
     </div>
@@ -291,5 +296,8 @@
 }
 @if (showChangelog()) {
 <app-changelog-modal (close)="showChangelog.set(false)"></app-changelog-modal>
+}
+@if (showAboutMe()) {
+<app-about-me-modal (close)="closeAboutMe()"></app-about-me-modal>
 }
 }
