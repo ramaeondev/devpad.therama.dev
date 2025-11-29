@@ -98,7 +98,7 @@ import { NoteIconPipe } from '../../../../shared/pipes/note-icon.pipe';
 
             <!-- Folder Icon -->
             <span class="folder-icon text-lg">
-              {{ folder.icon || (folder.is_root ? '📁' : '📂') }}
+              <i class="fa-solid" [ngClass]="folder.icon ? folder.icon : (folder.is_root ? 'fa-folder' : 'fa-folder-open')"></i>
             </span>
 
             <!-- Folder Name / Inline Edit -->

@@ -54,7 +54,9 @@ import { ToastService } from '../../../../core/services/toast.service';
       @for (subFolder of folder.folders; track subFolder.id) {
         <div class="folder-item" [style.padding-left.rem]="level * 1.5">
           <div class="flex items-center gap-2" (click)="toggleFolder(subFolder.id)">
-            <span class="text-lg">{{ isExpanded(subFolder.id) ? '📂' : '📁' }}</span>
+            <span class="text-lg">
+              <i class="fa-solid" [ngClass]="isExpanded(subFolder.id) ? 'fa-folder-open' : 'fa-folder'"></i>
+            </span>
             <span class="flex-1 text-gray-900 dark:text-gray-100">{{ subFolder.name }}</span>
             <span class="text-xs text-gray-500 dark:text-gray-400">
               {{ subFolder.files.length + subFolder.folders.length }} items
