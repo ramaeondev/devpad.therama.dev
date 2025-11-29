@@ -58,3 +58,6 @@ CREATE TRIGGER trigger_update_integrations_updated_at
   BEFORE UPDATE ON integrations
   FOR EACH ROW
   EXECUTE FUNCTION update_integrations_updated_at();
+
+
+ALTER TABLE folders ADD CONSTRAINT unique_user_root UNIQUE (user_id, is_root);

@@ -24,8 +24,12 @@ export class FolderService {
     return this.loading.withLoading(async () => {
       try {
         // Check if root folder already exists
-        const existingRoot = await this.getRootFolder(userId);
-        if (existingRoot) {
+        const hasRootFolder = await this.userService.hasRootFolder(userId);
+        if (hasRootFolder) {
+          const existingRoot = await this.getRootFolder(userId);
+          if (!existingRoot) {
+            throw new Error('Root folder flag set but folder not found');
+          }
           return existingRoot;
         }
 
