@@ -114,21 +114,8 @@ export class OneDriveService {
         throw new Error('User ID is not available. Please ensure you are logged in.');
       }
 
-      // Get current session for logging/debugging (Supabase client handles auth automatically)
-      const sessionData = await this.supabase.getSession();
-      const authUid = sessionData?.session?.user?.id;
-      
-      // Log for debugging
-      console.log('Saving OneDrive integration:', {
-        userId,
-        authUid,
-        provider: 'onedrive',
-        email: userInfo.email,
-        hasSession: !!sessionData?.session,
-      });
-
-      // Supabase client automatically includes auth token, so we don't need to manually check
-      // The RLS policies will enforce authentication
+      // Supabase client automatically includes auth token if session exists
+      // Since other operations work, the client has a valid session
       const { data, error } = await this.supabase
         .from('integrations')
         .upsert(
@@ -149,10 +136,8 @@ export class OneDriveService {
         console.error('OneDrive integration save error:', {
           error,
           userId,
-          authUid,
           errorCode: error.code,
           errorMessage: error.message,
-          hasSession: !!sessionData?.session,
         });
         throw error;
       }
