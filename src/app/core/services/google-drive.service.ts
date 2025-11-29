@@ -101,6 +101,21 @@ export class GoogleDriveService {
   }
 
   /**
+   * Debugging: Log OAuth token and expiration details
+   */
+  private logTokenDetails(token: string, expiresIn: number): void {
+    console.log('OAuth Token:', token);
+    console.log('Token Expiration (ms):', expiresIn);
+  }
+
+  /**
+   * Debugging: Log Picker API errors
+   */
+  private logPickerError(error: any): void {
+    console.error('Google Picker API Error:', error);
+  }
+
+  /**
    * Handle OAuth code: send to backend for token exchange
    */
   private async handleAuthCode(code: string): Promise<void> {
@@ -116,6 +131,9 @@ export class GoogleDriveService {
       if (!data?.access_token) {
         throw new Error('No access token returned from backend');
       }
+
+      // Log token details for debugging
+      this.logTokenDetails(data.access_token, data.expires_in || 3600);
 
       // Save integration to database (including refresh_token if present)
       const expiresAt = Date.now() + (data.expires_in || 3600) * 1000;
@@ -297,6 +315,8 @@ export class GoogleDriveService {
       .addView(view)
       .setOAuthToken(accessToken)
       .setDeveloperKey(config.google.apiKey)
+      .setAppId(config.google.appId) // Use the newly added App ID
+      .setOrigin(window.location.origin) // Add Origin
       .setCallback((data: any) => {
         if (data.action === gPicker.Action.PICKED) {
           const newFiles: GoogleDriveFile[] = data.docs.map((doc: any) => ({
@@ -320,6 +340,10 @@ export class GoogleDriveService {
           this.files.set(mergedFiles);
           this.buildFolderTree(mergedFiles);
           this.toast.success('Files added from Google Drive');
+        } else if (data.action === gPicker.Action.CANCEL) {
+          this.toast.info('Picker action canceled');
+        } else {
+          this.logPickerError(data);
         }
       })
       .enableFeature(gPicker.Feature.MULTISELECT_ENABLED)

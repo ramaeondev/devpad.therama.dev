@@ -16,6 +16,7 @@ const envVariables = {
   GOOGLE_API_KEY: process.env.GOOGLE_API_KEY || '',
   MICROSOFT_CLIENT_ID: process.env.MICROSOFT_CLIENT_ID || '',
   MICROSOFT_REDIRECT_URI: process.env.MICROSOFT_REDIRECT_URI || '',
+  GOOGLE_APPID: process.env.GOOGLE_APPID || '',
 };
 
 const generateConfigFile = (filePath) => {
@@ -27,6 +28,7 @@ const generateConfigFile = (filePath) => {
   google: {
     clientId: '${envVariables.GOOGLE_CLIENT_ID}',
     apiKey: '${envVariables.GOOGLE_API_KEY}',
+    appId: '${envVariables.GOOGLE_APPID}',
   },
   microsoft: {
     clientId: '${envVariables.MICROSOFT_CLIENT_ID}',

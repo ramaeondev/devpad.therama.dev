@@ -6,6 +6,7 @@ export const config = {
   google: {
     clientId: 'GOOGLE_CLIENT_ID_PLACEHOLDER',
     apiKey: 'GOOGLE_API_KEY_PLACEHOLDER',
+    appId: 'GOOGLE_APP_ID_PLACEHOLDER',
   },
   microsoft: {
     clientId: 'MICROSOFT_CLIENT_ID_PLACEHOLDER',

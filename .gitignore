@@ -47,3 +47,6 @@ Thumbs.db
 .env
 .env.local
 .env.*.local
+
+src/config.dev.ts
+src/config.prod.ts
