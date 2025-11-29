@@ -180,7 +180,7 @@ export class GoogleDriveService {
         .select('*')
         .eq('user_id', userId)
         .eq('provider', 'google_drive')
-        .single();
+        .maybeSingle();
 
       if (!error && data) {
         const integration = data as Integration;
