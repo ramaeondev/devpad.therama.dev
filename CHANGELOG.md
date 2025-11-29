@@ -3,6 +3,15 @@
 All notable changes to this project are documented in this file.
 
 
+## [Unreleased] - 2025-11-29
+
+### Added
+- **Environment Configuration**: Migrated to .env configuration for enhanced security and environment management.
+- **External Service Integration**: Added environment config for external service integration.
+- **Contact Us Modal**: Implemented contact us functionality with a new modal and a Supabase function for email sending via Supabase Edge function and Resend.
+- **Device Fingerprinting**: Introduced device fingerprinting and tracking for user authentication and device management.
+- **About Us Modal**: Added About Us modal to settings panel.
+
 ## [Unreleased] - 2025-11-28
 
 ### Added

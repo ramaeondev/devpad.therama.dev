@@ -1,5 +1,15 @@
 [
   {
+    "date": "2025-11-29",
+    "changes": [
+      "feat: migrate to .env configuration for enhanced security and environment management",
+      "Adds environment config for external service integration",
+      "feat: implement contact us functionality with a new modal and a Supabase function for email sending via Supabase Edge function and Resend.",
+      "feat: Introduce device fingerprinting and tracking for user authentication and device management.",
+      "Adds About Us modal to settings panel"
+    ]
+  },
+  {
     "date": "2025-11-28",
     "changes": [
       "feat: Add change password functionality to settings panel"
