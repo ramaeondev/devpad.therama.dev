@@ -229,7 +229,7 @@ export class SignupComponent {
       }
 
       this.toast.success('Account created! Please check your email to confirm.');
-      this.router.navigate(['/auth/confirm-email']);
+      this.router.navigate(['/auth/confirm-email'], { queryParams: { email: data.user?.email } });
     } catch (error: any) {
       this.errorMessage.set(error.message || 'Failed to create account');
       this.toast.error('Failed to create account');

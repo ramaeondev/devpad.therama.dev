@@ -1,6 +1,6 @@
-import { Component } from '@angular/core';
+import { Component, OnInit, signal, WritableSignal } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterLink } from '@angular/router';
+import { RouterLink, ActivatedRoute } from '@angular/router';
 import { LogoComponent } from '../../../../shared/components/ui/logo/logo.component';
 
 @Component({
@@ -18,8 +18,7 @@ import { LogoComponent } from '../../../../shared/components/ui/logo/logo.compon
         <div class="text-6xl">📧</div>
         <h2 class="text-3xl font-bold text-gray-900 dark:text-white">Check your email</h2>
         <p class="text-gray-600 dark:text-gray-400">
-          We've sent you a confirmation link. Please check your email and click the link to activate
-          your account.
+          We've sent a confirmation link to <strong>{{ email() }}</strong>. Please check your email and click the link to activate your account.
         </p>
         <a routerLink="/auth/signin" class="btn btn-primary inline-block px-6 py-2">
           Go to Sign In
@@ -28,4 +27,14 @@ import { LogoComponent } from '../../../../shared/components/ui/logo/logo.compon
     </div>
   `,
 })
-export class ConfirmEmailComponent {}
+export class ConfirmEmailComponent implements OnInit {
+  email: WritableSignal<string | null> = signal<string | null>(null);
+
+  constructor(private route: ActivatedRoute) {}
+
+  ngOnInit() {
+    this.route.queryParams.subscribe((params) => {
+      this.email.set(params['email']);
+    });
+  }
+}
