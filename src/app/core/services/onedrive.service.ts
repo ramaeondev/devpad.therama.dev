@@ -107,8 +107,17 @@ export class OneDriveService {
       const expiresAt = Date.now() + expiresInMs;
 
       // Save integration to database
-      const userId = this.auth.userId();
-      
+      let userId = this.auth.userId();
+
+      // Fallback: try to get session from Supabase directly if AuthStateService is empty
+      if (!userId) {
+        const { session } = await this.supabase.getSession();
+        if (session?.user) {
+          this.auth.setUser(session.user);
+          userId = session.user.id;
+        }
+      }
+
       // Verify we have a valid user ID
       if (!userId) {
         throw new Error('User ID is not available. Please ensure you are logged in.');
