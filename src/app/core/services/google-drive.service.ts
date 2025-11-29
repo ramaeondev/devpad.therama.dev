@@ -4,14 +4,14 @@ import { AuthStateService } from './auth-state.service';
 import { ToastService } from './toast.service';
 import { LoadingService } from './loading.service';
 import { Integration, GoogleDriveFile, GoogleDriveFolder } from '../models/integration.model';
-import { config } from '../../../config';
+import { environment } from '../../../environments/environment';
 import { HttpClient } from '@angular/common/http';
 
 declare const google: any;
 
 @Injectable({ providedIn: 'root' })
 export class GoogleDriveService {
-    pickerLoaded = signal(false);
+  pickerLoaded = signal(false);
   private supabase = inject(SupabaseService);
   private auth = inject(AuthStateService);
   private toast = inject(ToastService);
@@ -29,7 +29,7 @@ export class GoogleDriveService {
     'https://www.googleapis.com/auth/userinfo.email',
   ].join(' ');
 
-  
+
 
   /**
    * Initialize Google Drive OAuth
@@ -80,7 +80,7 @@ export class GoogleDriveService {
       await this.initGoogleAuth();
 
       const codeClient = google.accounts.oauth2.initCodeClient({
-        client_id: config.google.clientId,
+        client_id: environment.google.clientId,
         scope: this.SCOPES,
         access_type: 'offline',
         callback: async (response: any) => {
@@ -124,7 +124,7 @@ export class GoogleDriveService {
       const userId = this.auth.userId();
       // Call backend to exchange code for tokens
       const data: any = await this.http.post(
-        `${config.supabase.url}/functions/v1/google-exchange`,
+        `${environment.supabase.url}/functions/v1/google-exchange`,
         { code, user_id: userId }
       ).toPromise();
 
@@ -184,7 +184,7 @@ export class GoogleDriveService {
 
       if (!error && data) {
         const integration = data as Integration;
-        
+
         // We persist the access token in Supabase and use it until the user disconnects.
         // Do not attempt silent refresh — token remains stored server-side.
         this.integration.set(integration);
@@ -202,9 +202,9 @@ export class GoogleDriveService {
   async disconnect(): Promise<void> {
     try {
       this.loading.start();
-      
+
       // No token refresh timer to clear — tokens are persisted in Supabase until disconnect.
-      
+
       const userId = this.auth.userId();
 
       const { error } = await this.supabase
@@ -314,8 +314,8 @@ export class GoogleDriveService {
     const pickerInstance = new gPicker.PickerBuilder()
       .addView(view)
       .setOAuthToken(accessToken)
-      .setDeveloperKey(config.google.apiKey)
-      .setAppId(config.google.appId) // Use the newly added App ID
+      .setDeveloperKey(environment.google.apiKey)
+      .setAppId(environment.google.appId) // Use the newly added App ID
       .setOrigin(window.location.origin) // Add Origin
       .setCallback((data: any) => {
         if (data.action === gPicker.Action.PICKED) {
@@ -641,7 +641,7 @@ export class GoogleDriveService {
       const userId = this.auth.userId();
       // Call Supabase Edge Function for token refresh
       const data: any = await this.http.post(
-        `${config.supabase.url}/functions/v1/google-refresh`,
+        `${environment.supabase.url}/functions/v1/google-refresh`,
         { user_id: userId }
       ).toPromise();
 

@@ -5,7 +5,7 @@ import { AuthStateService } from './auth-state.service';
 import { ToastService } from './toast.service';
 import { LoadingService } from './loading.service';
 import { Integration, OneDriveFile, OneDriveFolder } from '../models/integration.model';
-import { config } from '../../../config';
+import { environment } from '../../../environments/environment';
 
 @Injectable({ providedIn: 'root' })
 export class OneDriveService {
@@ -24,7 +24,7 @@ export class OneDriveService {
   private readonly SCOPES = 'Files.ReadWrite.All offline_access User.Read';
   private readonly AUTHORITY = 'https://login.microsoftonline.com/common';
   private readonly GRAPH_API = 'https://graph.microsoft.com/v1.0';
-  
+
   private tokenRefreshTimer?: number;
 
   /**
@@ -33,13 +33,13 @@ export class OneDriveService {
   async connect(): Promise<void> {
     try {
       const authUrl = this.buildAuthUrl();
-      
+
       // Open popup for OAuth
       const width = 500;
       const height = 600;
       const left = window.screen.width / 2 - width / 2;
       const top = window.screen.height / 2 - height / 2;
-      
+
       const popup = window.open(
         authUrl,
         'OneDrive Login',
@@ -64,9 +64,9 @@ export class OneDriveService {
    */
   private buildAuthUrl(): string {
     const params = new URLSearchParams({
-      client_id: config.microsoft.clientId,
+      client_id: environment.microsoft.clientId,
       response_type: 'token',
-      redirect_uri: config.microsoft.redirectUri + '/auth/callback/onedrive',
+      redirect_uri: environment.microsoft.redirectUri + '/auth/callback/onedrive',
       scope: this.SCOPES,
       response_mode: 'fragment',
     });
@@ -156,7 +156,7 @@ export class OneDriveService {
     }
 
     console.log(`Scheduling OneDrive token refresh in ${Math.round(delayMs / 1000 / 60)} minutes`);
-    
+
     this.tokenRefreshTimer = window.setTimeout(() => {
       this.refreshToken();
     }, delayMs);
@@ -168,7 +168,7 @@ export class OneDriveService {
    */
   private async refreshToken(): Promise<void> {
     console.log('Refreshing OneDrive token...');
-    
+
     try {
       // OneDrive implicit flow requires re-authentication to get new token
       // We'll trigger a silent re-authentication by opening the auth URL in a hidden iframe
