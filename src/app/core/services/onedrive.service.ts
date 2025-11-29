@@ -605,4 +605,40 @@ export class OneDriveService {
       this.loading.stop();
     }
   }
+  /**
+   * Rename file or folder in OneDrive
+   */
+  async renameFile(fileId: string, newName: string): Promise<boolean> {
+    try {
+      this.loading.start();
+      const accessToken = this.integration()?.access_token;
+      if (!accessToken) {
+        this.toast.error('Not connected to OneDrive');
+        return false;
+      }
+
+      await this.http
+        .patch(
+          `${this.GRAPH_API}/me/drive/items/${fileId}`,
+          { name: newName },
+          {
+            headers: new HttpHeaders({
+              Authorization: `Bearer ${accessToken}`,
+              'Content-Type': 'application/json',
+            }),
+          }
+        )
+        .toPromise();
+
+      this.toast.success('File renamed successfully');
+      await this.loadFiles();
+      return true;
+    } catch (error: any) {
+      console.error('Failed to rename file:', error);
+      this.toast.error('Failed to rename file');
+      return false;
+    } finally {
+      this.loading.stop();
+    }
+  }
 }
