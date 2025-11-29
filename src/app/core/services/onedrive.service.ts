@@ -1,5 +1,5 @@
 import { Injectable, inject, signal } from '@angular/core';
-import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { SupabaseService } from './supabase.service';
 import { AuthStateService } from './auth-state.service';
 import { ToastService } from './toast.service';
@@ -107,47 +107,51 @@ export class OneDriveService {
       const expiresAt = Date.now() + expiresInMs;
 
       // Save integration to database
-      let userId = this.auth.userId();
+      // IMPORTANT: Always get the fresh session from Supabase to ensure the client
+      // has the active auth token for RLS policies.
+      const { session } = await this.supabase.getSession();
 
-      // Fallback: try to get session from Supabase directly if AuthStateService is empty
-      if (!userId) {
-        const { session } = await this.supabase.getSession();
-        if (session?.user) {
-          this.auth.setUser(session.user);
-          userId = session.user.id;
-        }
+      if (!session?.user) {
+        throw new Error('No active Supabase session. Please log in first.');
       }
 
-      // Verify we have a valid user ID
-      if (!userId) {
-        throw new Error('User ID is not available. Please ensure you are logged in.');
-      }
+      const userId = session.user.id;
 
-      // FIXED: Use upsert without .single() since we're doing an upsert operation
-      const { data, error } = await this.supabase
-        .from('integrations')
-        .upsert(
-          {
-            user_id: userId,
-            provider: 'onedrive',
-            access_token: accessToken,
-            expires_at: expiresAt,
-            email: userInfo.email,
-            updated_at: new Date().toISOString(),
-          },
-          { onConflict: 'user_id,provider' }
-        )
-        .select()
-        .maybeSingle(); // FIXED: Use maybeSingle() instead of single()
+      // Update auth state just in case it's out of sync
+      this.auth.setUser(session.user);
 
-      if (error) {
-        console.error('OneDrive integration save error:', {
-          error,
-          userId,
-          errorCode: error.code,
-          errorMessage: error.message,
-        });
-        throw error;
+      // FIXED: Use direct HttpClient to ensure Authorization header is set correctly
+      // The supabase-js client was sometimes using the anon key despite having a session
+      const sbAccessToken = session.access_token;
+
+      const body = {
+        user_id: userId,
+        provider: 'onedrive',
+        access_token: accessToken,
+        expires_at: expiresAt,
+        email: userInfo.email,
+        updated_at: new Date().toISOString(),
+      };
+
+      const headers = new HttpHeaders({
+        'apikey': environment.supabase.anonKey,
+        'Authorization': `Bearer ${sbAccessToken}`,
+        'Content-Type': 'application/json',
+        'Prefer': 'resolution=merge-duplicates, return=representation'
+      });
+
+      const params = new HttpParams().set('on_conflict', 'user_id,provider');
+
+      const response = await this.http.post<any[]>(
+        `${environment.supabase.url}/rest/v1/integrations`,
+        body,
+        { headers, params }
+      ).toPromise();
+
+      const data = response?.[0];
+
+      if (!data) {
+        throw new Error('Failed to save integration: No data returned');
       }
 
       this.integration.set(data as Integration);
