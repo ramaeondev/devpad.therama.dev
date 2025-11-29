@@ -108,20 +108,51 @@ export class OneDriveService {
 
       // Save integration to database
       const userId = this.auth.userId();
+      
+      // Verify we have a valid user ID
+      if (!userId) {
+        throw new Error('User ID is not available. Please ensure you are logged in.');
+      }
+
+      // Get current session to verify auth context
+      const { data: sessionData } = await this.supabase.getSession();
+      if (!sessionData?.session) {
+        throw new Error('No active session found. Please log in again.');
+      }
+
+      console.log('Saving OneDrive integration:', {
+        userId,
+        authUid: sessionData.session.user.id,
+        provider: 'onedrive',
+        email: userInfo.email,
+      });
+
       const { data, error } = await this.supabase
         .from('integrations')
-        .upsert({
-          user_id: userId,
-          provider: 'onedrive',
-          access_token: accessToken,
-          expires_at: expiresAt,
-          email: userInfo.email,
-          updated_at: new Date().toISOString(),
-        })
+        .upsert(
+          {
+            user_id: userId,
+            provider: 'onedrive',
+            access_token: accessToken,
+            expires_at: expiresAt,
+            email: userInfo.email,
+            updated_at: new Date().toISOString(),
+          },
+          { onConflict: 'user_id,provider' }
+        )
         .select()
         .single();
 
-      if (error) throw error;
+      if (error) {
+        console.error('OneDrive integration save error:', {
+          error,
+          userId,
+          authUid: sessionData.session.user.id,
+          errorCode: error.code,
+          errorMessage: error.message,
+        });
+        throw error;
+      }
 
       this.integration.set(data as Integration);
       this.isConnected.set(true);
