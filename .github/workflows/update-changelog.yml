@@ -29,5 +29,9 @@ jobs:
           git config --local user.name "github-actions[bot]"
           git config --local user.email "github-actions[bot]@users.noreply.github.com"
           git add CHANGELOG.md src/assets/changelog.json
+          if git diff --cached --quiet; then
+            echo "No changes to commit. Skipping push."
+            exit 0
+          fi
           git commit -m "chore: update changelog [skip ci]"
           git push
