@@ -1,21 +1,16 @@
 import { HttpInterceptorFn } from '@angular/common/http';
-import { inject } from '@angular/core';
-import { from, switchMap } from 'rxjs';
-import { SupabaseService } from '../services/supabase.service';
+import { environment } from '../../../environments/environment';
 
 export const authInterceptor: HttpInterceptorFn = (req, next) => {
-  const supabase = inject(SupabaseService);
+  // Skip ALL Supabase requests - Supabase client handles its own auth
+  const supabaseUrl = environment.supabase.url;
 
-  return from(supabase.getSession()).pipe(
-    switchMap(({ session }) => {
-      if (session?.access_token) {
-        req = req.clone({
-          setHeaders: {
-            Authorization: `Bearer ${session.access_token}`,
-          },
-        });
-      }
-      return next(req);
-    }),
-  );
+  if (req.url.includes(supabaseUrl) ||
+    req.url.includes('.supabase.co')) {
+    return next(req); // Let Supabase handle authentication
+  }
+
+  // For non-Supabase requests, you can add custom auth here if needed
+  // For now, just pass through
+  return next(req);
 };
