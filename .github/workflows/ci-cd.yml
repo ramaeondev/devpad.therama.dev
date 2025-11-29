@@ -21,6 +21,14 @@ jobs:
 
       - name: Inject Environment Variables
         run: npm run inject-env
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
+          GOOGLE_CLIENT_ID: ${{ secrets.GOOGLE_CLIENT_ID }}
+          GOOGLE_API_KEY: ${{ secrets.GOOGLE_API_KEY }}
+          GOOGLE_APPID: ${{ secrets.GOOGLE_APPID }}
+          MICROSOFT_CLIENT_ID: ${{ secrets.MICROSOFT_CLIENT_ID }}
+          MICROSOFT_REDIRECT_URI: ${{ secrets.MICROSOFT_REDIRECT_URI }}
       
       - name: Install Vercel CLI
         run: npm install --global vercel@latest
