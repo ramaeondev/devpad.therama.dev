@@ -114,8 +114,7 @@ export class OneDriveService {
         throw new Error('User ID is not available. Please ensure you are logged in.');
       }
 
-      // Supabase client automatically includes auth token if session exists
-      // Since other operations work, the client has a valid session
+      // FIXED: Use upsert without .single() since we're doing an upsert operation
       const { data, error } = await this.supabase
         .from('integrations')
         .upsert(
@@ -130,7 +129,7 @@ export class OneDriveService {
           { onConflict: 'user_id,provider' }
         )
         .select()
-        .single();
+        .maybeSingle(); // FIXED: Use maybeSingle() instead of single()
 
       if (error) {
         console.error('OneDrive integration save error:', {
@@ -218,6 +217,7 @@ export class OneDriveService {
 
   /**
    * Check existing connection
+   * FIXED: Use maybeSingle() to avoid 406 errors when no integration exists
    */
   async checkConnection(): Promise<void> {
     try {
@@ -227,9 +227,14 @@ export class OneDriveService {
         .select('*')
         .eq('user_id', userId)
         .eq('provider', 'onedrive')
-        .single();
+        .maybeSingle(); // FIXED: Use maybeSingle() instead of single()
 
-      if (!error && data) {
+      if (error) {
+        console.error('Error checking OneDrive connection:', error);
+        return;
+      }
+
+      if (data) {
         this.integration.set(data as Integration);
         this.isConnected.set(true);
         await this.loadFiles();
