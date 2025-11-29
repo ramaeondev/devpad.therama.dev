@@ -232,25 +232,53 @@ export class OneDriveService {
    * Check existing connection
    * FIXED: Use maybeSingle() to avoid 406 errors when no integration exists
    */
+  /**
+   * Check existing connection
+   * Uses direct HttpClient to ensure RLS policies work correctly with the active session
+   */
   async checkConnection(): Promise<void> {
     try {
-      const userId = this.auth.userId();
-      const { data, error } = await this.supabase
-        .from('integrations')
-        .select('*')
-        .eq('user_id', userId)
-        .eq('provider', 'onedrive')
-        .maybeSingle(); // FIXED: Use maybeSingle() instead of single()
-
-      if (error) {
-        console.error('Error checking OneDrive connection:', error);
+      // Get fresh session to ensure we have the token
+      const { session } = await this.supabase.getSession();
+      if (!session?.user) {
+        console.log('OneDrive checkConnection: No active session');
         return;
       }
 
+      const userId = session.user.id;
+      const sbAccessToken = session.access_token;
+
+      // Update auth state just in case
+      if (this.auth.userId() !== userId) {
+        this.auth.setUser(session.user);
+      }
+
+      // Use HttpClient to ensure auth headers are sent correctly
+      const params = new HttpParams()
+        .set('select', '*')
+        .set('user_id', `eq.${userId}`)
+        .set('provider', 'eq.onedrive')
+        .set('limit', '1');
+
+      const headers = new HttpHeaders({
+        'apikey': environment.supabase.anonKey,
+        'Authorization': `Bearer ${sbAccessToken}`
+      });
+
+      const response = await this.http.get<Integration[]>(
+        `${environment.supabase.url}/rest/v1/integrations`,
+        { headers, params }
+      ).toPromise();
+
+      const data = response?.[0];
+
       if (data) {
-        this.integration.set(data as Integration);
+        console.log('OneDrive connection found');
+        this.integration.set(data);
         this.isConnected.set(true);
         await this.loadFiles();
+      } else {
+        console.log('OneDrive connection not found');
       }
     } catch (error) {
       console.error('Failed to check OneDrive connection:', error);
