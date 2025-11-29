@@ -93,29 +93,37 @@ export class OneDriveService {
   };
 
   /**
-   * Handle successful OAuth
+   * Handle successful OAuth - with proper session verification
    */
   private async handleAuthSuccess(accessToken: string, expiresIn?: number): Promise<void> {
     try {
       this.loading.start();
 
-      // Get user info
+      // CRITICAL: Ensure we have a valid Supabase session
+      const { session } = await this.supabase.getSession();
+
+      if (!session || !session.access_token) {
+        throw new Error('No active Supabase session. Please log in first.');
+      }
+
+      console.log('✅ Supabase session verified:', {
+        userId: session.user.id,
+        tokenLength: session.access_token.length
+      });
+
+      // Get user info from Microsoft
       const userInfo = await this.getUserInfo(accessToken);
 
-      // Calculate expiration time (default to 3600 seconds if not provided)
+      // Calculate expiration time
       const expiresInMs = (expiresIn || 3600) * 1000;
       const expiresAt = Date.now() + expiresInMs;
 
-      // Save integration to database
-      const userId = this.auth.userId();
-      
-      // Verify we have a valid user ID
-      if (!userId) {
-        throw new Error('User ID is not available. Please ensure you are logged in.');
-      }
+      // Get user ID from session (not from auth state service)
+      const userId = session.user.id;
 
-      // FIXED: Use upsert without .single() since we're doing an upsert operation
-      const { data, error } = await this.supabase
+      // Save integration to database
+      // We need to manually set the Authorization header with the user's JWT
+      const { data, error } = await this.supabase.client
         .from('integrations')
         .upsert(
           {
@@ -129,7 +137,7 @@ export class OneDriveService {
           { onConflict: 'user_id,provider' }
         )
         .select()
-        .maybeSingle(); // FIXED: Use maybeSingle() instead of single()
+        .maybeSingle();
 
       if (error) {
         console.error('OneDrive integration save error:', {
@@ -145,14 +153,19 @@ export class OneDriveService {
       this.isConnected.set(true);
       this.toast.success('OneDrive connected successfully');
 
-      // Schedule token refresh (refresh 5 minutes before expiration)
+      // Schedule token refresh
       this.scheduleTokenRefresh(expiresInMs - 5 * 60 * 1000);
 
       // Load files
       await this.loadFiles();
     } catch (error: any) {
       console.error('Failed to save integration:', error);
-      this.toast.error('Failed to save OneDrive connection');
+
+      if (error.message?.includes('No active Supabase session')) {
+        this.toast.error('Please log in to DevPad first before connecting OneDrive');
+      } else {
+        this.toast.error('Failed to save OneDrive connection');
+      }
     } finally {
       this.loading.stop();
     }
@@ -162,12 +175,10 @@ export class OneDriveService {
    * Schedule token refresh
    */
   private scheduleTokenRefresh(delayMs: number): void {
-    // Clear any existing timer
     if (this.tokenRefreshTimer !== undefined) {
       window.clearTimeout(this.tokenRefreshTimer);
     }
 
-    // Don't schedule if delay is too short (less than 1 minute)
     if (delayMs < 60 * 1000) {
       console.warn('Token expires too soon, will refresh on next API call');
       return;
@@ -182,15 +193,11 @@ export class OneDriveService {
 
   /**
    * Refresh OneDrive access token
-   * Since we use implicit flow, we need to trigger re-authentication
    */
   private async refreshToken(): Promise<void> {
     console.log('Refreshing OneDrive token...');
 
     try {
-      // OneDrive implicit flow requires re-authentication to get new token
-      // We'll trigger a silent re-authentication by opening the auth URL in a hidden iframe
-      // For now, we'll just mark as disconnected and let user reconnect
       this.isConnected.set(false);
       this.toast.error('OneDrive session expired. Please reconnect.');
     } catch (error) {
@@ -217,17 +224,16 @@ export class OneDriveService {
 
   /**
    * Check existing connection
-   * FIXED: Use maybeSingle() to avoid 406 errors when no integration exists
    */
   async checkConnection(): Promise<void> {
     try {
       const userId = this.auth.userId();
-      const { data, error } = await this.supabase
+      const { data, error } = await this.supabase.client
         .from('integrations')
         .select('*')
         .eq('user_id', userId)
         .eq('provider', 'onedrive')
-        .maybeSingle(); // FIXED: Use maybeSingle() instead of single()
+        .maybeSingle();
 
       if (error) {
         console.error('Error checking OneDrive connection:', error);
@@ -249,7 +255,6 @@ export class OneDriveService {
    */
   async disconnect(): Promise<void> {
     try {
-      // Clear token refresh timer
       if (this.tokenRefreshTimer !== undefined) {
         window.clearTimeout(this.tokenRefreshTimer);
         this.tokenRefreshTimer = undefined;
@@ -258,8 +263,7 @@ export class OneDriveService {
       const integration = this.integration();
       if (!integration) return;
 
-      // Delete integration from database
-      const { error } = await this.supabase
+      const { error } = await this.supabase.client
         .from('integrations')
         .delete()
         .eq('id', integration.id);
@@ -315,13 +319,8 @@ export class OneDriveService {
     }
   }
 
-  /**
-   * Build folder tree structure
-   */
-  private async buildFolderTree(
-    rootFiles: OneDriveFile[],
-    accessToken: string
-  ): Promise<void> {
+  // ... rest of the methods remain the same ...
+  private async buildFolderTree(rootFiles: OneDriveFile[], accessToken: string): Promise<void> {
     const root: OneDriveFolder = {
       id: 'root',
       name: 'OneDrive',
@@ -329,7 +328,6 @@ export class OneDriveService {
       folders: [],
     };
 
-    // Build folders recursively
     const folders = rootFiles.filter((f) => f.isFolder);
     for (const folder of folders) {
       const subFolder = await this.loadFolder(folder, accessToken);
@@ -339,13 +337,7 @@ export class OneDriveService {
     this.rootFolder.set(root);
   }
 
-  /**
-   * Load a folder recursively
-   */
-  private async loadFolder(
-    folder: OneDriveFile,
-    accessToken: string
-  ): Promise<OneDriveFolder> {
+  private async loadFolder(folder: OneDriveFile, accessToken: string): Promise<OneDriveFolder> {
     try {
       const response = await this.http
         .get<any>(`${this.GRAPH_API}/me/drive/items/${folder.id}/children`, {
@@ -376,7 +368,6 @@ export class OneDriveService {
         folders: [],
       };
 
-      // Load subfolders (limit depth to avoid too many requests)
       const subFolders = items.filter((f) => f.isFolder);
       for (const subFolder of subFolders) {
         const loaded = await this.loadFolder(subFolder, accessToken);
@@ -395,9 +386,6 @@ export class OneDriveService {
     }
   }
 
-  /**
-   * Upload file to OneDrive
-   */
   async uploadFile(file: File, folderId?: string): Promise<OneDriveFile | null> {
     try {
       this.loading.start();
@@ -446,9 +434,6 @@ export class OneDriveService {
     }
   }
 
-  /**
-   * Download file from OneDrive
-   */
   async downloadFile(fileId: string): Promise<Blob | null> {
     try {
       this.loading.start();
@@ -477,9 +462,6 @@ export class OneDriveService {
     }
   }
 
-  /**
-   * Delete file from OneDrive
-   */
   async deleteFile(fileId: string): Promise<boolean> {
     try {
       this.loading.start();
@@ -509,9 +491,6 @@ export class OneDriveService {
     }
   }
 
-  /**
-   * Create folder in OneDrive
-   */
   async createFolder(name: string, parentId?: string): Promise<OneDriveFile | null> {
     try {
       this.loading.start();
