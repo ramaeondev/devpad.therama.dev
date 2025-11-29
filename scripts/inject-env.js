@@ -39,6 +39,9 @@ const generateConfigFile = (filePath) => {
 
   fs.writeFileSync(filePath, content, { encoding: 'utf8' });
   console.log(`Config file generated: ${filePath}`);
+  console.log('Debug - Environment Variables Loaded:');
+  console.log('SUPABASE_URL:', envVariables.SUPABASE_URL ? 'Present' : 'Missing');
+  console.log('SUPABASE_ANON_KEY:', envVariables.SUPABASE_ANON_KEY ? 'Present' : 'Missing');
 };
 
 generateConfigFile(configFiles.development);
