@@ -7,61 +7,35 @@ import { environment } from '../../../environments/environment';
 })
 export class SupabaseService {
   private supabase: SupabaseClient;
-  private sessionCache: any = null;
-  private sessionPromise: Promise<any> | null = null;
 
   constructor() {
+    // Check if we are in the OneDrive callback flow
+    // If so, disable detectSessionInUrl to prevent Supabase from trying to parse
+    // the OneDrive access token as a Supabase session (which would fail and clear the session)
+    const isOneDriveCallback =
+      typeof window !== 'undefined' &&
+      window.location.pathname.includes('/auth/callback/onedrive');
+
     this.supabase = createClient(environment.supabase.url, environment.supabase.anonKey, {
       auth: {
         storageKey: 'sb-auth-token',
         autoRefreshToken: true,
         persistSession: true,
-        detectSessionInUrl: true,
+        detectSessionInUrl: !isOneDriveCallback,
+        // Add this to prevent lock issues
+        storage: window.localStorage,
       },
     });
   }
 
-  // Cached session getter to prevent lock conflicts
+  // Simple session getter - let Supabase handle caching
   async getSession() {
-    // Return cached session if available and fresh (< 5 seconds old)
-    if (this.sessionCache && Date.now() - this.sessionCache.timestamp < 5000) {
-      return this.sessionCache.data;
+    const { data, error } = await this.supabase.auth.getSession();
+    if (error) {
+      console.error('Error getting session:', error);
+      return { session: null, error };
     }
-
-    // If a session fetch is already in progress, wait for it
-    if (this.sessionPromise) {
-      return this.sessionPromise;
-    }
-
-    // Fetch session with retry logic
-    this.sessionPromise = this.fetchSessionWithRetry();
-    const result = await this.sessionPromise;
-    this.sessionPromise = null;
-
-    // Cache the result
-    this.sessionCache = {
-      data: result,
-      timestamp: Date.now(),
-    };
-
-    return result;
-  }
-
-  private async fetchSessionWithRetry(retries = 3): Promise<any> {
-    for (let i = 0; i < retries; i++) {
-      try {
-        const { data, error } = await this.supabase.auth.getSession();
-        if (error) throw error;
-        return data;
-      } catch (error: any) {
-        if (error?.message?.includes('lock') && i < retries - 1) {
-          // Wait and retry on lock timeout
-          await new Promise((resolve) => setTimeout(resolve, 200 * (i + 1)));
-          continue;
-        }
-        throw error;
-      }
-    }
+    return data;
   }
 
   get client() {
@@ -72,8 +46,9 @@ export class SupabaseService {
     return this.supabase.auth;
   }
 
-  get from() {
-    return this.supabase.from.bind(this.supabase);
+  // IMPORTANT: Return the bound function, not a function that returns it
+  from(table: string) {
+    return this.supabase.from(table);
   }
 
   get storage() {

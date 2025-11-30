@@ -58,3 +58,44 @@ CREATE TRIGGER trigger_update_integrations_updated_at
   BEFORE UPDATE ON integrations
   FOR EACH ROW
   EXECUTE FUNCTION update_integrations_updated_at();
+
+
+ALTER TABLE folders ADD CONSTRAINT unique_user_root UNIQUE (user_id, is_root);
+
+
+
+
+
+
+
+-- Drop existing policies
+DROP POLICY IF EXISTS "Users can view their own integrations" ON integrations;
+DROP POLICY IF EXISTS "Users can insert their own integrations" ON integrations;
+DROP POLICY IF EXISTS "Users can update their own integrations" ON integrations;
+DROP POLICY IF EXISTS "Users can delete their own integrations" ON integrations;
+
+-- Recreate with correct role
+CREATE POLICY "Users can view their own integrations"
+ON integrations
+FOR SELECT
+TO authenticated
+USING (auth.uid() = user_id);
+
+CREATE POLICY "Users can insert their own integrations"
+ON integrations
+FOR INSERT
+TO authenticated
+WITH CHECK (auth.uid() = user_id);
+
+CREATE POLICY "Users can update their own integrations"
+ON integrations
+FOR UPDATE
+TO authenticated
+USING (auth.uid() = user_id)
+WITH CHECK (auth.uid() = user_id);
+
+CREATE POLICY "Users can delete their own integrations"
+ON integrations
+FOR DELETE
+TO authenticated
+USING (auth.uid() = user_id);

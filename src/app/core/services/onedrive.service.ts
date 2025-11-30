@@ -1,5 +1,5 @@
 import { Injectable, inject, signal } from '@angular/core';
-import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { SupabaseService } from './supabase.service';
 import { AuthStateService } from './auth-state.service';
 import { ToastService } from './toast.service';
@@ -107,51 +107,51 @@ export class OneDriveService {
       const expiresAt = Date.now() + expiresInMs;
 
       // Save integration to database
-      const userId = this.auth.userId();
-      
-      // Verify we have a valid user ID
-      if (!userId) {
-        throw new Error('User ID is not available. Please ensure you are logged in.');
+      // IMPORTANT: Always get the fresh session from Supabase to ensure the client
+      // has the active auth token for RLS policies.
+      const { session } = await this.supabase.getSession();
+
+      if (!session?.user) {
+        throw new Error('No active Supabase session. Please log in first.');
       }
 
-      // Get current session to verify auth context
-      const { data: sessionData } = await this.supabase.getSession();
-      if (!sessionData?.session) {
-        throw new Error('No active session found. Please log in again.');
-      }
+      const userId = session.user.id;
 
-      console.log('Saving OneDrive integration:', {
-        userId,
-        authUid: sessionData.session.user.id,
+      // Update auth state just in case it's out of sync
+      this.auth.setUser(session.user);
+
+      // FIXED: Use direct HttpClient to ensure Authorization header is set correctly
+      // The supabase-js client was sometimes using the anon key despite having a session
+      const sbAccessToken = session.access_token;
+
+      const body = {
+        user_id: userId,
         provider: 'onedrive',
+        access_token: accessToken,
+        expires_at: expiresAt,
         email: userInfo.email,
+        updated_at: new Date().toISOString(),
+      };
+
+      const headers = new HttpHeaders({
+        'apikey': environment.supabase.anonKey,
+        'Authorization': `Bearer ${sbAccessToken}`,
+        'Content-Type': 'application/json',
+        'Prefer': 'resolution=merge-duplicates, return=representation'
       });
 
-      const { data, error } = await this.supabase
-        .from('integrations')
-        .upsert(
-          {
-            user_id: userId,
-            provider: 'onedrive',
-            access_token: accessToken,
-            expires_at: expiresAt,
-            email: userInfo.email,
-            updated_at: new Date().toISOString(),
-          },
-          { onConflict: 'user_id,provider' }
-        )
-        .select()
-        .single();
+      const params = new HttpParams().set('on_conflict', 'user_id,provider');
 
-      if (error) {
-        console.error('OneDrive integration save error:', {
-          error,
-          userId,
-          authUid: sessionData.session.user.id,
-          errorCode: error.code,
-          errorMessage: error.message,
-        });
-        throw error;
+      const response = await this.http.post<any[]>(
+        `${environment.supabase.url}/rest/v1/integrations`,
+        body,
+        { headers, params }
+      ).toPromise();
+
+      const data = response?.[0];
+
+      if (!data) {
+        throw new Error('Failed to save integration: No data returned');
       }
 
       this.integration.set(data as Integration);
@@ -230,21 +230,55 @@ export class OneDriveService {
 
   /**
    * Check existing connection
+   * FIXED: Use maybeSingle() to avoid 406 errors when no integration exists
+   */
+  /**
+   * Check existing connection
+   * Uses direct HttpClient to ensure RLS policies work correctly with the active session
    */
   async checkConnection(): Promise<void> {
     try {
-      const userId = this.auth.userId();
-      const { data, error } = await this.supabase
-        .from('integrations')
-        .select('*')
-        .eq('user_id', userId)
-        .eq('provider', 'onedrive')
-        .single();
+      // Get fresh session to ensure we have the token
+      const { session } = await this.supabase.getSession();
+      if (!session?.user) {
+        console.log('OneDrive checkConnection: No active session');
+        return;
+      }
 
-      if (!error && data) {
-        this.integration.set(data as Integration);
+      const userId = session.user.id;
+      const sbAccessToken = session.access_token;
+
+      // Update auth state just in case
+      if (this.auth.userId() !== userId) {
+        this.auth.setUser(session.user);
+      }
+
+      // Use HttpClient to ensure auth headers are sent correctly
+      const params = new HttpParams()
+        .set('select', '*')
+        .set('user_id', `eq.${userId}`)
+        .set('provider', 'eq.onedrive')
+        .set('limit', '1');
+
+      const headers = new HttpHeaders({
+        'apikey': environment.supabase.anonKey,
+        'Authorization': `Bearer ${sbAccessToken}`
+      });
+
+      const response = await this.http.get<Integration[]>(
+        `${environment.supabase.url}/rest/v1/integrations`,
+        { headers, params }
+      ).toPromise();
+
+      const data = response?.[0];
+
+      if (data) {
+        console.log('OneDrive connection found');
+        this.integration.set(data);
         this.isConnected.set(true);
         await this.loadFiles();
+      } else {
+        console.log('OneDrive connection not found');
       }
     } catch (error) {
       console.error('Failed to check OneDrive connection:', error);
@@ -567,6 +601,42 @@ export class OneDriveService {
       console.error('Failed to create folder:', error);
       this.toast.error('Failed to create folder in OneDrive');
       return null;
+    } finally {
+      this.loading.stop();
+    }
+  }
+  /**
+   * Rename file or folder in OneDrive
+   */
+  async renameFile(fileId: string, newName: string): Promise<boolean> {
+    try {
+      this.loading.start();
+      const accessToken = this.integration()?.access_token;
+      if (!accessToken) {
+        this.toast.error('Not connected to OneDrive');
+        return false;
+      }
+
+      await this.http
+        .patch(
+          `${this.GRAPH_API}/me/drive/items/${fileId}`,
+          { name: newName },
+          {
+            headers: new HttpHeaders({
+              Authorization: `Bearer ${accessToken}`,
+              'Content-Type': 'application/json',
+            }),
+          }
+        )
+        .toPromise();
+
+      this.toast.success('File renamed successfully');
+      await this.loadFiles();
+      return true;
+    } catch (error: any) {
+      console.error('Failed to rename file:', error);
+      this.toast.error('Failed to rename file');
+      return false;
     } finally {
       this.loading.stop();
     }

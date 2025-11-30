@@ -24,14 +24,13 @@ export class FolderService {
     return this.loading.withLoading(async () => {
       try {
         // Check if root folder already exists
-        const hasRoot = await this.userService.hasRootFolder(userId);
-
-        if (hasRoot) {
-          // Get existing root folder
+        const hasRootFolder = await this.userService.hasRootFolder(userId);
+        if (hasRootFolder) {
           const existingRoot = await this.getRootFolder(userId);
-          if (existingRoot) {
-            return existingRoot;
+          if (!existingRoot) {
+            throw new Error('Root folder flag set but folder not found');
           }
+          return existingRoot;
         }
 
         // Create root folder
@@ -42,7 +41,7 @@ export class FolderService {
             user_id: userId,
             parent_id: null,
             is_root: true,
-            icon: '📁',
+            icon: 'fa-folder-open',
           })
           .select()
           .single();
@@ -62,6 +61,7 @@ export class FolderService {
 
   /**
    * Get root folder for a user
+   * Fixed: Using maybeSingle() to avoid 406 errors
    */
   async getRootFolder(userId: string): Promise<Folder | null> {
     return this.loading.withLoading(async () => {
@@ -71,16 +71,11 @@ export class FolderService {
           .select('*')
           .eq('user_id', userId)
           .eq('is_root', true)
-          .single();
+          .maybeSingle(); // FIXED: Use maybeSingle() instead of single()
 
-        if (error) {
-          if (error.code === 'PGRST116') {
-            return null as any;
-          }
-          throw error;
-        }
+        if (error) throw error;
 
-        return data as Folder;
+        return data as Folder | null;
       } catch (error) {
         console.error('Error fetching root folder:', error);
         return null;
@@ -95,20 +90,14 @@ export class FolderService {
     return this.loading.withLoading(async () => {
       try {
         // Check if user already has a root folder
-        const hasRoot = await this.userService.hasRootFolder(userId);
-
-        if (!hasRoot) {
-          return await this.createRootFolder(userId);
-        }
-
-        // Return existing root folder
         const rootFolder = await this.getRootFolder(userId);
-        if (!rootFolder) {
-          // If for some reason root folder doesn't exist but flag is true, create it
-          return await this.createRootFolder(userId);
+        
+        if (rootFolder) {
+          return rootFolder;
         }
 
-        return rootFolder;
+        // Create root folder if it doesn't exist
+        return await this.createRootFolder(userId);
       } catch (error) {
         console.error('Error initializing user folders:', error);
         throw error;
@@ -223,16 +212,11 @@ export class FolderService {
           .select('*')
           .eq('id', folderId)
           .eq('user_id', userId)
-          .single();
+          .maybeSingle(); // FIXED: Use maybeSingle() instead of single()
 
-        if (error) {
-          if (error.code === 'PGRST116') {
-            return null as any;
-          }
-          throw error;
-        }
+        if (error) throw error;
 
-        return data as Folder;
+        return data as Folder | null;
       } catch (error) {
         console.error('Error fetching folder:', error);
         return null;

@@ -224,12 +224,16 @@ export class SignupComponent {
           await this.deviceFingerprint.registerDevice(data.user.id);
         } catch (deviceError) {
           console.error('Failed to register device:', deviceError);
+          this.toast.error('Device registration failed. Please try again later.');
           // Don't block signup if device registration fails
         }
+      } else {
+        console.warn('User ID is not available; skipping device registration.');
+        this.toast.warning('User ID unavailable. Device registration skipped.');
       }
 
       this.toast.success('Account created! Please check your email to confirm.');
-      this.router.navigate(['/auth/confirm-email']);
+      this.router.navigate(['/auth/confirm-email'], { queryParams: { email: data.user?.email } });
     } catch (error: any) {
       this.errorMessage.set(error.message || 'Failed to create account');
       this.toast.error('Failed to create account');

@@ -11,6 +11,29 @@ All notable changes to this project are documented in this file.
 - **Contact Us Modal**: Implemented contact us functionality with a new modal and a Supabase function for email sending via Supabase Edge function and Resend.
 - **Device Fingerprinting**: Introduced device fingerprinting and tracking for user authentication and device management.
 - **About Us Modal**: Added About Us modal to settings panel.
+- **User Email Display**: Displays user email on confirmation page after signup.
+- **Folder Icons**: Updated folder icons to use Font Awesome for better consistency and styling.
+- **CI/CD Enhancements**: 
+  - Moved environment variable injection into the CI/CD workflow.
+  - Added debug logging for environment variables in config generation.
+  - Enabled manual triggering of CI/CD workflow.
+
+### Changed
+- **Root Folder Validation**: Enhanced root folder validation logic in FolderService.
+- **OneDrive Integration**: 
+  - Improved OneDrive service session handling and enhanced debug logging.
+  - Enhanced OneDrive integration error handling and user ID validation.
+  - Streamlined OneDrive service logging and session validation.
+
+### Fixed
+- **Integration Operations**: Fixed 406 errors by using maybeSingle in integration ops.
+- **Device Registration**: Improved device registration error feedback.
+
+### Refactored
+- **Configuration Management**: 
+  - Migrated configuration from `config.ts` to Angular's `environment` files.
+  - Removed Google refresh server, implemented new environment configuration, and added Google App ID.
+- **Environment Files**: Removed .env from git tracking.
 
 ## [Unreleased] - 2025-11-28
 
@@ -249,3 +272,6 @@ All notable changes to this project are documented in this file.
 - Signed URL TTL is currently set to 60 seconds. Consider increasing TTL or returning signed URLs to the UI for direct use if needed.
 - Folder-delete still uses the existing delete flow; can be wired to the confirm modal on request.
 
+
+## 2025-11-30
+- feat: Enhance changelog update script to avoid duplicate entries and improve commit detection (1b88ff0)
