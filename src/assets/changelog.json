@@ -1,5 +1,11 @@
 [
   {
+    "date": "2025-11-30",
+    "changes": [
+      "feat: Enhance changelog update script to avoid duplicate entries and improve commit detection"
+    ]
+  },
+  {
     "date": "2025-11-29",
     "changes": [
       "fix: Fixes 406 errors by using maybeSingle in integration ops",
