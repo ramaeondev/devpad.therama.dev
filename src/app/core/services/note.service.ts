@@ -1,10 +1,62 @@
 import { Injectable, inject } from '@angular/core';
+import CryptoJS from 'crypto-js';
+import { HttpClient } from '@angular/common/http';
 import { SupabaseService } from './supabase.service';
 import { CreateNoteDto, Note, UpdateNoteDto } from '../models/note.model';
 import { LoadingService } from './loading.service';
+import { environment } from '../../../environments/environment';
 
 @Injectable({ providedIn: 'root' })
 export class NoteService {
+    private http = inject(HttpClient);
+
+    /**
+     * Generate a random AES key (256-bit)
+     */
+    private generateSymmetricKey(): string {
+      return CryptoJS.lib.WordArray.random(32).toString(CryptoJS.enc.Hex);
+    }
+
+    /**
+     * Encrypt note content using AES
+     */
+    private encryptContent(content: string, key: string): string {
+      return CryptoJS.AES.encrypt(content, key).toString();
+    }
+
+    /**
+     * Decrypt note content using AES
+     */
+    private decryptContent(encrypted: string, key: string): string {
+      const bytes = CryptoJS.AES.decrypt(encrypted, key);
+      return bytes.toString(CryptoJS.enc.Utf8);
+    }
+
+    /**
+     * Encrypt symmetric key using Supabase Edge Function
+     */
+    async encryptSymmetricKeyWithSupabase(key: string): Promise<string> {
+      // Use Supabase URL from imported environment config
+      const endpoint = `${environment.supabase.url}/functions/v1/encrypt-key`;
+      const response = await this.http.post<{ encryptedKey: string }>(
+        endpoint,
+        { key }
+      ).toPromise();
+      return response?.encryptedKey ?? '';
+    }
+
+    /**
+     * Decrypt symmetric key using Supabase Edge Function
+     */
+    async decryptSymmetricKeyWithSupabase(encryptedKey: string): Promise<string> {
+      // Use Supabase URL from imported environment config
+      const endpoint = `${environment.supabase.url}/functions/v1/decrypt-key`;
+      const response = await this.http.post<{ key: string }>(
+        endpoint,
+        { encryptedKey }
+      ).toPromise();
+      return response?.key ?? '';
+    }
   private supabase = inject(SupabaseService);
   private loading = inject(LoadingService);
   private readonly BUCKET = 'notes';
@@ -53,28 +105,28 @@ export class NoteService {
       if (createErr) throw createErr;
 
       const note = created as Note;
-      // Step 2: upload content to storage (even if empty, create the file for consistency)
-      // Use a deterministic path for each note and upload using File for browser compatibility
+      // Step 2: generate symmetric key and encrypt content
+      const symmetricKey = this.generateSymmetricKey();
+      const encryptedContent = this.encryptContent(dto.content ?? '', symmetricKey);
+      // Encrypt symmetric key using Supabase Edge Function
+      const encryptedKey = await this.encryptSymmetricKeyWithSupabase(symmetricKey);
+
+      // Step 3: upload encrypted content to storage
       const path = `${userId}/${note.id}.md`;
-      const contentStr = typeof dto.content === 'string' ? dto.content : (dto.content ?? '');
-      // Use File which works well in browsers and keeps metadata
-      const file = new File([contentStr], `${note.id}.md`, { type: 'text/markdown' });
+      const file = new File([encryptedContent], `${note.id}.md`, { type: 'text/markdown' });
       const { error: uploadErr } = await this.supabase.storage
         .from(this.BUCKET)
         .upload(path, file, { upsert: true, contentType: 'text/markdown' });
       if (uploadErr) throw uploadErr;
-
-      // Verify upload succeeded and file is retrievable (helps catch permission/multipart issues)
-      // Skip verification for intentionally empty files: empty notes are allowed.
-      if (contentStr && contentStr.length > 0) {
+      if (encryptedContent && encryptedContent.length > 0) {
         await this.verifyUpload(path);
       }
 
-      // Step 3: update row to reference storage path (use storage:// scheme in content field)
+      // Step 4: update row to reference storage path and encrypted key
       const storageRef = `storage://${this.BUCKET}/${path}`;
       const { data: updated, error: updateErr } = await this.supabase
         .from('notes')
-        .update({ content: storageRef, updated_at: new Date().toISOString() })
+        .update({ content: storageRef, encrypted_key: encryptedKey, updated_at: new Date().toISOString() })
         .eq('id', note.id)
         .eq('user_id', userId)
         .select()
@@ -94,53 +146,39 @@ export class NoteService {
         .eq('user_id', userId)
         .single();
       if (getErr) throw getErr;
-      const cur = current as Note & { content?: string };
+      const cur = current as Note & { content?: string, encrypted_key?: string };
 
       // Always target a deterministic path for the note file
       const expectedPath = `${userId}/${noteId}.md`;
       let storageRef = `storage://${this.BUCKET}/${expectedPath}`;
 
-      if (!cur.content || !cur.content.startsWith('storage://')) {
-        // Previous rows stored raw content in DB; migrate that content (or dto.content if provided)
-        const migrateContent = dto.content !== undefined ? dto.content : cur.content || '';
-        const file = new File([migrateContent], `${noteId}.md`, { type: 'text/markdown' });
-        const { error: uploadErr } = await this.supabase.storage
+      let encryptedKey = cur.encrypted_key;
+      let symmetricKey = '';
+
+      // If updating content, generate new symmetric key and encrypted key
+      if (dto.content !== undefined) {
+        symmetricKey = this.generateSymmetricKey();
+        encryptedKey = await this.encryptSymmetricKeyWithSupabase(symmetricKey);
+        const encryptedContent = this.encryptContent(dto.content as string, symmetricKey);
+        const file = new File([encryptedContent], `${noteId}.md`, { type: 'text/markdown' });
+        const { error: upErr } = await this.supabase.storage
           .from(this.BUCKET)
           .upload(expectedPath, file, { upsert: true, contentType: 'text/markdown' });
-        if (uploadErr) throw uploadErr;
-        // Only verify when migrated content is non-empty
-        if (migrateContent && migrateContent.length > 0) {
+        if (upErr) throw upErr;
+        if (encryptedContent && encryptedContent.length > 0) {
           await this.verifyUpload(expectedPath);
         }
         storageRef = `storage://${this.BUCKET}/${expectedPath}`;
       } else {
-        // File already stored in storage; if new content provided, overwrite the deterministic path
-        if (dto.content !== undefined) {
-          const file = new File([dto.content], `${noteId}.md`, { type: 'text/markdown' });
-          const { error: upErr } = await this.supabase.storage
-            .from(this.BUCKET)
-            .upload(expectedPath, file, { upsert: true, contentType: 'text/markdown' });
-          if (upErr) throw upErr;
-          // Only verify when provided content is non-empty
-          if (dto.content && (dto.content as string).length > 0) {
-            await this.verifyUpload(expectedPath);
-          }
-          storageRef = `storage://${this.BUCKET}/${expectedPath}`;
-        } else {
-          // keep existing storageRef if no content provided
-          storageRef = cur.content;
-        }
+        storageRef = cur.content;
       }
 
       const updatePayload: any = {
         updated_at: new Date().toISOString(),
       };
-
-      // Only include fields that are explicitly provided
       if (dto.title !== undefined) updatePayload.title = dto.title;
-      if (dto.content !== undefined || !cur.content || !cur.content.startsWith('storage://')) {
-        updatePayload.content = storageRef;
-      }
+      if (dto.content !== undefined) updatePayload.content = storageRef;
+      if (encryptedKey) updatePayload.encrypted_key = encryptedKey;
       if (dto.folder_id !== undefined) updatePayload.folder_id = dto.folder_id;
       if (dto.tags !== undefined) updatePayload.tags = dto.tags;
       if (dto.is_favorite !== undefined) updatePayload.is_favorite = dto.is_favorite;
@@ -181,12 +219,10 @@ export class NoteService {
         if ((error as any).code === 'PGRST116') return null;
         throw error;
       }
-      const note = data as Note & { content?: string };
+      const note = data as Note & { content?: string, encrypted_key?: string };
       const contentField = note.content || '';
       if (contentField.startsWith('storage://')) {
-        // Parse storage path
         const path = contentField.replace(`storage://${this.BUCKET}/`, '');
-        // Only fetch content for text/markdown files, keep storage path for binary files
         const isTextFile = path.endsWith('.md') || path.endsWith('.txt');
         if (isTextFile) {
           const { data: urlData, error: urlErr } = await this.supabase.storage
@@ -197,10 +233,22 @@ export class NoteService {
           }
           const resp = await fetch(urlData.signedUrl);
           if (!resp.ok) throw new Error(`Signed URL fetch failed: ${resp.status}`);
-          const signedText = await resp.text();
-          return { ...(note as Note), content: signedText } as Note;
+          const encryptedContent = await resp.text();
+          // Decrypt symmetric key using Supabase Edge Function
+          let symmetricKey = '';
+          if (note.encrypted_key) {
+            symmetricKey = await this.decryptSymmetricKeyWithSupabase(note.encrypted_key);
+          }
+          let decrypted = encryptedContent;
+          if (symmetricKey) {
+            try {
+              decrypted = this.decryptContent(encryptedContent, symmetricKey);
+            } catch (e) {
+              decrypted = encryptedContent;
+            }
+          }
+          return { ...(note as Note), content: decrypted } as Note;
         }
-        // For binary files, keep the storage path as content
         return note as Note;
       }
       return note as Note;
