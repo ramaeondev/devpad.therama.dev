@@ -5,7 +5,6 @@ import { getExtensionFromPath, getIconNameFromExt, getTypeLabelFromExt } from '.
 import { NoteService } from '../../../../core/services/note.service';
 import { AuthStateService } from '../../../../core/services/auth-state.service';
 import { ToastService } from '../../../../core/services/toast.service';
-import { SupabaseService } from '../../../../core/services/supabase.service';
 
 @Component({
   selector: 'app-document-preview',
@@ -111,11 +110,11 @@ export class DocumentPreviewComponent implements OnInit, OnDestroy {
   private noteService = inject(NoteService);
   private authState = inject(AuthStateService);
   private toast = inject(ToastService);
-  private supabase = inject(SupabaseService);
   private sanitizer = inject(DomSanitizer);
 
   isLoading = signal(false);
   previewUrl = signal<string | null>(null);
+  private revokeFn: (() => void) | null = null;
   safePreviewUrl = computed(() => {
     const url = this.previewUrl();
     return url ? this.sanitizer.bypassSecurityTrustResourceUrl(url) : null;
@@ -137,9 +136,12 @@ export class DocumentPreviewComponent implements OnInit, OnDestroy {
 
   ngOnDestroy() {
     // Clean up object URL if it exists
-    const url = this.previewUrl();
-    if (url && url.startsWith('blob:')) {
-      URL.revokeObjectURL(url);
+    if (this.revokeFn) {
+      this.revokeFn();
+      this.revokeFn = null;
+    } else {
+      const url = this.previewUrl();
+      if (url && url.startsWith('blob:')) URL.revokeObjectURL(url);
     }
   }
 
@@ -151,27 +153,10 @@ export class DocumentPreviewComponent implements OnInit, OnDestroy {
       const userId = this.authState.userId();
       if (!userId) throw new Error('User not authenticated');
 
-      // Get the full note with content
-      const fullNote = await this.noteService.getNote(this.note.id, userId);
-      if (!fullNote?.content) throw new Error('Note content not found');
-
-      console.log('Document content:', fullNote.content);
-
-      // Create signed URL for the document
-      const path = fullNote.content.replace('storage://notes/', '');
-      console.log('Document path:', path);
-
-      const { data: urlData, error: urlErr } = await this.supabase.storage
-        .from('notes')
-        .createSignedUrl(path, 3600); // 1 hour expiry
-
-      if (urlErr || !urlData?.signedUrl) {
-        console.error('Signed URL error:', urlErr);
-        throw new Error('Failed to create signed URL');
-      }
-
-      console.log('Signed URL created:', urlData.signedUrl);
-      this.previewUrl.set(urlData.signedUrl);
+      // Prefer decrypted blob URL when encrypted; fallback to signed URL internally
+      const { url, revoke } = await this.noteService.getFileObjectUrl(this.note.id, userId);
+      this.revokeFn = revoke;
+      this.previewUrl.set(url);
     } catch (error: any) {
       console.error('Failed to load document preview:', error);
       this.toast.error('Failed to load document preview');

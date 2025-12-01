@@ -1,5 +1,6 @@
 import { Component, inject, signal, computed, effect, HostListener } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { RouterModule } from '@angular/router';
 import { SidebarComponent } from '../../features/dashboard/components/sidebar/sidebar.component';
 import { ToastContainerComponent } from '../../shared/components/ui/toast/toast-container.component';
 import { LogoComponent } from '../../shared/components/ui/logo/logo.component';
@@ -7,7 +8,6 @@ import { SettingsPanelComponent } from '../../shared/components/settings/setting
 import { AuthStateService } from '../../core/services/auth-state.service';
 import { ThemeService } from '../../core/services/theme.service';
 import { GlobalSpinnerComponent } from '../../shared/components/ui/spinner/global-spinner.component';
-import { NoteWorkspaceComponent } from '../../features/notes/components/note-workspace/note-workspace.component';
 import { UserService } from '../../core/services/user.service';
 import { AvatarComponent } from '../../shared/components/ui/avatar/avatar.component';
 import { SupabaseService } from '../../core/services/supabase.service';
@@ -18,13 +18,13 @@ import { Router } from '@angular/router';
   standalone: true,
   imports: [
     CommonModule,
+    RouterModule,
     SidebarComponent,
     ToastContainerComponent,
     GlobalSpinnerComponent,
-    NoteWorkspaceComponent,
     LogoComponent,
     SettingsPanelComponent,
-    AvatarComponent
+    AvatarComponent,
   ],
   template: `
     <div class="h-screen w-screen overflow-hidden bg-gray-50 dark:bg-gray-900 flex flex-col">
@@ -123,9 +123,9 @@ import { Router } from '@angular/router';
           <app-sidebar />
         </div>
 
-        <!-- Main content: Note workspace -->
+        <!-- Main content: Routed views -->
         <main class="flex-1 h-full overflow-y-auto w-full lg:w-auto">
-          <app-note-workspace />
+          <router-outlet />
         </main>
       </div>
       <!-- Settings Panel mounted (no *ngIf) -->
@@ -144,6 +144,7 @@ export class DashboardLayoutComponent {
   showSettings = signal(false);
   showMobileSidebar = signal(false);
   showDropdown = signal(false);
+  
   private userService = inject(UserService);
   private loading = inject(LoadingService);
   private supabase = inject(SupabaseService);

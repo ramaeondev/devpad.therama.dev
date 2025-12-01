@@ -2,12 +2,18 @@ import { Injectable, inject } from '@angular/core';
 import { SupabaseService } from './supabase.service';
 import { CreateNoteDto, Note, UpdateNoteDto } from '../models/note.model';
 import { LoadingService } from './loading.service';
+import { EncryptionService } from './encryption.service';
 
 @Injectable({ providedIn: 'root' })
 export class NoteService {
   private supabase = inject(SupabaseService);
   private loading = inject(LoadingService);
+  private encryption = inject(EncryptionService);
   private readonly BUCKET = 'notes';
+
+  private shouldEncrypt(): boolean {
+    return this.encryption.hasKey();
+  }
 
   // Small helper to verify an uploaded file can be downloaded and is non-empty.
   private async verifyUpload(path: string): Promise<void> {
@@ -56,7 +62,17 @@ export class NoteService {
       // Step 2: upload content to storage (even if empty, create the file for consistency)
       // Use a deterministic path for each note and upload using File for browser compatibility
       const path = `${userId}/${note.id}.md`;
-      const contentStr = typeof dto.content === 'string' ? dto.content : (dto.content ?? '');
+      let contentStr = typeof dto.content === 'string' ? dto.content : (dto.content ?? '');
+
+      let isEncrypted = false;
+      if (this.shouldEncrypt() && contentStr) {
+        try {
+          contentStr = await this.encryption.encryptText(contentStr);
+          isEncrypted = true;
+        } catch (e) {
+          console.warn('Encryption failed; falling back to plaintext', e);
+        }
+      }
       // Use File which works well in browsers and keeps metadata
       const file = new File([contentStr], `${note.id}.md`, { type: 'text/markdown' });
       const { error: uploadErr } = await this.supabase.storage
@@ -72,9 +88,15 @@ export class NoteService {
 
       // Step 3: update row to reference storage path (use storage:// scheme in content field)
       const storageRef = `storage://${this.BUCKET}/${path}`;
+      const updateRow: any = { content: storageRef, updated_at: new Date().toISOString() };
+      if (isEncrypted) {
+        updateRow.is_encrypted = true;
+        updateRow.encryption_version = 'v1';
+      }
+
       const { data: updated, error: updateErr } = await this.supabase
         .from('notes')
-        .update({ content: storageRef, updated_at: new Date().toISOString() })
+        .update(updateRow)
         .eq('id', note.id)
         .eq('user_id', userId)
         .select()
@@ -100,9 +122,22 @@ export class NoteService {
       const expectedPath = `${userId}/${noteId}.md`;
       let storageRef = `storage://${this.BUCKET}/${expectedPath}`;
 
+      const updatePayload: any = {
+        updated_at: new Date().toISOString(),
+      };
+
       if (!cur.content || !cur.content.startsWith('storage://')) {
         // Previous rows stored raw content in DB; migrate that content (or dto.content if provided)
-        const migrateContent = dto.content !== undefined ? dto.content : cur.content || '';
+        let migrateContent = dto.content !== undefined ? (dto.content as string) : (cur.content || '');
+        let isEncrypted = false;
+        if (this.shouldEncrypt() && migrateContent) {
+          try {
+            migrateContent = await this.encryption.encryptText(migrateContent);
+            isEncrypted = true;
+          } catch (e) {
+            console.warn('Encryption failed; falling back to plaintext', e);
+          }
+        }
         const file = new File([migrateContent], `${noteId}.md`, { type: 'text/markdown' });
         const { error: uploadErr } = await this.supabase.storage
           .from(this.BUCKET)
@@ -113,10 +148,25 @@ export class NoteService {
           await this.verifyUpload(expectedPath);
         }
         storageRef = `storage://${this.BUCKET}/${expectedPath}`;
+        // If we encrypted during migration, mark flags
+        if (isEncrypted) {
+          updatePayload.is_encrypted = true;
+          updatePayload.encryption_version = 'v1';
+        }
       } else {
         // File already stored in storage; if new content provided, overwrite the deterministic path
         if (dto.content !== undefined) {
-          const file = new File([dto.content], `${noteId}.md`, { type: 'text/markdown' });
+          let newContent = dto.content as string;
+          let isEncrypted = false;
+          if (this.shouldEncrypt() && newContent) {
+            try {
+              newContent = await this.encryption.encryptText(newContent);
+              isEncrypted = true;
+            } catch (e) {
+              console.warn('Encryption failed; falling back to plaintext', e);
+            }
+          }
+          const file = new File([newContent], `${noteId}.md`, { type: 'text/markdown' });
           const { error: upErr } = await this.supabase.storage
             .from(this.BUCKET)
             .upload(expectedPath, file, { upsert: true, contentType: 'text/markdown' });
@@ -126,15 +176,17 @@ export class NoteService {
             await this.verifyUpload(expectedPath);
           }
           storageRef = `storage://${this.BUCKET}/${expectedPath}`;
+          if (isEncrypted) {
+            updatePayload.is_encrypted = true;
+            updatePayload.encryption_version = 'v1';
+          }
         } else {
           // keep existing storageRef if no content provided
           storageRef = cur.content;
         }
       }
 
-      const updatePayload: any = {
-        updated_at: new Date().toISOString(),
-      };
+      
 
       // Only include fields that are explicitly provided
       if (dto.title !== undefined) updatePayload.title = dto.title;
@@ -197,7 +249,16 @@ export class NoteService {
           }
           const resp = await fetch(urlData.signedUrl);
           if (!resp.ok) throw new Error(`Signed URL fetch failed: ${resp.status}`);
-          const signedText = await resp.text();
+          let signedText = await resp.text();
+          try {
+            // Decrypt if data is encrypted and we have a key
+            const isEnc = (note as any).is_encrypted === true || signedText.startsWith('enc:');
+            if (isEnc && this.encryption.hasKey()) {
+              signedText = await this.encryption.decryptText(signedText);
+            }
+          } catch (e) {
+            console.warn('Decryption failed; returning raw content', e);
+          }
           return { ...(note as Note), content: signedText } as Note;
         }
         // For binary files, keep the storage path as content
@@ -266,11 +327,21 @@ export class NoteService {
 
       const note = created as Note;
 
-      // Step 2: upload file to storage
+      // Step 2: upload file to storage (encrypt if enabled)
       const path = `${userId}/${note.id}.${ext}`;
+      let toUpload: Blob | File = file;
+      let isEncrypted = false;
+      if (this.shouldEncrypt()) {
+        try {
+          toUpload = await this.encryption.encryptBlob(file);
+          isEncrypted = true;
+        } catch (e) {
+          console.warn('File encryption failed; uploading plaintext', e);
+        }
+      }
       const { error: uploadErr } = await this.supabase.storage
         .from(this.BUCKET)
-        .upload(path, file, { upsert: true, contentType: file.type || 'application/octet-stream' });
+        .upload(path, toUpload, { upsert: true, contentType: file.type || 'application/octet-stream' });
       if (uploadErr) throw uploadErr;
 
       // Verify upload
@@ -278,9 +349,15 @@ export class NoteService {
 
       // Step 3: update note with storage ref
       const storageRef = `storage://${this.BUCKET}/${path}`;
+      const updateRow: any = { content: storageRef, updated_at: new Date().toISOString() };
+      if (isEncrypted) {
+        updateRow.is_encrypted = true;
+        updateRow.encryption_version = 'v1';
+      }
+
       const { data: updated, error: updateErr } = await this.supabase
         .from('notes')
-        .update({ content: storageRef, updated_at: new Date().toISOString() })
+        .update(updateRow)
         .eq('id', note.id)
         .eq('user_id', userId)
         .select()
@@ -288,5 +365,35 @@ export class NoteService {
       if (updateErr) throw updateErr;
       return updated as Note;
     });
+  }
+
+  // Helpers for encrypted file retrieval
+  async getFileBlob(noteId: string, userId: string): Promise<Blob> {
+    const note = await this.getNote(noteId, userId);
+    if (!note) throw new Error('Note not found');
+    const contentField = note.content || '';
+    if (!contentField.startsWith('storage://')) throw new Error('Note content is not a file');
+    const path = contentField.replace(`storage://${this.BUCKET}/`, '');
+    const { data: urlData, error: urlErr } = await this.supabase.storage
+      .from(this.BUCKET)
+      .createSignedUrl(path, 60);
+    if (urlErr || !urlData?.signedUrl) throw urlErr || new Error('Failed to create signed URL');
+    const resp = await fetch(urlData.signedUrl);
+    if (!resp.ok) throw new Error(`Signed URL fetch failed: ${resp.status}`);
+    const blob = await resp.blob();
+    if ((note as any).is_encrypted && this.encryption.hasKey()) {
+      try {
+        return await this.encryption.decryptBlob(blob);
+      } catch (e) {
+        console.warn('Blob decryption failed; returning encrypted blob', e);
+      }
+    }
+    return blob;
+  }
+
+  async getFileObjectUrl(noteId: string, userId: string): Promise<{ url: string; revoke: () => void }> {
+    const blob = await this.getFileBlob(noteId, userId);
+    const url = URL.createObjectURL(blob);
+    return { url, revoke: () => URL.revokeObjectURL(url) };
   }
 }

@@ -112,14 +112,8 @@ export class DeviceFingerprintService {
      */
     async registerDevice(userId: string, deviceInfo?: Partial<DeviceInfo>): Promise<UserDevice | null> {
         try {
-            console.log('🔐 [Device Tracking] Starting device registration...');
-            console.log('   User ID:', userId);
-
             const info = deviceInfo || (await this.getDeviceInfo());
             const fingerprintId = info.fingerprint_id || (await this.getDeviceFingerprint());
-
-            console.log('   Fingerprint ID:', fingerprintId);
-            console.log('   Device Info:', info);
 
             // Check if device already exists
             const { data: existingDevice, error: fetchError } = await this.supabase
@@ -136,7 +130,6 @@ export class DeviceFingerprintService {
             }
 
             if (existingDevice) {
-                console.log('   ✅ Device exists, updating...');
                 // Update existing device
                 const { data, error } = await this.supabase
                     .from('user_devices')
@@ -150,10 +143,8 @@ export class DeviceFingerprintService {
                     .single();
 
                 if (error) throw error;
-                console.log('   ✅ Device updated successfully:', data);
                 return data;
             } else {
-                console.log('   ✨ New device, creating entry...');
                 // Create new device entry
                 const { data, error } = await this.supabase
                     .from('user_devices')
@@ -172,7 +163,6 @@ export class DeviceFingerprintService {
                     console.error('   ❌ Error creating device:', error);
                     throw error;
                 }
-                console.log('   ✅ Device created successfully:', data);
                 return data;
             }
         } catch (error) {

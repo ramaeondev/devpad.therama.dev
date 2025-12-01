@@ -11,10 +11,11 @@ export default [
       {
         path: '',
         loadComponent: () =>
-          import('./pages/dashboard-home/dashboard-home.component').then(
-            (m) => m.DashboardHomeComponent,
+          import('../notes/components/note-workspace/note-workspace.component').then(
+            (m) => m.NoteWorkspaceComponent,
           ),
       },
+          // Encryption settings now live in the Settings Panel modal, no standalone route.
     ],
   },
 ] as Routes;

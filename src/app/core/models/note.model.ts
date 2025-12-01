@@ -9,6 +9,8 @@ export interface Note {
   tags?: string[];
   is_favorite?: boolean;
   is_archived?: boolean;
+  is_encrypted?: boolean;
+  encryption_version?: string;
 }
 
 export interface CreateNoteDto {
