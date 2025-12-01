@@ -275,3 +275,6 @@ All notable changes to this project are documented in this file.
 
 ## 2025-11-30
 - feat: Enhance changelog update script to avoid duplicate entries and improve commit detection (1b88ff0)
+
+## 2025-12-01
+- chore: update changelog [skip ci] (1615db5)

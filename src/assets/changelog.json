@@ -1,5 +1,11 @@
 [
   {
+    "date": "2025-12-01",
+    "changes": [
+      "chore: update changelog [skip ci]"
+    ]
+  },
+  {
     "date": "2025-11-30",
     "changes": [
       "feat: Enhance changelog update script to avoid duplicate entries and improve commit detection"
