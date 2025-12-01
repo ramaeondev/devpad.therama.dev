@@ -8,55 +8,63 @@ import { environment } from '../../../environments/environment';
 
 @Injectable({ providedIn: 'root' })
 export class NoteService {
-    private http = inject(HttpClient);
+  private http = inject(HttpClient);
 
-    /**
-     * Generate a random AES key (256-bit)
-     */
-    private generateSymmetricKey(): string {
-      return CryptoJS.lib.WordArray.random(32).toString(CryptoJS.enc.Hex);
-    }
+  /**
+   * Generate a random AES key (256-bit)
+   */
+  private generateSymmetricKey(): string {
+    const key = CryptoJS.lib.WordArray.random(32).toString(CryptoJS.enc.Hex);
+    console.log('Generated Symmetric Key:', key);
+    console.log('Key Length:', key.length);
+    return key;
+  }
 
-    /**
-     * Encrypt note content using AES
-     */
-    private encryptContent(content: string, key: string): string {
-      return CryptoJS.AES.encrypt(content, key).toString();
-    }
+  /**
+   * Encrypt note content using AES
+   */
+  private encryptContent(content: string, key: string): string {
+    return CryptoJS.AES.encrypt(content, key).toString();
+  }
 
-    /**
-     * Decrypt note content using AES
-     */
-    private decryptContent(encrypted: string, key: string): string {
-      const bytes = CryptoJS.AES.decrypt(encrypted, key);
-      return bytes.toString(CryptoJS.enc.Utf8);
-    }
+  /**
+   * Decrypt note content using AES
+   */
+  private decryptContent(encrypted: string, key: string): string {
+    const bytes = CryptoJS.AES.decrypt(encrypted, key);
+    return bytes.toString(CryptoJS.enc.Utf8);
+  }
 
-    /**
-     * Encrypt symmetric key using Supabase Edge Function
-     */
-    async encryptSymmetricKeyWithSupabase(key: string): Promise<string> {
-      // Use Supabase URL from imported environment config
-      const endpoint = `${environment.supabase.url}/functions/v1/encrypt-key`;
-      const response = await this.http.post<{ encryptedKey: string }>(
-        endpoint,
-        { key }
-      ).toPromise();
-      return response?.encryptedKey ?? '';
-    }
+  /**
+   * Encrypt symmetric key using Supabase Edge Function
+   */
+  async encryptSymmetricKeyWithSupabase(key: string): Promise<string> {
+    // Use Supabase URL from imported environment config
+    const endpoint = `${environment.supabase.url}/functions/v1/encrypt-key`;
+    const response = await this.http.post<{ encryptedKey: string, debug?: any }>(
+      endpoint,
+      { key }
+    ).toPromise();
 
-    /**
-     * Decrypt symmetric key using Supabase Edge Function
-     */
-    async decryptSymmetricKeyWithSupabase(encryptedKey: string): Promise<string> {
-      // Use Supabase URL from imported environment config
-      const endpoint = `${environment.supabase.url}/functions/v1/decrypt-key`;
-      const response = await this.http.post<{ key: string }>(
-        endpoint,
-        { encryptedKey }
-      ).toPromise();
-      return response?.key ?? '';
-    }
+    console.log('Full encrypt-key response:', response);
+    console.log('encryptedKey from response:', response?.encryptedKey);
+    console.log('encryptedKey length from response:', response?.encryptedKey?.length);
+
+    return response?.encryptedKey ?? '';
+  }
+
+  /**
+   * Decrypt symmetric key using Supabase Edge Function
+   */
+  async decryptSymmetricKeyWithSupabase(encryptedKey: string): Promise<string> {
+    // Use Supabase URL from imported environment config
+    const endpoint = `${environment.supabase.url}/functions/v1/decrypt-key`;
+    const response = await this.http.post<{ key: string }>(
+      endpoint,
+      { encryptedKey }
+    ).toPromise();
+    return response?.key ?? '';
+  }
   private supabase = inject(SupabaseService);
   private loading = inject(LoadingService);
   private readonly BUCKET = 'notes';
@@ -124,6 +132,9 @@ export class NoteService {
 
       // Step 4: update row to reference storage path and encrypted key
       const storageRef = `storage://${this.BUCKET}/${path}`;
+      console.log('Encrypted Key before save:', encryptedKey);
+      console.log('Encrypted Key length:', encryptedKey.length);
+
       const { data: updated, error: updateErr } = await this.supabase
         .from('notes')
         .update({ content: storageRef, encrypted_key: encryptedKey, updated_at: new Date().toISOString() })
@@ -132,6 +143,10 @@ export class NoteService {
         .select()
         .single();
       if (updateErr) throw updateErr;
+
+      console.log('Encrypted Key after save:', (updated as any).encrypted_key);
+      console.log('Encrypted Key length after save:', (updated as any).encrypted_key?.length);
+
       return updated as Note;
     });
   }
