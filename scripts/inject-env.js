@@ -17,6 +17,9 @@ const envVariables = {
   MICROSOFT_CLIENT_ID: process.env.MICROSOFT_CLIENT_ID || '',
   MICROSOFT_REDIRECT_URI: process.env.MICROSOFT_REDIRECT_URI || '',
   GOOGLE_APPID: process.env.GOOGLE_APPID || '',
+  APPWRITE_API: process.env.APPWRITE_API || '',
+  APPWRITE_PROJECT_ID: process.env.APPWRITE_PROJECT_ID || '',
+  APPWRITE_DB_READ_ONLY_API_KEY: process.env.APPWRITE_DB_READ_ONLY_API_KEY || '',
 };
 
 const generateConfigFile = (filePath) => {
@@ -33,6 +36,11 @@ const generateConfigFile = (filePath) => {
   microsoft: {
     clientId: '${envVariables.MICROSOFT_CLIENT_ID}',
     redirectUri: '${envVariables.MICROSOFT_REDIRECT_URI}',
+  },
+  appwrite: {
+    endpoint: '${envVariables.APPWRITE_API}',
+    projectId: '${envVariables.APPWRITE_PROJECT_ID}',
+    apiKey: '${envVariables.APPWRITE_DB_READ_ONLY_API_KEY}',
   },
 };
 `;
