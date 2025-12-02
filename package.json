@@ -48,7 +48,8 @@
     "test:coverage": "ng test --code-coverage",
     "format": "prettier --write \"src/**/*.{ts,html,scss,css,json}\"",
     "analyze": "ng build --configuration production --stats-json && webpack-bundle-analyzer dist/devpad/stats.json",
-    "inject-env": "node scripts/inject-env.js"
+    "inject": "node scripts/inject-env.js",
+    "changelog:update": "node scripts/update-changelog-appwrite.js"
   },
   "prettier": {
     "printWidth": 100,

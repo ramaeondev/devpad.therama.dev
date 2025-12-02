@@ -12,27 +12,26 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v3
-
-      - name: Set up Node.js
-        uses: actions/setup-node@v3
+        uses: actions/checkout@v4
         with:
-          node-version: '18'
+          fetch-depth: 0  # Fetch all history for git log
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
 
       - name: Install dependencies
-        run: npm install
+        run: npm ci
 
-      - name: Run changelog update script
-        run: node scripts/update-changelog.js
+      - name: Update Changelog in Appwrite
+        run: npm run changelog:update
+        env:
+          APPWRITE_ENDPOINT: ${{ secrets.APPWRITE_ENDPOINT }}
+          APPWRITE_PROJECT_ID: ${{ secrets.APPWRITE_PROJECT_ID }}
+          APPWRITE_MASTER_API_KEY: ${{ secrets.APPWRITE_MASTER_API_KEY }}
+          APPWRITE_DATABASE_ID: ${{ secrets.APPWRITE_DATABASE_ID }}
+          APPWRITE_COLLECTION_ID: change_logs
 
-      - name: Commit and push changes
-        run: |
-          git config --local user.name "github-actions[bot]"
-          git config --local user.email "github-actions[bot]@users.noreply.github.com"
-          git add CHANGELOG.md src/assets/changelog.json
-          if git diff --cached --quiet; then
-            echo "No changes to commit. Skipping push."
-            exit 0
-          fi
-          git commit -m "chore: update changelog [skip ci]"
-          git push
+      - name: Changelog Update Complete
+        run: echo "✅ Changelog updated successfully in Appwrite"

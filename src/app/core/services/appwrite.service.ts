@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { Client, Account, Databases, Storage, Teams } from 'appwrite';
 import { environment } from '../../../environments/environment';
+import { SocialLink } from '../models/social-link.model';
 
 /**
  * Appwrite Service
@@ -56,6 +57,71 @@ export class AppwriteService {
     } catch (error) {
       console.error('Error listing Appwrite documents:', error);
       throw error;
+    }
+  }
+
+  /**
+   * Get all changelog entries, sorted by date descending
+   */
+  async getChangelogs() {
+    try {
+      if (!environment.appwrite?.databaseId) {
+        throw new Error('Appwrite database ID not configured');
+      }
+      
+      const response = await this.databases.listDocuments(
+        environment.appwrite.databaseId,
+        'change_logs',
+        []
+      );
+      
+      // Sort by date descending (most recent first)
+      const sorted = response.documents.sort((a: any, b: any) => 
+        b.date.localeCompare(a.date)
+      );
+      
+      return sorted.map((doc: any) => ({
+        date: doc.date,
+        changes: doc.changes
+      }));
+    } catch (error) {
+      console.error('Error fetching changelogs from Appwrite:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Get all active social links sorted by order
+   */
+  async getSocialLinks() : Promise<SocialLink[]> {
+    try {
+      if (!environment.appwrite?.databaseId) {
+        throw new Error('Appwrite database ID not configured');
+      }
+      
+      const response = await this.databases.listDocuments(
+        environment.appwrite.databaseId,
+        'social_links',
+        []
+      );
+      
+      // Filter active and sort by order
+      const links = response.documents
+        .filter((link: any) => link.is_active)
+        .sort((a: any, b: any) => a.order - b.order)
+        .map((doc: any) => ({
+          platform: doc.platform,
+          url: doc.url,
+          icon: doc.icon,
+          display_name: doc.display_name,
+          order: doc.order,
+          is_active: doc.is_active
+        }));
+      
+      return links;
+    } catch (error) {
+      console.error('Error fetching social links from Appwrite:', error);
+      return [];
     }
   }
 

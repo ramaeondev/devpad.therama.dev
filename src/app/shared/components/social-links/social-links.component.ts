@@ -1,6 +1,6 @@
 import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { SocialLinksService } from '../../../core/services/social-links.service';
+import { AppwriteService } from '../../../core/services/appwrite.service';
 import { SocialLink } from '../../../core/models/social-link.model';
 
 /**
@@ -85,7 +85,7 @@ import { SocialLink } from '../../../core/models/social-link.model';
   `],
 })
 export class SocialLinksComponent implements OnInit {
-  private socialLinksService = inject(SocialLinksService);
+  private appwriteService = inject(AppwriteService);
 
   socialLinks: SocialLink[] = [];
   loading = true;
@@ -99,7 +99,7 @@ export class SocialLinksComponent implements OnInit {
     try {
       this.loading = true;
       this.error = false;
-      this.socialLinks = await this.socialLinksService.getActiveSocialLinks();
+      this.socialLinks = await this.appwriteService.getSocialLinks();
     } catch (err) {
       console.error('❌ Failed to load social links:', err);
       this.error = true;

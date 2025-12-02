@@ -20,6 +20,7 @@ const envVariables = {
   APPWRITE_API: process.env.APPWRITE_API || '',
   APPWRITE_PROJECT_ID: process.env.APPWRITE_PROJECT_ID || '',
   APPWRITE_DB_READ_ONLY_API_KEY: process.env.APPWRITE_DB_READ_ONLY_API_KEY || '',
+  APPWRITE_DATABASE_ID: process.env.APPWRITE_DATABASE_ID || '',
 };
 
 const generateConfigFile = (filePath) => {
@@ -41,15 +42,13 @@ const generateConfigFile = (filePath) => {
     endpoint: '${envVariables.APPWRITE_API}',
     projectId: '${envVariables.APPWRITE_PROJECT_ID}',
     apiKey: '${envVariables.APPWRITE_DB_READ_ONLY_API_KEY}',
+    databaseId: '${envVariables.APPWRITE_DATABASE_ID}',
   },
 };
 `;
 
   fs.writeFileSync(filePath, content, { encoding: 'utf8' });
-  console.log(`Config file generated: ${filePath}`);
   console.log('Debug - Environment Variables Loaded:');
-  console.log('SUPABASE_URL:', envVariables.SUPABASE_URL ? 'Present' : 'Missing');
-  console.log('SUPABASE_ANON_KEY:', envVariables.SUPABASE_ANON_KEY ? 'Present' : 'Missing');
 };
 
 generateConfigFile(configFiles.development);

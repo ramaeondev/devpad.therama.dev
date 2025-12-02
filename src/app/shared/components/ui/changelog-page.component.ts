@@ -1,6 +1,7 @@
-import { Component, signal } from '@angular/core';
+import { Component, signal, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { LogoComponent } from './logo/logo.component';
+import { AppwriteService } from '../../../core/services/appwrite.service';
 
 @Component({
   selector: 'app-changelog-page',
@@ -10,28 +11,55 @@ import { LogoComponent } from './logo/logo.component';
     <div class="min-h-screen bg-white dark:bg-gray-900 flex flex-col items-center py-10 px-4">
       <app-logo class="mb-6" [isClickable]="true"></app-logo>
       <h1 class="text-3xl font-bold mb-6 text-gray-900 dark:text-gray-100">Changelog</h1>
-      <div class="prose dark:prose-invert max-w-2xl w-full text-sm">
-        <ng-container *ngFor="let entry of sortedChangelog()">
-          <div class="font-semibold text-blue-700 dark:text-blue-300 mb-2">{{ entry.date }}</div>
-          <ul class="mb-4 list-disc pl-6">
-            <li *ngFor="let change of entry.changes">{{ change }}</li>
-          </ul>
-        </ng-container>
-      </div>
+      
+      @if (loading()) {
+        <div class="flex justify-center items-center py-8">
+          <i class="fa-solid fa-spinner fa-spin text-3xl text-blue-500"></i>
+        </div>
+      } @else if (error()) {
+        <div class="text-red-600 dark:text-red-400 text-center py-4">
+          <i class="fa-solid fa-exclamation-circle mr-2"></i>
+          Failed to load changelog. Please try again later.
+        </div>
+      } @else {
+        <div class="prose dark:prose-invert max-w-2xl w-full text-sm">
+          @for (entry of changelog(); track entry.date) {
+            <div class="font-semibold text-blue-700 dark:text-blue-300 mb-2">{{ entry.date }}</div>
+            <ul class="mb-4 list-disc pl-6">
+              @for (change of entry.changes; track change) {
+                <li>{{ change }}</li>
+              }
+            </ul>
+          }
+        </div>
+      }
     </div>
   `,
   styles: [],
 })
-export class ChangelogPageComponent {
+export class ChangelogPageComponent implements OnInit {
+  private appwriteService = inject(AppwriteService);
+  
   changelog = signal<{ date: string; changes: string[] }[]>([]);
+  loading = signal(false);
+  error = signal(false);
 
-  sortedChangelog() {
-    return [...this.changelog()].sort((a, b) => b.date.localeCompare(a.date));
+  async ngOnInit() {
+    await this.loadChangelog();
   }
 
-  constructor() {
-    fetch('assets/changelog.json')
-      .then(res => res.json())
-      .then(data => this.changelog.set(data));
+  async loadChangelog() {
+    this.loading.set(true);
+    this.error.set(false);
+    
+    try {
+      const data = await this.appwriteService.getChangelogs();
+      this.changelog.set(data);
+    } catch (err) {
+      console.error('Failed to load changelog:', err);
+      this.error.set(true);
+    } finally {
+      this.loading.set(false);
+    }
   }
 }
