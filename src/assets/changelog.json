@@ -1,5 +1,11 @@
 [
   {
+    "date": "2025-12-02",
+    "changes": [
+      "feat: remove deprecated encrypt and decrypt key functions"
+    ]
+  },
+  {
     "date": "2025-12-01",
     "changes": [
       "chore: update changelog [skip ci]"

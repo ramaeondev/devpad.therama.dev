@@ -278,3 +278,6 @@ All notable changes to this project are documented in this file.
 
 ## 2025-12-01
 - chore: update changelog [skip ci] (1615db5)
+
+## 2025-12-02
+- feat: remove deprecated encrypt and decrypt key functions (bd934f8)
