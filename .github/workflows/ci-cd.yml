@@ -34,6 +34,12 @@ jobs:
           APPWRITE_DB_READ_ONLY_API_KEY: ${{ secrets.APPWRITE_DB_READ_ONLY_API_KEY }}
           APPWRITE_DATABASE_ID: ${{ secrets.APPWRITE_DATABASE_ID }}
       
+      - name: Verify Generated Config
+        run: |
+          echo "=== config.prod.ts ==="
+          cat src/config.prod.ts
+          echo "======================"
+          
       - name: Install Vercel CLI
         run: npm install --global vercel@latest
         
