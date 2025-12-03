@@ -148,7 +148,7 @@ this.loadingService.hide();
 - Production: `src/environments/environment.prod.ts`
 - Supabase keys in environment files (use env vars in production)
 
-### Appwrite Key & Endpoint Policy
+<!-- ### Appwrite Key & Endpoint Policy
 - Client retrievals: always use `APPWRITE_API` (custom endpoint) and `APPWRITE_DB_READ_ONLY_API_KEY`.
 - Do NOT use `APPWRITE_MASTER_API_KEY` or `APPWRITE_ENDPOINT` anywhere in client code; reserve them only for one-off/server-side setup scripts (e.g., creating DB/collections/attributes).
 - `scripts/inject-env.js` maps:
@@ -156,7 +156,7 @@ this.loadingService.hide();
 	- `APPWRITE_DB_READ_ONLY_API_KEY` → `config.appwrite.apiKey`
 - Setup-only variables (never bundled in app logic):
 	- `APPWRITE_ENDPOINT` (e.g., cloud endpoint) and `APPWRITE_MASTER_API_KEY`
-- When adding new Appwrite features, ensure all read operations in the app use the read-only key and custom API endpoint.
+- When adding new Appwrite features, ensure all read operations in the app use the read-only key and custom API endpoint. -->
 
 ## Testing
 - Unit tests: `ng test`
