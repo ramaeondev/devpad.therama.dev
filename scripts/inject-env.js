@@ -12,6 +12,7 @@ const configFiles = {
 const envVariables = {
   SUPABASE_URL: process.env.SUPABASE_URL || '',
   SUPABASE_ANON_KEY: process.env.SUPABASE_ANON_KEY || '',
+  SUPABASE_DIRECT_URL: process.env.SUPABASE_DIRECT_URL || '',
   GOOGLE_CLIENT_ID: process.env.GOOGLE_CLIENT_ID || '',
   GOOGLE_API_KEY: process.env.GOOGLE_API_KEY || '',
   MICROSOFT_CLIENT_ID: process.env.MICROSOFT_CLIENT_ID || '',
@@ -31,7 +32,7 @@ const generateConfigFile = (filePath) => {
   supabase: {
     url: '${envVariables.SUPABASE_URL}',
     anonKey: '${envVariables.SUPABASE_ANON_KEY}',
-    directUrl: '${envVariables.GITHUB_REDIRECT_URI}',
+    directUrl: '${envVariables.SUPABASE_DIRECT_URL}',
   },
   google: {
     clientId: '${envVariables.GOOGLE_CLIENT_ID}',
