@@ -1,14 +1,23 @@
 import { Component, signal, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { RouterLink } from '@angular/router';
 import { LogoComponent } from './logo/logo.component';
 import { AppwriteService } from '../../../core/services/appwrite.service';
 
 @Component({
   selector: 'app-changelog-page',
   standalone: true,
-  imports: [CommonModule, LogoComponent],
+  imports: [CommonModule, RouterLink, LogoComponent],
   template: `
     <div class="min-h-screen bg-white dark:bg-gray-900 flex flex-col items-center py-10 px-4">
+      <!-- Back Button -->
+      <div class="w-full max-w-2xl mb-4">
+        <a routerLink="/" class="inline-flex items-center gap-2 text-gray-600 dark:text-gray-400 hover:text-primary-600 dark:hover:text-primary-400 transition-colors group">
+          <i class="fa-solid fa-arrow-left text-sm group-hover:-translate-x-1 transition-transform"></i>
+          <span class="font-medium">Back to Home</span>
+        </a>
+      </div>
+      
       <app-logo class="mb-6" [isClickable]="true"></app-logo>
       <h1 class="text-3xl font-bold mb-6 text-gray-900 dark:text-gray-100">Changelog</h1>
       
