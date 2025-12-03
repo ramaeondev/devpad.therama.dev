@@ -21,6 +21,8 @@ const envVariables = {
   APPWRITE_PROJECT_ID: process.env.APPWRITE_PROJECT_ID || '',
   APPWRITE_DB_READ_ONLY_API_KEY: process.env.APPWRITE_DB_READ_ONLY_API_KEY || '',
   APPWRITE_DATABASE_ID: process.env.APPWRITE_DATABASE_ID || '',
+  GITHUB_CLIENT_ID: process.env.GITHUB_CLIENT_ID || '',
+  GITHUB_CLIENT_SECRET: process.env.GITHUB_CLIENT_SECRET || '',
 };
 
 const generateConfigFile = (filePath) => {
@@ -44,20 +46,15 @@ const generateConfigFile = (filePath) => {
     apiKey: '${envVariables.APPWRITE_DB_READ_ONLY_API_KEY}',
     databaseId: '${envVariables.APPWRITE_DATABASE_ID}',
   },
+  github: {
+    clientId: '${envVariables.GITHUB_CLIENT_ID}',
+    clientSecret: '${envVariables.GITHUB_CLIENT_SECRET}',
+  },
 };
 `;
 
   fs.writeFileSync(filePath, content, { encoding: 'utf8' });
-  console.log(`✓ Generated ${path.basename(filePath)}`);
 };
-
-// Debug logging
-console.log('=== Environment Variables Debug ===');
-console.log('APPWRITE_ENDPOINT:', envVariables.APPWRITE_ENDPOINT || '(empty)');
-console.log('APPWRITE_PROJECT_ID:', envVariables.APPWRITE_PROJECT_ID || '(empty)');
-console.log('APPWRITE_DATABASE_ID:', envVariables.APPWRITE_DATABASE_ID || '(empty)');
-console.log('APPWRITE_DB_READ_ONLY_API_KEY:', envVariables.APPWRITE_DB_READ_ONLY_API_KEY ? '(set)' : '(empty)');
-console.log('===================================\n');
 
 generateConfigFile(configFiles.development);
 generateConfigFile(configFiles.production);
