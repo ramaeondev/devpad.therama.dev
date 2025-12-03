@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { MarkdownEditorComponent } from '../markdown-editor/markdown-editor.component';
 import { DocumentPreviewComponent } from '../../../../shared/components/ui/document-preview/document-preview.component';
 import { GoogleDrivePreviewComponent } from '../../../integrations/components/google-drive-preview/google-drive-preview.component';
+import { OneDrivePreviewComponent } from '../../../integrations/components/onedrive-preview/onedrive-preview.component';
 import { FolderTree } from '../../../../core/models/folder.model';
 import { AuthStateService } from '../../../../core/services/auth-state.service';
 import { FolderService } from '../../../folders/services/folder.service';
@@ -10,12 +11,13 @@ import { NoteService } from '../../../../core/services/note.service';
 import { ToastService } from '../../../../core/services/toast.service';
 import { WorkspaceStateService } from '../../../../core/services/workspace-state.service';
 import { GoogleDriveService } from '../../../../core/services/google-drive.service';
-import { GoogleDriveFile } from '../../../../core/models/integration.model';
+import { OneDriveService } from '../../../../core/services/onedrive.service';
+import { GoogleDriveFile, OneDriveFile } from '../../../../core/models/integration.model';
 
 @Component({
   selector: 'app-note-workspace',
   standalone: true,
-  imports: [CommonModule, MarkdownEditorComponent, DocumentPreviewComponent, GoogleDrivePreviewComponent],
+  imports: [CommonModule, MarkdownEditorComponent, DocumentPreviewComponent, GoogleDrivePreviewComponent, OneDrivePreviewComponent],
   template: `
     <div class="h-full flex flex-col">
       <!-- Google Drive Preview -->
@@ -24,6 +26,13 @@ import { GoogleDriveFile } from '../../../../core/models/integration.model';
           [file]="selectedGoogleDriveFile()!"
           (onClose)="closeGoogleDrivePreview()"
           (onFileAction)="handleGoogleDriveFileAction($event)"
+        />
+      } @else if (selectedOneDriveFile()) {
+        <!-- OneDrive Preview -->
+        <app-onedrive-preview
+          [file]="selectedOneDriveFile()!"
+          (onClose)="closeOneDrivePreview()"
+          (onFileAction)="handleOneDriveFileAction($event)"
         />
       } @else {
         <!-- Toolbar -->
@@ -104,6 +113,7 @@ export class NoteWorkspaceComponent {
   private toast = inject(ToastService);
   private workspaceState = inject(WorkspaceStateService);
   private googleDrive = inject(GoogleDriveService);
+  private oneDrive = inject(OneDriveService);
 
   folders = signal<FolderTree[]>([]);
   // Use shared selected folder state from workspaceState
@@ -112,6 +122,7 @@ export class NoteWorkspaceComponent {
   notes = signal<any[]>([]); // could type Note
   selectedNoteId = signal<string | null>(null);
   selectedGoogleDriveFile = signal<GoogleDriveFile | null>(null);
+  selectedOneDriveFile = signal<OneDriveFile | null>(null);
   currentNote = signal<any>(null); // Full note object
 
   title = signal('');
@@ -219,6 +230,12 @@ export class NoteWorkspaceComponent {
     this.workspaceState.googleDriveFileSelected$.subscribe((file) => {
       console.log('Google Drive file selected in note-workspace:', file);
       this.selectedGoogleDriveFile.set(file);
+    });
+
+    // React to OneDrive file selection
+    this.workspaceState.oneDriveFileSelected$.subscribe((file) => {
+      console.log('OneDrive file selected in note-workspace:', file);
+      this.selectedOneDriveFile.set(file);
     });
 
     // React to note selection from folder tree
@@ -382,6 +399,29 @@ export class NoteWorkspaceComponent {
         const success = await this.googleDrive.deleteFile(file.id);
         if (success) {
           this.closeGoogleDrivePreview();
+        }
+        break;
+      case 'imported':
+        // File was imported, just close preview
+        break;
+    }
+  }
+
+  closeOneDrivePreview() {
+    this.selectedOneDriveFile.set(null);
+  }
+
+  async handleOneDriveFileAction(event: { action: string; file: OneDriveFile }) {
+    const { action, file } = event;
+
+    switch (action) {
+      case 'rename':
+        await this.oneDrive.renameFile(file.id, file.name);
+        break;
+      case 'delete':
+        const success = await this.oneDrive.deleteFile(file.id);
+        if (success) {
+          this.closeOneDrivePreview();
         }
         break;
       case 'imported':

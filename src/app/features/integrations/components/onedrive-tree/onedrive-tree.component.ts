@@ -7,7 +7,7 @@ import { OneDriveFile } from '../../../../core/models/integration.model';
 import { NoteService } from '../../../../core/services/note.service';
 import { AuthStateService } from '../../../../core/services/auth-state.service';
 import { ToastService } from '../../../../core/services/toast.service';
-// import { WorkspaceStateService } from '../../../../core/services/workspace-state.service';
+import { WorkspaceStateService } from '../../../../core/services/workspace-state.service';
 import { FolderService } from '../../../folders/services/folder.service';
 import { PropertiesModalComponent, PropertyItem } from '../../../../shared/components/ui/properties-modal/properties-modal.component';
 import { DropdownComponent } from '../../../../shared/components/ui/dropdown/dropdown.component';
@@ -175,7 +175,7 @@ export class OneDriveTreeComponent implements OnInit {
   private noteService = inject(NoteService);
   private auth = inject(AuthStateService);
   private toast = inject(ToastService);
-  // private workspaceState = inject(WorkspaceStateService);
+  private workspaceState = inject(WorkspaceStateService);
   private folderService = inject(FolderService);
 
   expandedFolders = signal<Set<string>>(new Set());
@@ -219,6 +219,7 @@ export class OneDriveTreeComponent implements OnInit {
 
   onFileClick(file: OneDriveFile) {
     console.log('OneDrive file clicked:', file);
+    this.workspaceState.emitOneDriveFileSelected(file);
   }
 
   async handleDownload(file: OneDriveFile) {
