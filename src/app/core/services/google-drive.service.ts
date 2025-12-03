@@ -189,10 +189,53 @@ export class GoogleDriveService {
         // Do not attempt silent refresh — token remains stored server-side.
         this.integration.set(integration);
         this.isConnected.set(true);
-        // Do not auto-list files. User must trigger listing via UI.
+        
+        // Load saved files from settings
+        if (integration.settings?.selected_files) {
+          const files = integration.settings.selected_files as GoogleDriveFile[];
+          console.log('✅ Loaded', files.length, 'saved files from database');
+          this.files.set(files);
+          this.buildFolderTree(files);
+        } else {
+          console.log('ℹ️ No saved files found in database');
+        }
       }
     } catch (error) {
       console.error('Failed to check Google Drive connection:', error);
+    }
+  }
+
+  /**
+   * Save selected files to Supabase
+   */
+  private async saveSelectedFiles(files: GoogleDriveFile[]) {
+    try {
+      const userId = this.auth.userId();
+      if (!userId) return;
+      
+      const currentSettings = this.integration()?.settings || {};
+      const newSettings = {
+        ...currentSettings,
+        selected_files: files
+      };
+
+      const { error } = await this.supabase
+        .from('integrations')
+        .update({ settings: newSettings })
+        .eq('user_id', userId)
+        .eq('provider', 'google_drive');
+
+      if (error) throw error;
+      
+      console.log('💾 Saved', files.length, 'files to database');
+      
+      // Update local state
+      const current = this.integration();
+      if (current) {
+        this.integration.set({ ...current, settings: newSettings });
+      }
+    } catch (error) {
+      console.error('Failed to save selected files:', error);
     }
   }
 
@@ -339,6 +382,7 @@ export class GoogleDriveService {
           const mergedFiles = Array.from(mergedFilesMap.values());
           this.files.set(mergedFiles);
           this.buildFolderTree(mergedFiles);
+          this.saveSelectedFiles(mergedFiles);
           this.toast.success('Files added from Google Drive');
         } else if (data.action === gPicker.Action.CANCEL) {
           this.toast.info('Picker action canceled');
@@ -507,7 +551,14 @@ export class GoogleDriveService {
       }
 
       this.toast.success('File deleted from Google Drive');
-      // Optionally, trigger picker or refresh UI if needed
+      
+      // Update local state and save
+      const currentFiles = this.files();
+      const newFiles = currentFiles.filter(f => f.id !== fileId);
+      this.files.set(newFiles);
+      this.buildFolderTree(newFiles);
+      this.saveSelectedFiles(newFiles);
+
       return true;
     } catch (error: any) {
       console.error('Failed to delete file:', error);

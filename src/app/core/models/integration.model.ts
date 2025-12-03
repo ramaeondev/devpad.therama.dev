@@ -6,6 +6,10 @@ export interface Integration {
   refresh_token?: string;
   expires_at?: string;
   email?: string;
+  settings?: {
+    selected_files?: any[];
+    [key: string]: any;
+  };
   created_at: string;
   updated_at: string;
 }

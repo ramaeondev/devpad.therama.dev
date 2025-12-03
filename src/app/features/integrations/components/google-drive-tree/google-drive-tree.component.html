@@ -72,20 +72,29 @@
     }
   </div>
   } @else {
-  <div class="text-center py-8 text-gray-500 dark:text-gray-400">
-    <div class="mb-4">
-      <i class="fa-brands fa-google-drive text-6xl"></i>
-      <p class="mt-2">No files or folders selected from Google Drive.</p>
-      <p class="text-sm">Use the actions menu to pick files or folders, or click below:</p>
+  <div
+    class="flex flex-col items-center justify-center p-6 text-center border-2 border-dashed border-gray-200 dark:border-gray-700 rounded-xl bg-gray-50/50 dark:bg-gray-800/50 my-4 mx-2">
+    <div
+      class="w-12 h-12 bg-blue-100 dark:bg-blue-900/30 rounded-full flex items-center justify-center mb-3 text-blue-600 dark:text-blue-400">
+      <i class="fa-brands fa-google-drive text-2xl"></i>
     </div>
-    <button class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
-      (click)="googleDrive.pickFiles()">
-      Pick Files from Google Drive
-    </button>
-    <button class="ml-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
-      (click)="googleDrive.pickFolder()">
-      Pick Folder from Google Drive
-    </button>
+    <h3 class="text-sm font-medium text-gray-900 dark:text-gray-100 mb-1">No files selected</h3>
+    <p class="text-xs text-gray-500 dark:text-gray-400 mb-4 max-w-[200px]">Select files or folders from your Google
+      Drive to view them here.</p>
+
+    <div class="flex flex-col gap-2 w-full max-w-[200px]">
+      <button (click)="googleDrive.pickFiles()"
+        class="flex items-center justify-center gap-2 px-4 py-2 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 text-sm font-medium text-gray-700 dark:text-gray-200 transition-all shadow-sm hover:shadow">
+        <i class="fa-solid fa-file text-blue-500"></i>
+        <span>Pick Files</span>
+      </button>
+
+      <button (click)="googleDrive.pickFolder()"
+        class="flex items-center justify-center gap-2 px-4 py-2 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 text-sm font-medium text-gray-700 dark:text-gray-200 transition-all shadow-sm hover:shadow">
+        <i class="fa-solid fa-folder text-yellow-500"></i>
+        <span>Pick Folder</span>
+      </button>
+    </div>
   </div>
   }
   }
