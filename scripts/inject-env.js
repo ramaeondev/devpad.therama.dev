@@ -17,7 +17,7 @@ const envVariables = {
   MICROSOFT_CLIENT_ID: process.env.MICROSOFT_CLIENT_ID || '',
   MICROSOFT_REDIRECT_URI: process.env.MICROSOFT_REDIRECT_URI || '',
   GOOGLE_APPID: process.env.GOOGLE_APPID || '',
-  APPWRITE_API: process.env.APPWRITE_API || '',
+  APPWRITE_ENDPOINT: process.env.APPWRITE_ENDPOINT || '',
   APPWRITE_PROJECT_ID: process.env.APPWRITE_PROJECT_ID || '',
   APPWRITE_DB_READ_ONLY_API_KEY: process.env.APPWRITE_DB_READ_ONLY_API_KEY || '',
   APPWRITE_DATABASE_ID: process.env.APPWRITE_DATABASE_ID || '',
@@ -39,7 +39,7 @@ const generateConfigFile = (filePath) => {
     redirectUri: '${envVariables.MICROSOFT_REDIRECT_URI}',
   },
   appwrite: {
-    endpoint: '${envVariables.APPWRITE_API}',
+    endpoint: '${envVariables.APPWRITE_ENDPOINT}',
     projectId: '${envVariables.APPWRITE_PROJECT_ID}',
     apiKey: '${envVariables.APPWRITE_DB_READ_ONLY_API_KEY}',
     databaseId: '${envVariables.APPWRITE_DATABASE_ID}',
