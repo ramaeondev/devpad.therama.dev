@@ -16,11 +16,14 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       
-      - name: Install Dependencies
-        run: npm ci
-
-      - name: Inject Environment Variables
-        run: npm run inject-env
+      - name: Install Vercel CLI
+        run: npm install --global vercel@latest
+        
+      - name: Pull Vercel Environment Information
+        run: vercel pull --yes --environment=production --token=${{ secrets.VERCEL_TOKEN }}
+        
+      - name: Deploy to Vercel
+        run: vercel --prod --token=${{ secrets.VERCEL_TOKEN }}
         env:
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
           SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
@@ -33,27 +36,3 @@ jobs:
           APPWRITE_PROJECT_ID: ${{ secrets.APPWRITE_PROJECT_ID }}
           APPWRITE_DB_READ_ONLY_API_KEY: ${{ secrets.APPWRITE_DB_READ_ONLY_API_KEY }}
           APPWRITE_DATABASE_ID: ${{ secrets.APPWRITE_DATABASE_ID }}
-      
-      - name: Verify Generated Config
-        run: |
-          echo "=== config.prod.ts ==="
-          cat src/config.prod.ts
-          echo "======================"
-          
-      - name: Install Vercel CLI
-        run: npm install --global vercel@latest
-        
-      - name: Pull Vercel Environment Information
-        run: vercel pull --yes --environment=production --token=${{ secrets.VERCEL_TOKEN }}
-        
-      - name: Build Project Artifacts
-        run: vercel build --prod --token=${{ secrets.VERCEL_TOKEN }}
-        
-      - name: Verify Build Output Contains Config
-        run: |
-          echo "=== Checking built files ==="
-          find .vercel/output -name "config.prod*.js" -o -name "*config*" | head -20
-          echo "======================"
-        
-      - name: Deploy Project Artifacts to Vercel
-        run: vercel deploy --prebuilt --prod --token=${{ secrets.VERCEL_TOKEN }}
