@@ -1,4 +1,4 @@
-import { Component, inject, signal, OnInit } from '@angular/core';
+import { Component, inject, signal, computed, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 // import { FileSizeDirective } from '../../../../shared/directives';
 import { getIconNameFromNameAndMime } from '../../../../shared/utils/file-type.util';
@@ -11,11 +11,12 @@ import { WorkspaceStateService } from '../../../../core/services/workspace-state
 import { FolderService } from '../../../folders/services/folder.service';
 import { PropertiesModalComponent, PropertyItem } from '../../../../shared/components/ui/properties-modal/properties-modal.component';
 import { DropdownComponent } from '../../../../shared/components/ui/dropdown/dropdown.component';
+import { ConfirmModalComponent } from '../../../../shared/components/ui/dialog/confirm-modal.component';
 
 @Component({
   selector: 'app-onedrive-tree',
   standalone: true,
-  imports: [CommonModule, PropertiesModalComponent, DropdownComponent],
+  imports: [CommonModule, PropertiesModalComponent, DropdownComponent, ConfirmModalComponent],
   template: `
     <div class="onedrive-tree-container p-2">
       @if (!oneDrive.isConnected()) {
@@ -161,6 +162,44 @@ import { DropdownComponent } from '../../../../shared/components/ui/dropdown/dro
       [properties]="propertiesModalData()"
       (onClose)="closePropertiesModal()"
     ></app-properties-modal>
+
+    @if (showDisconnectConfirm()) {
+      <app-confirm-modal
+        title="Disconnect OneDrive"
+        message="Are you sure you want to disconnect OneDrive? You can reconnect with a different account later."
+        confirmLabel="Disconnect"
+        cancelLabel="Cancel"
+        (confirm)="confirmDisconnect()"
+        (cancel)="cancelDisconnect()"
+      ></app-confirm-modal>
+    }
+
+    @if (showDeleteConfirm()) {
+      <app-confirm-modal
+        title="Delete File"
+        [message]="deleteConfirmMessage()"
+        confirmLabel="Delete"
+        cancelLabel="Cancel"
+        (confirm)="confirmDelete()"
+        (cancel)="cancelDelete()"
+      ></app-confirm-modal>
+    }
+
+    @if (showRenameModal()) {
+      <app-confirm-modal
+        title="Rename File"
+        [message]="renameModalMessage()"
+        confirmLabel="Rename"
+        cancelLabel="Cancel"
+        [showInput]="true"
+        inputPlaceholder="New file name"
+        [inputValue]="newFileName()"
+        [confirmDisabled]="!newFileName().trim() || newFileName() === fileToRename()?.name"
+        (inputChange)="newFileName.set($event)"
+        (confirm)="confirmRename()"
+        (cancel)="cancelRename()"
+      ></app-confirm-modal>
+    }
   `,
   styles: [
     `
@@ -182,6 +221,22 @@ export class OneDriveTreeComponent implements OnInit {
   showPropertiesModal = signal<boolean>(false);
   propertiesModalTitle = signal<string>('Properties');
   propertiesModalData = signal<PropertyItem[]>([]);
+  showDisconnectConfirm = signal<boolean>(false);
+  showDeleteConfirm = signal<boolean>(false);
+  showRenameModal = signal<boolean>(false);
+  fileToDelete = signal<OneDriveFile | null>(null);
+  fileToRename = signal<OneDriveFile | null>(null);
+  newFileName = signal<string>('');
+
+  deleteConfirmMessage = computed(() => {
+    const file = this.fileToDelete();
+    return file ? `Are you sure you want to delete "${file.name}"? This action cannot be undone.` : '';
+  });
+
+  renameModalMessage = computed(() => {
+    const file = this.fileToRename();
+    return file ? `Enter a new name for "${file.name}"` : '';
+  });
 
   async ngOnInit() {
     await this.oneDrive.checkConnection();
@@ -191,10 +246,17 @@ export class OneDriveTreeComponent implements OnInit {
     await this.oneDrive.connect();
   }
 
-  async disconnectOneDrive() {
-    if (confirm('Are you sure you want to disconnect OneDrive?')) {
-      await this.oneDrive.disconnect();
-    }
+  disconnectOneDrive() {
+    this.showDisconnectConfirm.set(true);
+  }
+
+  async confirmDisconnect() {
+    this.showDisconnectConfirm.set(false);
+    await this.oneDrive.disconnect();
+  }
+
+  cancelDisconnect() {
+    this.showDisconnectConfirm.set(false);
   }
 
   isExpanded(folderId: string): boolean {
@@ -273,17 +335,54 @@ export class OneDriveTreeComponent implements OnInit {
     }
   }
 
-  async handleRename(file: OneDriveFile) {
-    const newName = prompt('Enter new name:', file.name);
-    if (!newName || newName === file.name) return;
-
-    await this.oneDrive.renameFile(file.id, newName);
+  handleRename(file: OneDriveFile) {
+    this.fileToRename.set(file);
+    this.newFileName.set(file.name);
+    this.showRenameModal.set(true);
   }
 
-  async handleDelete(file: OneDriveFile) {
-    if (!confirm(`Are you sure you want to delete "${file.name}"?`)) return;
+  async confirmRename() {
+    const file = this.fileToRename();
+    const newName = this.newFileName().trim();
+    
+    if (!file || !newName || newName === file.name) {
+      this.cancelRename();
+      return;
+    }
 
+    this.showRenameModal.set(false);
+    await this.oneDrive.renameFile(file.id, newName);
+    
+    // Reset state
+    this.fileToRename.set(null);
+    this.newFileName.set('');
+  }
+
+  cancelRename() {
+    this.showRenameModal.set(false);
+    this.fileToRename.set(null);
+    this.newFileName.set('');
+  }
+
+  handleDelete(file: OneDriveFile) {
+    this.fileToDelete.set(file);
+    this.showDeleteConfirm.set(true);
+  }
+
+  async confirmDelete() {
+    const file = this.fileToDelete();
+    if (!file) return;
+
+    this.showDeleteConfirm.set(false);
     await this.oneDrive.deleteFile(file.id);
+    
+    // Reset state
+    this.fileToDelete.set(null);
+  }
+
+  cancelDelete() {
+    this.showDeleteConfirm.set(false);
+    this.fileToDelete.set(null);
   }
 
   handleProperties(file: OneDriveFile) {
