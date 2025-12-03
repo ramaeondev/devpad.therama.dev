@@ -51,19 +51,21 @@ export class GithubCallbackComponent implements OnInit {
 
   async ngOnInit() {
     try {
-      // Get the search params from the URL
+      // Check for error in URL first
       const searchParams = new URLSearchParams(window.location.search);
+      const hashParams = new URLSearchParams(window.location.hash.substring(1));
       
-      // Check for error in URL
-      const errorParam = searchParams.get('error');
-      const errorDescription = searchParams.get('error_description');
+      const errorParam = searchParams.get('error') || hashParams.get('error');
+      const errorDescription = searchParams.get('error_description') || hashParams.get('error_description');
       
       if (errorParam) {
         throw new Error(errorDescription || 'Authentication failed');
       }
 
-      // Supabase will automatically handle the OAuth callback
-      // We just need to get the session
+      // Supabase automatically detects and processes the session from the URL hash
+      // We just need to wait a moment for it to process, then get the session
+      await new Promise(resolve => setTimeout(resolve, 100));
+
       const { data, error } = await this.supabase.auth.getSession();
 
       if (error) throw error;

@@ -9,20 +9,19 @@ export class SupabaseService {
   private supabase: SupabaseClient;
 
   constructor() {
-    // Check if we are in an OAuth callback flow
-    // If so, disable detectSessionInUrl to prevent Supabase from trying to parse
-    // the OAuth access token as a Supabase session (which would fail and clear the session)
-    const isOAuthCallback =
+    // Check if we are in the OneDrive callback flow
+    // OneDrive has its own OAuth token that's not a Supabase session
+    // For GitHub and other Supabase OAuth providers, we NEED detectSessionInUrl enabled
+    const isOneDriveCallback =
       typeof window !== 'undefined' &&
-      (window.location.pathname.includes('/auth/callback/onedrive') ||
-       window.location.pathname === '/auth/callback');
+      window.location.pathname.includes('/auth/callback/onedrive');
 
     this.supabase = createClient(environment.supabase.url, environment.supabase.anonKey, {
       auth: {
         storageKey: 'sb-auth-token',
         autoRefreshToken: true,
         persistSession: true,
-        detectSessionInUrl: !isOAuthCallback,
+        detectSessionInUrl: !isOneDriveCallback, // Only disable for OneDrive
         // Add this to prevent lock issues
         storage: window.localStorage,
       },
