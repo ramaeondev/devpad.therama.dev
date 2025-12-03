@@ -197,7 +197,8 @@ export class SigninComponent {
       const { error } = await this.supabase.authDirect.signInWithOAuth({
         provider: 'github',
         options: {
-          redirectTo: `${window.location.origin}/auth/callback`,
+          redirectTo: `https://devpad.therama.dev/auth/callback`,
+          skipBrowserRedirect: false,
         },
       });
 
