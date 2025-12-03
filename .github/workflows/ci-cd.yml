@@ -29,6 +29,10 @@ jobs:
           GOOGLE_APPID: ${{ secrets.GOOGLE_APPID }}
           MICROSOFT_CLIENT_ID: ${{ secrets.MICROSOFT_CLIENT_ID }}
           MICROSOFT_REDIRECT_URI: ${{ secrets.MICROSOFT_REDIRECT_URI }}
+          APPWRITE_API: ${{ secrets.APPWRITE_API }}
+          APPWRITE_PROJECT_ID: ${{ secrets.APPWRITE_PROJECT_ID }}
+          APPWRITE_DB_READ_ONLY_API_KEY: ${{ secrets.APPWRITE_DB_READ_ONLY_API_KEY }}
+          APPWRITE_DATABASE_ID: ${{ secrets.APPWRITE_DATABASE_ID }}
       
       - name: Install Vercel CLI
         run: npm install --global vercel@latest
