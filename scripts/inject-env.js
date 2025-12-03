@@ -23,6 +23,7 @@ const envVariables = {
   APPWRITE_DATABASE_ID: process.env.APPWRITE_DATABASE_ID || '',
   GITHUB_CLIENT_ID: process.env.GITHUB_CLIENT_ID || '',
   GITHUB_CLIENT_SECRET: process.env.GITHUB_CLIENT_SECRET || '',
+  GITHUB_REDIRECT_URI: process.env.GITHUB_REDIRECT_URI || '',
 };
 
 const generateConfigFile = (filePath) => {
@@ -30,6 +31,7 @@ const generateConfigFile = (filePath) => {
   supabase: {
     url: '${envVariables.SUPABASE_URL}',
     anonKey: '${envVariables.SUPABASE_ANON_KEY}',
+    directUrl: '${envVariables.GITHUB_REDIRECT_URI}',
   },
   google: {
     clientId: '${envVariables.GOOGLE_CLIENT_ID}',

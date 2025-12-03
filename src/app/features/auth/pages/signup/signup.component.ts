@@ -270,7 +270,7 @@ export class SignupComponent {
     this.errorMessage.set('');
 
     try {
-      const { error } = await this.supabase.auth.signInWithOAuth({
+      const { error } = await this.supabase.authDirect.signInWithOAuth({
         provider: 'github',
         options: {
           redirectTo: `${window.location.origin}/auth/callback`,

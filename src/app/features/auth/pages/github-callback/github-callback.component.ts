@@ -66,7 +66,8 @@ export class GithubCallbackComponent implements OnInit {
       // We just need to wait a moment for it to process, then get the session
       await new Promise(resolve => setTimeout(resolve, 100));
 
-      const { data, error } = await this.supabase.auth.getSession();
+      // Use authDirect to get session after OAuth callback
+      const { data, error } = await this.supabase.authDirect.getSession();
 
       if (error) throw error;
 
