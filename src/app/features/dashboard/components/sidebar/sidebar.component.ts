@@ -22,6 +22,13 @@ import { OneDriveTreeComponent } from "../../../integrations/components/onedrive
         <!-- Header -->
         <div class="flex items-center justify-between mb-3 sm:mb-4">
           <h2 class="text-base sm:text-lg font-semibold text-gray-900 dark:text-white">Folders</h2>
+          <button
+            class="p-1 rounded hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-500 dark:text-gray-400 transition-colors"
+            (click)="reloadFolders()"
+            title="Refresh Folders"
+          >
+            <i class="fa-solid fa-rotate-right text-sm"></i>
+          </button>
         </div>
 
         <!-- Loading State -->

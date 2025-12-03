@@ -329,6 +329,9 @@ export class OneDriveTreeComponent implements OnInit {
       await this.noteService.uploadDocument(userId, fileObj, importsFolder.id);
 
       this.toast.success(`Imported ${file.name} to DevPad`);
+      
+      // Refresh DevPad folder tree
+      this.workspaceState.emitFoldersChanged();
     } catch (error) {
       console.error('Import error:', error);
       this.toast.error('Failed to import file');

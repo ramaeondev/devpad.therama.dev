@@ -229,18 +229,36 @@ export class NoteWorkspaceComponent {
     // React to Google Drive file selection
     this.workspaceState.googleDriveFileSelected$.subscribe((file) => {
       console.log('Google Drive file selected in note-workspace:', file);
+      // Clear other selections when switching to Google Drive
+      this.selectedNoteId.set(null);
+      this.selectedOneDriveFile.set(null);
+      this.currentNote.set(null);
       this.selectedGoogleDriveFile.set(file);
     });
 
     // React to OneDrive file selection
     this.workspaceState.oneDriveFileSelected$.subscribe((file) => {
       console.log('OneDrive file selected in note-workspace:', file);
+      // Clear other selections when switching to OneDrive
+      this.selectedNoteId.set(null);
+      this.selectedGoogleDriveFile.set(null);
+      this.currentNote.set(null);
       this.selectedOneDriveFile.set(file);
+    });
+
+    // React to DevPad tree refresh requests
+    this.workspaceState.foldersChanged$.subscribe(() => {
+      console.log('Refreshing DevPad folder tree...');
+      this.reloadFolders();
     });
 
     // React to note selection from folder tree
     this.workspaceState.noteSelected$.subscribe(async (noteRef) => {
       try {
+        // Clear cloud file selections when switching to DevPad note
+        this.selectedGoogleDriveFile.set(null);
+        this.selectedOneDriveFile.set(null);
+        
         // Ensure correct folder is active
         if (noteRef.folder_id && noteRef.folder_id !== this.selectedFolderId()) {
           this.workspaceState.setSelectedFolder(noteRef.folder_id);

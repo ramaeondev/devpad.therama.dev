@@ -97,6 +97,12 @@ export class GoogleDriveTreeComponent implements OnInit {
     }
   }
 
+  async disconnectGoogleDrive() {
+    if (confirm('Are you sure you want to disconnect Google Drive?')) {
+      await this.googleDrive.disconnect();
+    }
+  }
+
   async handleImportToDevPad(file: GoogleDriveFile) {
     this.openMenuId.set(null);
     try {
@@ -138,6 +144,9 @@ export class GoogleDriveTreeComponent implements OnInit {
       await this.noteService.uploadDocument(userId, fileObj, importsFolder.id);
 
       this.toast.success(`Imported ${fileName} to DevPad`);
+      
+      // Refresh DevPad folder tree
+      this.workspaceState.emitFoldersChanged();
     } catch (error) {
       console.error('Import error:', error);
       this.toast.error('Failed to import file');
