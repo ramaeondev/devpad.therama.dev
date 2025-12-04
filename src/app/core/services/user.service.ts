@@ -95,6 +95,32 @@ export class UserService {
   }
 
   /**
+   * Upsert user profile (create or update)
+   */
+  async upsertUserProfile(userId: string, profile: Partial<UserProfile>): Promise<UserProfile> {
+    return this.loading.withLoading(async () => {
+      try {
+        const { data, error } = await this.supabase
+          .from('user_profiles')
+          .upsert({
+            user_id: userId,
+            ...profile,
+            updated_at: new Date().toISOString(),
+          }, { onConflict: 'user_id' })
+          .select()
+          .single();
+
+        if (error) throw error;
+
+        return data as UserProfile;
+      } catch (error) {
+        console.error('Error upserting user profile:', error);
+        throw error;
+      }
+    });
+  }
+
+  /**
    * Mark root folder as created for user
    */
   async markRootFolderCreated(userId: string): Promise<void> {

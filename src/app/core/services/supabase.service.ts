@@ -7,25 +7,43 @@ import { environment } from '../../../environments/environment';
 })
 export class SupabaseService {
   private supabase: SupabaseClient;
+  private directClient: SupabaseClient | null = null;
 
   constructor() {
     // Check if we are in the OneDrive callback flow
-    // If so, disable detectSessionInUrl to prevent Supabase from trying to parse
-    // the OneDrive access token as a Supabase session (which would fail and clear the session)
+    // OneDrive has its own OAuth token that's not a Supabase session
+    // For GitHub and other Supabase OAuth providers, we NEED detectSessionInUrl enabled
     const isOneDriveCallback =
       typeof window !== 'undefined' &&
       window.location.pathname.includes('/auth/callback/onedrive');
 
+    // Main client for API calls (uses proxy)
     this.supabase = createClient(environment.supabase.url, environment.supabase.anonKey, {
       auth: {
         storageKey: 'sb-auth-token',
         autoRefreshToken: true,
         persistSession: true,
-        detectSessionInUrl: !isOneDriveCallback,
-        // Add this to prevent lock issues
+        detectSessionInUrl: !isOneDriveCallback, // Only disable for OneDrive
         storage: window.localStorage,
       },
     });
+
+    // Direct client for OAuth (bypasses proxy to use actual Supabase URL)
+    if (environment.supabase.directUrl) {
+      this.directClient = createClient(
+        environment.supabase.directUrl,
+        environment.supabase.anonKey,
+        {
+          auth: {
+            storageKey: 'sb-auth-token',
+            autoRefreshToken: true,
+            persistSession: true,
+            detectSessionInUrl: !isOneDriveCallback,
+            storage: window.localStorage,
+          },
+        }
+      );
+    }
   }
 
   // Simple session getter - let Supabase handle caching
@@ -44,6 +62,11 @@ export class SupabaseService {
 
   get auth() {
     return this.supabase.auth;
+  }
+
+  // OAuth auth methods should use direct client to bypass proxy
+  get authDirect() {
+    return this.directClient ? this.directClient.auth : this.supabase.auth;
   }
 
   // IMPORTANT: Return the bound function, not a function that returns it

@@ -34,6 +34,13 @@ export default [
       import('./pages/confirm-email/confirm-email.component').then((m) => m.ConfirmEmailComponent),
   },
   {
+    path: 'callback',
+    loadComponent: () =>
+      import('./pages/github-callback/github-callback.component').then(
+        (m) => m.GithubCallbackComponent,
+      ),
+  },
+  {
     path: 'callback/onedrive',
     loadComponent: () =>
       import('./pages/onedrive-callback/onedrive-callback.component').then(
