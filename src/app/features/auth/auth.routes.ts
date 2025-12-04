@@ -48,6 +48,20 @@ export default [
       ),
   },
   {
+    path: 'callback/github',
+    loadComponent: () =>
+      import('./pages/github-callback/github-callback.component').then(
+        (m) => m.GithubCallbackComponent,
+      ),
+  },
+  {
+    path: 'callback/google',
+    loadComponent: () =>
+      import('./pages/google-callback/google-callback.component').then(
+        (m) => m.GoogleCallbackComponent,
+      ),
+  },
+  {
     path: 'logout',
     loadComponent: () =>
       import('./pages/logout/logout.component').then(
