@@ -81,6 +81,7 @@ export class SettingsPanelComponent {
   avatarUrl = signal<string | null>(null);
   saving = signal(false);
   uploading = signal(false);
+  authProvider = signal<string | null>(null);
 
   initials = computed(() => {
     const f = (this.firstName() || '').trim();
@@ -89,6 +90,12 @@ export class SettingsPanelComponent {
     if (f) return f.slice(0, 2).toUpperCase();
     const email = this.auth.userEmail();
     return email ? email[0].toUpperCase() : '?';
+  });
+
+  // Check if user signed in with OAuth (Google/GitHub)
+  isOAuthUser = computed(() => {
+    const provider = this.authProvider();
+    return provider === 'google' || provider === 'github';
   });
 
   constructor() { }
@@ -101,6 +108,14 @@ export class SettingsPanelComponent {
       this.firstName.set(profile?.first_name ?? '');
       this.lastName.set(profile?.last_name ?? '');
       this.avatarUrl.set(profile?.avatar_url ?? null);
+
+      // Get auth provider from session
+      const { data } = await this.supabase.auth.getSession();
+      if (data.session?.user) {
+        // Check app_metadata for provider info
+        const provider = data.session.user.app_metadata?.['provider'];
+        this.authProvider.set(provider || 'email');
+      }
     } catch (e) {
       this.toast.error('Failed to load profile');
     }
