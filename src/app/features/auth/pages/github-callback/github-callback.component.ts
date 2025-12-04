@@ -5,6 +5,7 @@ import { SupabaseService } from '../../../../core/services/supabase.service';
 import { AuthStateService } from '../../../../core/services/auth-state.service';
 import { ToastService } from '../../../../core/services/toast.service';
 import { DeviceFingerprintService } from '../../../../core/services/device-fingerprint.service';
+import { UserService } from '../../../../core/services/user.service';
 
 @Component({
   selector: 'app-github-callback',
@@ -45,6 +46,7 @@ export class GithubCallbackComponent implements OnInit {
   private authState = inject(AuthStateService);
   private toast = inject(ToastService);
   private deviceFingerprint = inject(DeviceFingerprintService);
+  private userService = inject(UserService);
 
   loading = signal(true);
   error = signal('');
@@ -81,6 +83,33 @@ export class GithubCallbackComponent implements OnInit {
         } catch (deviceError) {
           console.error('Failed to register device:', deviceError);
           // Don't block sign-in if device registration fails
+        }
+
+        // Capture user details from metadata
+        try {
+          const metadata = data.session.user.user_metadata;
+          if (metadata) {
+            const fullName = metadata['full_name'] || metadata['name'] || '';
+            const avatarUrl = metadata['avatar_url'] || metadata['picture'] || '';
+            
+            let firstName = '';
+            let lastName = '';
+            
+            if (fullName) {
+              const parts = fullName.split(' ');
+              firstName = parts[0];
+              lastName = parts.slice(1).join(' ') || '';
+            }
+
+            await this.userService.upsertUserProfile(data.session.user.id, {
+              first_name: firstName,
+              last_name: lastName,
+              avatar_url: avatarUrl
+            });
+          }
+        } catch (profileError) {
+          console.error('Failed to update user profile:', profileError);
+          // Don't block sign-in if profile update fails
         }
 
         this.toast.success('Successfully signed in with GitHub!');
