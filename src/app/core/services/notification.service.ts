@@ -183,7 +183,7 @@ export class NotificationService {
     userId: string,
     callback: (notification: Notification) => void
   ) {
-    const channel = this.supabase.client
+    const channel = this.supabase.realtimeClient
       .channel('notifications')
       .on(
         'postgres_changes',
@@ -209,7 +209,7 @@ export class NotificationService {
    */
   unsubscribeFromNotifications(channel: any) {
     if (channel) {
-      this.supabase.client.removeChannel(channel);
+      this.supabase.realtimeClient.removeChannel(channel);
     }
   }
 }

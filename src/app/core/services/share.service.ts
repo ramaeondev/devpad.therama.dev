@@ -1,0 +1,331 @@
+import { Injectable, inject } from '@angular/core';
+import { SupabaseService } from './supabase.service';
+import { NoteService } from './note.service';
+import { AuthStateService } from './auth-state.service';
+import { PublicShare } from '../models/public-share.model';
+import { LoadingService } from './loading.service';
+
+@Injectable({ providedIn: 'root' })
+export class ShareService {
+  private supabase = inject(SupabaseService);
+  private noteService = inject(NoteService);
+  private authState = inject(AuthStateService);
+  private loading = inject(LoadingService);
+
+  /**
+   * Generate a unique share token
+   */
+  private generateShareToken(): string {
+    return crypto.randomUUID();
+  }
+
+  /**
+   * Generate full share URL from token
+   */
+  generateShareUrl(token: string): string {
+    const baseUrl = window.location.origin;
+    return `${baseUrl}/share/${token}`;
+  }
+
+  /**
+   * Create a public share for a note
+   */
+  async createShare(noteId: string, permission: 'readonly' | 'editable', expiresAt?: string): Promise<PublicShare> {
+    const userId = this.authState.userId();
+    if (!userId) throw new Error('User not authenticated');
+
+    this.loading.start();
+    try {
+      // Get the note to extract content
+      const note = await this.noteService.getNote(noteId, userId);
+      if (!note) throw new Error('Note not found');
+
+      // Get unencrypted content
+      let publicContent: string | undefined;
+      let publicStoragePath: string | undefined;
+
+      if (note.content?.startsWith('storage://')) {
+        // File-based note - we'll need to handle file copying
+        publicStoragePath = note.content;
+        // For now, we'll store the reference. File copying will be handled separately
+      } else {
+        // Text-based note - decrypt if encrypted
+        publicContent = note.content || '';
+      }
+
+      // Generate unique share token
+      const shareToken = this.generateShareToken();
+
+      // Create share record
+      const { data, error } = await this.supabase.client
+        .from('public_shares')
+        .insert({
+          note_id: noteId,
+          user_id: userId,
+          share_token: shareToken,
+          permission,
+          public_content: publicContent,
+          public_storage_path: publicStoragePath,
+          expires_at: expiresAt,
+        })
+        .select()
+        .single();
+
+      if (error) throw error;
+
+      // Ensure Public folder exists and add note reference
+      await this.addToPublicFolder(noteId, userId);
+
+      return data as PublicShare;
+    } finally {
+      this.loading.stop();
+    }
+  }
+
+  /**
+   * Get share by token (for anonymous access)
+   */
+  async getShareByToken(token: string): Promise<PublicShare | null> {
+    const { data, error } = await this.supabase.client
+      .from('public_shares')
+      .select('*')
+      .eq('share_token', token)
+      .single();
+
+    if (error) {
+      console.error('Error fetching share:', error);
+      return null;
+    }
+
+    // Increment view count
+    await this.incrementViewCount(data.id);
+
+    return data as PublicShare;
+  }
+
+  /**
+   * Get all shares for a note
+   */
+  async getSharesForNote(noteId: string): Promise<PublicShare[]> {
+    const userId = this.authState.userId();
+    if (!userId) throw new Error('User not authenticated');
+
+    const { data, error } = await this.supabase.client
+      .from('public_shares')
+      .select('*')
+      .eq('note_id', noteId)
+      .eq('user_id', userId);
+
+    if (error) throw error;
+
+    return (data as PublicShare[]) || [];
+  }
+
+  /**
+   * Update share permission
+   */
+  async updateSharePermission(shareId: string, permission: 'readonly' | 'editable'): Promise<void> {
+    const userId = this.authState.userId();
+    if (!userId) throw new Error('User not authenticated');
+
+    const { error } = await this.supabase.client
+      .from('public_shares')
+      .update({ permission })
+      .eq('id', shareId)
+      .eq('user_id', userId);
+
+    if (error) throw error;
+  }
+
+  /**
+   * Delete a share
+   */
+  async deleteShare(shareId: string): Promise<void> {
+    const userId = this.authState.userId();
+    if (!userId) throw new Error('User not authenticated');
+
+    this.loading.start();
+    try {
+      // Get share details before deleting
+      const { data: share } = await this.supabase.client
+        .from('public_shares')
+        .select('*')
+        .eq('id', shareId)
+        .eq('user_id', userId)
+        .single();
+
+      if (!share) throw new Error('Share not found');
+
+      // Delete the share record
+      const { error } = await this.supabase.client
+        .from('public_shares')
+        .delete()
+        .eq('id', shareId)
+        .eq('user_id', userId);
+
+      if (error) throw error;
+
+      // Check if there are any other shares for this note
+      const otherShares = await this.getSharesForNote(share.note_id);
+      
+      // If no other shares exist, remove from Public folder
+      if (otherShares.length === 0) {
+        await this.removeFromPublicFolder(share.note_id, userId);
+      }
+    } finally {
+      this.loading.stop();
+    }
+  }
+
+  /**
+   * Update public content (for editable shares accessed anonymously)
+   */
+  async updatePublicContent(shareToken: string, content: string): Promise<void> {
+    // First verify the share exists and is editable
+    const share = await this.getShareByToken(shareToken);
+    if (!share) throw new Error('Share not found');
+    if (share.permission !== 'editable') throw new Error('Share is not editable');
+
+    const { error } = await this.supabase.client
+      .from('public_shares')
+      .update({ public_content: content })
+      .eq('share_token', shareToken);
+
+    if (error) throw error;
+  }
+
+  /**
+   * Increment view count for a share
+   */
+  private async incrementViewCount(shareId: string): Promise<void> {
+    // Use RPC or direct SQL to increment view_count
+    const { error } = await this.supabase.client.rpc('increment_share_view_count', {
+      share_id: shareId
+    });
+
+    if (error) {
+      // Fallback: fetch current count and update
+      const { data: share } = await this.supabase.client
+        .from('public_shares')
+        .select('view_count')
+        .eq('id', shareId)
+        .single();
+      
+      if (share) {
+        await this.supabase.client
+          .from('public_shares')
+          .update({
+            view_count: share.view_count + 1,
+            last_accessed_at: new Date().toISOString(),
+          })
+          .eq('id', shareId);
+      }
+    }
+  }
+
+  /**
+   * Ensure Public folder exists and add note to it
+   */
+  private async addToPublicFolder(_noteId: string, userId: string): Promise<void> {
+    // Get or create Public folder
+    await this.ensurePublicFolder(userId);
+
+    // Note: This doesn't move the note, just ensures Public folder exists
+    // Dual visibility will be handled via the public_shares table
+    // The Public folder will show all notes that have active shares
+  }
+
+  /**
+   * Remove note from Public folder
+   */
+  private async removeFromPublicFolder(_noteId: string, _userId: string): Promise<void> {
+    // This will be implemented when we handle the dual visibility properly
+    // For now, it's a placeholder
+  }
+
+  /**
+   * Ensure Public folder exists for user
+   */
+  private async ensurePublicFolder(userId: string): Promise<any> {
+    // Check if user already has a Public folder
+    const { data: profile } = await this.supabase.client
+      .from('user_profiles')
+      .select('public_folder_id')
+      .eq('user_id', userId)
+      .single();
+
+    if (profile?.public_folder_id) {
+      // Public folder already exists
+      const { data: folder } = await this.supabase.client
+        .from('folders')
+        .select('*')
+        .eq('id', profile.public_folder_id)
+        .single();
+      
+      return folder;
+    }
+
+    // Create Public folder at the same level as root (parent_id: null, but is_root: false)
+    // This is done directly via Supabase to avoid the unique constraint on is_root
+    const { data: publicFolder, error } = await this.supabase.client
+      .from('folders')
+      .insert({
+        name: 'Public',
+        user_id: userId,
+        parent_id: null,
+        is_root: false, // Explicitly set to false to avoid unique constraint
+      })
+      .select()
+      .single();
+
+    if (error) throw error;
+
+    // Update user profile with Public folder ID
+    await this.supabase.client
+      .from('user_profiles')
+      .update({ public_folder_id: publicFolder.id })
+      .eq('user_id', userId);
+
+    return publicFolder;
+  }
+
+  /**
+   * Get all notes that have active shares for a user (for Public folder display)
+   */
+  async getSharedNotesForUser(userId: string): Promise<any[]> {
+    const { data, error } = await this.supabase.client
+      .from('public_shares')
+      .select(`
+        id,
+        note_id,
+        permission,
+        view_count,
+        created_at,
+        notes (
+          id,
+          title,
+          content,
+          folder_id,
+          updated_at
+        )
+      `)
+      .eq('user_id', userId);
+
+    if (error) {
+      console.error('Error fetching shared notes:', error);
+      return [];
+    }
+
+    // Map to note format with share info
+    return (data || []).map((share: any) => ({
+      id: share.notes.id,
+      title: share.notes.title,
+      content: share.notes.content,
+      folder_id: share.notes.folder_id,
+      updated_at: share.notes.updated_at,
+      share_id: share.id,
+      share_permission: share.permission,
+      share_views: share.view_count,
+    }));
+  }
+}

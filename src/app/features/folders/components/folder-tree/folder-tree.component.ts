@@ -6,11 +6,13 @@ import { AuthStateService } from '../../../../core/services/auth-state.service';
 import { ToastService } from '../../../../core/services/toast.service';
 import { DropdownComponent } from '../../../../shared/components/ui/dropdown/dropdown.component';
 import { NoteService } from '../../../../core/services/note.service';
+import { ShareService } from '../../../../core/services/share.service';
 import { WorkspaceStateService } from '../../../../core/services/workspace-state.service';
 import { SupabaseService } from '../../../../core/services/supabase.service';
 import { FolderNameModalComponent } from '../../../../shared/components/ui/dialog/folder-name-modal.component';
 import { NoteNameModalComponent } from '../../../../shared/components/ui/dialog/note-name-modal.component';
 import { ConfirmModalComponent } from '../../../../shared/components/ui/dialog/confirm-modal.component';
+import { ShareNoteModalComponent } from '../../../../shared/components/ui/dialog/share-note-modal.component';
 import {
   NotePropertiesModalComponent,
   NoteProperties,
@@ -25,6 +27,7 @@ import { NoteIconPipe } from '../../../../shared/pipes/note-icon.pipe';
     FolderNameModalComponent,
     NoteNameModalComponent,
     ConfirmModalComponent,
+    ShareNoteModalComponent,
     NotePropertiesModalComponent,
     NoteIconPipe,
   ],
@@ -62,6 +65,15 @@ import { NoteIconPipe } from '../../../../shared/pipes/note-icon.pipe';
         <app-note-properties-modal
           [properties]="noteProperties()!"
           (cancel)="closePropertiesModal()"
+        />
+      }
+
+      <!-- Share note modal -->
+      @if (showShareModal() && sharingNote) {
+        <app-share-note-modal
+          [note]="sharingNote"
+          (cancel)="closeShareModal()"
+          (shared)="handleNoteShared($event)"
         />
       }
       @for (folder of folders; track folder.id) {
@@ -196,6 +208,10 @@ import { NoteIconPipe } from '../../../../shared/pipes/note-icon.pipe';
                           <span>Download</span>
                           <i class="fa-solid fa-download text-xs"></i>
                         </button>
+                        <button class="dropdown-item w-full text-left px-3 py-1.5 hover:bg-gray-100 dark:hover:bg-gray-700 flex items-center justify-between" (click)="shareNote(note)">
+                          <span>Share</span>
+                          <i class="fa-solid fa-share-nodes text-xs"></i>
+                        </button>
                         <hr class="my-1 border-gray-200 dark:border-gray-700" />
                         <button class="dropdown-item w-full text-left px-3 py-1.5 hover:bg-gray-100 dark:hover:bg-gray-700 flex items-center justify-between" (click)="startNoteRename(note, folder)">
                           <span>Rename</span>
@@ -292,6 +308,7 @@ export class FolderTreeComponent {
   private expandedFolders = signal<Set<string>>(new Set());
   private folderService = inject(FolderService);
   private noteService = inject(NoteService);
+  private shareService = inject(ShareService);
   private authState = inject(AuthStateService);
   private toast = inject(ToastService);
   private supabase = inject(SupabaseService);
@@ -321,6 +338,10 @@ export class FolderTreeComponent {
   // Note properties modal state
   showPropertiesModal = signal(false);
   noteProperties = signal<NoteProperties | null>(null);
+
+  // Share note modal state
+  showShareModal = signal(false);
+  sharingNote: any = null;
 
   // Drag and drop state
   draggedNoteId = signal<string | null>(null);
@@ -363,25 +384,51 @@ export class FolderTreeComponent {
 
   toggleExpand(folderId: string, event: Event) {
     event.stopPropagation();
-    this.expandedFolders.update((set) => {
-      if (set.has(folderId)) {
-        set.delete(folderId);
-      } else {
-        set.add(folderId);
-      }
-      return new Set(set);
-    });
+    const currentSet = this.expandedFolders();
+    const newSet = new Set(currentSet);
+    
+    if (newSet.has(folderId)) {
+      newSet.delete(folderId);
+    } else {
+      newSet.add(folderId);
+    }
+    
+    this.expandedFolders.set(newSet);
+    
     // After toggling, attempt lazy load for newly expanded folder
-    this.loadNotesForExpanded(folderId);
+    if (newSet.has(folderId)) {
+      this.loadNotesForExpanded(folderId);
+    }
   }
 
   onFolderClick(folder: FolderTree) {
-    this.workspaceState.setSelectedFolder(folder.id);
-    this.folderSelected.emit(folder);
-    // For leaf folders (no child folders), ensure notes are loaded on selection
-    if (!folder.children || folder.children.length === 0) {
-      if (!folder.notes) {
-        this.fetchNotesForFolder(folder);
+    // If folder is already selected and expanded, collapse it
+    if (this.workspaceState.selectedFolderId() === folder.id && this.isExpanded(folder.id)) {
+      const currentSet = this.expandedFolders();
+      const newSet = new Set(currentSet);
+      newSet.delete(folder.id);
+      this.expandedFolders.set(newSet);
+    } else {
+      // Otherwise, select and expand it
+      this.workspaceState.setSelectedFolder(folder.id);
+      this.folderSelected.emit(folder);
+      
+      // Expand if it has children
+      if (folder.children && folder.children.length > 0) {
+        const currentSet = this.expandedFolders();
+        if (!currentSet.has(folder.id)) {
+          const newSet = new Set(currentSet);
+          newSet.add(folder.id);
+          this.expandedFolders.set(newSet);
+          this.loadNotesForExpanded(folder.id);
+        }
+      }
+      
+      // For leaf folders (no child folders), ensure notes are loaded on selection
+      if (!folder.children || folder.children.length === 0) {
+        if (!folder.notes) {
+          this.fetchNotesForFolder(folder);
+        }
       }
     }
   }
@@ -405,15 +452,39 @@ export class FolderTreeComponent {
 
   private async fetchNotesForFolder(folder: FolderTree) {
     try {
-      const list = await this.noteService.getNotesForFolder(folder.id, this.authState.userId());
-      folder.notes = list.map((n) => ({
-        id: n.id,
-        title: n.title,
-        updated_at: n.updated_at,
-        folder_id: n.folder_id,
-        content: n.content,
-        icon: (n as any).icon || undefined,
-      }));
+      const userId = this.authState.userId();
+      if (!userId) return;
+
+      // Check if this is the Public folder
+      const { data: profile } = await this.supabase.client
+        .from('user_profiles')
+        .select('public_folder_id')
+        .eq('user_id', userId)
+        .single();
+
+      if (profile?.public_folder_id === folder.id) {
+        // This is the Public folder - load shared notes
+        const sharedNotes = await this.shareService.getSharedNotesForUser(userId);
+        folder.notes = sharedNotes.map((n: any) => ({
+          id: n.id,
+          title: n.title,
+          updated_at: n.updated_at,
+          folder_id: n.folder_id,
+          content: n.content,
+          icon: (n as any).icon || undefined,
+        }));
+      } else {
+        // Regular folder - load notes normally
+        const list = await this.noteService.getNotesForFolder(folder.id, userId);
+        folder.notes = list.map((n) => ({
+          id: n.id,
+          title: n.title,
+          updated_at: n.updated_at,
+          folder_id: n.folder_id,
+          content: n.content,
+          icon: (n as any).icon || undefined,
+        }));
+      }
     } catch (e: any) {
       console.error('Failed to fetch notes for folder', folder.id, e);
     }
@@ -1015,5 +1086,21 @@ export class FolderTreeComponent {
     }
   }
 
+  // Share note handlers
+  shareNote(note: any) {
+    this.sharingNote = note;
+    this.showShareModal.set(true);
+  }
+
+  closeShareModal() {
+    this.showShareModal.set(false);
+    this.sharingNote = null;
+  }
+
+  handleNoteShared(share: any) {
+    console.log('Note shared:', share);
+    // Optionally refresh the tree to show updated state
+    this.treeChanged.emit();
+  }
 
 }

@@ -30,6 +30,16 @@ export const routes: Routes = [
     loadChildren: () => import('./features/folders/folders.routes'),
   },
   {
+    path: 'share/:shareToken',
+    loadComponent: () => import('./features/notes/pages/public-note-viewer/public-note-viewer.component').then(m => m.PublicNoteViewerComponent),
+    title: 'Shared Note - DevPad',
+  },
+  {
+    path: 'share/:shareToken/edit',
+    loadComponent: () => import('./features/notes/pages/public-note-editor/public-note-editor.component').then(m => m.PublicNoteEditorComponent),
+    title: 'Edit Shared Note - DevPad',
+  },
+  {
     path: 'policy',
     loadComponent: () => import('./features/legal/pages/privacy/privacy.component').then(m => m.PrivacyComponent),
     title: 'Privacy Policy - DevPad',
