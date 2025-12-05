@@ -1,0 +1,95 @@
+<div class="relative">
+    <!-- Notification Bell Icon -->
+    <button (click)="toggleDropdown()"
+        class="relative p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors" title="Notifications"
+        aria-label="Open notifications">
+        <i class="fa-regular fa-bell text-xl text-gray-700 dark:text-gray-300"></i>
+
+        <!-- Unread Badge -->
+        @if (unreadCount() > 0) {
+        <span
+            class="absolute top-1 right-1 flex items-center justify-center min-w-[18px] h-[18px] px-1 text-xs font-bold text-white bg-red-500 rounded-full">
+            {{ unreadCount() > 99 ? '99+' : unreadCount() }}
+        </span>
+        }
+    </button>
+
+    <!-- Dropdown Panel -->
+    @if (showDropdown()) {
+    <div
+        class="absolute right-0 top-full mt-2 w-96 max-w-[calc(100vw-2rem)] bg-white dark:bg-gray-800 rounded-lg shadow-xl z-50 border border-gray-200 dark:border-gray-700">
+
+        <!-- Header -->
+        <div class="flex items-center justify-between px-4 py-3 border-b border-gray-200 dark:border-gray-700">
+            <h3 class="text-sm font-semibold text-gray-900 dark:text-gray-100">
+                Notifications
+            </h3>
+            @if (unreadCount() > 0) {
+            <button (click)="markAllAsRead()" class="text-xs text-blue-600 dark:text-blue-400 hover:underline">
+                Mark all as read
+            </button>
+            }
+        </div>
+
+        <!-- Notifications List -->
+        <div class="max-h-96 overflow-y-auto">
+            @if (notifications().length === 0) {
+            <div class="px-4 py-8 text-center text-sm text-gray-500 dark:text-gray-400">
+                <i class="fa-regular fa-bell-slash text-3xl mb-2"></i>
+                <p>No notifications yet</p>
+            </div>
+            } @else {
+            @for (notification of notifications(); track notification.id) {
+            <div class="px-4 py-3 border-b border-gray-100 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors cursor-pointer"
+                [class.bg-blue-50]="!notification.is_read" [class.dark:bg-blue-900/10]="!notification.is_read"
+                (click)="markAsRead(notification, $event)">
+
+                <div class="flex items-start gap-3">
+                    <!-- Icon -->
+                    <div class="flex-shrink-0 mt-1">
+                        <i
+                            class="fa-solid {{ getNotificationIcon(notification.type) }} {{ getNotificationColor(notification.type) }}"></i>
+                    </div>
+
+                    <!-- Content -->
+                    <div class="flex-1 min-w-0">
+                        <div class="flex items-start justify-between gap-2">
+                            <p class="text-sm font-medium text-gray-900 dark:text-gray-100">
+                                {{ notification.title }}
+                            </p>
+                            @if (!notification.is_read) {
+                            <span class="flex-shrink-0 w-2 h-2 bg-blue-500 rounded-full"></span>
+                            }
+                        </div>
+                        <p class="text-sm text-gray-600 dark:text-gray-400 mt-1">
+                            {{ notification.message }}
+                        </p>
+                        <div class="flex items-center justify-between mt-2">
+                            <span class="text-xs text-gray-500 dark:text-gray-500">
+                                {{ getRelativeTime(notification.created_at) }}
+                            </span>
+                            <button (click)="deleteNotification(notification, $event)"
+                                class="text-xs text-red-600 dark:text-red-400 hover:underline">
+                                Delete
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            }
+            }
+        </div>
+
+        <!-- Footer -->
+        <div class="px-4 py-3 border-t border-gray-200 dark:border-gray-700">
+            <button (click)="viewAllLogs()"
+                class="w-full text-sm text-center text-blue-600 dark:text-blue-400 hover:underline">
+                View all activity logs
+            </button>
+        </div>
+    </div>
+
+    <!-- Backdrop to close dropdown -->
+    <div class="fixed inset-0 z-40" (click)="closeDropdown()" aria-hidden="true"></div>
+    }
+</div>

@@ -6,6 +6,7 @@ import { LoadingService } from './loading.service';
 import { Integration, GoogleDriveFile, GoogleDriveFolder } from '../models/integration.model';
 import { environment } from '../../../environments/environment';
 import { HttpClient } from '@angular/common/http';
+import { ActivityLogService } from './activity-log.service';
 
 declare const google: any;
 
@@ -17,6 +18,7 @@ export class GoogleDriveService {
   private toast = inject(ToastService);
   private loading = inject(LoadingService);
   private http = inject(HttpClient);
+  private activityLog = inject(ActivityLogService);
 
   // State
   isConnected = signal(false);
@@ -234,6 +236,14 @@ export class GoogleDriveService {
       if (current) {
         this.integration.set({ ...current, settings: newSettings });
       }
+
+      // Log activity
+      await this.activityLog.logActivity(userId, {
+        action_type: 'upload', // Using 'upload' as a proxy for 'import' since 'import' isn't in ActionType yet, or I should check ActionType
+        resource_type: 'integration',
+        resource_name: `Imported ${files.length} files from Google Drive`,
+        metadata: { file_count: files.length, provider: 'google_drive' }
+      });
     } catch (error) {
       console.error('Failed to save selected files:', error);
     }
@@ -479,6 +489,19 @@ export class GoogleDriveService {
       };
 
       this.toast.success('File uploaded to Google Drive');
+      
+      // Log activity
+      const userId = this.auth.userId();
+      if (userId) {
+        await this.activityLog.logActivity(userId, {
+          action_type: 'upload',
+          resource_type: 'integration',
+          resource_name: uploadedFile.name,
+          resource_id: uploadedFile.id,
+          metadata: { provider: 'google_drive', mime_type: uploadedFile.mimeType }
+        });
+      }
+
       // Optionally, trigger picker or refresh UI if needed
       return uploadedFile;
     } catch (error: any) {
@@ -559,6 +582,18 @@ export class GoogleDriveService {
       this.buildFolderTree(newFiles);
       this.saveSelectedFiles(newFiles);
 
+      // Log activity
+      const userId = this.auth.userId();
+      if (userId) {
+        await this.activityLog.logActivity(userId, {
+          action_type: 'delete',
+          resource_type: 'integration',
+          resource_name: 'Google Drive File',
+          resource_id: fileId,
+          metadata: { provider: 'google_drive' }
+        });
+      }
+
       return true;
     } catch (error: any) {
       console.error('Failed to delete file:', error);
@@ -605,6 +640,19 @@ export class GoogleDriveService {
       };
 
       this.toast.success('Folder created in Google Drive');
+      
+      // Log activity
+      const userId = this.auth.userId();
+      if (userId) {
+        await this.activityLog.logActivity(userId, {
+          action_type: 'create',
+          resource_type: 'integration',
+          resource_name: folder.name,
+          resource_id: folder.id,
+          metadata: { provider: 'google_drive', is_folder: true }
+        });
+      }
+
       // Optionally, trigger picker or refresh UI if needed
       return folder;
     } catch (error: any) {
@@ -630,6 +678,19 @@ export class GoogleDriveService {
       }
 
       this.toast.success('File renamed successfully');
+      
+      // Log activity
+      const userId = this.auth.userId();
+      if (userId) {
+        await this.activityLog.logActivity(userId, {
+          action_type: 'edit',
+          resource_type: 'integration',
+          resource_name: newName,
+          resource_id: fileId,
+          metadata: { provider: 'google_drive', action: 'rename' }
+        });
+      }
+
       // Optionally, trigger picker or refresh UI if needed
       return true;
     } catch (error: any) {

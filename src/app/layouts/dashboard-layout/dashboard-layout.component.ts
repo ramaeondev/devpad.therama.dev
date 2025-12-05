@@ -12,7 +12,11 @@ import { UserService } from '../../core/services/user.service';
 import { AvatarComponent } from '../../shared/components/ui/avatar/avatar.component';
 import { SupabaseService } from '../../core/services/supabase.service';
 import { LoadingService } from '../../core/services/loading.service';
-import { Router } from '@angular/router';
+import { Router, NavigationEnd } from '@angular/router';
+import { filter } from 'rxjs/operators';
+import { NotificationIconComponent } from '../../shared/components/notification-icon/notification-icon';
+import { ActivityLogService } from '../../core/services/activity-log.service';
+
 @Component({
   selector: 'app-dashboard-layout',
   standalone: true,
@@ -25,117 +29,9 @@ import { Router } from '@angular/router';
     LogoComponent,
     SettingsPanelComponent,
     AvatarComponent,
+    NotificationIconComponent,
   ],
-  template: `
-    <div class="h-screen w-screen overflow-hidden bg-gray-50 dark:bg-gray-900 flex flex-col">
-      <!-- Header -->
-      <header class="bg-white dark:bg-gray-800 shadow-sm z-40">
-        <div class="px-3 sm:px-4 py-3 sm:py-4 flex items-center justify-between">
-          <div class="flex items-center gap-2 sm:gap-4 text-gray-900 dark:text-gray-100">
-            <!-- Mobile menu button -->
-            <button
-              (click)="toggleMobileSidebar()"
-              class="lg:hidden p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
-              aria-label="Toggle menu"
-            >
-              @if (showMobileSidebar()) {
-                <i class="fa-solid fa-xmark text-2xl"></i>
-              } @else {
-                <i class="fa-solid fa-bars text-2xl"></i>
-              }
-            </button>
-            <app-logo></app-logo>
-          </div>
-          <div class="flex items-center gap-2 sm:gap-4 relative">
-            <button
-              (click)="toggleDropdown()"
-              class="p-0 rounded-full border-2 border-transparent hover:border-gray-300 dark:hover:border-gray-600 transition-colors"
-              title="Account menu"
-              aria-label="Open account menu"
-            >
-              <app-avatar
-                [avatarUrl]="avatarUrl()"
-                [firstName]="firstName()"
-                [lastName]="lastName()"
-                [email]="auth.userEmail()"
-                size="sm"
-                class="sm:hidden"
-              />
-              <app-avatar
-                [avatarUrl]="avatarUrl()"
-                [firstName]="firstName()"
-                [lastName]="lastName()"
-                [email]="auth.userEmail()"
-                size="md"
-                class="hidden sm:block"
-              />
-            </button>
-            @if (showDropdown()) {
-              <div class="absolute right-0 top-full mt-2 min-w-[16rem] max-w-xs bg-white dark:bg-gray-800 rounded-lg shadow-xl z-50 border border-gray-200 dark:border-gray-700 flex flex-col gap-1" style="min-width: 16rem;">
-                <div class="px-4 py-3 text-sm text-gray-900 dark:text-gray-100 font-semibold border-b border-gray-100 dark:border-gray-700 truncate" title="{{ auth.userEmail() }}">
-                  {{ auth.userEmail() }}
-                </div>
-                <button class="flex items-center gap-2 px-4 py-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors text-left" (click)="openSettings()" aria-label="Account">
-                  <i class="fa-regular fa-user text-lg"></i>
-                  Account
-                </button>
-                <div class="flex items-center justify-between px-4 py-2 text-sm">
-                  <span>Theme</span>
-                  <div class="flex gap-1">
-                    <button class="p-1 rounded hover:bg-gray-100 dark:hover:bg-gray-700" (click)="setTheme('light')" aria-label="Light mode">
-                      <i class="fa-solid fa-sun"></i>
-                    </button>
-                    <button class="p-1 rounded hover:bg-gray-100 dark:hover:bg-gray-700" (click)="setTheme('dark')" aria-label="Dark mode">
-                      <i class="fa-solid fa-moon"></i>
-                    </button>
-                    <button class="p-1 rounded hover:bg-gray-100 dark:hover:bg-gray-700" (click)="setTheme('system')" aria-label="System mode">
-                      <i class="fa-solid fa-circle-half-stroke"></i>
-                    </button>
-                  </div>
-                </div>
-                <button class="flex items-center gap-2 px-4 py-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors text-left" (click)="signOut()" aria-label="Sign out">
-                  <i class="fa-solid fa-arrow-right-from-bracket text-lg"></i>
-                  Sign out
-                </button>
-              </div>
-            }
-          </div>
-        </div>
-      </header>
-
-      <!-- Body -->
-      <div class="flex flex-1 min-h-0 relative">
-        <!-- Mobile sidebar overlay -->
-        @if (showMobileSidebar()) {
-          <div
-            class="fixed inset-0 bg-black/50 z-30 lg:hidden"
-            (click)="closeMobileSidebar()"
-            aria-hidden="true"
-          ></div>
-        }
-
-        <!-- Sidebar -->
-        <div
-          class="fixed lg:static inset-y-0 left-0 z-40 transform transition-transform duration-300 ease-in-out lg:transform-none"
-          [class.-translate-x-full]="!showMobileSidebar()"
-          [class.translate-x-0]="showMobileSidebar()"
-        >
-          <app-sidebar />
-        </div>
-
-        <!-- Main content: Routed views -->
-        <main class="flex-1 h-full overflow-y-auto w-full lg:w-auto">
-          <router-outlet />
-        </main>
-      </div>
-      <!-- Settings Panel mounted (no *ngIf) -->
-      <app-settings-panel [open]="showSettings()" (close)="closeSettings()" />
-      <!-- Toasts -->
-      <app-toast-container />
-      <!-- Global Spinner -->
-      <app-global-spinner />
-    </div>
-  `,
+  templateUrl: './dashboard-layout.component.html',
   styles: [],
 })
 export class DashboardLayoutComponent {
@@ -149,6 +45,29 @@ export class DashboardLayoutComponent {
   private loading = inject(LoadingService);
   private supabase = inject(SupabaseService);
   private router = inject(Router);
+  private activityLog = inject(ActivityLogService);
+
+  // Hide sidebar on activity log page
+  isActivityLogPage = signal(false);
+
+  constructor() {
+    // Listen to route changes
+    this.router.events.pipe(
+      filter(event => event instanceof NavigationEnd)
+    ).subscribe((event: any) => {
+      this.isActivityLogPage.set(event.url.includes('/activity-log'));
+    });
+
+    // Set initial value
+    this.isActivityLogPage.set(this.router.url.includes('/activity-log'));
+
+    effect(() => {
+      const userId = this.auth.userId();
+      if (userId) {
+        this.loadProfile();
+      }
+    });
+  }
 
   // Profile state
   firstName = signal<string>('');
@@ -164,14 +83,7 @@ export class DashboardLayoutComponent {
     return email ? email[0].toUpperCase() : '?';
   });
 
-  constructor() {
-    effect(() => {
-      const userId = this.auth.userId();
-      if (userId) {
-        this.loadProfile();
-      }
-    });
-  }
+
 
   private async loadProfile() {
     const userId = this.auth.userId();
@@ -205,6 +117,14 @@ export class DashboardLayoutComponent {
 
   async signOut() {
     await this.loading.withLoading(async () => {
+      const userId = this.auth.userId();
+      if (userId) {
+        await this.activityLog.logActivity(userId, {
+          action_type: 'logout',
+          resource_type: 'auth',
+          resource_name: 'Sign Out',
+        });
+      }
       await this.supabase.auth.signOut();
     });
     this.auth.clear();
@@ -230,5 +150,30 @@ export class DashboardLayoutComponent {
       // lg breakpoint
       this.closeMobileSidebar();
     }
+  }
+
+  // Close dropdown when clicking outside
+  @HostListener('document:click', ['$event'])
+  onDocumentClick(event: MouseEvent) {
+    // If dropdown is not shown, do nothing
+    if (!this.showDropdown()) return;
+
+    const target = event.target as HTMLElement;
+    
+    // Check if the click target is the trigger button or inside it
+    const triggerButton = document.getElementById('user-menu-button');
+    if (triggerButton && (triggerButton === target || triggerButton.contains(target))) {
+      return; // Let the toggleDropdown method handle it
+    }
+
+    // Check if the click target is inside the dropdown content
+    // We look for the dropdown content by its data attribute
+    const dropdownContent = document.querySelector('[data-dropdown-content="true"]');
+    if (dropdownContent && dropdownContent.contains(target)) {
+      return; // Clicked inside dropdown, don't close
+    }
+
+    // Clicked outside both trigger and content, close it
+    this.showDropdown.set(false);
   }
 }

@@ -6,6 +6,7 @@ import { ToastService } from './toast.service';
 import { LoadingService } from './loading.service';
 import { Integration, OneDriveFile, OneDriveFolder } from '../models/integration.model';
 import { environment } from '../../../environments/environment';
+import { ActivityLogService } from './activity-log.service';
 
 @Injectable({ providedIn: 'root' })
 export class OneDriveService {
@@ -14,6 +15,7 @@ export class OneDriveService {
   private auth = inject(AuthStateService);
   private toast = inject(ToastService);
   private loading = inject(LoadingService);
+  private activityLog = inject(ActivityLogService);
 
   // State
   isConnected = signal(false);
@@ -666,6 +668,19 @@ export class OneDriveService {
 
       this.toast.success('File uploaded to OneDrive');
       await this.loadFiles();
+
+      // Log activity
+      const userId = this.auth.userId();
+      if (userId) {
+        await this.activityLog.logActivity(userId, {
+          action_type: 'upload',
+          resource_type: 'integration',
+          resource_name: uploadedFile.name,
+          resource_id: uploadedFile.id,
+          metadata: { provider: 'onedrive', mime_type: uploadedFile.mimeType }
+        });
+      }
+
       return uploadedFile;
     } catch (error: any) {
       console.error('Failed to upload file:', error);
@@ -729,6 +744,19 @@ export class OneDriveService {
 
       this.toast.success('File deleted from OneDrive');
       await this.loadFiles();
+
+      // Log activity
+      const userId = this.auth.userId();
+      if (userId) {
+        await this.activityLog.logActivity(userId, {
+          action_type: 'delete',
+          resource_type: 'integration',
+          resource_name: 'OneDrive File',
+          resource_id: fileId,
+          metadata: { provider: 'onedrive' }
+        });
+      }
+
       return true;
     } catch (error: any) {
       console.error('Failed to delete file:', error);
@@ -785,6 +813,19 @@ export class OneDriveService {
 
       this.toast.success('Folder created in OneDrive');
       await this.loadFiles();
+
+      // Log activity
+      const userId = this.auth.userId();
+      if (userId) {
+        await this.activityLog.logActivity(userId, {
+          action_type: 'create',
+          resource_type: 'integration',
+          resource_name: folder.name,
+          resource_id: folder.id,
+          metadata: { provider: 'onedrive', is_folder: true }
+        });
+      }
+
       return folder;
     } catch (error: any) {
       console.error('Failed to create folder:', error);
@@ -821,6 +862,19 @@ export class OneDriveService {
 
       this.toast.success('File renamed successfully');
       await this.loadFiles();
+
+      // Log activity
+      const userId = this.auth.userId();
+      if (userId) {
+        await this.activityLog.logActivity(userId, {
+          action_type: 'edit',
+          resource_type: 'integration',
+          resource_name: newName,
+          resource_id: fileId,
+          metadata: { provider: 'onedrive', action: 'rename' }
+        });
+      }
+
       return true;
     } catch (error: any) {
       console.error('Failed to rename file:', error);

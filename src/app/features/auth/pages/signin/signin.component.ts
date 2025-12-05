@@ -7,6 +7,7 @@ import { SupabaseService } from '../../../../core/services/supabase.service';
 import { ToastService } from '../../../../core/services/toast.service';
 import { LogoComponent } from '../../../../shared/components/ui/logo/logo.component';
 import { DeviceFingerprintService } from '../../../../core/services/device-fingerprint.service';
+import { ActivityLogService } from '../../../../core/services/activity-log.service';
 
 @Component({
   selector: 'app-signin',
@@ -166,6 +167,7 @@ export class SigninComponent {
   private toast = inject(ToastService);
   private authState = inject(AuthStateService);
   private deviceFingerprint = inject(DeviceFingerprintService);
+  private activityLog = inject(ActivityLogService);
 
   loading = signal(false);
   errorMessage = signal('');
@@ -200,8 +202,14 @@ export class SigninComponent {
           await this.deviceFingerprint.registerDevice(data.session.user.id);
         } catch (deviceError) {
           console.error('Failed to register device:', deviceError);
-          // Don't block sign-in if device registration fails
         }
+
+        // Log activity
+        await this.activityLog.logActivity(data.session.user.id, {
+          action_type: 'login',
+          resource_type: 'auth',
+          resource_name: 'Email Sign In',
+        });
       }
 
       this.toast.success('Welcome back!');
