@@ -8,6 +8,7 @@ import {
   FolderTree,
 } from '../../../core/models/folder.model';
 import { LoadingService } from '../../../core/services/loading.service';
+import { ActivityLogService } from '../../../core/services/activity-log.service';
 
 @Injectable({
   providedIn: 'root',
@@ -16,6 +17,7 @@ export class FolderService {
   private supabase = inject(SupabaseService);
   private userService = inject(UserService);
   private loading = inject(LoadingService);
+  private activityLog = inject(ActivityLogService);
 
   /**
    * Create the root folder for a user (first-time setup)
@@ -146,6 +148,14 @@ export class FolderService {
 
         if (error) throw error;
 
+        // Log activity
+        await this.activityLog.logActivity(userId, {
+          action_type: 'create',
+          resource_type: 'folder',
+          resource_id: data.id,
+          resource_name: dto.name,
+        });
+
         return data as Folder;
       } catch (error) {
         console.error('Error creating folder:', error);
@@ -246,6 +256,14 @@ export class FolderService {
 
         if (error) throw error;
 
+        // Log activity
+        await this.activityLog.logActivity(userId, {
+          action_type: 'edit',
+          resource_type: 'folder',
+          resource_id: folderId,
+          resource_name: dto.name || data.name,
+        });
+
         return data as Folder;
       } catch (error) {
         console.error('Error updating folder:', error);
@@ -273,6 +291,14 @@ export class FolderService {
           .eq('user_id', userId);
 
         if (error) throw error;
+
+        // Log activity
+        await this.activityLog.logActivity(userId, {
+          action_type: 'delete',
+          resource_type: 'folder',
+          resource_id: folderId,
+          resource_name: folder?.name || 'Untitled',
+        });
       } catch (error) {
         console.error('Error deleting folder:', error);
         throw error;

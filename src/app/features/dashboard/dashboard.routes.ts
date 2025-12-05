@@ -15,7 +15,15 @@ export default [
             (m) => m.NoteWorkspaceComponent,
           ),
       },
-          // Encryption settings now live in the Settings Panel modal, no standalone route.
+      {
+        path: 'activity-log',
+        loadComponent: () =>
+          import('../activity-log/pages/activity-log-page/activity-log-page').then(
+            (m) => m.ActivityLogPageComponent,
+          ),
+        title: 'Activity Log - DevPad',
+      },
+      // Encryption settings now live in the Settings Panel modal, no standalone route.
     ],
   },
 ] as Routes;

@@ -3,12 +3,14 @@ import { SupabaseService } from './supabase.service';
 import { CreateNoteDto, Note, UpdateNoteDto } from '../models/note.model';
 import { LoadingService } from './loading.service';
 import { EncryptionService } from './encryption.service';
+import { ActivityLogService } from './activity-log.service';
 
 @Injectable({ providedIn: 'root' })
 export class NoteService {
   private supabase = inject(SupabaseService);
   private loading = inject(LoadingService);
   private encryption = inject(EncryptionService);
+  private activityLog = inject(ActivityLogService);
   private readonly BUCKET = 'notes';
 
   private shouldEncrypt(): boolean {
@@ -102,6 +104,15 @@ export class NoteService {
         .select()
         .single();
       if (updateErr) throw updateErr;
+      
+      // Log activity
+      await this.activityLog.logActivity(userId, {
+        action_type: 'create',
+        resource_type: 'note',
+        resource_id: note.id,
+        resource_name: dto.title,
+      });
+      
       return updated as Note;
     });
   }
@@ -206,18 +217,43 @@ export class NoteService {
         .select()
         .single();
       if (error) throw error;
+      
+      // Log activity
+      await this.activityLog.logActivity(userId, {
+        action_type: 'edit',
+        resource_type: 'note',
+        resource_id: noteId,
+        resource_name: dto.title || cur.title,
+      });
+      
       return data as Note;
     });
   }
 
   async deleteNote(noteId: string, userId: string): Promise<void> {
     return this.loading.withLoading(async () => {
+      // Fetch note details before deletion for logging
+      const { data: note } = await this.supabase
+        .from('notes')
+        .select('title')
+        .eq('id', noteId)
+        .eq('user_id', userId)
+        .single();
+      
       const { error } = await this.supabase
         .from('notes')
         .delete()
         .eq('id', noteId)
         .eq('user_id', userId);
       if (error) throw error;
+      
+      // Log activity
+      await this.activityLog.logActivity(userId, {
+        action_type: 'delete',
+        resource_type: 'note',
+        resource_id: noteId,
+        resource_name: note?.title || 'Untitled',
+      });
     });
   }
 
@@ -363,6 +399,19 @@ export class NoteService {
         .select()
         .single();
       if (updateErr) throw updateErr;
+      
+      // Log activity
+      await this.activityLog.logActivity(userId, {
+        action_type: 'upload',
+        resource_type: 'note',
+        resource_id: note.id,
+        resource_name: file.name,
+        metadata: {
+          file_size: file.size,
+          file_type: file.type,
+        },
+      });
+      
       return updated as Note;
     });
   }

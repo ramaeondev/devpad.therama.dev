@@ -15,7 +15,7 @@ export type Theme = 'light' | 'dark' | 'auto' | 'system';
   providedIn: 'root',
 })
 export class ThemeService {
-  private currentTheme = signal<Theme>('system');
+  currentTheme = signal<Theme>('system');
   theme = this.currentTheme.asReadonly();
   private supabase = inject(SupabaseService);
   private auth = inject(AuthStateService);
