@@ -8,13 +8,14 @@ import { ToastService } from '../../../../core/services/toast.service';
 import { WorkspaceStateService } from '../../../../core/services/workspace-state.service';
 import { FolderService } from '../../../folders/services/folder.service';
 import { PropertiesModalComponent, PropertyItem } from '../../../../shared/components/ui/properties-modal/properties-modal.component';
+import { ConfirmModalComponent } from '../../../../shared/components/ui/dialog/confirm-modal.component';
 import { GoogleDriveIconPipe } from '../../../../shared/pipes/google-drive-icon.pipe';
 import { DropdownComponent } from '../../../../shared/components/ui/dropdown/dropdown.component';
 
 @Component({
   selector: 'app-google-drive-tree',
   standalone: true,
-  imports: [CommonModule, PropertiesModalComponent, GoogleDriveIconPipe, DropdownComponent],
+  imports: [CommonModule, PropertiesModalComponent, GoogleDriveIconPipe, DropdownComponent, ConfirmModalComponent],
   templateUrl: './google-drive-tree.component.html',
   styleUrls: ['./google-drive-tree.component.scss'],
 })
@@ -30,6 +31,9 @@ export class GoogleDriveTreeComponent implements OnInit {
   openMenuId = signal<string | null>(null);
   isRootExpanded = signal<boolean>(true);
   showPropertiesModal = signal<boolean>(false);
+  showDisconnectConfirm = signal<boolean>(false);
+  showDeleteConfirm = signal<boolean>(false);
+  fileToDelete = signal<GoogleDriveFile | null>(null);
   propertiesModalTitle = signal<string>('Properties');
   propertiesModalData = signal<PropertyItem[]>([]);
 
@@ -97,10 +101,17 @@ export class GoogleDriveTreeComponent implements OnInit {
     }
   }
 
-  async disconnectGoogleDrive() {
-    if (confirm('Are you sure you want to disconnect Google Drive?')) {
-      await this.googleDrive.disconnect();
-    }
+  disconnectGoogleDrive() {
+    this.showDisconnectConfirm.set(true);
+  }
+
+  async onDisconnectConfirm() {
+    await this.googleDrive.disconnect();
+    this.showDisconnectConfirm.set(false);
+  }
+
+  onDisconnectCancel() {
+    this.showDisconnectConfirm.set(false);
   }
 
   async handleImportToDevPad(file: GoogleDriveFile) {
@@ -161,11 +172,24 @@ export class GoogleDriveTreeComponent implements OnInit {
     await this.googleDrive.renameFile(file.id, newName);
   }
 
-  async handleDelete(file: GoogleDriveFile) {
+  handleDelete(file: GoogleDriveFile) {
     this.openMenuId.set(null);
-    if (!confirm(`Are you sure you want to delete "${file.name}"?`)) return;
+    this.fileToDelete.set(file);
+    this.showDeleteConfirm.set(true);
+  }
 
-    await this.googleDrive.deleteFile(file.id);
+  async onDeleteConfirm() {
+    const file = this.fileToDelete();
+    if (file) {
+      await this.googleDrive.deleteFile(file.id);
+    }
+    this.showDeleteConfirm.set(false);
+    this.fileToDelete.set(null);
+  }
+
+  onDeleteCancel() {
+    this.showDeleteConfirm.set(false);
+    this.fileToDelete.set(null);
   }
 
   handleProperties(file: GoogleDriveFile) {
