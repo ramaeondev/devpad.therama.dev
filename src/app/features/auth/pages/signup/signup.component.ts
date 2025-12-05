@@ -198,19 +198,30 @@ import { DeviceFingerprintService } from '../../../../core/services/device-finge
                 <span>GitHub</span>
               </button>
               <button
-                type="button"
-                (click)="signUpWithGitLab()"
-                [disabled]="loading()"
-                class="col-span-2 flex items-center justify-center gap-2 px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm bg-white dark:bg-gray-800 text-sm font-medium text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 disabled:opacity-50 disabled:cursor-not-allowed touch-manipulation"
-              >
-                <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <path d="M22.65 14.39L19.005 3.18C18.905 2.87 18.495 2.87 18.395 3.18L15.575 11.85H8.425L5.605 3.18C5.505 2.87 5.095 2.87 4.995 3.18L1.35 14.39C1.28 14.6 1.34 14.83 1.5 14.98L12 22.66L22.5 14.98C22.66 14.83 22.72 14.6 22.65 14.39Z" fill="#E24329"/>
-                  <path d="M1.35 14.39L4.995 3.18L8.425 11.85H1.35V14.39Z" fill="#FC6D26"/>
-                  <path d="M12 22.66L15.575 11.85H8.425L12 22.66Z" fill="#E24329"/>
-                  <path d="M22.65 14.39L19.005 3.18L15.575 11.85H22.65V14.39Z" fill="#FC6D26"/>
-                </svg>
-                <span>GitLab</span>
-              </button>
+              type="button"
+              (click)="signUpWithGitLab()"
+              [disabled]="loading()"
+              class="flex items-center justify-center gap-2 px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm bg-white dark:bg-gray-800 text-sm font-medium text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 disabled:opacity-50 disabled:cursor-not-allowed touch-manipulation"
+            >
+              <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M22.65 14.39L19.005 3.18C18.905 2.87 18.495 2.87 18.395 3.18L15.575 11.85H8.425L5.605 3.18C5.505 2.87 5.095 2.87 4.995 3.18L1.35 14.39C1.28 14.6 1.34 14.83 1.5 14.98L12 22.66L22.5 14.98C22.66 14.83 22.72 14.6 22.65 14.39Z" fill="#E24329"/>
+                <path d="M1.35 14.39L4.995 3.18L8.425 11.85H1.35V14.39Z" fill="#FC6D26"/>
+                <path d="M12 22.66L15.575 11.85H8.425L12 22.66Z" fill="#E24329"/>
+                <path d="M22.65 14.39L19.005 3.18L15.575 11.85H22.65V14.39Z" fill="#FC6D26"/>
+              </svg>
+              <span>GitLab</span>
+            </button>
+            <button
+              type="button"
+              (click)="signUpWithDiscord()"
+              [disabled]="loading()"
+              class="flex items-center justify-center gap-2 px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm bg-white dark:bg-gray-800 text-sm font-medium text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 disabled:opacity-50 disabled:cursor-not-allowed touch-manipulation"
+            >
+              <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M20.317 4.36983C18.7903 3.66983 17.157 3.16983 15.432 2.86983C15.407 2.86983 15.382 2.89483 15.357 2.91983C15.157 3.26983 14.932 3.71983 14.782 4.09483C12.957 3.81983 11.132 3.81983 9.33196 4.09483C9.18196 3.71983 8.95696 3.26983 8.73196 2.91983C8.70696 2.89483 8.68196 2.86983 8.65696 2.86983C6.93196 3.16983 5.29863 3.66983 3.77196 4.36983C3.74696 4.36983 3.72196 4.39483 3.72196 4.41983C0.621963 9.04483 -0.228037 13.5698 0.196963 18.0198C0.196963 18.0448 0.221963 18.0698 0.246963 18.0948C2.27196 19.5698 4.22196 20.4698 6.14696 21.0698C6.17196 21.0698 6.22196 21.0448 6.24696 21.0198C6.69696 20.4198 7.09696 19.7698 7.44696 19.0948C7.47196 19.0448 7.42196 18.9948 7.37196 18.9698C6.72196 18.7198 6.09696 18.4198 5.49696 18.0948C5.44696 18.0698 5.44696 17.9948 5.49696 17.9448C5.62196 17.8448 5.74696 17.7448 5.87196 17.6448C5.89696 17.6198 5.92196 17.6198 5.94696 17.6198C9.84696 19.4198 14.172 19.4198 18.047 17.6198C18.072 17.6198 18.097 17.6198 18.122 17.6448C18.247 17.7448 18.372 17.8448 18.497 17.9448C18.547 17.9948 18.547 18.0698 18.497 18.0948C17.897 18.4198 17.272 18.7198 16.622 18.9698C16.572 18.9948 16.522 19.0448 16.547 19.0948C16.897 19.7698 17.297 20.4198 17.747 21.0198C17.772 21.0448 17.797 21.0698 17.847 21.0698C19.772 20.4698 21.722 19.5698 23.747 18.0948C23.772 18.0698 23.797 18.0448 23.797 18.0198C24.322 12.7198 22.922 8.29483 20.292 4.41983C20.267 4.39483 20.242 4.36983 20.317 4.36983ZM8.00696 15.3198C6.83196 15.3198 5.85696 14.2448 5.85696 12.9198C5.85696 11.5948 6.80696 10.5198 8.00696 10.5198C9.20696 10.5198 10.182 11.5948 10.157 12.9198C10.157 14.2448 9.20696 15.3198 8.00696 15.3198ZM16.007 15.3198C14.832 15.3198 13.857 14.2448 13.857 12.9198C13.857 11.5948 14.807 10.5198 16.007 10.5198C17.207 10.5198 18.182 11.5948 18.157 12.9198C18.157 14.2448 17.207 15.3198 16.007 15.3198Z" fill="#5865F2"/>
+              </svg>
+              <span>Discord</span>
+            </button>
             </div>
 
             <div class="text-center">
@@ -365,6 +376,27 @@ export class SignupComponent {
     } catch (error: any) {
       console.error('GitLab sign up error:', error);
       this.toast.error('Failed to start GitLab sign up');
+      this.loading.set(false);
+    }
+  }
+
+  async signUpWithDiscord() {
+    this.loading.set(true);
+    this.errorMessage.set('');
+
+    try {
+      const { error } = await this.supabase.authDirect.signInWithOAuth({
+        provider: 'discord',
+        options: {
+          redirectTo: `${window.location.origin}/auth/callback/discord`,
+          skipBrowserRedirect: false,
+        },
+      });
+
+      if (error) throw error;
+    } catch (error: any) {
+      console.error('Discord sign up error:', error);
+      this.toast.error('Failed to start Discord sign up');
       this.loading.set(false);
     }
   }

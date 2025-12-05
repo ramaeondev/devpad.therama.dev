@@ -69,6 +69,13 @@ export default [
       ),
   },
   {
+    path: 'callback/discord',
+    loadComponent: () =>
+      import('./pages/discord-callback/discord-callback.component').then(
+        (m) => m.DiscordCallbackComponent,
+      ),
+  },
+  {
     path: 'logout',
     loadComponent: () =>
       import('./pages/logout/logout.component').then(
