@@ -32,6 +32,8 @@ export class GoogleDriveTreeComponent implements OnInit {
   isRootExpanded = signal<boolean>(true);
   showPropertiesModal = signal<boolean>(false);
   showDisconnectConfirm = signal<boolean>(false);
+  showDeleteConfirm = signal<boolean>(false);
+  fileToDelete = signal<GoogleDriveFile | null>(null);
   propertiesModalTitle = signal<string>('Properties');
   propertiesModalData = signal<PropertyItem[]>([]);
 
@@ -170,11 +172,24 @@ export class GoogleDriveTreeComponent implements OnInit {
     await this.googleDrive.renameFile(file.id, newName);
   }
 
-  async handleDelete(file: GoogleDriveFile) {
+  handleDelete(file: GoogleDriveFile) {
     this.openMenuId.set(null);
-    if (!confirm(`Are you sure you want to delete "${file.name}"?`)) return;
+    this.fileToDelete.set(file);
+    this.showDeleteConfirm.set(true);
+  }
 
-    await this.googleDrive.deleteFile(file.id);
+  async onDeleteConfirm() {
+    const file = this.fileToDelete();
+    if (file) {
+      await this.googleDrive.deleteFile(file.id);
+    }
+    this.showDeleteConfirm.set(false);
+    this.fileToDelete.set(null);
+  }
+
+  onDeleteCancel() {
+    this.showDeleteConfirm.set(false);
+    this.fileToDelete.set(null);
   }
 
   handleProperties(file: GoogleDriveFile) {

@@ -4,11 +4,12 @@ import { DeviceFingerprintService, UserDevice } from '../../../core/services/dev
 import { AuthStateService } from '../../../core/services/auth-state.service';
 import { ToastService } from '../../../core/services/toast.service';
 import { FormsModule } from '@angular/forms';
+import { ConfirmModalComponent } from '../ui/dialog/confirm-modal.component';
 
 @Component({
     selector: 'app-user-devices',
     standalone: true,
-    imports: [CommonModule, FormsModule],
+    imports: [CommonModule, FormsModule, ConfirmModalComponent],
     template: `
     <div class="space-y-4">
       <div>
@@ -145,6 +146,17 @@ import { FormsModule } from '@angular/forms';
         </div>
       }
     </div>
+    
+    @if (showRemoveConfirm()) {
+      <app-confirm-modal
+        title="Remove Device"
+        message="Are you sure you want to remove this device? You will need to sign in again from that device."
+        confirmLabel="Remove"
+        cancelLabel="Cancel"
+        (confirm)="onRemoveConfirm()"
+        (cancel)="onRemoveCancel()"
+      ></app-confirm-modal>
+    }
   `,
     styles: [],
 })
@@ -157,6 +169,9 @@ export class UserDevicesComponent implements OnInit {
     loading = signal(true);
     editingDeviceId = signal<string | null>(null);
     editingDeviceName = '';
+    
+    showRemoveConfirm = signal<boolean>(false);
+    deviceToRemoveId = signal<string | null>(null);
 
     async ngOnInit() {
         await this.loadDevices();
@@ -225,10 +240,14 @@ export class UserDevicesComponent implements OnInit {
         }
     }
 
-    async removeDevice(deviceId: string) {
-        if (!confirm('Are you sure you want to remove this device? You will need to sign in again from that device.')) {
-            return;
-        }
+    removeDevice(deviceId: string) {
+        this.deviceToRemoveId.set(deviceId);
+        this.showRemoveConfirm.set(true);
+    }
+
+    async onRemoveConfirm() {
+        const deviceId = this.deviceToRemoveId();
+        if (!deviceId) return;
 
         try {
             const success = await this.deviceService.removeDevice(deviceId);
@@ -241,7 +260,15 @@ export class UserDevicesComponent implements OnInit {
         } catch (error) {
             console.error('Failed to remove device:', error);
             this.toast.error('Failed to remove device');
+        } finally {
+            this.showRemoveConfirm.set(false);
+            this.deviceToRemoveId.set(null);
         }
+    }
+
+    onRemoveCancel() {
+        this.showRemoveConfirm.set(false);
+        this.deviceToRemoveId.set(null);
     }
 
     formatDate(dateString: string): string {
