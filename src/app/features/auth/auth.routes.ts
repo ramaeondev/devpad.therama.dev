@@ -62,6 +62,20 @@ export default [
       ),
   },
   {
+    path: 'callback/gitlab',
+    loadComponent: () =>
+      import('./pages/gitlab-callback/gitlab-callback.component').then(
+        (m) => m.GitLabCallbackComponent,
+      ),
+  },
+  {
+    path: 'callback/discord',
+    loadComponent: () =>
+      import('./pages/discord-callback/discord-callback.component').then(
+        (m) => m.DiscordCallbackComponent,
+      ),
+  },
+  {
     path: 'logout',
     loadComponent: () =>
       import('./pages/logout/logout.component').then(

@@ -25,6 +25,8 @@ const envVariables = {
   GITHUB_CLIENT_ID: process.env.GITHUB_CLIENT_ID || '',
   GITHUB_CLIENT_SECRET: process.env.GITHUB_CLIENT_SECRET || '',
   GITHUB_REDIRECT_URI: process.env.GITHUB_REDIRECT_URI || '',
+  GITLAB_Client_ID: process.env.GITLAB_Client_ID || '',
+  GITLAB_Client_SECRET: process.env.GITLAB_Client_SECRET || '',
 };
 
 const generateConfigFile = (filePath) => {
@@ -52,6 +54,10 @@ const generateConfigFile = (filePath) => {
   github: {
     clientId: '${envVariables.GITHUB_CLIENT_ID}',
     clientSecret: '${envVariables.GITHUB_CLIENT_SECRET}',
+  },
+  gitlab: {
+    clientId: '${envVariables.GITLAB_Client_ID}',
+    clientSecret: '${envVariables.GITLAB_Client_SECRET}',
   },
 };
 `;
