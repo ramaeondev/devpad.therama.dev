@@ -197,6 +197,20 @@ import { DeviceFingerprintService } from '../../../../core/services/device-finge
                 </svg>
                 <span>GitHub</span>
               </button>
+              <button
+                type="button"
+                (click)="signUpWithGitLab()"
+                [disabled]="loading()"
+                class="col-span-2 flex items-center justify-center gap-2 px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm bg-white dark:bg-gray-800 text-sm font-medium text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 disabled:opacity-50 disabled:cursor-not-allowed touch-manipulation"
+              >
+                <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M22.65 14.39L19.005 3.18C18.905 2.87 18.495 2.87 18.395 3.18L15.575 11.85H8.425L5.605 3.18C5.505 2.87 5.095 2.87 4.995 3.18L1.35 14.39C1.28 14.6 1.34 14.83 1.5 14.98L12 22.66L22.5 14.98C22.66 14.83 22.72 14.6 22.65 14.39Z" fill="#E24329"/>
+                  <path d="M1.35 14.39L4.995 3.18L8.425 11.85H1.35V14.39Z" fill="#FC6D26"/>
+                  <path d="M12 22.66L15.575 11.85H8.425L12 22.66Z" fill="#E24329"/>
+                  <path d="M22.65 14.39L19.005 3.18L15.575 11.85H22.65V14.39Z" fill="#FC6D26"/>
+                </svg>
+                <span>GitLab</span>
+              </button>
             </div>
 
             <div class="text-center">
@@ -330,6 +344,27 @@ export class SignupComponent {
     } catch (error: any) {
       console.error('Google sign up error:', error);
       this.toast.error('Failed to start Google sign up');
+      this.loading.set(false);
+    }
+  }
+
+  async signUpWithGitLab() {
+    this.loading.set(true);
+    this.errorMessage.set('');
+
+    try {
+      const { error } = await this.supabase.authDirect.signInWithOAuth({
+        provider: 'gitlab',
+        options: {
+          redirectTo: `${window.location.origin}/auth/callback/gitlab`,
+          skipBrowserRedirect: false,
+        },
+      });
+
+      if (error) throw error;
+    } catch (error: any) {
+      console.error('GitLab sign up error:', error);
+      this.toast.error('Failed to start GitLab sign up');
       this.loading.set(false);
     }
   }

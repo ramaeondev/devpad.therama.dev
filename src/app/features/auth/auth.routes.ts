@@ -62,6 +62,13 @@ export default [
       ),
   },
   {
+    path: 'callback/gitlab',
+    loadComponent: () =>
+      import('./pages/gitlab-callback/gitlab-callback.component').then(
+        (m) => m.GitLabCallbackComponent,
+      ),
+  },
+  {
     path: 'logout',
     loadComponent: () =>
       import('./pages/logout/logout.component').then(
