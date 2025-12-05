@@ -190,3 +190,11 @@
 <!-- Properties Modal -->
 <app-properties-modal [isOpen]="showPropertiesModal()" [title]="propertiesModalTitle()"
   [properties]="propertiesModalData()" (onClose)="closePropertiesModal()" />
+
+<!-- Disconnect Confirmation Modal -->
+@if (showDisconnectConfirm()) {
+<app-confirm-modal title="Disconnect Google Drive"
+  message="Are you sure you want to disconnect Google Drive? This will remove access to your files from DevPad."
+  confirmLabel="Disconnect" cancelLabel="Cancel" (confirm)="onDisconnectConfirm()"
+  (cancel)="onDisconnectCancel()"></app-confirm-modal>
+}
