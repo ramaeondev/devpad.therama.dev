@@ -190,3 +190,8 @@ Example: feat(logo): add Lottie animation support
 - Maintain a detailed changelog in CHANGELOG.md for all notable changes, following semantic versioning principles.
 - Document new features, bug fixes, and breaking changes clearly for each release.
 - Read all the commits for a day to summarize them effectively in the changelog.
+
+## Database Backup
+- Verify the database backups created by the script in `scripts/db-backup.js` before generating new migration files.
+- Run the script manually to create a backup and verify it if needed.
+

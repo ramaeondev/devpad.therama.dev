@@ -69,6 +69,10 @@ export class SupabaseService {
     return this.directClient ? this.directClient.auth : this.supabase.auth;
   }
 
+  get realtimeClient() {
+    return this.directClient || this.supabase;
+  }
+
   // IMPORTANT: Return the bound function, not a function that returns it
   from(table: string) {
     return this.supabase.from(table);

@@ -49,7 +49,8 @@
     "format": "prettier --write \"src/**/*.{ts,html,scss,css,json}\"",
     "analyze": "ng build --configuration production --stats-json && webpack-bundle-analyzer dist/devpad/stats.json",
     "inject-env": "node scripts/inject-env.js",
-    "changelog:update": "node scripts/update-changelog-appwrite.js"
+    "changelog:update": "node scripts/update-changelog-appwrite.js",
+    "db:backup": "node scripts/db-backup.js"
   },
   "prettier": {
     "printWidth": 100,
@@ -76,7 +77,6 @@
     "@fingerprintjs/fingerprintjs": "^5.0.1",
     "@supabase/supabase-js": "^2.81.1",
     "appwrite": "^21.4.0",
-    "dotenv": "^16.6.1",
     "highlight.js": "^11.11.1",
     "marked": "^17.0.0",
     "marked-highlight": "^2.2.3",
@@ -96,6 +96,7 @@
     "@types/marked": "^5.0.2",
     "@types/node": "^20.8.0",
     "autoprefixer": "^10.4.22",
+    "dotenv": "^17.2.3",
     "jasmine-core": "~5.9.0",
     "karma": "~6.4.0",
     "karma-chrome-launcher": "~3.2.0",

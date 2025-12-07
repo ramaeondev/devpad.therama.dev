@@ -239,8 +239,12 @@ export class SigninComponent {
 
       this.toast.success('Welcome back!');
 
-      // Navigate to dashboard after auth state is set
-      await this.router.navigate(['/dashboard'], { replaceUrl: true });
+      // Check for returnUrl
+      const returnUrl = this.router.parseUrl(this.router.url).queryParamMap.get('returnUrl');
+      const redirectUrl = returnUrl || '/dashboard';
+
+      // Navigate to dashboard or returnUrl after auth state is set
+      await this.router.navigateByUrl(redirectUrl, { replaceUrl: true });
     } catch (error: any) {
       this.errorMessage.set(error.message || 'Failed to sign in');
       this.toast.error('Failed to sign in');
@@ -249,7 +253,17 @@ export class SigninComponent {
     }
   }
 
+  private saveReturnUrl() {
+    const returnUrl = this.router.parseUrl(this.router.url).queryParamMap.get('returnUrl');
+    if (returnUrl) {
+      localStorage.setItem('auth_return_url', returnUrl);
+    } else {
+      localStorage.removeItem('auth_return_url');
+    }
+  }
+
   async signInWithGitHub() {
+    this.saveReturnUrl();
     this.loading.set(true);
     this.errorMessage.set('');
 
@@ -271,6 +285,7 @@ export class SigninComponent {
   }
 
   async signInWithGoogle() {
+    this.saveReturnUrl();
     this.loading.set(true);
     this.errorMessage.set('');
 
@@ -292,6 +307,7 @@ export class SigninComponent {
   }
 
   async signInWithGitLab() {
+    this.saveReturnUrl();
     this.loading.set(true);
     this.errorMessage.set('');
 
@@ -313,6 +329,7 @@ export class SigninComponent {
   }
 
   async signInWithDiscord() {
+    this.saveReturnUrl();
     this.loading.set(true);
     this.errorMessage.set('');
 

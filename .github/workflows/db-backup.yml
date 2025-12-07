@@ -1,0 +1,31 @@
+name: DB Backup
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '0 0 * * *'
+
+jobs:
+  backup:
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: write
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: supabase/setup-cli@v1
+        with:
+          version: latest
+
+      - name: Dump Schema
+        run: supabase db dump --db-url "$SUPABASE_DB_URL" -f schema.sql
+        env:
+          SUPABASE_DB_URL: ${{ secrets.SUPABASE_DB_URL }}
+
+      - name: Archive Schema
+        uses: actions/upload-artifact@v4
+        with:
+          name: db-schema
+          path: schema.sql

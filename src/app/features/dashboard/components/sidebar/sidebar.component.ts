@@ -119,8 +119,6 @@ export class SidebarComponent implements OnInit {
   onFolderSelected(folder: FolderTree) {
     this.selectedFolderId.set(folder.id);
     this.workspaceState.setSelectedFolder(folder.id);
-    // Navigate to folder view or filter notes by folder
-    console.log('Folder selected:', folder);
   }
 
   onFolderMore(folder: FolderTree) {

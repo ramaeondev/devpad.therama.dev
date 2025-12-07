@@ -30,6 +30,11 @@ export const routes: Routes = [
     loadChildren: () => import('./features/folders/folders.routes'),
   },
   {
+    path: 'share/:shareToken',
+    loadComponent: () => import('./features/notes/pages/public-note/public-note.component').then(m => m.PublicNoteComponent),
+    title: 'Shared Note - DevPad',
+  },
+  {
     path: 'policy',
     loadComponent: () => import('./features/legal/pages/privacy/privacy.component').then(m => m.PrivacyComponent),
     title: 'Privacy Policy - DevPad',

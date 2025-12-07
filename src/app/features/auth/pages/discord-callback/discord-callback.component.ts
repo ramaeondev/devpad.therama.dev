@@ -114,8 +114,15 @@ export class DiscordCallbackComponent implements OnInit {
 
         this.toast.success('Successfully signed in with Discord!');
         
-        // Navigate to dashboard
-        await this.router.navigate(['/dashboard'], { replaceUrl: true });
+        // Retrieve returnUrl from localStorage
+        const returnUrl = localStorage.getItem('auth_return_url');
+        if (returnUrl) {
+          localStorage.removeItem('auth_return_url');
+          await this.router.navigateByUrl(returnUrl, { replaceUrl: true });
+        } else {
+          // Navigate to dashboard
+          await this.router.navigate(['/dashboard'], { replaceUrl: true });
+        }
       } else {
         throw new Error('No session found after authentication');
       }
