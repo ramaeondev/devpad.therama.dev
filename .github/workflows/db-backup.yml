@@ -15,17 +15,41 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - uses: supabase/setup-cli@v1
+      - name: Setup Supabase CLI
+        uses: supabase/setup-cli@v1
         with:
           version: latest
 
-      - name: Dump Schema
-        run: supabase db dump --db-url "$SUPABASE_DB_URL" -f schema.sql
+      - name: Dump Schema using Supabase CLI
+        run: |
+          echo "Starting database schema dump using Supabase CLI..."
+          
+          # Create timestamp for filename
+          TIMESTAMP=$(date +"%Y%m%d_%H%M%S")
+          OUTPUT_FILE="schema_${TIMESTAMP}.sql"
+          
+          echo "Dumping schema to $OUTPUT_FILE"
+          
+          # Use Supabase CLI which handles connectivity better
+          supabase db dump --db-url "$SUPABASE_DB_URL" -f "$OUTPUT_FILE" 2>&1 | tee dump.log || {
+            echo "Error: Supabase db dump failed"
+            echo "=== Dump log ==="
+            cat dump.log
+            exit 1
+          }
+          
+          echo "Schema dump completed successfully"
+          ls -lh "$OUTPUT_FILE"
+          
+          # Show first few lines of the dump
+          echo "=== First 20 lines of schema ==="
+          head -n 20 "$OUTPUT_FILE"
         env:
           SUPABASE_DB_URL: ${{ secrets.SUPABASE_DB_URL }}
 
       - name: Archive Schema
         uses: actions/upload-artifact@v4
         with:
-          name: db-schema
-          path: schema.sql
+          name: db-schema-${{ github.run_number }}
+          path: schema_*.sql
+          retention-days: 90
