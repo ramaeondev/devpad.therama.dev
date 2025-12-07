@@ -9,6 +9,8 @@ All notable changes to this project are documented in this file.
 - **Shared Note Content Sync**: Fixed issue where viewers with the share link could only see the original note content, not the latest updates after the author edited the note. The system now:
   - Prioritizes fresh `note_content` from the database over cached `public_content` for text-based notes
   - Automatically syncs `public_content` across all shares whenever the author updates a note
+  - Properly fetches actual content from storage (not just the storage path) when syncing .md/.txt files
+  - Handles decryption when syncing encrypted storage-based notes
   - Ensures the auto-refresh mechanism shows the latest content to viewers
 
 ### Changed

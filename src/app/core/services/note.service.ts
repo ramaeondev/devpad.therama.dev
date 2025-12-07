@@ -462,13 +462,39 @@ export class NoteService {
       let contentToSync: string;
       
       if (note.content?.startsWith('storage://')) {
-        // For storage-based notes, fetch the actual content
+        // For storage-based notes, fetch the actual content from storage
         const path = note.content.replace(`storage://${this.BUCKET}/`, '');
         const isTextFile = path.endsWith('.md') || path.endsWith('.txt');
         
         if (isTextFile) {
-          // Fetch content from storage to sync to shares
-          contentToSync = note.content; // This is already fetched by getNote for .md files
+          // Fetch the actual text content from storage
+          const { data: urlData, error: urlErr } = await this.supabase.storage
+            .from(this.BUCKET)
+            .createSignedUrl(path, 60);
+          
+          if (urlErr || !urlData?.signedUrl) {
+            console.error('Failed to create signed URL for sync:', urlErr);
+            return;
+          }
+
+          const resp = await fetch(urlData.signedUrl);
+          if (!resp.ok) {
+            console.error('Failed to fetch content for sync:', resp.status);
+            return;
+          }
+
+          let textContent = await resp.text();
+          
+          // Decrypt if encrypted
+          if ((note as any).is_encrypted && this.encryption.hasKey()) {
+            try {
+              textContent = await this.encryption.decryptText(textContent);
+            } catch (e) {
+              console.warn('Failed to decrypt for sync, using encrypted content', e);
+            }
+          }
+
+          contentToSync = textContent;
         } else {
           // For binary files, don't sync (viewers need to re-share)
           return;
