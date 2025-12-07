@@ -240,11 +240,8 @@ export class NoteService {
         resource_name: dto.title || cur.title,
       });
 
-      // Sync shared content if note has shares
-      // This ensures viewers see the latest content when the owner edits
-      if (dto.content !== undefined) {
-        await this.syncSharedContent(noteId, data as Note);
-      }
+      // SINGLE SOURCE OF TRUTH: No longer syncing shares
+      // All shares fetch note.content directly via RPC, so no separate sync needed
       
       return data as Note;
     });
@@ -470,66 +467,4 @@ export class NoteService {
    * Sync shared content when note is updated
    * Updates public_content in all shares for this note
    */
-  private async syncSharedContent(noteId: string, note: Note): Promise<void> {
-    try {
-      // Get the content to sync
-      let contentToSync: string;
-      
-      if (note.content?.startsWith('storage://')) {
-        // For storage-based notes, fetch the actual content from storage
-        const path = note.content.replace(`storage://${this.BUCKET}/`, '');
-        const isTextFile = path.endsWith('.md') || path.endsWith('.txt');
-        
-        if (isTextFile) {
-          // Fetch the actual text content from storage
-          const { data: urlData, error: urlErr } = await this.supabase.storage
-            .from(this.BUCKET)
-            .createSignedUrl(path, 60);
-          
-          if (urlErr || !urlData?.signedUrl) {
-            console.error('Failed to create signed URL for sync:', urlErr);
-            return;
-          }
-
-          const resp = await fetch(urlData.signedUrl);
-          if (!resp.ok) {
-            console.error('Failed to fetch content for sync:', resp.status);
-            return;
-          }
-
-          let textContent = await resp.text();
-          
-          // Decrypt if encrypted
-          if ((note as any).is_encrypted && this.encryption.hasKey()) {
-            try {
-              textContent = await this.encryption.decryptText(textContent);
-            } catch (e) {
-              console.warn('Failed to decrypt for sync, using encrypted content', e);
-            }
-          }
-
-          contentToSync = textContent;
-        } else {
-          // For binary files, don't sync (viewers need to re-share)
-          return;
-        }
-      } else {
-        // For text-based notes in DB, use the content directly
-        contentToSync = note.content || '';
-      }
-
-      // Update all shares for this note
-      const { error } = await this.supabase
-        .from('public_shares')
-        .update({ public_content: contentToSync })
-        .eq('note_id', noteId);
-
-      if (error) {
-        console.error('Failed to sync shared content:', error);
-      }
-    } catch (err) {
-      console.error('Error syncing shared content:', err);
-      // Don't throw - this is a background sync operation
-    }
-  }
 }

@@ -5,6 +5,32 @@ All notable changes to this project are documented in this file.
 ## [Unreleased] - 2025-12-07
 
 ### Changed
+- **Encryption Handling for Shared Notes**: Implemented proper encryption support for shared content:
+  - **RPC Returns Encryption Metadata**: `get_shared_note()` now includes `is_encrypted` and `encryption_version` flags so viewers know when content is encrypted.
+  - **Client-Side Decryption**: When owner views their encrypted shared note, the client automatically decrypts content (if encryption key is loaded).
+  - **Non-Owner Encrypted Share Handling**: Non-owners viewing encrypted shares see a clear message: "[This note is encrypted. Sign in with your encryption key to view it.]"
+  - **Owner-Only Encryption**: Encryption keys are owner-only; other viewers cannot decrypt notes without the owner's key.
+  - **Recommended Workflow**: 
+    - To share encrypted notes: Owner should disable encryption first, then share (recommended for all viewers)
+    - Or: Share encrypted, but only viewers with the owner's key can read it
+    - Or: Share decrypted copy to specific people
+  - **Security**: Encryption key never leaves browser; RPC only returns encrypted content, decryption happens client-side only.
+  - **Files Modified**: RPC function, `share.service.ts`, `public-note.component.ts`
+  - **Backward Compatible**: Unencrypted notes work exactly as before.
+
+- **Single Source of Truth Architecture**: Refactored shared notes architecture to eliminate content duplication:
+  - **Removed public_content Field**: The `public_shares.public_content` snapshot column is no longer used. All shared content is now fetched directly from `notes.content` via RPC.
+  - **Updated RPC Function**: `get_shared_note()` now returns only `note_content` (not separate `public_content`), simplifying the response.
+  - **Direct Content Updates**: When users edit editable shares, changes now go directly to `notes.content` (not a separate public_content copy).
+  - **Eliminated Sync Logic**: No longer need to sync changes to multiple content locations. RPC automatically returns the latest `notes.content`.
+  - **Benefits**:
+    - ✅ True real-time updates - all viewers see changes immediately via RPC
+    - ✅ Simpler codebase - removed sync/fallback logic
+    - ✅ Single encryption point - one source for encrypted notes
+    - ✅ Storage notes work directly - storage:// URLs in notes.content accessible via RPC
+  - **Files Modified**: `public-share.model.ts`, `share.service.ts`, `note.service.ts`, `public-note.component.ts`, RPC function
+  - **Migration**: No database changes needed. `public_content` column can be deprecated and removed in future cleanup.
+
 - **Shared Note Ownership Model**: Refactored share model to clarify ownership and control:
   - **Editable Shares are Always Public**: When a user (userA) shares a note with edit access, it becomes a permanently shared public link. Non-owner viewers (userB, userC) can edit content in real-time but cannot import/fork the note.
   - **Only Author Controls Share Settings**: Only the original author (userA) can:

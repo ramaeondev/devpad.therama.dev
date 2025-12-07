@@ -208,6 +208,8 @@ export class PublicNoteComponent implements OnInit, OnDestroy {
   processingRedirect = signal(false);
   error = signal<string | null>(null);
   share = signal<PublicShare | null>(null);
+  isEncrypted = signal(false);
+  requiresEncryptionKey = signal(false);
   
   content = '';
   saving = signal(false);
@@ -240,7 +242,13 @@ export class PublicNoteComponent implements OnInit, OnDestroy {
       }
 
       this.share.set(shareData);
-      this.content = shareData.public_content || '';
+      // Content is fetched dynamically via RPC (property 'content' added in-memory by share service)
+      // This ensures we always have the latest note.content from the source
+      this.content = (shareData as any).content || '';
+      
+      // Track encryption status for UI
+      this.isEncrypted.set((shareData as any).isEncrypted || false);
+      this.requiresEncryptionKey.set((shareData as any).requiresEncryptionKey || false);
 
       // Update Meta Tags
       this.updateMetaTags(shareData);
@@ -318,8 +326,13 @@ export class PublicNoteComponent implements OnInit, OnDestroy {
 
       try {
         const updatedShare = await this.shareService.getShareContentForRefresh(shareToken);
-        if (updatedShare && updatedShare.public_content !== this.content) {
-          this.content = updatedShare.public_content || '';
+        // Content is fetched via RPC and stored in-memory as 'content' property
+        const updatedContent = (updatedShare as any).content || '';
+        if (updatedShare && updatedContent !== this.content) {
+          this.content = updatedContent;
+          // Update encryption status in case it changed
+          this.isEncrypted.set((updatedShare as any).isEncrypted || false);
+          this.requiresEncryptionKey.set((updatedShare as any).requiresEncryptionKey || false);
           console.log('Content refreshed with latest changes');
         }
       } catch (err) {
@@ -392,6 +405,14 @@ export class PublicNoteComponent implements OnInit, OnDestroy {
   async saveContent() {
     const shareData = this.share();
     if (!shareData || !this.canEdit()) return;
+
+    // IMPORTANT: Encrypted shared notes limitation
+    // If the note is encrypted, only the owner (with the encryption key) can decrypt/view the content
+    // Non-owner edits to encrypted shares are saved as encrypted text (not re-encrypted by viewers)
+    // This is by design - encryption is owner-only. To share decrypted content, owner must:
+    // 1. Decrypt the note in their dashboard (requires their encryption key)
+    // 2. Re-share the decrypted copy, OR
+    // 3. Disable encryption before sharing
 
     this.saving.set(true);
     try {

@@ -2,6 +2,7 @@ import { Injectable, inject } from '@angular/core';
 import { SupabaseService } from './supabase.service';
 import { NoteService } from './note.service';
 import { AuthStateService } from './auth-state.service';
+import { EncryptionService } from './encryption.service';
 import { PublicShare } from '../models/public-share.model';
 import { LoadingService } from './loading.service';
 import { DeviceFingerprintService } from './device-fingerprint.service';
@@ -13,6 +14,7 @@ export class ShareService {
   private authState = inject(AuthStateService);
   private loading = inject(LoadingService);
   private fingerprintService = inject(DeviceFingerprintService);
+  private encryption = inject(EncryptionService);
 
   /**
    * Generate a unique share token
@@ -43,44 +45,16 @@ export class ShareService {
 
     this.loading.start();
     try {
-      // Get the note to extract content
+      // Get the note to verify it exists
       const note = await this.noteService.getNote(noteId, userId);
       if (!note) throw new Error('Note not found');
-
-      // Get unencrypted content
-      let publicContent: string | undefined;
-      let publicStoragePath: string | undefined;
-
-      if (note.content?.startsWith('storage://')) {
-        // File-based note - fetch the actual content for public sharing
-        publicStoragePath = note.content;
-        
-        // For text-based storage files (.md, .txt), fetch and store content
-        // This allows anonymous users to view shared content without storage auth
-        const path = note.content.replace('storage://', '').split('/');
-        if (path.length > 0) {
-          const fileName = path[path.length - 1];
-          const isTextFile = fileName.endsWith('.md') || fileName.endsWith('.txt');
-          
-          if (isTextFile) {
-            try {
-              // Fetch content using authenticated user's access
-              publicContent = note.content; // getNote already fetched and returned the content for .md files
-            } catch (err) {
-              console.error('Failed to fetch file content for sharing:', err);
-              publicContent = '[Content unavailable]';
-            }
-          }
-        }
-      } else {
-        // Text-based note - decrypt if encrypted
-        publicContent = note.content || '';
-      }
 
       // Generate unique share token
       const shareToken = this.generateShareToken();
 
       // Create share record
+      // NOTE: We no longer store public_content here - content is fetched on-demand via RPC
+      // This ensures single source of truth: all content comes from notes.content
       const { data, error } = await this.supabase.client
         .from('public_shares')
         .insert({
@@ -88,10 +62,10 @@ export class ShareService {
           user_id: userId,
           share_token: shareToken,
           permission,
-          public_content: publicContent,
-          public_storage_path: publicStoragePath,
           expires_at: expiresAt,
           max_views: maxViews,
+          // public_content and public_storage_path are now deprecated
+          // Content is fetched dynamically via get_shared_note RPC function
         })
         .select()
         .single();
@@ -147,27 +121,36 @@ export class ShareService {
           share.note_title = resolvedNote.note_title;
         }
         
-        // Prioritize public_content FIRST - this is updated when users edit via the public-note view
-        // This ensures editable share edits are visible to all viewers (remote user edits sync here)
-        if (resolvedNote.public_content) {
-          share.public_content = resolvedNote.public_content;
+        // SINGLE SOURCE OF TRUTH: Use note_content directly from RPC
+        // No more public_content duplication - all content comes from notes.content
+        let contentToUse = resolvedNote.note_content || '';
+        
+        // ENCRYPTION HANDLING:
+        // If note is encrypted, we need the owner's encryption key to decrypt
+        // The client will have the key IF the user viewing is the owner or logged in with key loaded
+        if (resolvedNote.is_encrypted && contentToUse) {
+          try {
+            // Check if we have an encryption key available
+            if (this.encryption.hasKey()) {
+              // Decrypt the content for display
+              contentToUse = await this.encryption.decryptText(contentToUse);
+            } else {
+              // Mark content as encrypted so client can show appropriate message
+              (share as any).requiresEncryptionKey = true;
+              contentToUse = '[This note is encrypted. Sign in with your encryption key to view it.]';
+            }
+          } catch (decryptErr) {
+            console.warn('Failed to decrypt shared note content:', decryptErr);
+            (share as any).requiresEncryptionKey = true;
+            contentToUse = '[Failed to decrypt note. It may require the owner\'s encryption key.]';
+          }
         }
-        // For text-based notes stored in DB without public_content, use note_content (owner's updates)
-        else if (resolvedNote.note_content && !resolvedNote.note_content.startsWith('storage://')) {
-          share.public_content = resolvedNote.note_content;
-        } 
-        // Use public_content fallback for storage-based notes
-        else if (resolvedNote.public_content) {
-          share.public_content = resolvedNote.public_content;
-        } 
-        // For storage-based notes without public_content, show error message
-        else if (resolvedNote.note_content?.startsWith('storage://')) {
-          share.public_content = '[This shared note content is not available. The owner may need to re-share this note.]';
-        }
+        
+        (share as any).content = contentToUse;
+        (share as any).isEncrypted = resolvedNote.is_encrypted;
       }
     } catch (err) {
       console.error('Error fetching shared note via RPC:', err);
-      // Fallback to existing public_content if note fetch fails
     }
 
     return share as PublicShare;
@@ -285,10 +268,11 @@ export class ShareService {
   }
 
   /**
-   * Update public content (for editable shares)
+   * Update note content for editable shares
    * This allows ANY viewer of an editable share to edit content in real-time
    * Does not require ownership - the share token itself grants edit access
-   * Updates both the share's public_content and syncs to all other shares
+   * SINGLE SOURCE OF TRUTH: Updates notes.content directly (not public_content)
+   * All shares of this note will see the change via RPC
    */
   async updatePublicContent(shareToken: string, content: string): Promise<void> {
     // First verify the share exists and is editable
@@ -298,48 +282,33 @@ export class ShareService {
     if (!share) throw new Error('Share not found');
     if (share.permission !== 'editable') throw new Error('Share is not editable');
 
-    // 1. Update this specific share's public_content immediately
-    const { error } = await this.supabase.client
-      .from('public_shares')
-      .update({ public_content: content })
-      .eq('share_token', shareToken);
-
-    if (error) throw error;
-
-    // 2. Sync update to all other shares of the same note
-    // This ensures collaborative editing where all viewers see the latest content
-    // whether they're viewing through the original share or imported copies
+    // Update the source note's content directly
+    // All shares of this note will fetch the new content via RPC (no sync needed)
     try {
-      await this.supabase.client
-        .from('public_shares')
-        .update({ public_content: content })
-        .eq('note_id', share.note_id)
-        .neq('share_token', shareToken); // Don't re-update the same share
+      const { error } = await this.supabase.client
+        .from('notes')
+        .update({ content })
+        .eq('id', share.note_id);
+
+      if (error) throw error;
     } catch (err) {
-      console.warn('Failed to sync update to other shares:', err);
-      // Don't fail the operation - the current share was updated successfully
+      console.error('Failed to update note content:', err);
+      throw err;
     }
   }
 
   /**
-   * Sync share content when the source note is updated
-   * This ensures viewers see the latest content when the owner edits
+   * DEPRECATED: Sync share content when the source note is updated
+   * No longer needed - with single source of truth, all shares fetch latest content via RPC
+   * @deprecated Use direct RPC calls which automatically return latest note.content
    */
-  async syncShareContent(noteId: string, newContent: string): Promise<void> {
-    try {
-      // Update all shares for this note with the new content
-      const { error } = await this.supabase.client
-        .from('public_shares')
-        .update({ public_content: newContent })
-        .eq('note_id', noteId);
-
-      if (error) {
-        console.error('Failed to sync share content:', error);
-      }
-    } catch (err) {
-      console.error('Error syncing share content:', err);
-      // Don't throw - this is a background sync operation
-    }
+  async syncShareContent(_noteId: string, _newContent: string): Promise<void> {
+    // This method is kept for backward compatibility but no longer does anything
+    // Shares will automatically reflect changes when they call get_shared_note RPC
+    console.warn('syncShareContent is deprecated - RPC now returns live content from notes.content');
+    // No-op: previously we would update public_shares.public_content for all shares
+    // Now shares fetch content live via RPC, so nothing to sync here
+    return;
   }
 
   /**
@@ -524,7 +493,7 @@ export class ShareService {
 
       // 3. Create a new note in the Public folder with the content
       // Use the original note's title (captured from RPC) or fallback to the share token
-      const content = originalShare.public_content || '';
+      const content = (originalShare as any).content || ''; // content fetched from RPC
       const title = originalShare.note_title || originalShare.share_token || 'Shared Note Copy';
 
       const newNote = await this.noteService.createNote(userId, {
