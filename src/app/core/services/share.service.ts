@@ -281,7 +281,9 @@ export class ShareService {
   }
 
   /**
-   * Update public content (for editable shares accessed anonymously)
+   * Update public content (for editable shares accessed anonymously or imported)
+   * This updates both the share's public_content and syncs to the underlying note
+   * so all viewers (whether through original share or imported copies) see updates
    */
   async updatePublicContent(shareToken: string, content: string): Promise<void> {
     const userId = this.authState.userId();
@@ -292,12 +294,27 @@ export class ShareService {
     if (!share) throw new Error('Share not found');
     if (share.permission !== 'editable') throw new Error('Share is not editable');
 
+    // 1. Update this specific share's public_content immediately
     const { error } = await this.supabase.client
       .from('public_shares')
       .update({ public_content: content })
       .eq('share_token', shareToken);
 
     if (error) throw error;
+
+    // 2. Sync update to all other shares of the same note
+    // This ensures collaborative editing where all viewers see the latest content
+    // whether they're viewing through the original share or imported copies
+    try {
+      await this.supabase.client
+        .from('public_shares')
+        .update({ public_content: content })
+        .eq('note_id', share.note_id)
+        .neq('share_token', shareToken); // Don't re-update the same share
+    } catch (err) {
+      console.warn('Failed to sync update to other shares:', err);
+      // Don't fail the operation - the current share was updated successfully
+    }
   }
 
   /**

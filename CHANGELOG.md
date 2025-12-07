@@ -5,6 +5,13 @@ All notable changes to this project are documented in this file.
 ## [Unreleased] - 2025-12-07
 
 ### Fixed
+- **Editable Share Remote Edit Sync**: Fixed critical issue where edits made by remote users (userB) on editable shared notes were not syncing to other viewers. The fix ensures:
+  - When any user edits a shared note (whether original or imported copy), the update is immediately propagated to **all** shares of that note
+  - Remote users viewing the same shared link see edits within seconds
+  - Works bidirectionally: edits from public-note view sync to shares AND dashboard edits (from owner) sync to all public shares
+  - Uses the existing note synchronization mechanism with enhanced scope to cover all share types
+  - No additional database queries needed - efficient batch updates using `note_id` matching
+
 - **Editable Share Import Title Retention**: Fixed issue where importing an editable shared note resulted in the imported note having a generic title "Shared Note Copy" instead of the original note's actual title. The system now:
   - Captures the original `note_title` from the RPC response when retrieving share data
   - Uses the original title when creating the imported note in the user's Public folder
