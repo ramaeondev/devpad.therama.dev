@@ -142,14 +142,15 @@ export class ShareService {
 
       const resolvedNote = Array.isArray(sharedNote) ? sharedNote[0] : sharedNote;
       if (!rpcError && resolvedNote) {
-        // Use public_content if available (populated during share creation)
-        if (resolvedNote.public_content) {
-          share.public_content = resolvedNote.public_content;
-        } 
-        // Otherwise, for text-based notes stored in DB, use note_content directly
-        else if (resolvedNote.note_content && !resolvedNote.note_content.startsWith('storage://')) {
+        // Prioritize fresh note_content over public_content to ensure viewers see latest edits
+        // For text-based notes stored in DB, use note_content directly (always up-to-date)
+        if (resolvedNote.note_content && !resolvedNote.note_content.startsWith('storage://')) {
           share.public_content = resolvedNote.note_content;
         }
+        // Use public_content if available (populated during share creation for storage notes)
+        else if (resolvedNote.public_content) {
+          share.public_content = resolvedNote.public_content;
+        } 
         // For storage-based notes without public_content, show error message
         else if (resolvedNote.note_content?.startsWith('storage://')) {
           share.public_content = '[This shared note content is not available. The owner may need to re-share this note.]';
@@ -292,6 +293,27 @@ export class ShareService {
       .eq('share_token', shareToken);
 
     if (error) throw error;
+  }
+
+  /**
+   * Sync share content when the source note is updated
+   * This ensures viewers see the latest content when the owner edits
+   */
+  async syncShareContent(noteId: string, newContent: string): Promise<void> {
+    try {
+      // Update all shares for this note with the new content
+      const { error } = await this.supabase.client
+        .from('public_shares')
+        .update({ public_content: newContent })
+        .eq('note_id', noteId);
+
+      if (error) {
+        console.error('Failed to sync share content:', error);
+      }
+    } catch (err) {
+      console.error('Error syncing share content:', err);
+      // Don't throw - this is a background sync operation
+    }
   }
 
   /**

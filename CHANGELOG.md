@@ -6,7 +6,18 @@ All notable changes to this project are documented in this file.
 
 ### Fixed
 - **Shared Note Storage Access**: Fixed issue where anonymous users couldn't view shared notes that were stored in Supabase Storage (404 error). The fix ensures that file content is properly fetched and stored in the `public_content` field during share creation, eliminating the need for anonymous users to access the storage bucket directly.
-- **Repeated API Calls**: Resolved the issue where the storage URL was being called repeatedly (every 5 seconds) when shared notes failed to load, which was caused by the auto-refresh mechanism trying to fetch unavailable storage content.
+- **Shared Note Content Sync**: Fixed issue where viewers with the share link could only see the original note content, not the latest updates after the author edited the note. The system now:
+  - Prioritizes fresh `note_content` from the database over cached `public_content` for text-based notes
+  - Automatically syncs `public_content` across all shares whenever the author updates a note
+  - Ensures the auto-refresh mechanism shows the latest content to viewers
+
+### Changed
+- **Optimized Shared Note Polling**: Significantly improved performance and reduced server load for shared notes:
+  - Reduced polling interval from 5 seconds to 30 seconds (6x less frequent)
+  - Auto-refresh automatically stops after 5 minutes of viewing
+  - Polling pauses when browser tab is hidden/inactive
+  - Resumes polling when tab becomes visible again (within 5 minute window)
+  - This reduces API calls from ~720 requests/hour to ~10 requests/5-minute session
 
 ## [Unreleased] - 2025-11-29
 

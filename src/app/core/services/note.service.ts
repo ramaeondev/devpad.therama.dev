@@ -225,6 +225,12 @@ export class NoteService {
         resource_id: noteId,
         resource_name: dto.title || cur.title,
       });
+
+      // Sync shared content if note has shares
+      // This ensures viewers see the latest content when the owner edits
+      if (dto.content !== undefined) {
+        await this.syncSharedContent(noteId, data as Note);
+      }
       
       return data as Note;
     });
@@ -444,5 +450,46 @@ export class NoteService {
     const blob = await this.getFileBlob(noteId, userId);
     const url = URL.createObjectURL(blob);
     return { url, revoke: () => URL.revokeObjectURL(url) };
+  }
+
+  /**
+   * Sync shared content when note is updated
+   * Updates public_content in all shares for this note
+   */
+  private async syncSharedContent(noteId: string, note: Note): Promise<void> {
+    try {
+      // Get the content to sync
+      let contentToSync: string;
+      
+      if (note.content?.startsWith('storage://')) {
+        // For storage-based notes, fetch the actual content
+        const path = note.content.replace(`storage://${this.BUCKET}/`, '');
+        const isTextFile = path.endsWith('.md') || path.endsWith('.txt');
+        
+        if (isTextFile) {
+          // Fetch content from storage to sync to shares
+          contentToSync = note.content; // This is already fetched by getNote for .md files
+        } else {
+          // For binary files, don't sync (viewers need to re-share)
+          return;
+        }
+      } else {
+        // For text-based notes in DB, use the content directly
+        contentToSync = note.content || '';
+      }
+
+      // Update all shares for this note
+      const { error } = await this.supabase
+        .from('public_shares')
+        .update({ public_content: contentToSync })
+        .eq('note_id', noteId);
+
+      if (error) {
+        console.error('Failed to sync shared content:', error);
+      }
+    } catch (err) {
+      console.error('Error syncing shared content:', err);
+      // Don't throw - this is a background sync operation
+    }
   }
 }

@@ -211,6 +211,10 @@ export class PublicNoteComponent implements OnInit, OnDestroy {
   lastSaved = signal<string | null>(null);
   private saveTimeout: any;
   private refreshInterval: any;
+  private refreshStartTime = 0;
+  private readonly MAX_REFRESH_DURATION = 5 * 60 * 1000; // 5 minutes
+  private readonly REFRESH_INTERVAL = 30000; // 30 seconds (reduced from 5)
+  private visibilityHandler: (() => void) | null = null;
 
   isLoggedIn = this.authState.isAuthenticated;
   private titleService = inject(Title);
@@ -265,19 +269,61 @@ export class PublicNoteComponent implements OnInit, OnDestroy {
    * Start periodic refresh of content for readonly viewers
    * This allows viewers to see updates made by the note owner
    * Uses a separate endpoint that doesn't increment view counts
+   * 
+   * Optimizations:
+   * - Polls every 30 seconds (reduced from 5 for better performance)
+   * - Automatically stops after 5 minutes of viewing
+   * - Pauses when tab is not visible
    */
   private startContentRefresh(shareToken: string) {
-    // Refresh every 5 seconds
+    this.refreshStartTime = Date.now();
+    
+    // Set up visibility change listener to pause/resume polling
+    this.visibilityHandler = () => {
+      if (document.hidden) {
+        // Pause polling when tab is hidden
+        if (this.refreshInterval) {
+          clearInterval(this.refreshInterval);
+          this.refreshInterval = null;
+        }
+      } else {
+        // Resume polling when tab becomes visible (if not expired)
+        const elapsed = Date.now() - this.refreshStartTime;
+        if (!this.refreshInterval && elapsed < this.MAX_REFRESH_DURATION) {
+          this.startPolling(shareToken);
+        }
+      }
+    };
+    
+    document.addEventListener('visibilitychange', this.visibilityHandler);
+    
+    // Start the polling
+    this.startPolling(shareToken);
+  }
+
+  private startPolling(shareToken: string) {
     this.refreshInterval = setInterval(async () => {
+      // Stop refreshing after max duration
+      const elapsed = Date.now() - this.refreshStartTime;
+      if (elapsed >= this.MAX_REFRESH_DURATION) {
+        if (this.refreshInterval) {
+          clearInterval(this.refreshInterval);
+          this.refreshInterval = null;
+        }
+        console.log('Auto-refresh stopped after 5 minutes of viewing');
+        return;
+      }
+
       try {
         const updatedShare = await this.shareService.getShareContentForRefresh(shareToken);
         if (updatedShare && updatedShare.public_content !== this.content) {
           this.content = updatedShare.public_content || '';
+          console.log('Content refreshed with latest changes');
         }
       } catch (err) {
         console.error('Error refreshing content:', err);
       }
-    }, 5000);
+    }, this.REFRESH_INTERVAL);
   }
 
   private updateMetaTags(share: PublicShare) {
@@ -421,5 +467,10 @@ export class PublicNoteComponent implements OnInit, OnDestroy {
   ngOnDestroy() {
     if (this.saveTimeout) clearTimeout(this.saveTimeout);
     if (this.refreshInterval) clearInterval(this.refreshInterval);
+    
+    // Clean up visibility change listener
+    if (this.visibilityHandler) {
+      document.removeEventListener('visibilitychange', this.visibilityHandler);
+    }
   }
 }
