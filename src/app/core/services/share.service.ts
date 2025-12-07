@@ -125,10 +125,35 @@ export class ShareService {
         // No more public_content duplication - all content comes from notes.content
         let contentToUse = resolvedNote.note_content || '';
         
+        // STORAGE HANDLING: If content is a storage path, fetch the actual file
+        if (contentToUse && contentToUse.startsWith('storage://')) {
+          try {
+            // Parse storage path: storage://bucket/userId/noteId.md
+            const storagePath = contentToUse.replace('storage://', '');
+            const parts = storagePath.split('/');
+            const bucket = parts[0]; // e.g., 'notes'
+            const filePath = parts.slice(1).join('/'); // e.g., 'userId/noteId.md'
+            
+            const { data: fileData, error: downloadErr } = await this.supabase.storage
+              .from(bucket)
+              .download(filePath);
+            
+            if (!downloadErr && fileData) {
+              contentToUse = await fileData.text();
+            } else {
+              console.warn('Failed to download storage content:', downloadErr);
+              contentToUse = '[Failed to fetch note content from storage]';
+            }
+          } catch (storageErr) {
+            console.warn('Error fetching storage content:', storageErr);
+            contentToUse = '[Failed to fetch note content]';
+          }
+        }
+        
         // ENCRYPTION HANDLING:
         // If note is encrypted, we need the owner's encryption key to decrypt
         // The client will have the key IF the user viewing is the owner or logged in with key loaded
-        if (resolvedNote.is_encrypted && contentToUse) {
+        if (resolvedNote.is_encrypted && contentToUse && !contentToUse.startsWith('[')) {
           try {
             // Check if we have an encryption key available
             if (this.encryption.hasKey()) {
