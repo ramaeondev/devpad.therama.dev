@@ -342,6 +342,7 @@ export class FolderTreeComponent {
   // Share note modal state
   showShareModal = signal(false);
   sharingNote: any = null;
+  private shareUpdated = false;
 
   // Drag and drop state
   draggedNoteId = signal<string | null>(null);
@@ -1087,20 +1088,27 @@ export class FolderTreeComponent {
   }
 
   // Share note handlers
+
+
   shareNote(note: any) {
     this.sharingNote = note;
+    this.shareUpdated = false;
     this.showShareModal.set(true);
   }
 
   closeShareModal() {
     this.showShareModal.set(false);
     this.sharingNote = null;
+    if (this.shareUpdated) {
+      this.treeChanged.emit();
+    }
+    this.shareUpdated = false;
   }
 
   handleNoteShared(share: any) {
     console.log('Note shared:', share);
-    // Optionally refresh the tree to show updated state
-    this.treeChanged.emit();
+    // Mark as updated but don't refresh tree yet to keep modal open
+    this.shareUpdated = true;
   }
 
 }

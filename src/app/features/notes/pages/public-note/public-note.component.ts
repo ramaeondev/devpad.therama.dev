@@ -89,6 +89,9 @@ import { LogoComponent } from '../../../../shared/components/ui/logo/logo.compon
                     <i class="fa-solid fa-eye mr-1"></i> Readonly
                   }
                   · {{ share()?.view_count || 0 }} views
+                  @if (share()?.unique_view_count) {
+                    · {{ share()?.unique_view_count }} unique
+                  }
                 </p>
               </div>
             </div>

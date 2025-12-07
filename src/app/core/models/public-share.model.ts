@@ -7,10 +7,12 @@ export interface PublicShare {
   public_content?: string;
   public_storage_path?: string;
   view_count: number;
+  unique_view_count?: number; // Added
   last_accessed_at?: string;
   created_at: string;
   updated_at: string;
   expires_at?: string;
+  max_views?: number;
 }
 
 export interface CreateShareDto {

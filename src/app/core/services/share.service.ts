@@ -4,6 +4,7 @@ import { NoteService } from './note.service';
 import { AuthStateService } from './auth-state.service';
 import { PublicShare } from '../models/public-share.model';
 import { LoadingService } from './loading.service';
+import { DeviceFingerprintService } from './device-fingerprint.service';
 
 @Injectable({ providedIn: 'root' })
 export class ShareService {
@@ -11,6 +12,7 @@ export class ShareService {
   private noteService = inject(NoteService);
   private authState = inject(AuthStateService);
   private loading = inject(LoadingService);
+  private fingerprintService = inject(DeviceFingerprintService);
 
   /**
    * Generate a unique share token
@@ -30,7 +32,12 @@ export class ShareService {
   /**
    * Create a public share for a note
    */
-  async createShare(noteId: string, permission: 'readonly' | 'editable', expiresAt?: string): Promise<PublicShare> {
+  async createShare(
+    noteId: string, 
+    permission: 'readonly' | 'editable', 
+    expiresAt?: string | null, // explicitly allow null
+    maxViews?: number | null   // explicitly allow null
+  ): Promise<PublicShare> {
     const userId = this.authState.userId();
     if (!userId) throw new Error('User not authenticated');
 
@@ -47,7 +54,6 @@ export class ShareService {
       if (note.content?.startsWith('storage://')) {
         // File-based note - we'll need to handle file copying
         publicStoragePath = note.content;
-        // For now, we'll store the reference. File copying will be handled separately
       } else {
         // Text-based note - decrypt if encrypted
         publicContent = note.content || '';
@@ -67,6 +73,7 @@ export class ShareService {
           public_content: publicContent,
           public_storage_path: publicStoragePath,
           expires_at: expiresAt,
+          max_views: maxViews,
         })
         .select()
         .single();
@@ -84,23 +91,35 @@ export class ShareService {
 
   /**
    * Get share by token (for anonymous access)
+   * Includes validation for expiry and view limits
    */
   async getShareByToken(token: string): Promise<PublicShare | null> {
-    const { data, error } = await this.supabase.client
+    const { data: share, error } = await this.supabase.client
       .from('public_shares')
       .select('*')
       .eq('share_token', token)
       .single();
 
-    if (error) {
-      console.error('Error fetching share:', error);
+    if (error || !share) {
+      if (error) console.error('Error fetching share:', error);
       return null;
     }
 
-    // Increment view count
-    await this.incrementViewCount(data.id);
+    // Check expiration by date
+    if (share.expires_at && new Date(share.expires_at) < new Date()) {
+      return null; // Expired
+    }
 
-    return data as PublicShare;
+    // Check max views (if set)
+    // Note: view_count is the *current* count before this access
+    if (share.max_views !== null && share.view_count >= share.max_views) {
+      return null; // View limit reached
+    }
+
+    // Increment view count
+    await this.incrementViewCount(share.id);
+
+    return share as PublicShare;
   }
 
   /**
@@ -122,19 +141,33 @@ export class ShareService {
   }
 
   /**
-   * Update share permission
+   * Update share settings (permission, expiry)
    */
-  async updateSharePermission(shareId: string, permission: 'readonly' | 'editable'): Promise<void> {
+  async updatePublicShare(
+    shareId: string, 
+    updates: { 
+      permission?: 'readonly' | 'editable',
+      expires_at?: string | null,
+      max_views?: number | null
+    }
+  ): Promise<void> {
     const userId = this.authState.userId();
     if (!userId) throw new Error('User not authenticated');
 
     const { error } = await this.supabase.client
       .from('public_shares')
-      .update({ permission })
+      .update(updates)
       .eq('id', shareId)
       .eq('user_id', userId);
 
     if (error) throw error;
+  }
+
+  /**
+   * Update share permission (legacy wrapper, prefer updatePublicShare)
+   */
+  async updateSharePermission(shareId: string, permission: 'readonly' | 'editable'): Promise<void> {
+    return this.updatePublicShare(shareId, { permission });
   }
 
   /**
@@ -200,14 +233,21 @@ export class ShareService {
   /**
    * Increment view count for a share
    */
+  /**
+   * Track share access (increment view count and unique view count)
+   */
   private async incrementViewCount(shareId: string): Promise<void> {
-    // Use RPC or direct SQL to increment view_count
-    const { error } = await this.supabase.client.rpc('increment_share_view_count', {
-      share_id: shareId
+    const fingerprint = await this.fingerprintService.getDeviceFingerprint();
+
+    // Use RPC to track access
+    const { error } = await this.supabase.client.rpc('track_share_access', {
+      p_share_id: shareId,
+      p_fingerprint: fingerprint
     });
 
     if (error) {
-      // Fallback: fetch current count and update
+      console.error('Error tracking share access:', error);
+      // Fallback: just increment view count manually if RPC fails
       const { data: share } = await this.supabase.client
         .from('public_shares')
         .select('view_count')

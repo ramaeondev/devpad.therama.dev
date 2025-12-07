@@ -69,7 +69,6 @@ import { PublicShare } from '../../../../core/models/public-share.model';
                       name="permission"
                       value="readonly"
                       [(ngModel)]="permission"
-                      (change)="onPermissionChange()"
                       class="text-primary-500 focus:ring-primary-500"
                     />
                     <span class="text-sm text-gray-700 dark:text-gray-300">
@@ -83,7 +82,6 @@ import { PublicShare } from '../../../../core/models/public-share.model';
                       name="permission"
                       value="editable"
                       [(ngModel)]="permission"
-                      (change)="onPermissionChange()"
                       class="text-primary-500 focus:ring-primary-500"
                     />
                     <span class="text-sm text-gray-700 dark:text-gray-300">
@@ -93,6 +91,45 @@ import { PublicShare } from '../../../../core/models/public-share.model';
                   </label>
                 </div>
               </div>
+
+              <!-- Expiry -->
+              <div>
+                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  Expires
+                </label>
+                <select
+                  [(ngModel)]="selectedExpiry"
+                  class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white text-sm"
+                >
+                  @for (option of expiryOptions; track option.value) {
+                    <option [value]="option.value">{{ option.label }}</option>
+                  }
+                </select>
+
+                <!-- Custom Expiry Date Input -->
+                @if (selectedExpiry() === 'custom') {
+                  <div class="mt-2">
+                    <input
+                      type="datetime-local"
+                      [(ngModel)]="customExpiryDate"
+                      class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white text-sm"
+                    />
+                  </div>
+                }
+              </div>
+
+              <!-- Update Button -->
+              <button
+                (click)="updateShare()"
+                class="w-full px-4 py-2 bg-primary-500 hover:bg-primary-600 text-white rounded-lg transition-colors"
+                [disabled]="loading()"
+              >
+                @if (loading()) {
+                  <i class="fa-solid fa-spinner fa-spin mr-2"></i> Updating...
+                } @else {
+                  <i class="fa-solid fa-save mr-2"></i> Update Settings
+                }
+              </button>
 
               <!-- Social Share Buttons -->
               <div>
@@ -137,6 +174,24 @@ import { PublicShare } from '../../../../core/models/public-share.model';
                   <span class="text-gray-600 dark:text-gray-400">Views</span>
                   <span class="font-semibold text-gray-900 dark:text-white">{{ existingShare()?.view_count || 0 }}</span>
                 </div>
+                @if (existingShare()?.expires_at) {
+                  <div class="flex items-center justify-between text-sm mt-1">
+                    <span class="text-gray-600 dark:text-gray-400">Expires</span>
+                    <span class="font-semibold text-gray-900 dark:text-white">{{ existingShare()?.expires_at | date:'medium' }}</span>
+                  </div>
+                }
+                @if (existingShare()?.max_views) {
+                  <div class="flex items-center justify-between text-sm mt-1">
+                    <span class="text-gray-600 dark:text-gray-400">Max Views</span>
+                    <span class="font-semibold text-gray-900 dark:text-white">{{ existingShare()?.max_views }}</span>
+                  </div>
+                }
+                @if (existingShare()?.unique_view_count) {
+                  <div class="flex items-center justify-between text-sm mt-1">
+                    <span class="text-gray-600 dark:text-gray-400">Unique Views</span>
+                    <span class="font-semibold text-gray-900 dark:text-white">{{ existingShare()?.unique_view_count }}</span>
+                  </div>
+                }
               </div>
 
               <!-- Unshare Button -->
@@ -188,6 +243,32 @@ import { PublicShare } from '../../../../core/models/public-share.model';
                     </span>
                   </label>
                 </div>
+              </div>
+
+              <!-- Expiry -->
+              <div>
+                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  Expires
+                </label>
+                <select
+                  [(ngModel)]="selectedExpiry"
+                  class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white text-sm"
+                >
+                  @for (option of expiryOptions; track option.value) {
+                    <option [value]="option.value">{{ option.label }}</option>
+                  }
+                </select>
+
+                <!-- Custom Expiry Date Input -->
+                @if (selectedExpiry() === 'custom') {
+                  <div class="mt-2">
+                    <input
+                      type="datetime-local"
+                      [(ngModel)]="customExpiryDate"
+                      class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white text-sm"
+                    />
+                  </div>
+                }
               </div>
 
               <!-- Warning -->
@@ -251,6 +332,18 @@ export class ShareNoteModalComponent implements OnInit {
   permission: 'readonly' | 'editable' = 'readonly';
   copied = signal(false);
 
+  // Expiry Options
+  expiryOptions = [
+    { label: 'Never', value: 'never' },
+    { label: '1 Hour', value: '1h' },
+    { label: '1 Day', value: '1d' },
+    { label: '1 Week', value: '1w' },
+    { label: 'Once (1 View)', value: 'once' },
+    { label: 'Custom', value: 'custom' }
+  ];
+  selectedExpiry = signal<string>('never');
+  customExpiryDate = signal<string>('');
+
   async ngOnInit() {
     if (!this.note) return;
 
@@ -259,8 +352,20 @@ export class ShareNoteModalComponent implements OnInit {
     try {
       const shares = await this.shareService.getSharesForNote(this.note.id);
       if (shares.length > 0) {
-        this.existingShare.set(shares[0]);
-        this.permission = shares[0].permission;
+        const share = shares[0];
+        this.existingShare.set(share);
+        this.permission = share.permission;
+        
+        // Determine current expiry selection
+        if (share.max_views === 1) {
+          this.selectedExpiry.set('once');
+        } else if (share.expires_at) {
+          this.selectedExpiry.set('custom');
+          // Format date for input[type="datetime-local"]
+          this.customExpiryDate.set(new Date(share.expires_at).toISOString().slice(0, 16));
+        } else {
+          this.selectedExpiry.set('never');
+        }
       }
     } catch (error: any) {
       console.error('Error loading shares:', error);
@@ -280,7 +385,13 @@ export class ShareNoteModalComponent implements OnInit {
 
     this.loading.set(true);
     try {
-      const share = await this.shareService.createShare(this.note.id, this.permission);
+      const { expiresAt, maxViews } = this.calculateExpiry();
+      const share = await this.shareService.createShare(
+        this.note.id, 
+        this.permission,
+        expiresAt,
+        maxViews
+      );
       this.existingShare.set(share);
       this.toast.success('Share link created!');
       this.shared.emit(share);
@@ -292,19 +403,76 @@ export class ShareNoteModalComponent implements OnInit {
     }
   }
 
-  async onPermissionChange() {
+  async updateShare() {
     const share = this.existingShare();
     if (!share) return;
 
+    this.loading.set(true);
     try {
-      await this.shareService.updateSharePermission(share.id, this.permission);
-      this.toast.success('Permission updated');
-      // Update local state
-      this.existingShare.set({ ...share, permission: this.permission });
+      const { expiresAt, maxViews } = this.calculateExpiry();
+      
+      await this.shareService.updatePublicShare(share.id, {
+        permission: this.permission,
+        expires_at: expiresAt,
+        max_views: maxViews
+      });
+
+      this.toast.success('Share updated!');
+      // Refresh local state (approximated)
+      this.existingShare.set({
+        ...share,
+        permission: this.permission,
+        expires_at: expiresAt || undefined,
+        max_views: maxViews || undefined
+      });
     } catch (error: any) {
-      console.error('Error updating permission:', error);
-      this.toast.error('Failed to update permission');
+      console.error('Error updating share:', error);
+      this.toast.error('Failed to update share');
+    } finally {
+      this.loading.set(false);
     }
+  }
+
+  // Helper to calculate expiry values based on selection
+  private calculateExpiry(): { expiresAt: string | null, maxViews: number | null } {
+    const selection = this.selectedExpiry();
+    let expiresAt: Date | null = null;
+    let maxViews: number | null = null;
+
+    const now = new Date();
+
+    switch (selection) {
+      case '1h':
+        expiresAt = new Date(now.getTime() + 60 * 60 * 1000);
+        break;
+      case '1d':
+        expiresAt = new Date(now.getTime() + 24 * 60 * 60 * 1000);
+        break;
+      case '1w':
+        expiresAt = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000);
+        break;
+      case 'once':
+        maxViews = 1;
+        break;
+      case 'custom':
+        if (this.customExpiryDate()) {
+          expiresAt = new Date(this.customExpiryDate());
+        }
+        break;
+      case 'never':
+      default:
+        // leave null
+        break;
+    }
+
+    return { 
+      expiresAt: expiresAt ? expiresAt.toISOString() : null, 
+      maxViews 
+    };
+  }
+
+  async onPermissionChange() {
+    // No direct update anymore, user must click "Update"
   }
 
   async unshare() {
