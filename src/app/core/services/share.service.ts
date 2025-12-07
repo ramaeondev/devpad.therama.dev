@@ -181,6 +181,9 @@ export class ShareService {
    * Update public content (for editable shares accessed anonymously)
    */
   async updatePublicContent(shareToken: string, content: string): Promise<void> {
+    const userId = this.authState.userId();
+    if (!userId) throw new Error('User not authenticated');
+
     // First verify the share exists and is editable
     const share = await this.getShareByToken(shareToken);
     if (!share) throw new Error('Share not found');
@@ -246,7 +249,7 @@ export class ShareService {
   /**
    * Ensure Public folder exists for user
    */
-  private async ensurePublicFolder(userId: string): Promise<any> {
+  async ensurePublicFolder(userId: string): Promise<any> {
     // Check if user already has a Public folder
     const { data: profile } = await this.supabase.client
       .from('user_profiles')
@@ -260,12 +263,35 @@ export class ShareService {
         .from('folders')
         .select('*')
         .eq('id', profile.public_folder_id)
-        .single();
+        .maybeSingle();
       
-      return folder;
+      if (folder) {
+        return folder;
+      }
+      // If folder not found (deleted?), continue to create new one
     }
 
-    // Create Public folder at the same level as root (parent_id: null, but is_root: false)
+    // 2. Check if a folder named "Public" already exists (but not linked)
+    // This prevents duplicate key errors if the profile link was lost but folder remains
+    const { data: existingPublic } = await this.supabase.client
+      .from('folders')
+      .select('*')
+      .eq('user_id', userId)
+      .eq('name', 'Public')
+      .is('parent_id', null)
+      .maybeSingle();
+
+    if (existingPublic) {
+      // Found it! Link it and return
+      await this.supabase.client
+        .from('user_profiles')
+        .update({ public_folder_id: existingPublic.id })
+        .eq('user_id', userId);
+        
+      return existingPublic;
+    }
+
+    // 3. Create Public folder at the same level as root (parent_id: null, but is_root: false)
     // This is done directly via Supabase to avoid the unique constraint on is_root
     const { data: publicFolder, error } = await this.supabase.client
       .from('folders')
@@ -274,6 +300,7 @@ export class ShareService {
         user_id: userId,
         parent_id: null,
         is_root: false, // Explicitly set to false to avoid unique constraint
+        icon: 'fa-globe', // Distinctive icon for Public folder
       })
       .select()
       .single();
@@ -327,5 +354,40 @@ export class ShareService {
       share_permission: share.permission,
       share_views: share.view_count,
     }));
+  }
+
+  /**
+   * Import a public share to the user's account (Copy/Fork)
+   */
+  async importPublicShare(userId: string, originalShareToken: string): Promise<PublicShare> {
+    this.loading.start();
+    try {
+      // 1. Get original share data
+      const originalShare = await this.getShareByToken(originalShareToken);
+      if (!originalShare) throw new Error('Share not found');
+
+      // 2. Ensure Public folder exists
+      const publicFolder = await this.ensurePublicFolder(userId);
+
+      // 3. Create a new note in the Public folder with the content
+      // Note: We use a default title since the public share view might not strictly carry the title depending on permissions/joins, 
+      // but ideally we'd want the original title. For now, "Shared Note Copy" is a safe fallback.
+      const content = originalShare.public_content || '';
+      const title = 'Shared Note Copy'; 
+
+      const newNote = await this.noteService.createNote(userId, {
+        title: title,
+        content: content,
+        folder_id: publicFolder.id,
+      });
+
+      // 4. Create a share for this new note so it sticks in the Public folder
+      // We make it 'editable' by default since the user owns this copy.
+      const newShare = await this.createShare(newNote.id, 'editable');
+
+      return newShare;
+    } finally {
+      this.loading.stop();
+    }
   }
 }

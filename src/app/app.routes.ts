@@ -31,13 +31,8 @@ export const routes: Routes = [
   },
   {
     path: 'share/:shareToken',
-    loadComponent: () => import('./features/notes/pages/public-note-viewer/public-note-viewer.component').then(m => m.PublicNoteViewerComponent),
+    loadComponent: () => import('./features/notes/pages/public-note/public-note.component').then(m => m.PublicNoteComponent),
     title: 'Shared Note - DevPad',
-  },
-  {
-    path: 'share/:shareToken/edit',
-    loadComponent: () => import('./features/notes/pages/public-note-editor/public-note-editor.component').then(m => m.PublicNoteEditorComponent),
-    title: 'Edit Shared Note - DevPad',
   },
   {
     path: 'policy',
