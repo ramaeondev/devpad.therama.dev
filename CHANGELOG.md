@@ -5,12 +5,14 @@ All notable changes to this project are documented in this file.
 ## [Unreleased] - 2025-12-07
 
 ### Fixed
-- **Editable Share Remote Edit Sync**: Fixed critical issue where edits made by remote users (userB) on editable shared notes were not syncing to other viewers. The fix ensures:
-  - When any user edits a shared note (whether original or imported copy), the update is immediately propagated to **all** shares of that note
-  - Remote users viewing the same shared link see edits within seconds
-  - Works bidirectionally: edits from public-note view sync to shares AND dashboard edits (from owner) sync to all public shares
-  - Uses the existing note synchronization mechanism with enhanced scope to cover all share types
-  - No additional database queries needed - efficient batch updates using `note_id` matching
+- **Editable Share Remote Edit Sync (Critical Fix)**: Fixed critical issue where edits made by remote users on editable shared notes were not syncing to other viewers. Root cause was a content priority mismatch in RPC response handling. The complete fix includes:
+  - **Content Priority Fix**: Changed `getShareByTokenInternal()` to prioritize `public_content` (updated when users edit via public-note view) over `note_content` (owner's dashboard edits). This ensures editable share edits are visible.
+  - **Polling for All Shares**: Enabled auto-refresh polling for **all** share types (both readonly AND editable), not just readonly. Previously, editable share viewers had no polling so they never saw remote user edits.
+  - **Sync to All Shares**: When any user edits a shared note, the update is immediately propagated to **all** shares of that note via `updatePublicContent()`.
+  - **Works Bidirectionally**: 
+    - Owner edits in dashboard → synced to all public shares
+    - Remote user edits in public-note view → synced to all shares of the same note
+  - **Result**: Remote users viewing the same editable share link now see updates within 30 seconds of any edit
 
 - **Editable Share Import Title Retention**: Fixed issue where importing an editable shared note resulted in the imported note having a generic title "Shared Note Copy" instead of the original note's actual title. The system now:
   - Captures the original `note_title` from the RPC response when retrieving share data

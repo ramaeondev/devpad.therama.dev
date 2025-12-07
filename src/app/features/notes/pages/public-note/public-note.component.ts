@@ -242,11 +242,10 @@ export class PublicNoteComponent implements OnInit, OnDestroy {
       // Update Meta Tags
       this.updateMetaTags(shareData);
 
-      // Start periodic refresh for readonly viewers to see updates from the owner
-      // (For editable viewers, they'll see updates as they edit)
-      if (!this.canEdit()) {
-        this.startContentRefresh(shareToken);
-      }
+      // Start periodic refresh for ALL viewers to see updates
+      // - Readonly viewers see updates from the owner
+      // - Editable viewers see updates from other remote users editing the same share
+      this.startContentRefresh(shareToken);
 
       // Handle post-login redirect action
       const action = this.route.snapshot.queryParamMap.get('action');

@@ -147,12 +147,16 @@ export class ShareService {
           share.note_title = resolvedNote.note_title;
         }
         
-        // Prioritize fresh note_content over public_content to ensure viewers see latest edits
-        // For text-based notes stored in DB, use note_content directly (always up-to-date)
-        if (resolvedNote.note_content && !resolvedNote.note_content.startsWith('storage://')) {
-          share.public_content = resolvedNote.note_content;
+        // Prioritize public_content FIRST - this is updated when users edit via the public-note view
+        // This ensures editable share edits are visible to all viewers (remote user edits sync here)
+        if (resolvedNote.public_content) {
+          share.public_content = resolvedNote.public_content;
         }
-        // Use public_content if available (populated during share creation for storage notes)
+        // For text-based notes stored in DB without public_content, use note_content (owner's updates)
+        else if (resolvedNote.note_content && !resolvedNote.note_content.startsWith('storage://')) {
+          share.public_content = resolvedNote.note_content;
+        } 
+        // Use public_content fallback for storage-based notes
         else if (resolvedNote.public_content) {
           share.public_content = resolvedNote.public_content;
         } 
