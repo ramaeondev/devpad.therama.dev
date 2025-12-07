@@ -24,10 +24,21 @@ All notable changes to this project are documented in this file.
     - Signin link for editable shares no longer attempts import
 
 ### Fixed
+- **Remote User Content Saving on Editable Shares**: Fixed critical issue where remote users (non-authenticated or non-owner viewers) could not save edits to editable shared notes. The root cause was that `updatePublicContent()` required user authentication, but editable shares should grant edit access via the share token alone.
+  - **Changed**: `updatePublicContent()` no longer requires `userId` authentication
+  - **Impact**: Remote users can now edit and save changes to editable shares without being logged in
+  - **Security**: The share token itself is the access control - only editable shares allow editing
+  - **Result**: Content saves now work for all viewers of editable shares
+
+- **Remote User Session Persistence**: Supabase auth state is automatically persisted in localStorage with `persistSession: true`, so sessions are maintained across page refreshes.
+  - **No changes needed**: Auth state is automatically restored from localStorage
+  - **Verified**: Public share pages do not require authentication for viewing
+
 - **Editable Share Remote Edit Sync (Critical Fix)**: Fixed critical issue where edits made by remote users on editable shared notes were not syncing to other viewers. Root cause was a content priority mismatch in RPC response handling. The complete fix includes:
   - **Content Priority Fix**: Changed `getShareByTokenInternal()` to prioritize `public_content` (updated when users edit via public-note view) over `note_content` (owner's dashboard edits). This ensures editable share edits are visible.
   - **Polling for All Shares**: Enabled auto-refresh polling for **all** share types (both readonly AND editable), not just readonly. Previously, editable share viewers had no polling so they never saw remote user edits.
   - **Sync to All Shares**: When any user edits a shared note, the update is immediately propagated to **all** shares of that note via `updatePublicContent()`.
+
   - **Works Bidirectionally**: 
     - Owner edits in dashboard → synced to all public shares
     - Remote user edits in public-note view → synced to all shares of the same note

@@ -285,15 +285,15 @@ export class ShareService {
   }
 
   /**
-   * Update public content (for editable shares accessed anonymously or imported)
-   * This updates both the share's public_content and syncs to the underlying note
-   * so all viewers (whether through original share or imported copies) see updates
+   * Update public content (for editable shares)
+   * This allows ANY viewer of an editable share to edit content in real-time
+   * Does not require ownership - the share token itself grants edit access
+   * Updates both the share's public_content and syncs to all other shares
    */
   async updatePublicContent(shareToken: string, content: string): Promise<void> {
-    const userId = this.authState.userId();
-    if (!userId) throw new Error('User not authenticated');
-
     // First verify the share exists and is editable
+    // Note: We do NOT require userId authentication here because editable shares
+    // grant edit access to anyone with the token (like a collaborative document)
     const share = await this.getShareByToken(shareToken);
     if (!share) throw new Error('Share not found');
     if (share.permission !== 'editable') throw new Error('Share is not editable');
