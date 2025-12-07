@@ -90,11 +90,10 @@ export class ShareService {
   }
 
   /**
-   * Get share by token (for anonymous access)
-   * Includes validation for expiry and view limits
-   * Fetches current note content to ensure viewers see the latest version
+   * Get share by token WITHOUT incrementing view count
+   * Use this for fetching share data and content for display
    */
-  async getShareByToken(token: string): Promise<PublicShare | null> {
+  private async getShareByTokenInternal(token: string): Promise<PublicShare | null> {
     const { data: share, error } = await this.supabase.client
       .from('public_shares')
       .select('*')
@@ -125,17 +124,49 @@ export class ShareService {
 
       const resolvedNote = Array.isArray(sharedNote) ? sharedNote[0] : sharedNote;
       if (!rpcError && resolvedNote) {
-        share.public_content = resolvedNote.note_content;
+        // For file-based notes (storage://), fetch the actual content
+        if (resolvedNote.note_content?.startsWith('storage://')) {
+          try {
+            const content = await this.fetchStorageContent(resolvedNote.note_content);
+            share.public_content = content;
+          } catch (storageErr) {
+            console.error('Error fetching storage content:', storageErr);
+            share.public_content = '[Note content could not be loaded]';
+          }
+        } else {
+          // For text-based notes, use content directly
+          share.public_content = resolvedNote.note_content;
+        }
       }
     } catch (err) {
       console.error('Error fetching shared note via RPC:', err);
       // Fallback to public_content if note fetch fails
     }
 
-    // Increment view count
-    await this.incrementViewCount(share.id);
-
     return share as PublicShare;
+  }
+
+  /**
+   * Get share by token (for anonymous access)
+   * Includes validation for expiry and view limits
+   * Increments view count on initial load only
+   */
+  async getShareByToken(token: string): Promise<PublicShare | null> {
+    const share = await this.getShareByTokenInternal(token);
+    if (share) {
+      // Only increment view count on initial load, not on refresh
+      await this.incrementViewCount(share.id);
+    }
+    return share;
+  }
+
+  /**
+   * Get share and content for refresh without incrementing views
+   * Use for auto-refresh to fetch updated content without counting as a new view
+   */
+  async getShareContentForRefresh(token: string): Promise<PublicShare | null> {
+    // Don't increment view count on refresh - only initial load counts
+    return this.getShareByTokenInternal(token);
   }
 
   /**
@@ -444,6 +475,35 @@ export class ShareService {
       return newShare;
     } finally {
       this.loading.stop();
+    }
+  }
+
+  /**
+   * Fetch storage-based note content from Supabase storage
+   * Handles decrypted or raw file content
+   */
+  private async fetchStorageContent(storagePath: string): Promise<string> {
+    if (!storagePath.startsWith('storage://')) {
+      return storagePath;
+    }
+
+    try {
+      // Parse storage:// path format: storage://bucket/path
+      const parts = storagePath.replace('storage://', '').split('/');
+      const bucket = parts[0];
+      const filePath = parts.slice(1).join('/');
+
+      const { data, error } = await this.supabase.storage
+        .from(bucket)
+        .download(filePath);
+
+      if (error) throw error;
+
+      // Convert blob to text
+      return await data.text();
+    } catch (err) {
+      console.error('Failed to fetch storage content:', err);
+      throw err;
     }
   }
 }

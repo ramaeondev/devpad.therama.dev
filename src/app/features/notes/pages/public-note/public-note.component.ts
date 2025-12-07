@@ -264,12 +264,13 @@ export class PublicNoteComponent implements OnInit, OnDestroy {
   /**
    * Start periodic refresh of content for readonly viewers
    * This allows viewers to see updates made by the note owner
+   * Uses a separate endpoint that doesn't increment view counts
    */
   private startContentRefresh(shareToken: string) {
     // Refresh every 5 seconds
     this.refreshInterval = setInterval(async () => {
       try {
-        const updatedShare = await this.shareService.getShareByToken(shareToken);
+        const updatedShare = await this.shareService.getShareContentForRefresh(shareToken);
         if (updatedShare && updatedShare.public_content !== this.content) {
           this.content = updatedShare.public_content || '';
         }
