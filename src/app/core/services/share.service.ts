@@ -117,21 +117,18 @@ export class ShareService {
       return null; // View limit reached
     }
 
-    // Fetch the current note content to ensure viewers see the latest version
-    // This prevents stale content when the original note is edited
+    // Fetch the current note content via secure RPC (respects public share access)
+    // Avoids RLS blocks when using anon key while ensuring we return live note content
     try {
-      const { data: note, error: noteError } = await this.supabase.client
-        .from('notes')
-        .select('content, title')
-        .eq('id', share.note_id)
-        .single();
+      const { data: sharedNote, error: rpcError } = await this.supabase.client
+        .rpc('get_shared_note', { p_share_token: token });
 
-      if (!noteError && note) {
-        // Use current note content instead of stale public_content
-        share.public_content = note.content;
+      const resolvedNote = Array.isArray(sharedNote) ? sharedNote[0] : sharedNote;
+      if (!rpcError && resolvedNote) {
+        share.public_content = resolvedNote.note_content;
       }
     } catch (err) {
-      console.error('Error fetching current note content:', err);
+      console.error('Error fetching shared note via RPC:', err);
       // Fallback to public_content if note fetch fails
     }
 
