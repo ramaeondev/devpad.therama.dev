@@ -1,4 +1,4 @@
-import { Component, OnInit, inject, signal } from '@angular/core';
+import { Component, OnInit, inject, signal, OnDestroy } from '@angular/core';
 import { Title, Meta } from '@angular/platform-browser';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -194,7 +194,7 @@ import { LogoComponent } from '../../../../shared/components/ui/logo/logo.compon
     }
   `]
 })
-export class PublicNoteComponent implements OnInit {
+export class PublicNoteComponent implements OnInit, OnDestroy {
   private route = inject(ActivatedRoute);
   private router = inject(Router);
   private shareService = inject(ShareService);
@@ -210,6 +210,7 @@ export class PublicNoteComponent implements OnInit {
   saving = signal(false);
   lastSaved = signal<string | null>(null);
   private saveTimeout: any;
+  private refreshInterval: any;
 
   isLoggedIn = this.authState.isAuthenticated;
   private titleService = inject(Title);
@@ -237,6 +238,12 @@ export class PublicNoteComponent implements OnInit {
       // Update Meta Tags
       this.updateMetaTags(shareData);
 
+      // Start periodic refresh for readonly viewers to see updates from the owner
+      // (For editable viewers, they'll see updates as they edit)
+      if (!this.canEdit()) {
+        this.startContentRefresh(shareToken);
+      }
+
       // Handle post-login redirect action
       const action = this.route.snapshot.queryParamMap.get('action');
       if (this.isLoggedIn()) {
@@ -252,6 +259,24 @@ export class PublicNoteComponent implements OnInit {
     } finally {
       this.loading.set(false);
     }
+  }
+
+  /**
+   * Start periodic refresh of content for readonly viewers
+   * This allows viewers to see updates made by the note owner
+   */
+  private startContentRefresh(shareToken: string) {
+    // Refresh every 5 seconds
+    this.refreshInterval = setInterval(async () => {
+      try {
+        const updatedShare = await this.shareService.getShareByToken(shareToken);
+        if (updatedShare && updatedShare.public_content !== this.content) {
+          this.content = updatedShare.public_content || '';
+        }
+      } catch (err) {
+        console.error('Error refreshing content:', err);
+      }
+    }, 5000);
   }
 
   private updateMetaTags(share: PublicShare) {
@@ -394,5 +419,6 @@ export class PublicNoteComponent implements OnInit {
 
   ngOnDestroy() {
     if (this.saveTimeout) clearTimeout(this.saveTimeout);
+    if (this.refreshInterval) clearInterval(this.refreshInterval);
   }
 }

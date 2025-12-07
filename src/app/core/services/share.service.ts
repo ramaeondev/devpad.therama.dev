@@ -92,6 +92,7 @@ export class ShareService {
   /**
    * Get share by token (for anonymous access)
    * Includes validation for expiry and view limits
+   * Fetches current note content to ensure viewers see the latest version
    */
   async getShareByToken(token: string): Promise<PublicShare | null> {
     const { data: share, error } = await this.supabase.client
@@ -114,6 +115,24 @@ export class ShareService {
     // Note: view_count is the *current* count before this access
     if (share.max_views !== null && share.view_count >= share.max_views) {
       return null; // View limit reached
+    }
+
+    // Fetch the current note content to ensure viewers see the latest version
+    // This prevents stale content when the original note is edited
+    try {
+      const { data: note, error: noteError } = await this.supabase.client
+        .from('notes')
+        .select('content, title')
+        .eq('id', share.note_id)
+        .single();
+
+      if (!noteError && note) {
+        // Use current note content instead of stale public_content
+        share.public_content = note.content;
+      }
+    } catch (err) {
+      console.error('Error fetching current note content:', err);
+      // Fallback to public_content if note fetch fails
     }
 
     // Increment view count
