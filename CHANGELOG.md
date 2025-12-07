@@ -5,6 +5,26 @@ All notable changes to this project are documented in this file.
 ## [Unreleased] - 2025-12-07
 
 ### Fixed
+- **Editable Share Import Title Retention**: Fixed issue where importing an editable shared note resulted in the imported note having a generic title "Shared Note Copy" instead of the original note's actual title. The system now:
+  - Captures the original `note_title` from the RPC response when retrieving share data
+  - Uses the original title when creating the imported note in the user's Public folder
+  - Falls back gracefully to the share token if title is unavailable
+  - Provides a consistent experience for users importing shared notes with proper naming
+
+- **Editable Share Editor Loading**: Fixed issue where the note editor failed to load imported notes after importing them from a shared link. The improvements include:
+  - Added authentication check before attempting to load notes
+  - Implemented proper error handling with detailed error messages for debugging
+  - Ensured note content is immediately fetched and available in the editor
+  - Added validation to ensure note has required fields (title, content) before display
+  - Graceful fallback to "Untitled" if title is missing
+
+- **Editable Share Content Sync**: Implemented automatic content synchronization for imported editable shares. When a user (userB) imports an editable shared note from another user (userA):
+  - **Import Process**: The imported note retains the original title and content
+  - **Forward Sync**: When userA edits the original note, all share viewers (including userB's imported copy viewers) receive the updates within 30 seconds
+  - **Content Syncing**: All shares for a note are automatically updated with the latest content, ensuring viewers see consistent information regardless of which share token they're using
+  - **Storage Handling**: Properly fetches content from Supabase Storage with signed URLs and handles decryption for encrypted notes
+  - **Background Operation**: Sync operations don't block user interactions and don't throw errors that would interrupt the editing experience
+
 - **Shared Note Storage Access**: Fixed issue where anonymous users couldn't view shared notes that were stored in Supabase Storage (404 error). The fix ensures that file content is properly fetched and stored in the `public_content` field during share creation, eliminating the need for anonymous users to access the storage bucket directly.
 - **Shared Note Content Sync**: Fixed issue where viewers with the share link could only see the original note content, not the latest updates after the author edited the note. The system now:
   - Prioritizes fresh `note_content` from the database over cached `public_content` for text-based notes

@@ -113,7 +113,21 @@ export class NoteService {
         resource_name: dto.title,
       });
       
-      return updated as Note;
+      // Return the note with fetched content instead of storage path
+      // This ensures the note editor has the actual content ready to display
+      const finalNote = updated as Note;
+      if (finalNote.content?.startsWith('storage://')) {
+        // Fetch content for new note immediately
+        try {
+          const fetchedNote = await this.getNote(finalNote.id, userId);
+          if (fetchedNote) {
+            return fetchedNote;
+          }
+        } catch (err) {
+          console.warn('Failed to fetch created note content:', err);
+        }
+      }
+      return finalNote;
     });
   }
 

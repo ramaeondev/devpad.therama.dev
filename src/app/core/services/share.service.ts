@@ -489,6 +489,7 @@ export class ShareService {
 
   /**
    * Import a public share to the user's account (Copy/Fork)
+   * Creates a new note with the original's title and content, then creates a share
    */
   async importPublicShare(userId: string, originalShareToken: string): Promise<PublicShare> {
     this.loading.start();
@@ -501,10 +502,9 @@ export class ShareService {
       const publicFolder = await this.ensurePublicFolder(userId);
 
       // 3. Create a new note in the Public folder with the content
-      // Note: We use a default title since the public share view might not strictly carry the title depending on permissions/joins, 
-      // but ideally we'd want the original title. For now, "Shared Note Copy" is a safe fallback.
+      // Use the original note's title (captured from RPC) or fallback to the share token
       const content = originalShare.public_content || '';
-      const title = 'Shared Note Copy'; 
+      const title = originalShare.note_title || originalShare.share_token || 'Shared Note Copy';
 
       const newNote = await this.noteService.createNote(userId, {
         title: title,

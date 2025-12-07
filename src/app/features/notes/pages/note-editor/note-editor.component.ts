@@ -93,18 +93,28 @@ export class NoteEditorComponent {
   private async loadNote(id: string) {
     try {
       const userId = this.auth.userId();
+      if (!userId) {
+        this.toast.error('Not authenticated');
+        this.router.navigate(['/auth/signin']);
+        return;
+      }
       const note = await this.noteService.getNote(id, userId);
       if (!note) {
+        console.error('Note not found:', id);
         this.toast.error('Note not found');
         this.router.navigate(['/notes']);
         return;
       }
+      // Ensure note has required fields
+      if (!note.title || note.content === undefined) {
+        console.warn('Note missing required fields:', note);
+      }
       this.currentNote.set(note);
-      this.title.set(note.title);
+      this.title.set(note.title || 'Untitled');
       this.content.set(note.content || '');
     } catch (e: any) {
-      console.error(e);
-      this.toast.error('Failed to load note');
+      console.error('Error loading note:', e);
+      this.toast.error('Failed to load note: ' + (e?.message || 'Unknown error'));
     }
   }
 
