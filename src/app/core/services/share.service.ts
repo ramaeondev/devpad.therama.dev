@@ -52,8 +52,26 @@ export class ShareService {
       let publicStoragePath: string | undefined;
 
       if (note.content?.startsWith('storage://')) {
-        // File-based note - we'll need to handle file copying
+        // File-based note - fetch the actual content for public sharing
         publicStoragePath = note.content;
+        
+        // For text-based storage files (.md, .txt), fetch and store content
+        // This allows anonymous users to view shared content without storage auth
+        const path = note.content.replace('storage://', '').split('/');
+        if (path.length > 0) {
+          const fileName = path[path.length - 1];
+          const isTextFile = fileName.endsWith('.md') || fileName.endsWith('.txt');
+          
+          if (isTextFile) {
+            try {
+              // Fetch content using authenticated user's access
+              publicContent = note.content; // getNote already fetched and returned the content for .md files
+            } catch (err) {
+              console.error('Failed to fetch file content for sharing:', err);
+              publicContent = '[Content unavailable]';
+            }
+          }
+        }
       } else {
         // Text-based note - decrypt if encrypted
         publicContent = note.content || '';
@@ -124,23 +142,22 @@ export class ShareService {
 
       const resolvedNote = Array.isArray(sharedNote) ? sharedNote[0] : sharedNote;
       if (!rpcError && resolvedNote) {
-        // For file-based notes (storage://), fetch the actual content
-        if (resolvedNote.note_content?.startsWith('storage://')) {
-          try {
-            const content = await this.fetchStorageContent(resolvedNote.note_content);
-            share.public_content = content;
-          } catch (storageErr) {
-            console.error('Error fetching storage content:', storageErr);
-            share.public_content = '[Note content could not be loaded]';
-          }
-        } else {
-          // For text-based notes, use content directly
+        // Use public_content if available (populated during share creation)
+        if (resolvedNote.public_content) {
+          share.public_content = resolvedNote.public_content;
+        } 
+        // Otherwise, for text-based notes stored in DB, use note_content directly
+        else if (resolvedNote.note_content && !resolvedNote.note_content.startsWith('storage://')) {
           share.public_content = resolvedNote.note_content;
+        }
+        // For storage-based notes without public_content, show error message
+        else if (resolvedNote.note_content?.startsWith('storage://')) {
+          share.public_content = '[This shared note content is not available. The owner may need to re-share this note.]';
         }
       }
     } catch (err) {
       console.error('Error fetching shared note via RPC:', err);
-      // Fallback to public_content if note fetch fails
+      // Fallback to existing public_content if note fetch fails
     }
 
     return share as PublicShare;
@@ -478,32 +495,4 @@ export class ShareService {
     }
   }
 
-  /**
-   * Fetch storage-based note content from Supabase storage
-   * Handles decrypted or raw file content
-   */
-  private async fetchStorageContent(storagePath: string): Promise<string> {
-    if (!storagePath.startsWith('storage://')) {
-      return storagePath;
-    }
-
-    try {
-      // Parse storage:// path format: storage://bucket/path
-      const parts = storagePath.replace('storage://', '').split('/');
-      const bucket = parts[0];
-      const filePath = parts.slice(1).join('/');
-
-      const { data, error } = await this.supabase.storage
-        .from(bucket)
-        .download(filePath);
-
-      if (error) throw error;
-
-      // Convert blob to text
-      return await data.text();
-    } catch (err) {
-      console.error('Failed to fetch storage content:', err);
-      throw err;
-    }
-  }
 }

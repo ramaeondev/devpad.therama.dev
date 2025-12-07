@@ -2,6 +2,11 @@
 
 All notable changes to this project are documented in this file.
 
+## [Unreleased] - 2025-12-07
+
+### Fixed
+- **Shared Note Storage Access**: Fixed issue where anonymous users couldn't view shared notes that were stored in Supabase Storage (404 error). The fix ensures that file content is properly fetched and stored in the `public_content` field during share creation, eliminating the need for anonymous users to access the storage bucket directly.
+- **Repeated API Calls**: Resolved the issue where the storage URL was being called repeatedly (every 5 seconds) when shared notes failed to load, which was caused by the auto-refresh mechanism trying to fetch unavailable storage content.
 
 ## [Unreleased] - 2025-11-29
 

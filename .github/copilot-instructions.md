@@ -192,6 +192,9 @@ Example: feat(logo): add Lottie animation support
 - Read all the commits for a day to summarize them effectively in the changelog.
 
 ## Database Backup
+- Always check the last backup before running database migrations.
 - Verify the database backups created by the script in `scripts/db-backup.js` before generating new migration files.
 - Run the script manually to create a backup and verify it if needed.
 
+## Error 406 - Not Acceptable
+- Check the Proxy code in `cloudflare/proxy.ts` for any issues related to request handling.
