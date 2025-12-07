@@ -4,6 +4,25 @@ All notable changes to this project are documented in this file.
 
 ## [Unreleased] - 2025-12-07
 
+### Changed
+- **Shared Note Ownership Model**: Refactored share model to clarify ownership and control:
+  - **Editable Shares are Always Public**: When a user (userA) shares a note with edit access, it becomes a permanently shared public link. Non-owner viewers (userB, userC) can edit content in real-time but cannot import/fork the note.
+  - **Only Author Controls Share Settings**: Only the original author (userA) can:
+    - Change share permission (editable ↔ readonly)
+    - Set expiry dates or view limits
+    - Delete/unshare the note
+    - Rename the note
+  - **Non-Owners View-Only for Admin Functions**: Remote users viewing editable shares can:
+    - ✅ Edit content in real-time
+    - ✅ See all changes from other viewers (via sync)
+    - ❌ Cannot import/reshare the note
+    - ❌ Cannot modify share settings
+    - ❌ Cannot delete the original share
+  - **Updated UI**: 
+    - "Add to My Notes" button only shows for readonly shares (where users can import)
+    - Editable share viewers cannot trigger import actions
+    - Signin link for editable shares no longer attempts import
+
 ### Fixed
 - **Editable Share Remote Edit Sync (Critical Fix)**: Fixed critical issue where edits made by remote users on editable shared notes were not syncing to other viewers. Root cause was a content priority mismatch in RPC response handling. The complete fix includes:
   - **Content Priority Fix**: Changed `getShareByTokenInternal()` to prioritize `public_content` (updated when users edit via public-note view) over `note_content` (owner's dashboard edits). This ensures editable share edits are visible.

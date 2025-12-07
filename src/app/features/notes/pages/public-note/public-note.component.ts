@@ -56,8 +56,8 @@ import { LogoComponent } from '../../../../shared/components/ui/logo/logo.compon
                 <i class="fa-solid fa-lock mr-2"></i>
                 Sign in to edit this shared note.
               </p>
-              <a [href]="'/auth/signin?returnUrl=' + '/share/' + share()?.share_token + '?action=import_and_open'" class="text-xs px-3 py-1.5 bg-blue-100 hover:bg-blue-200 dark:bg-blue-800 dark:hover:bg-blue-700 text-blue-800 dark:text-blue-100 rounded-md transition-colors font-medium cursor-pointer">
-                Sign In to Save
+              <a [href]="'/auth/signin?returnUrl=' + '/share/' + share()?.share_token" class="text-xs px-3 py-1.5 bg-blue-100 hover:bg-blue-200 dark:bg-blue-800 dark:hover:bg-blue-700 text-blue-800 dark:text-blue-100 rounded-md transition-colors font-medium cursor-pointer">
+                Sign In
               </a>
             </div>
           </div>
@@ -111,22 +111,25 @@ import { LogoComponent } from '../../../../shared/components/ui/logo/logo.compon
                 </button>
               }
               
-              @if (isLoggedIn()) {
-                <button
-                  (click)="addToMyNotes()"
-                  class="px-4 py-2 bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-900 dark:text-white rounded-lg transition-colors"
-                >
-                  <i class="fa-solid fa-plus mr-2"></i>
-                  Add to My Notes
-                </button>
-              } @else {
-                <a
-                  [href]="'/auth/signup'"
-                  class="px-4 py-2 bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-900 dark:text-white rounded-lg transition-colors"
-                >
-                  <i class="fa-solid fa-user-plus mr-2"></i>
-                  Sign Up
-                </a>
+              <!-- Show "Add to My Notes" only for non-owners or non-authenticated users with readonly access -->
+              @if (!isOwner() && share()?.permission === 'readonly') {
+                @if (isLoggedIn()) {
+                  <button
+                    (click)="addToMyNotes()"
+                    class="px-4 py-2 bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-900 dark:text-white rounded-lg transition-colors"
+                  >
+                    <i class="fa-solid fa-plus mr-2"></i>
+                    Add to My Notes
+                  </button>
+                } @else {
+                  <a
+                    [href]="'/auth/signup'"
+                    class="px-4 py-2 bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-900 dark:text-white rounded-lg transition-colors"
+                  >
+                    <i class="fa-solid fa-user-plus mr-2"></i>
+                    Sign Up
+                  </a>
+                }
               }
             </div>
           </div>
@@ -351,6 +354,13 @@ export class PublicNoteComponent implements OnInit, OnDestroy {
     return !!(this.isLoggedIn() && share?.permission === 'editable');
   }
 
+  // Determine if the current user is the original author (share owner)
+  isOwner(): boolean {
+    const share = this.share();
+    const userId = this.authState.userId();
+    return !!(userId && share?.user_id === userId);
+  }
+
   noteTitle(): string {
     return this.share()?.note_title || 'Shared Note';
   }
@@ -441,13 +451,21 @@ export class PublicNoteComponent implements OnInit, OnDestroy {
       return;
     }
 
+    // Editable shares cannot be imported - they are always shared
+    // Only the original author can control share settings
+    if (share.permission === 'editable') {
+      this.toast.error('Editable shares cannot be imported. This shared note is already public with edit access.');
+      this.processingRedirect.set(false);
+      return;
+    }
+
     this.processingRedirect.set(true);
     // Show a different loading message if possible, or just generic
     
     try {
       this.toast.info('Importing note to your Public folder...');
       
-      // Import the share (fork it)
+      // Import the share (fork it) - only for readonly shares
       const newShare = await this.shareService.importPublicShare(userId, share.share_token);
       
       // Redirect to dashboard with the NEW note
