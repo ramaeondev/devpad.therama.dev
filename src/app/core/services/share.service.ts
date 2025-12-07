@@ -128,25 +128,11 @@ export class ShareService {
         // STORAGE HANDLING: If content is a storage path, fetch the actual file
         if (contentToUse && contentToUse.startsWith('storage://')) {
           try {
-            // Parse storage path: storage://bucket/userId/noteId.md
-            const storagePath = contentToUse.replace('storage://', '');
-            const parts = storagePath.split('/');
-            const bucket = parts[0]; // e.g., 'notes'
-            const filePath = parts.slice(1).join('/'); // e.g., 'userId/noteId.md'
-            
-            const { data: fileData, error: downloadErr } = await this.supabase.storage
-              .from(bucket)
-              .download(filePath);
-            
-            if (!downloadErr && fileData) {
-              contentToUse = await fileData.text();
-            } else {
-              console.warn('Failed to download storage content:', downloadErr);
-              contentToUse = '[Failed to fetch note content from storage]';
-            }
+            // Fetch the actual file content using signed URLs (works with anon key)
+            contentToUse = await this.noteService.fetchStorageContent(contentToUse);
           } catch (storageErr) {
-            console.warn('Error fetching storage content:', storageErr);
-            contentToUse = '[Failed to fetch note content]';
+            console.error('Error fetching storage content:', storageErr);
+            contentToUse = '[Content unavailable - the file may have been moved or deleted. Please contact the note owner.]';
           }
         }
         

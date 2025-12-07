@@ -464,6 +464,50 @@ export class NoteService {
   }
 
   /**
+   * Fetch storage content for shared notes
+   * This bypasses RLS by using signed URLs which work for public shares
+   */
+  async fetchStorageContent(storagePath: string): Promise<string> {
+    try {
+      // Parse storage path: storage://bucket/userId/noteId.md
+      const path = storagePath.replace(`storage://${this.BUCKET}/`, '');
+      
+      // Create signed URL (works with anon key for public access)
+      const { data: urlData, error: urlErr } = await this.supabase.storage
+        .from(this.BUCKET)
+        .createSignedUrl(path, 60);
+      
+      if (urlErr || !urlData?.signedUrl) {
+        throw urlErr || new Error('Failed to create signed URL');
+      }
+      
+      // Fetch content via signed URL
+      const response = await fetch(urlData.signedUrl);
+      if (!response.ok) {
+        throw new Error(`Failed to fetch content: ${response.status} ${response.statusText}`);
+      }
+      
+      const textContent = await response.text();
+      
+      // Try to decrypt if we have a key (owner viewing their own share)
+      if (textContent && this.encryption.hasKey()) {
+        try {
+          return await this.encryption.decryptText(textContent);
+        } catch (decryptErr) {
+          // If decryption fails, return as-is (might not be encrypted)
+          console.warn('Decryption failed, returning raw content:', decryptErr);
+          return textContent;
+        }
+      }
+      
+      return textContent;
+    } catch (err) {
+      console.error('Error fetching storage content:', err);
+      throw err;
+    }
+  }
+
+  /**
    * Sync shared content when note is updated
    * Updates public_content in all shares for this note
    */
