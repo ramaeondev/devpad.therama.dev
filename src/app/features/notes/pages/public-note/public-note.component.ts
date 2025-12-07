@@ -327,7 +327,7 @@ export class PublicNoteComponent implements OnInit, OnDestroy {
   }
 
   private updateMetaTags(share: PublicShare) {
-    const title = share.note_id || 'Shared Note';
+    const title = share.note_title || 'Shared Note';
     const description = this.content ? this.content.substring(0, 150).replace(/[#*`]/g, '') + '...' : 'Check out this note on DevPad.';
     const url = window.location.href;
     const imageUrl = '/og_image.jpg'; // Default image
@@ -353,7 +353,7 @@ export class PublicNoteComponent implements OnInit, OnDestroy {
   }
 
   noteTitle(): string {
-    return this.share()?.note_id || 'Shared Note';
+    return this.share()?.note_title || 'Shared Note';
   }
 
   // Formatting for Viewer Mode

@@ -142,6 +142,11 @@ export class ShareService {
 
       const resolvedNote = Array.isArray(sharedNote) ? sharedNote[0] : sharedNote;
       if (!rpcError && resolvedNote) {
+        // Capture note title from RPC response
+        if (resolvedNote.note_title) {
+          share.note_title = resolvedNote.note_title;
+        }
+        
         // Prioritize fresh note_content over public_content to ensure viewers see latest edits
         // For text-based notes stored in DB, use note_content directly (always up-to-date)
         if (resolvedNote.note_content && !resolvedNote.note_content.startsWith('storage://')) {

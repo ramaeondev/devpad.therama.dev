@@ -13,6 +13,7 @@ export interface PublicShare {
   updated_at: string;
   expires_at?: string;
   max_views?: number;
+  note_title?: string; // Note title from the notes table
 }
 
 export interface CreateShareDto {

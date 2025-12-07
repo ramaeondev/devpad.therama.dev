@@ -12,6 +12,10 @@ All notable changes to this project are documented in this file.
   - Properly fetches actual content from storage (not just the storage path) when syncing .md/.txt files
   - Handles decryption when syncing encrypted storage-based notes
   - Ensures the auto-refresh mechanism shows the latest content to viewers
+- **Shared Note Title Display**: Fixed issue where shared note preview showed UUID instead of the actual note title. The system now:
+  - Captures `note_title` from the RPC response
+  - Displays the actual note name in the header
+  - Uses the proper title in meta tags for better SEO and social sharing
 
 ### Changed
 - **Optimized Shared Note Polling**: Significantly improved performance and reduced server load for shared notes:
