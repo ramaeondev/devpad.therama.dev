@@ -1,4 +1,5 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
+import { Title, Meta } from '@angular/platform-browser';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -208,6 +209,8 @@ export class PublicNoteComponent implements OnInit {
   private saveTimeout: any;
 
   isLoggedIn = this.authState.isAuthenticated;
+  private titleService = inject(Title);
+  private metaService = inject(Meta);
 
   async ngOnInit() {
     const shareToken = this.route.snapshot.paramMap.get('shareToken');
@@ -228,6 +231,9 @@ export class PublicNoteComponent implements OnInit {
       this.share.set(shareData);
       this.content = shareData.public_content || '';
 
+      // Update Meta Tags
+      this.updateMetaTags(shareData);
+
       // Handle post-login redirect action
       const action = this.route.snapshot.queryParamMap.get('action');
       if (this.isLoggedIn()) {
@@ -243,6 +249,26 @@ export class PublicNoteComponent implements OnInit {
     } finally {
       this.loading.set(false);
     }
+  }
+
+  private updateMetaTags(share: PublicShare) {
+    const title = share.note_id || 'Shared Note';
+    const description = this.content ? this.content.substring(0, 150).replace(/[#*`]/g, '') + '...' : 'Check out this note on DevPad.';
+    const url = window.location.href;
+    const imageUrl = '/og_image.jpg'; // Default image
+
+    this.titleService.setTitle(`${title} - DevPad`);
+
+    this.metaService.updateTag({ property: 'og:title', content: title });
+    this.metaService.updateTag({ property: 'og:description', content: description });
+    this.metaService.updateTag({ property: 'og:image', content: imageUrl });
+    this.metaService.updateTag({ property: 'og:url', content: url });
+    this.metaService.updateTag({ property: 'og:type', content: 'article' });
+    
+    this.metaService.updateTag({ name: 'twitter:card', content: 'summary_large_image' });
+    this.metaService.updateTag({ name: 'twitter:title', content: title });
+    this.metaService.updateTag({ name: 'twitter:description', content: description });
+    this.metaService.updateTag({ name: 'twitter:image', content: imageUrl });
   }
 
   // Determine if the current user can edit the note
