@@ -8,6 +8,7 @@ import { ToastService } from '../../../../core/services/toast.service';
 import { LogoComponent } from '../../../../shared/components/ui/logo/logo.component';
 import { DeviceFingerprintService } from '../../../../core/services/device-fingerprint.service';
 import { ActivityLogService } from '../../../../core/services/activity-log.service';
+import { ActivityAction, ActivityResource } from '../../../../core/models/activity-log.model';
 
 @Component({
   selector: 'app-signin',
@@ -231,8 +232,8 @@ export class SigninComponent {
 
         // Log activity
         await this.activityLog.logActivity(data.session.user.id, {
-          action_type: 'login',
-          resource_type: 'auth',
+          action_type: ActivityAction.Login,
+          resource_type: ActivityResource.Auth,
           resource_name: 'Email Sign In',
         });
       }

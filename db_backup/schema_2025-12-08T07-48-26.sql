@@ -64,16 +64,14 @@ DECLARE
   is_new_device BOOLEAN := false;
   is_untrusted_device BOOLEAN := true;
 BEGIN
-  -- Extract device name from device_info
+  -- Force use jsonb operators
   device_name := COALESCE(
-    NEW.device_info->>'device_name',
-    NEW.device_info->>'browser_name' || ' on ' || NEW.device_info->>'os_name',
+    (NEW.device_info)::jsonb->>'device_name',
+    (NEW.device_info)::jsonb->>'browser_name' || ' on ' || (NEW.device_info)::jsonb->>'os_name',
     'Unknown Device'
   );
 
-  -- Check if this is a new or untrusted device for login events
   IF NEW.action_type = 'login' AND NEW.resource_type = 'auth' THEN
-    -- Check if device exists and is trusted
     SELECT 
       CASE WHEN COUNT(*) = 0 THEN true ELSE false END,
       COALESCE(bool_or(is_trusted), false)
@@ -85,30 +83,25 @@ BEGIN
     is_untrusted_device := NOT is_untrusted_device;
   END IF;
 
-  -- Determine if we should create a notification
   CASE 
-    -- Login from new device
     WHEN NEW.action_type = 'login' AND NEW.resource_type = 'auth' AND is_new_device THEN
       should_notify := true;
       notification_type := 'security';
       notification_title := 'New device login';
       notification_message := 'You signed in from a new device: ' || device_name;
     
-    -- Login from untrusted device
     WHEN NEW.action_type = 'login' AND NEW.resource_type = 'auth' AND is_untrusted_device AND NOT is_new_device THEN
       should_notify := true;
       notification_type := 'security';
       notification_title := 'Untrusted device login';
       notification_message := 'You signed in from an untrusted device: ' || device_name;
     
-    -- Note deletion
     WHEN NEW.action_type = 'delete' AND NEW.resource_type = 'note' THEN
       should_notify := true;
       notification_type := 'activity';
       notification_title := 'Note deleted';
       notification_message := 'You deleted a note: ' || COALESCE(NEW.resource_name, 'Untitled');
     
-    -- Folder deletion
     WHEN NEW.action_type = 'delete' AND NEW.resource_type = 'folder' THEN
       should_notify := true;
       notification_type := 'activity';
@@ -119,7 +112,6 @@ BEGIN
       should_notify := false;
   END CASE;
 
-  -- Create notification if needed
   IF should_notify THEN
     INSERT INTO notifications (
       user_id,
@@ -162,6 +154,107 @@ $$;
 
 
 ALTER FUNCTION "public"."ensure_single_current_device"() OWNER TO "postgres";
+
+
+CREATE OR REPLACE FUNCTION "public"."get_shared_note"("p_share_token" "text") RETURNS TABLE("share_id" "uuid", "note_id" "uuid", "user_id" "uuid", "permission" "text", "view_count" integer, "max_views" integer, "expires_at" timestamp with time zone, "note_title" "text", "note_content" "text", "is_encrypted" boolean, "encryption_version" "text", "created_at" timestamp with time zone, "updated_at" timestamp with time zone)
+    LANGUAGE "plpgsql" SECURITY DEFINER
+    AS $$
+DECLARE
+  v_share public.public_shares%rowtype;
+BEGIN
+  -- Locate the share
+  SELECT * INTO v_share
+  FROM public.public_shares
+  WHERE share_token = p_share_token;
+
+  IF NOT FOUND THEN
+    RETURN;
+  END IF;
+
+  -- Validate expiry
+  IF v_share.expires_at IS NOT NULL AND v_share.expires_at < now() THEN
+    RETURN;
+  END IF;
+
+  -- Validate max views
+  IF v_share.max_views IS NOT NULL AND v_share.view_count >= v_share.max_views THEN
+    RETURN;
+  END IF;
+
+  RETURN QUERY
+  SELECT
+    v_share.id,
+    v_share.note_id,
+    v_share.user_id,
+    v_share.permission,
+    v_share.view_count,
+    v_share.max_views,
+    v_share.expires_at,
+    n.title AS note_title,
+    n.content AS note_content,
+    n.is_encrypted,
+    n.encryption_version,
+    v_share.created_at,
+    v_share.updated_at
+  FROM public.notes n
+  WHERE n.id = v_share.note_id;
+END;
+$$;
+
+
+ALTER FUNCTION "public"."get_shared_note"("p_share_token" "text") OWNER TO "postgres";
+
+
+CREATE OR REPLACE FUNCTION "public"."increment_share_view_count"("share_id" "uuid") RETURNS "void"
+    LANGUAGE "plpgsql" SECURITY DEFINER
+    AS $$
+BEGIN
+  UPDATE public_shares
+  SET 
+    view_count = view_count + 1,
+    last_accessed_at = NOW()
+  WHERE id = share_id;
+END;
+$$;
+
+
+ALTER FUNCTION "public"."increment_share_view_count"("share_id" "uuid") OWNER TO "postgres";
+
+
+CREATE OR REPLACE FUNCTION "public"."track_share_access"("p_share_id" "uuid", "p_fingerprint" "text") RETURNS "void"
+    LANGUAGE "plpgsql" SECURITY DEFINER
+    AS $$
+DECLARE
+    v_exists BOOLEAN;
+BEGIN
+    -- Increment total view count (always)
+    UPDATE public_shares
+    SET 
+        view_count = view_count + 1,
+        last_accessed_at = NOW()
+    WHERE id = p_share_id;
+
+    -- Check if this fingerprint has accessed this share before
+    SELECT EXISTS (
+        SELECT 1 
+        FROM public_share_access_logs 
+        WHERE share_id = p_share_id AND fingerprint = p_fingerprint
+    ) INTO v_exists;
+
+    -- If new visitor, log it and increment unique count
+    IF NOT v_exists THEN
+        INSERT INTO public_share_access_logs (share_id, fingerprint)
+        VALUES (p_share_id, p_fingerprint);
+
+        UPDATE public_shares
+        SET unique_view_count = unique_view_count + 1
+        WHERE id = p_share_id;
+    END IF;
+END;
+$$;
+
+
+ALTER FUNCTION "public"."track_share_access"("p_share_id" "uuid", "p_fingerprint" "text") OWNER TO "postgres";
 
 
 CREATE OR REPLACE FUNCTION "public"."update_device_last_seen"() RETURNS "trigger"
@@ -339,6 +432,17 @@ COMMENT ON COLUMN "public"."notifications"."is_read" IS 'Whether the notificatio
 
 
 
+CREATE TABLE IF NOT EXISTS "public"."public_share_access_logs" (
+    "id" "uuid" DEFAULT "extensions"."uuid_generate_v4"() NOT NULL,
+    "share_id" "uuid",
+    "fingerprint" "text" NOT NULL,
+    "created_at" timestamp with time zone DEFAULT "now"()
+);
+
+
+ALTER TABLE "public"."public_share_access_logs" OWNER TO "postgres";
+
+
 CREATE TABLE IF NOT EXISTS "public"."public_shares" (
     "id" "uuid" DEFAULT "gen_random_uuid"() NOT NULL,
     "note_id" "uuid" NOT NULL,
@@ -352,11 +456,17 @@ CREATE TABLE IF NOT EXISTS "public"."public_shares" (
     "created_at" timestamp with time zone DEFAULT "timezone"('utc'::"text", "now"()) NOT NULL,
     "updated_at" timestamp with time zone DEFAULT "timezone"('utc'::"text", "now"()) NOT NULL,
     "expires_at" timestamp with time zone,
+    "max_views" integer,
+    "unique_view_count" integer DEFAULT 0,
     CONSTRAINT "public_shares_permission_check" CHECK (("permission" = ANY (ARRAY['readonly'::"text", 'editable'::"text"])))
 );
 
 
 ALTER TABLE "public"."public_shares" OWNER TO "postgres";
+
+
+COMMENT ON COLUMN "public"."public_shares"."max_views" IS 'Maximum number of views allowed before the share expires. Null means unlimited.';
+
 
 
 CREATE TABLE IF NOT EXISTS "public"."user_devices" (
@@ -421,7 +531,8 @@ CREATE TABLE IF NOT EXISTS "public"."user_profiles" (
     "first_name" "text",
     "last_name" "text",
     "avatar_url" "text",
-    "public_folder_id" "uuid"
+    "public_folder_id" "uuid",
+    "imports_folder_id" "uuid"
 );
 
 
@@ -433,6 +544,10 @@ COMMENT ON TABLE "public"."user_profiles" IS 'Stores user-specific profile setti
 
 
 COMMENT ON COLUMN "public"."user_profiles"."is_root_folder_created" IS 'Flag to track if root folder has been created for the user';
+
+
+
+COMMENT ON COLUMN "public"."user_profiles"."imports_folder_id" IS 'Reference to the user''s Imports folder for forked shared notes';
 
 
 
@@ -463,6 +578,11 @@ ALTER TABLE ONLY "public"."notes"
 
 ALTER TABLE ONLY "public"."notifications"
     ADD CONSTRAINT "notifications_pkey" PRIMARY KEY ("id");
+
+
+
+ALTER TABLE ONLY "public"."public_share_access_logs"
+    ADD CONSTRAINT "public_share_access_logs_pkey" PRIMARY KEY ("id");
 
 
 
@@ -592,6 +712,10 @@ CREATE INDEX "idx_public_shares_user_id" ON "public"."public_shares" USING "btre
 
 
 
+CREATE INDEX "idx_share_access_fingerprint" ON "public"."public_share_access_logs" USING "btree" ("share_id", "fingerprint");
+
+
+
 CREATE INDEX "idx_user_devices_fingerprint_id" ON "public"."user_devices" USING "btree" ("fingerprint_id");
 
 
@@ -620,11 +744,11 @@ CREATE UNIQUE INDEX "unique_user_root" ON "public"."folders" USING "btree" ("use
 
 
 
-CREATE OR REPLACE TRIGGER "create_notification_on_activity" AFTER INSERT ON "public"."activity_logs" FOR EACH ROW EXECUTE FUNCTION "public"."create_notification_for_activity"();
-
-
-
 CREATE OR REPLACE TRIGGER "ensure_single_current_device_trigger" BEFORE INSERT OR UPDATE ON "public"."user_devices" FOR EACH ROW WHEN (("new"."is_current" = true)) EXECUTE FUNCTION "public"."ensure_single_current_device"();
+
+
+
+CREATE OR REPLACE TRIGGER "on_activity_log_created" AFTER INSERT ON "public"."activity_logs" FOR EACH ROW EXECUTE FUNCTION "public"."create_notification_for_activity"();
 
 
 
@@ -696,6 +820,11 @@ ALTER TABLE ONLY "public"."notifications"
 
 
 
+ALTER TABLE ONLY "public"."public_share_access_logs"
+    ADD CONSTRAINT "public_share_access_logs_share_id_fkey" FOREIGN KEY ("share_id") REFERENCES "public"."public_shares"("id") ON DELETE CASCADE;
+
+
+
 ALTER TABLE ONLY "public"."public_shares"
     ADD CONSTRAINT "public_shares_note_id_fkey" FOREIGN KEY ("note_id") REFERENCES "public"."notes"("id") ON DELETE CASCADE;
 
@@ -708,6 +837,11 @@ ALTER TABLE ONLY "public"."public_shares"
 
 ALTER TABLE ONLY "public"."user_devices"
     ADD CONSTRAINT "user_devices_user_id_fkey" FOREIGN KEY ("user_id") REFERENCES "auth"."users"("id") ON DELETE CASCADE;
+
+
+
+ALTER TABLE ONLY "public"."user_profiles"
+    ADD CONSTRAINT "user_profiles_imports_folder_id_fkey" FOREIGN KEY ("imports_folder_id") REFERENCES "public"."folders"("id");
 
 
 
@@ -1043,6 +1177,24 @@ GRANT ALL ON FUNCTION "public"."ensure_single_current_device"() TO "service_role
 
 
 
+GRANT ALL ON FUNCTION "public"."get_shared_note"("p_share_token" "text") TO "anon";
+GRANT ALL ON FUNCTION "public"."get_shared_note"("p_share_token" "text") TO "authenticated";
+GRANT ALL ON FUNCTION "public"."get_shared_note"("p_share_token" "text") TO "service_role";
+
+
+
+GRANT ALL ON FUNCTION "public"."increment_share_view_count"("share_id" "uuid") TO "anon";
+GRANT ALL ON FUNCTION "public"."increment_share_view_count"("share_id" "uuid") TO "authenticated";
+GRANT ALL ON FUNCTION "public"."increment_share_view_count"("share_id" "uuid") TO "service_role";
+
+
+
+GRANT ALL ON FUNCTION "public"."track_share_access"("p_share_id" "uuid", "p_fingerprint" "text") TO "anon";
+GRANT ALL ON FUNCTION "public"."track_share_access"("p_share_id" "uuid", "p_fingerprint" "text") TO "authenticated";
+GRANT ALL ON FUNCTION "public"."track_share_access"("p_share_id" "uuid", "p_fingerprint" "text") TO "service_role";
+
+
+
 GRANT ALL ON FUNCTION "public"."update_device_last_seen"() TO "anon";
 GRANT ALL ON FUNCTION "public"."update_device_last_seen"() TO "authenticated";
 GRANT ALL ON FUNCTION "public"."update_device_last_seen"() TO "service_role";
@@ -1103,6 +1255,12 @@ GRANT ALL ON TABLE "public"."notes" TO "service_role";
 GRANT ALL ON TABLE "public"."notifications" TO "anon";
 GRANT ALL ON TABLE "public"."notifications" TO "authenticated";
 GRANT ALL ON TABLE "public"."notifications" TO "service_role";
+
+
+
+GRANT ALL ON TABLE "public"."public_share_access_logs" TO "anon";
+GRANT ALL ON TABLE "public"."public_share_access_logs" TO "authenticated";
+GRANT ALL ON TABLE "public"."public_share_access_logs" TO "service_role";
 
 
 
@@ -1182,93 +1340,6 @@ ALTER DEFAULT PRIVILEGES FOR ROLE "postgres" IN SCHEMA "public" GRANT ALL ON TAB
 
 
 
-
-
-
-drop extension if exists "pg_net";
-
-drop policy "Anyone can read public shares by token" on "public"."public_shares";
-
-
-  create policy "Anyone can read public shares by token"
-  on "public"."public_shares"
-  as permissive
-  for select
-  to anon, authenticated
-using (true);
-
-
-
-  create policy "Public avatar access"
-  on "storage"."objects"
-  as permissive
-  for select
-  to public
-using ((bucket_id = 'avatars'::text));
-
-
-
-  create policy "Users can delete own avatar"
-  on "storage"."objects"
-  as permissive
-  for delete
-  to authenticated
-using (((bucket_id = 'avatars'::text) AND (name ~ (('^avatars/'::text || (auth.uid())::text) || '\.'::text))));
-
-
-
-  create policy "Users can delete their own notes"
-  on "storage"."objects"
-  as permissive
-  for delete
-  to authenticated
-using (((bucket_id = 'notes'::text) AND ((storage.foldername(name))[1] = (auth.uid())::text)));
-
-
-
-  create policy "Users can read their own notes"
-  on "storage"."objects"
-  as permissive
-  for select
-  to authenticated
-using (((bucket_id = 'notes'::text) AND ((storage.foldername(name))[1] = (auth.uid())::text)));
-
-
-
-  create policy "Users can update own avatar"
-  on "storage"."objects"
-  as permissive
-  for update
-  to authenticated
-using (((bucket_id = 'avatars'::text) AND (name ~ (('^avatars/'::text || (auth.uid())::text) || '\.'::text))))
-with check (((bucket_id = 'avatars'::text) AND (name ~ (('^avatars/'::text || (auth.uid())::text) || '\.'::text))));
-
-
-
-  create policy "Users can update their own notes"
-  on "storage"."objects"
-  as permissive
-  for update
-  to authenticated
-using (((bucket_id = 'notes'::text) AND ((storage.foldername(name))[1] = (auth.uid())::text)));
-
-
-
-  create policy "Users can upload own avatar"
-  on "storage"."objects"
-  as permissive
-  for insert
-  to authenticated
-with check (((bucket_id = 'avatars'::text) AND (name ~ (('^avatars/'::text || (auth.uid())::text) || '\.'::text))));
-
-
-
-  create policy "Users can upload their own notes"
-  on "storage"."objects"
-  as permissive
-  for insert
-  to authenticated
-with check (((bucket_id = 'notes'::text) AND ((storage.foldername(name))[1] = (auth.uid())::text)));
 
 
 

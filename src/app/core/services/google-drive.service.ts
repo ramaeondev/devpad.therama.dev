@@ -7,6 +7,7 @@ import { Integration, GoogleDriveFile, GoogleDriveFolder } from '../models/integ
 import { environment } from '../../../environments/environment';
 import { HttpClient } from '@angular/common/http';
 import { ActivityLogService } from './activity-log.service';
+import { ActivityAction, ActivityResource } from '../models/activity-log.model';
 
 declare const google: any;
 
@@ -239,8 +240,8 @@ export class GoogleDriveService {
 
       // Log activity
       await this.activityLog.logActivity(userId, {
-        action_type: 'upload', // Using 'upload' as a proxy for 'import' since 'import' isn't in ActionType yet, or I should check ActionType
-        resource_type: 'integration',
+        action_type: ActivityAction.Upload, // Using 'upload' as a proxy for 'import' since 'import' isn't in ActionType yet, or I should check ActionType
+        resource_type: ActivityResource.Integration,
         resource_name: `Imported ${files.length} files from Google Drive`,
         metadata: { file_count: files.length, provider: 'google_drive' }
       });
@@ -494,8 +495,8 @@ export class GoogleDriveService {
       const userId = this.auth.userId();
       if (userId) {
         await this.activityLog.logActivity(userId, {
-          action_type: 'upload',
-          resource_type: 'integration',
+          action_type: ActivityAction.Upload,
+          resource_type: ActivityResource.Integration,
           resource_name: uploadedFile.name,
           resource_id: uploadedFile.id,
           metadata: { provider: 'google_drive', mime_type: uploadedFile.mimeType }
@@ -586,8 +587,8 @@ export class GoogleDriveService {
       const userId = this.auth.userId();
       if (userId) {
         await this.activityLog.logActivity(userId, {
-          action_type: 'delete',
-          resource_type: 'integration',
+          action_type: ActivityAction.Delete,
+          resource_type: ActivityResource.Integration,
           resource_name: 'Google Drive File',
           resource_id: fileId,
           metadata: { provider: 'google_drive' }
@@ -645,8 +646,8 @@ export class GoogleDriveService {
       const userId = this.auth.userId();
       if (userId) {
         await this.activityLog.logActivity(userId, {
-          action_type: 'create',
-          resource_type: 'integration',
+          action_type: ActivityAction.Create,
+          resource_type: ActivityResource.Integration,
           resource_name: folder.name,
           resource_id: folder.id,
           metadata: { provider: 'google_drive', is_folder: true }
@@ -683,8 +684,8 @@ export class GoogleDriveService {
       const userId = this.auth.userId();
       if (userId) {
         await this.activityLog.logActivity(userId, {
-          action_type: 'edit',
-          resource_type: 'integration',
+          action_type: ActivityAction.Update,
+          resource_type: ActivityResource.Integration,
           resource_name: newName,
           resource_id: fileId,
           metadata: { provider: 'google_drive', action: 'rename' }

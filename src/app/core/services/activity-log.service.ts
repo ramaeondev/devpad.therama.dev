@@ -5,7 +5,9 @@ import {
   ActivityLog,
   ActivityLogFilters,
   CreateActivityLogDto,
-  ResourceType,
+  ActivityAction,
+  ActivityResource,
+  ActivityCategory
 } from '../models/activity-log.model';
 
 @Injectable({
@@ -19,20 +21,25 @@ export class ActivityLogService {
    * Log an activity with device fingerprint
    */
   async logActivity(
-    userId: string,
+    userId: string | undefined, // Nullable for anon
     dto: CreateActivityLogDto
   ): Promise<ActivityLog | null> {
     try {
       // Get device fingerprint and info
       const deviceInfo = await this.deviceFingerprint.getDeviceInfo();
 
+      // Determine default category if not provided
+      const category = dto.category || this.inferCategory(dto.action_type, dto.resource_type);
+
       // Prepare activity log data
       const activityLogData = {
-        user_id: userId,
+        user_id: userId || null, // Handle undefined
         action_type: dto.action_type,
         resource_type: dto.resource_type,
         resource_id: dto.resource_id,
         resource_name: dto.resource_name,
+        resource_owner_id: dto.resource_owner_id,
+        category: category,
         device_fingerprint: deviceInfo.fingerprint_id,
         device_info: {
           device_name: deviceInfo.device_name,
@@ -42,7 +49,9 @@ export class ActivityLogService {
           os_name: deviceInfo.os_name,
           os_version: deviceInfo.os_version,
         },
-        metadata: dto.metadata,
+        metadata: dto.metadata || {},
+        is_anonymous: dto.is_anonymous || !userId,
+        session_id: dto.session_id,
       };
 
       // Insert activity log
@@ -65,6 +74,68 @@ export class ActivityLogService {
   }
 
   /**
+   * Infer category based on action and resource
+   */
+  private inferCategory(action: ActivityAction, resource: ActivityResource): ActivityCategory {
+    if ([ActivityAction.Login, ActivityAction.Logout].includes(action) || resource === ActivityResource.Auth) return ActivityCategory.Security;
+    if ([ActivityAction.Create, ActivityAction.Update, ActivityAction.Delete, ActivityAction.Archive, ActivityAction.Restore, ActivityAction.Upload, ActivityAction.Import].includes(action)) return ActivityCategory.Content;
+    if ([ActivityAction.ShareCreate, ActivityAction.ShareUpdate, ActivityAction.ShareDelete, ActivityAction.View, ActivityAction.Download, ActivityAction.Fork].includes(action)) return ActivityCategory.Access;
+    return ActivityCategory.System;
+  }
+
+  /**
+   * Helper: Log a content action (Note, Folder, Tag)
+   */
+  async logContentAction(
+    userId: string, 
+    action: ActivityAction.Create | ActivityAction.Update | ActivityAction.Delete | ActivityAction.Archive | ActivityAction.Restore,
+    resourceType: ActivityResource.Note | ActivityResource.Folder | ActivityResource.Tag,
+    resourceId: string,
+    resourceName: string,
+    metadata?: any
+  ) {
+    return this.logActivity(userId, {
+      action_type: action,
+      resource_type: resourceType,
+      resource_id: resourceId,
+      resource_name: resourceName,
+      category: ActivityCategory.Content,
+      metadata
+    });
+  }
+
+  /**
+   * Helper: Log a sharing action
+   */
+  async logShareAction(
+    userId: string,
+    action: ActivityAction.ShareCreate | ActivityAction.ShareUpdate | ActivityAction.ShareDelete,
+    resourceId: string, // The Public Share ID
+    resourceName: string, // Name of the shard note
+    metadata?: any
+  ) {
+    return this.logActivity(userId, {
+      action_type: action,
+      resource_type: ActivityResource.PublicShare,
+      resource_id: resourceId,
+      resource_name: resourceName,
+      category: ActivityCategory.Access,
+      metadata
+    });
+  }
+
+  /**
+   * Helper: Log an auth action
+   */
+  async logAuthAction(userId: string, action: ActivityAction.Login | ActivityAction.Logout) {
+    return this.logActivity(userId, {
+      action_type: action,
+      resource_type: ActivityResource.Auth,
+      category: ActivityCategory.Security
+    });
+  }
+
+  /**
    * Get user's activity logs with optional filters
    */
   async getUserActivityLogs(
@@ -75,24 +146,23 @@ export class ActivityLogService {
       let query = this.supabase
         .from('activity_logs')
         .select('*')
-        .eq('user_id', userId);
+        .or(`user_id.eq.${userId},resource_owner_id.eq.${userId}`);
 
       // Apply filters
       if (filters) {
         if (filters.action_type) {
-          if (Array.isArray(filters.action_type)) {
-            query = query.in('action_type', filters.action_type);
-          } else {
-            query = query.eq('action_type', filters.action_type);
-          }
+          const actions = Array.isArray(filters.action_type) ? filters.action_type : [filters.action_type];
+          query = query.in('action_type', actions);
         }
 
         if (filters.resource_type) {
-          if (Array.isArray(filters.resource_type)) {
-            query = query.in('resource_type', filters.resource_type);
-          } else {
-            query = query.eq('resource_type', filters.resource_type);
-          }
+          const resources = Array.isArray(filters.resource_type) ? filters.resource_type : [filters.resource_type];
+          query = query.in('resource_type', resources);
+        }
+
+        if (filters.category) {
+          const categories = Array.isArray(filters.category) ? filters.category : [filters.category];
+          query = query.in('category', categories);
         }
 
         if (filters.start_date) {
@@ -129,7 +199,7 @@ export class ActivityLogService {
         return [];
       }
 
-      return data || [];
+      return (data as ActivityLog[]) || [];
     } catch (error) {
       console.error('Error in getUserActivityLogs:', error);
       return [];
@@ -140,7 +210,7 @@ export class ActivityLogService {
    * Get activity logs for a specific resource
    */
   async getActivityLogsByResource(
-    resourceType: ResourceType,
+    resourceType: ActivityResource,
     resourceId: string
   ): Promise<ActivityLog[]> {
     try {
@@ -156,7 +226,7 @@ export class ActivityLogService {
         return [];
       }
 
-      return data || [];
+      return (data as ActivityLog[]) || [];
     } catch (error) {
       console.error('Error in getActivityLogsByResource:', error);
       return [];
@@ -174,24 +244,23 @@ export class ActivityLogService {
       let query = this.supabase
         .from('activity_logs')
         .select('*', { count: 'exact', head: true })
-        .eq('user_id', userId);
+        .or(`user_id.eq.${userId},resource_owner_id.eq.${userId}`);
 
       // Apply filters
       if (filters) {
         if (filters.action_type) {
-          if (Array.isArray(filters.action_type)) {
-            query = query.in('action_type', filters.action_type);
-          } else {
-            query = query.eq('action_type', filters.action_type);
-          }
+          const actions = Array.isArray(filters.action_type) ? filters.action_type : [filters.action_type];
+          query = query.in('action_type', actions);
         }
 
         if (filters.resource_type) {
-          if (Array.isArray(filters.resource_type)) {
-            query = query.in('resource_type', filters.resource_type);
-          } else {
-            query = query.eq('resource_type', filters.resource_type);
-          }
+          const resources = Array.isArray(filters.resource_type) ? filters.resource_type : [filters.resource_type];
+          query = query.in('resource_type', resources);
+        }
+
+        if (filters.category) {
+          const categories = Array.isArray(filters.category) ? filters.category : [filters.category];
+          query = query.in('category', categories);
         }
 
         if (filters.start_date) {

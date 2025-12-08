@@ -4,7 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { ActivityLogService } from '../../../../core/services/activity-log.service';
 import { SupabaseService } from '../../../../core/services/supabase.service';
-import { ActivityLog, ActionType, ResourceType } from '../../../../core/models/activity-log.model';
+import { ActivityLog, ActivityAction, ActivityResource } from '../../../../core/models/activity-log.model';
 
 @Component({
   selector: 'app-activity-log-page',
@@ -27,8 +27,8 @@ export class ActivityLogPageComponent implements OnInit {
   Math = Math;
   
   // Filters
-  selectedActionType = signal<ActionType | 'all'>('all');
-  selectedResourceType = signal<ResourceType | 'all'>('all');
+  selectedActionType = signal<ActivityAction | 'all'>('all');
+  selectedResourceType = signal<ActivityResource | 'all'>('all');
   selectedDateRange = signal<'today' | 'week' | 'month' | 'all'>('all');
   
   // Pagination
@@ -37,8 +37,10 @@ export class ActivityLogPageComponent implements OnInit {
   
   totalPages = computed(() => Math.ceil(this.totalCount() / this.pageSize));
 
-  actionTypes: (ActionType | 'all')[] = ['all', 'create', 'edit', 'delete', 'upload', 'login', 'logout'];
-  resourceTypes: (ResourceType | 'all')[] = ['all', 'note', 'folder', 'integration', 'auth'];
+  // Use Object.values for dynamic population
+  actionTypes: (ActivityAction | 'all')[] = ['all', ...Object.values(ActivityAction)];
+  
+  resourceTypes: (ActivityResource | 'all')[] = ['all', ...Object.values(ActivityResource)];
 
   async ngOnInit() {
     await this.loadLogs();
@@ -122,53 +124,85 @@ export class ActivityLogPageComponent implements OnInit {
     }
   }
 
-  getActionIcon(actionType: ActionType): string {
+  getActionIcon(actionType: ActivityAction): string {
     switch (actionType) {
-      case 'create':
+      case ActivityAction.Create:
+      case ActivityAction.ShareCreate:
         return 'fa-plus';
-      case 'edit':
+      case ActivityAction.Update:
+      case ActivityAction.ShareUpdate:
         return 'fa-pen';
-      case 'delete':
+      case ActivityAction.Delete:
+      case ActivityAction.ShareDelete:
         return 'fa-trash';
-      case 'upload':
+      case ActivityAction.View:
+        return 'fa-eye';
+      case ActivityAction.Download:
+      case ActivityAction.Import:
+        return 'fa-download';
+      case ActivityAction.Upload:
         return 'fa-upload';
-      case 'login':
+      case ActivityAction.Fork:
+        return 'fa-code-branch';
+      case ActivityAction.Archive:
+        return 'fa-box-archive';
+      case ActivityAction.Restore:
+        return 'fa-trash-arrow-up';
+      case ActivityAction.Login:
         return 'fa-arrow-right-to-bracket';
-      case 'logout':
+      case ActivityAction.Logout:
         return 'fa-arrow-right-from-bracket';
       default:
         return 'fa-circle';
     }
   }
 
-  getActionColor(actionType: ActionType): string {
+  getActionColor(actionType: ActivityAction): string {
     switch (actionType) {
-      case 'create':
+      case ActivityAction.Create:
+      case ActivityAction.ShareCreate:
+      case ActivityAction.Restore:
         return 'text-green-500';
-      case 'edit':
+      case ActivityAction.Update:
+      case ActivityAction.ShareUpdate:
         return 'text-blue-500';
-      case 'delete':
+      case ActivityAction.Delete:
+      case ActivityAction.ShareDelete:
+      case ActivityAction.Archive:
         return 'text-red-500';
-      case 'upload':
+      case ActivityAction.View:
+      case ActivityAction.Download:
+      case ActivityAction.Import:
+      case ActivityAction.Upload:
+      case ActivityAction.Fork:
         return 'text-purple-500';
-      case 'login':
+      case ActivityAction.Login:
         return 'text-green-600';
-      case 'logout':
+      case ActivityAction.Logout:
         return 'text-gray-500';
       default:
         return 'text-gray-400';
     }
   }
 
-  getResourceIcon(resourceType: ResourceType): string {
+  getResourceIcon(resourceType: ActivityResource): string {
     switch (resourceType) {
-      case 'note':
+      case ActivityResource.Note:
         return 'fa-file-lines';
-      case 'folder':
+      case ActivityResource.Folder:
         return 'fa-folder';
-      case 'integration':
+      case ActivityResource.Tag:
+        return 'fa-tag';
+      case ActivityResource.Device:
+        return 'fa-laptop';
+      case ActivityResource.PublicShare:
+        return 'fa-share-nodes';
+      case ActivityResource.User:
+      case ActivityResource.Profile:
+        return 'fa-user';
+      case ActivityResource.Integration:
         return 'fa-plug';
-      case 'auth':
+      case ActivityResource.Auth:
         return 'fa-shield-halved';
       default:
         return 'fa-circle';

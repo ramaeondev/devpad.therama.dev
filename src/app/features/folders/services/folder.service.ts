@@ -9,6 +9,7 @@ import {
 } from '../../../core/models/folder.model';
 import { LoadingService } from '../../../core/services/loading.service';
 import { ActivityLogService } from '../../../core/services/activity-log.service';
+import { ActivityAction, ActivityResource } from '../../../core/models/activity-log.model';
 
 @Injectable({
   providedIn: 'root',
@@ -150,8 +151,8 @@ export class FolderService {
 
         // Log activity
         await this.activityLog.logActivity(userId, {
-          action_type: 'create',
-          resource_type: 'folder',
+          action_type: ActivityAction.Create,
+          resource_type: ActivityResource.Folder,
           resource_id: data.id,
           resource_name: dto.name,
         });
@@ -258,8 +259,8 @@ export class FolderService {
 
         // Log activity
         await this.activityLog.logActivity(userId, {
-          action_type: 'edit',
-          resource_type: 'folder',
+          action_type: ActivityAction.Update,
+          resource_type: ActivityResource.Folder,
           resource_id: folderId,
           resource_name: dto.name || data.name,
         });
@@ -294,8 +295,8 @@ export class FolderService {
 
         // Log activity
         await this.activityLog.logActivity(userId, {
-          action_type: 'delete',
-          resource_type: 'folder',
+          action_type: ActivityAction.Delete,
+          resource_type: ActivityResource.Folder,
           resource_id: folderId,
           resource_name: folder?.name || 'Untitled',
         });

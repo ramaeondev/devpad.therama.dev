@@ -16,6 +16,7 @@ import { Router, NavigationEnd } from '@angular/router';
 import { filter } from 'rxjs/operators';
 import { NotificationIconComponent } from '../../shared/components/notification-icon/notification-icon';
 import { ActivityLogService } from '../../core/services/activity-log.service';
+import { ActivityAction, ActivityResource } from '../../core/models/activity-log.model';
 
 @Component({
   selector: 'app-dashboard-layout',
@@ -120,8 +121,8 @@ export class DashboardLayoutComponent {
       const userId = this.auth.userId();
       if (userId) {
         await this.activityLog.logActivity(userId, {
-          action_type: 'logout',
-          resource_type: 'auth',
+          action_type: ActivityAction.Logout,
+          resource_type: ActivityResource.Auth,
           resource_name: 'Sign Out',
         });
       }

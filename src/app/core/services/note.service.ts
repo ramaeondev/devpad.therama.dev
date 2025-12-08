@@ -4,6 +4,7 @@ import { CreateNoteDto, Note, UpdateNoteDto } from '../models/note.model';
 import { LoadingService } from './loading.service';
 import { EncryptionService } from './encryption.service';
 import { ActivityLogService } from './activity-log.service';
+import { ActivityAction, ActivityResource } from '../models/activity-log.model';
 
 @Injectable({ providedIn: 'root' })
 export class NoteService {
@@ -123,8 +124,8 @@ export class NoteService {
       
       // Log activity
       await this.activityLog.logActivity(userId, {
-        action_type: 'create',
-        resource_type: 'note',
+        action_type: ActivityAction.Create,
+        resource_type: ActivityResource.Note,
         resource_id: note.id,
         resource_name: dto.title,
       });
@@ -254,8 +255,8 @@ export class NoteService {
       
       // Log activity
       await this.activityLog.logActivity(userId, {
-        action_type: 'edit',
-        resource_type: 'note',
+        action_type: ActivityAction.Update,
+        resource_type: ActivityResource.Note,
         resource_id: noteId,
         resource_name: dto.title || cur.title,
       });
@@ -286,8 +287,8 @@ export class NoteService {
       
       // Log activity
       await this.activityLog.logActivity(userId, {
-        action_type: 'delete',
-        resource_type: 'note',
+        action_type: ActivityAction.Delete,
+        resource_type: ActivityResource.Note,
         resource_id: noteId,
         resource_name: note?.title || 'Untitled',
       });
@@ -439,8 +440,8 @@ export class NoteService {
       
       // Log activity
       await this.activityLog.logActivity(userId, {
-        action_type: 'upload',
-        resource_type: 'note',
+        action_type: ActivityAction.Upload,
+        resource_type: ActivityResource.Note,
         resource_id: note.id,
         resource_name: file.name,
         metadata: {

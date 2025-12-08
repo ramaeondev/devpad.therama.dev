@@ -7,6 +7,7 @@ import { PublicShare } from '../models/public-share.model';
 import { LoadingService } from './loading.service';
 import { DeviceFingerprintService } from './device-fingerprint.service';
 import { ActivityLogService } from './activity-log.service';
+import { ActivityAction, ActivityResource } from '../models/activity-log.model';
 
 @Injectable({ providedIn: 'root' })
 export class ShareService {
@@ -92,8 +93,8 @@ export class ShareService {
 
       // Log activity
       await this.activityLog.logActivity(userId, {
-        action_type: 'share',
-        resource_type: 'note',
+        action_type: ActivityAction.ShareCreate,
+        resource_type: ActivityResource.Note,
         resource_id: noteId,
         resource_name: note.title,
         metadata: { permission, share_token: shareToken }
@@ -137,8 +138,8 @@ export class ShareService {
       if (currentUserId && currentUserId !== share.user_id) {
         // Log that someone else viewed their shared note
         await this.activityLog.logActivity(share.user_id, {
-          action_type: 'view',
-          resource_type: 'share',
+          action_type: ActivityAction.View,
+          resource_type: ActivityResource.PublicShare,
           resource_id: share.id,
           resource_name: share.note_title,
           metadata: { viewer_id: currentUserId, share_token: token }
@@ -303,8 +304,8 @@ export class ShareService {
 
       // Log unshare activity
       await this.activityLog.logActivity(userId, {
-        action_type: 'unshare',
-        resource_type: 'note',
+        action_type: ActivityAction.ShareDelete,
+        resource_type: ActivityResource.Note,
         resource_id: share.note_id,
         resource_name: share.note_title || 'Shared Note',
         metadata: { share_token: share.share_token, permission: share.permission }
@@ -368,8 +369,8 @@ export class ShareService {
       // Log edit activity for the note owner (if edited by someone else)
       if (userId !== share.user_id) {
         await this.activityLog.logActivity(share.user_id, {
-          action_type: 'edit',
-          resource_type: 'share',
+          action_type: ActivityAction.Update,
+          resource_type: ActivityResource.PublicShare,
           resource_id: share.id,
           resource_name: share.note_title || 'Shared Note',
           metadata: { editor_id: userId, share_token: shareToken }
@@ -653,8 +654,8 @@ export class ShareService {
 
       // Log fork activity for the original note owner
       await this.activityLog.logActivity(originalShare.user_id, {
-        action_type: 'fork',
-        resource_type: 'share',
+        action_type: ActivityAction.Fork,
+        resource_type: ActivityResource.PublicShare,
         resource_id: originalShare.id,
         resource_name: originalShare.note_title,
         metadata: { forked_by: userId, new_note_id: newNote.id }
