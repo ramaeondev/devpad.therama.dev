@@ -7,7 +7,11 @@ export type ActionType =
   | 'logout'
   | 'import'
   | 'export'
-  | 'share';
+  | 'share'
+  | 'view'
+  | 'access'
+  | 'fork'
+  | 'unshare';
 
 export type ResourceType = 
   | 'note' 
@@ -15,7 +19,8 @@ export type ResourceType =
   | 'integration' 
   | 'auth'
   | 'settings'
-  | 'device';
+  | 'device'
+  | 'share';
 
 export interface ActivityLog {
   id: string;

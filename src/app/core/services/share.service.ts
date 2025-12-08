@@ -6,6 +6,7 @@ import { EncryptionService } from './encryption.service';
 import { PublicShare } from '../models/public-share.model';
 import { LoadingService } from './loading.service';
 import { DeviceFingerprintService } from './device-fingerprint.service';
+import { ActivityLogService } from './activity-log.service';
 
 @Injectable({ providedIn: 'root' })
 export class ShareService {
@@ -15,6 +16,7 @@ export class ShareService {
   private loading = inject(LoadingService);
   private fingerprintService = inject(DeviceFingerprintService);
   private encryption = inject(EncryptionService);
+  private activityLog = inject(ActivityLogService);
 
   /**
    * Generate a unique share token
@@ -88,6 +90,15 @@ export class ShareService {
       // Ensure Public folder exists and add note reference
       await this.addToPublicFolder(noteId, userId);
 
+      // Log activity
+      await this.activityLog.logActivity(userId, {
+        action_type: 'share',
+        resource_type: 'note',
+        resource_id: noteId,
+        resource_name: note.title,
+        metadata: { permission, share_token: shareToken }
+      });
+
       return data as PublicShare;
     } finally {
       this.loading.stop();
@@ -110,18 +121,29 @@ export class ShareService {
       return null;
     }
 
-    // Check expiration by date
-    if (share.expires_at && new Date(share.expires_at) < new Date()) {
-      return null; // Expired
-    }
+      // Check expiration by date
+      if (share.expires_at && new Date(share.expires_at) < new Date()) {
+        return null; // Expired
+      }
 
-    // Check max views (if set)
-    // Note: view_count is the *current* count before this access
-    if (share.max_views !== null && share.view_count >= share.max_views) {
-      return null; // View limit reached
-    }
+      // Check max views (if set)
+      // Note: view_count is the *current* count before this access
+      if (share.max_views !== null && share.view_count >= share.max_views) {
+        return null; // View limit reached
+      }
 
-    // Fetch the current note content via secure RPC (respects public share access)
+      // Log view activity for the note owner (if authenticated viewer)
+      const currentUserId = this.authState.userId();
+      if (currentUserId && currentUserId !== share.user_id) {
+        // Log that someone else viewed their shared note
+        await this.activityLog.logActivity(share.user_id, {
+          action_type: 'view',
+          resource_type: 'share',
+          resource_id: share.id,
+          resource_name: share.note_title,
+          metadata: { viewer_id: currentUserId, share_token: token }
+        });
+      }    // Fetch the current note content via secure RPC (respects public share access)
     // Avoids RLS blocks when using anon key while ensuring we return live note content
     try {
       const { data: sharedNote, error: rpcError } = await this.supabase.client
@@ -279,6 +301,15 @@ export class ShareService {
 
       if (error) throw error;
 
+      // Log unshare activity
+      await this.activityLog.logActivity(userId, {
+        action_type: 'unshare',
+        resource_type: 'note',
+        resource_id: share.note_id,
+        resource_name: share.note_title || 'Shared Note',
+        metadata: { share_token: share.share_token, permission: share.permission }
+      });
+
       // Check if there are any other shares for this note
       const otherShares = await this.getSharesForNote(share.note_id);
       
@@ -332,6 +363,17 @@ export class ShareService {
       if (updateErr) {
         console.warn('Failed to update timestamp:', updateErr);
         // Don't throw - content was saved successfully
+      }
+
+      // Log edit activity for the note owner (if edited by someone else)
+      if (userId !== share.user_id) {
+        await this.activityLog.logActivity(share.user_id, {
+          action_type: 'edit',
+          resource_type: 'share',
+          resource_id: share.id,
+          resource_name: share.note_title || 'Shared Note',
+          metadata: { editor_id: userId, share_token: shareToken }
+        });
       }
     } catch (err) {
       console.error('Failed to update note content:', err);
@@ -607,6 +649,15 @@ export class ShareService {
         title: title,
         content: content,
         folder_id: importsFolder.id,
+      });
+
+      // Log fork activity for the original note owner
+      await this.activityLog.logActivity(originalShare.user_id, {
+        action_type: 'fork',
+        resource_type: 'share',
+        resource_id: originalShare.id,
+        resource_name: originalShare.note_title,
+        metadata: { forked_by: userId, new_note_id: newNote.id }
       });
 
       // 4. Create a share for this forked note (makes it editable by the user)
