@@ -81,4 +81,8 @@ export class SupabaseService {
   get storage() {
     return this.supabase.storage;
   }
+
+  getSupabaseUrl(): string {
+    return environment.supabase.url;
+  }
 }

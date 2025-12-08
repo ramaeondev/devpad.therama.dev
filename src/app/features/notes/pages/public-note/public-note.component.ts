@@ -5,6 +5,7 @@ import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ShareService } from '../../../../core/services/share.service';
 import { AuthStateService } from '../../../../core/services/auth-state.service';
+import { SupabaseService } from '../../../../core/services/supabase.service';
 import { PublicShare } from '../../../../core/models/public-share.model';
 import { ToastService } from '../../../../core/services/toast.service';
 import { LogoComponent } from '../../../../shared/components/ui/logo/logo.component';
@@ -66,8 +67,12 @@ import { LogoComponent } from '../../../../shared/components/ui/logo/logo.compon
           <div class="bg-yellow-50 dark:bg-yellow-900/20 border-b border-yellow-200 dark:border-yellow-800">
             <div class="max-w-4xl mx-auto px-4 py-3">
               <p class="text-sm text-yellow-800 dark:text-yellow-200">
-                <i class="fa-solid fa-exclamation-triangle mr-2"></i>
-                You're editing a public copy.
+                <i class="fa-solid fa-users-edit mr-2"></i>
+                @if (isOwner()) {
+                  You're viewing your shared note. Anyone with this link can edit.
+                } @else {
+                  You're editing a shared note. Changes are visible to everyone.
+                }
               </p>
             </div>
           </div>
@@ -100,7 +105,7 @@ import { LogoComponent } from '../../../../shared/components/ui/logo/logo.compon
               @if (canEdit()) {
                 <button
                   (click)="saveContent()"
-                  [disabled]="saving()"
+                  [disabled]="saving() || forking()"
                   class="px-4 py-2 bg-primary-500 hover:bg-primary-600 disabled:bg-gray-400 text-white rounded-lg transition-colors"
                 >
                   @if (saving()) {
@@ -111,25 +116,44 @@ import { LogoComponent } from '../../../../shared/components/ui/logo/logo.compon
                 </button>
               }
               
-              <!-- Show "Add to My Notes" only for non-owners or non-authenticated users with readonly access -->
-              @if (!isOwner() && share()?.permission === 'readonly') {
-                @if (isLoggedIn()) {
-                  <button
-                    (click)="addToMyNotes()"
-                    class="px-4 py-2 bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-900 dark:text-white rounded-lg transition-colors"
-                  >
-                    <i class="fa-solid fa-plus mr-2"></i>
-                    Add to My Notes
-                  </button>
-                } @else {
-                  <a
-                    [href]="'/auth/signup'"
-                    class="px-4 py-2 bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-900 dark:text-white rounded-lg transition-colors"
-                  >
-                    <i class="fa-solid fa-user-plus mr-2"></i>
-                    Sign Up
-                  </a>
-                }
+              <!-- Owner can open in dashboard for full editor -->
+              @if (isOwner()) {
+                <button
+                  (click)="openInDashboard()"
+                  class="px-4 py-2 bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-900 dark:text-white rounded-lg transition-colors"
+                >
+                  <i class="fa-solid fa-external-link-alt mr-2"></i>
+                  Open in Dashboard
+                </button>
+              }
+              
+              <!-- Show "Add to My Notes" for non-owners -->
+              @if (!isOwner() && isLoggedIn()) {
+                <button
+                  (click)="importToMyNotes()"
+                  [disabled]="forking() || saving()"
+                  class="px-4 py-2 bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-900 dark:text-white rounded-lg transition-colors disabled:opacity-50"
+                >
+                  @if (forking()) {
+                    <i class="fa-solid fa-spinner fa-spin mr-2"></i> Importing...
+                  } @else {
+                    <i class="fa-solid fa-copy mr-2"></i>
+                    @if (share()?.permission === 'editable') {
+                      Fork to My Notes
+                    } @else {
+                      Add to My Notes
+                    }
+                  }
+                </button>
+              }
+              @if (!isOwner() && !isLoggedIn() && share()?.permission === 'readonly') {
+                <a
+                  [href]="'/auth/signup'"
+                  class="px-4 py-2 bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-900 dark:text-white rounded-lg transition-colors"
+                >
+                  <i class="fa-solid fa-user-plus mr-2"></i>
+                  Sign Up
+                </a>
               }
             </div>
           </div>
@@ -203,6 +227,7 @@ export class PublicNoteComponent implements OnInit, OnDestroy {
   private shareService = inject(ShareService);
   protected authState = inject(AuthStateService);
   private toast = inject(ToastService);
+  private supabase = inject(SupabaseService);
 
   loading = signal(true);
   processingRedirect = signal(false);
@@ -213,6 +238,7 @@ export class PublicNoteComponent implements OnInit, OnDestroy {
   
   content = '';
   saving = signal(false);
+  forking = signal(false);
   lastSaved = signal<string | null>(null);
   private saveTimeout: any;
   private refreshInterval: any;
@@ -221,6 +247,7 @@ export class PublicNoteComponent implements OnInit, OnDestroy {
   private readonly REFRESH_INTERVAL = 30000; // 30 seconds (reduced from 5)
   private visibilityHandler: (() => void) | null = null;
 
+  // Make isAuthenticated signal accessible in template
   isLoggedIn = this.authState.isAuthenticated;
   private titleService = inject(Title);
   private metaService = inject(Meta);
@@ -232,6 +259,10 @@ export class PublicNoteComponent implements OnInit, OnDestroy {
       this.loading.set(false);
       return;
     }
+
+    // Initialize Supabase client to detect current session
+    // This ensures isAuthenticated signal is updated before we check permissions
+    await this.supabase.getSession();
 
     try {
       const shareData = await this.shareService.getShareByToken(shareToken);
@@ -418,7 +449,18 @@ export class PublicNoteComponent implements OnInit, OnDestroy {
     try {
       await this.shareService.updatePublicContent(shareData.share_token, this.content);
       this.lastSaved.set(new Date().toLocaleTimeString());
-      this.toast.success('Changes saved');
+      
+      // If owner is editing, move note to Public folder and open in dashboard
+      if (this.isOwner()) {
+        this.toast.success('Changes saved! Opening in dashboard...');
+        const userId = this.authState.userId();
+        if (userId) {
+          const publicFolder = await this.shareService.ensurePublicFolder(userId);
+          this.router.navigate(['/dashboard', 'folder', publicFolder.id, 'note', shareData.note_id]);
+        }
+      } else {
+        this.toast.success('Changes saved');
+      }
     } catch (err: any) {
       console.error('Error saving content:', err);
       this.toast.error('Failed to save changes');
@@ -427,34 +469,67 @@ export class PublicNoteComponent implements OnInit, OnDestroy {
     }
   }
 
-  async addToMyNotes() {
+  async openInDashboard() {
+    const share = this.share();
+    if (!share || !this.isOwner()) return;
+    
+    try {
+      const publicFolder = await this.shareService.ensurePublicFolder(share.user_id);
+      this.router.navigate(['/dashboard', 'folder', publicFolder.id, 'note', share.note_id]);
+    } catch (error) {
+      console.error('Failed to open in dashboard:', error);
+      this.toast.error('Failed to open note in dashboard');
+    }
+  }
+
+  async importToMyNotes() {
     if (!this.isLoggedIn()) {
       this.router.navigate(['/auth/signup']);
       return;
     }
-    // Logic to add to Public folder handled by dashboard redirect usually,
-    // but here we just redirect to dashboard for now.
-    this.toast.success('Opened in dashboard');
-    this.router.navigate(['/dashboard']);
+
+    const share = this.share();
+    const userId = this.authState.userId();
+    if (!share || !userId) return;
+
+    this.forking.set(true);
+    try {
+      this.toast.info('Forking note to your account...');
+      
+      // Import the share (creates a copy in user's Imports folder)
+      const newShare = await this.shareService.importPublicShare(userId, share.share_token);
+      
+      // Redirect to the imported note in Imports folder
+      const importsFolder = await this.shareService.ensureImportsFolder(userId);
+      this.toast.success('Note forked successfully! Opening in dashboard...');
+      this.router.navigate(['/dashboard', 'folder', importsFolder.id, 'note', newShare.note_id]);
+    } catch (error) {
+      console.error('Failed to fork note:', error);
+      this.toast.error('Failed to fork note');
+      this.forking.set(false);
+    }
+    // Don't set forking to false on success - we're navigating away
   }
 
   private async handleDashboardRedirect(share: PublicShare) {
     const userId = this.authState.userId();
     if (!userId) return;
 
-    // Check if user is owner
-    if (share.user_id !== userId) {
-      // If no specific action, just stay here
-      this.toast.success('Signed in successfully');
-      return;
-    }
-
     this.processingRedirect.set(true);
     try {
-      const publicFolder = await this.shareService.ensurePublicFolder(userId);
-      this.router.navigate(['/dashboard', 'folder', publicFolder.id, 'note', share.note_id], {
-        replaceUrl: true
-      });
+      // For editable shares, all users should edit the same note in their dashboard
+      // For readonly shares, only owner can open directly
+      if (share.permission === 'editable' || share.user_id === userId) {
+        // Get the owner's public folder (where the note actually exists)
+        const publicFolder = await this.shareService.ensurePublicFolder(share.user_id);
+        this.router.navigate(['/dashboard', 'folder', publicFolder.id, 'note', share.note_id], {
+          replaceUrl: true
+        });
+      } else {
+        // Non-owner viewing readonly share - stay on public page
+        this.toast.success('Signed in successfully');
+        this.processingRedirect.set(false);
+      }
     } catch (error) {
       console.error('Redirect failed:', error);
       this.toast.error('Failed to open note in dashboard');

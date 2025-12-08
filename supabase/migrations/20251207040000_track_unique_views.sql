@@ -7,7 +7,7 @@ CREATE TABLE IF NOT EXISTS public_share_access_logs (
 );
 
 -- Add index for faster lookups
-CREATE INDEX idx_share_access_fingerprint ON public_share_access_logs(share_id, fingerprint);
+CREATE INDEX IF NOT EXISTS idx_share_access_fingerprint ON public_share_access_logs(share_id, fingerprint);
 
 -- Add unique_view_count to public_shares
 ALTER TABLE public_shares 

@@ -77,16 +77,32 @@ export class NoteService {
       }
       // Use File which works well in browsers and keeps metadata
       const file = new File([contentStr], `${note.id}.md`, { type: 'text/markdown' });
+      console.log('[createNote] Uploading to storage:', { 
+        path, 
+        bucket: this.BUCKET, 
+        size: file.size,
+        isEncrypted,
+        userId 
+      });
+      
       const { error: uploadErr } = await this.supabase.storage
         .from(this.BUCKET)
         .upload(path, file, { upsert: true, contentType: 'text/markdown' });
-      if (uploadErr) throw uploadErr;
+      
+      if (uploadErr) {
+        console.error('[createNote] Storage upload failed:', uploadErr);
+        throw uploadErr;
+      }
+      
+      console.log('[createNote] Upload successful, verifying...');
 
       // Verify upload succeeded and file is retrievable (helps catch permission/multipart issues)
       // Skip verification for intentionally empty files: empty notes are allowed.
       if (contentStr && contentStr.length > 0) {
         await this.verifyUpload(path);
       }
+      
+      console.log('[createNote] Verification complete');
 
       // Step 3: update row to reference storage path (use storage:// scheme in content field)
       const storageRef = `storage://${this.BUCKET}/${path}`;
@@ -155,7 +171,9 @@ export class NoteService {
         // Previous rows stored raw content in DB; migrate that content (or dto.content if provided)
         let migrateContent = dto.content !== undefined ? (dto.content as string) : (cur.content || '');
         let isEncrypted = false;
-        if (this.shouldEncrypt() && migrateContent) {
+        // Only encrypt if note is not already marked as unencrypted (e.g., shared and decrypted)
+        const shouldEncryptThisNote = cur.is_encrypted !== false && this.shouldEncrypt();
+        if (shouldEncryptThisNote && migrateContent) {
           try {
             migrateContent = await this.encryption.encryptText(migrateContent);
             isEncrypted = true;
@@ -183,7 +201,9 @@ export class NoteService {
         if (dto.content !== undefined) {
           let newContent = dto.content as string;
           let isEncrypted = false;
-          if (this.shouldEncrypt() && newContent) {
+          // Only encrypt if note is not already marked as unencrypted (e.g., shared and decrypted)
+          const shouldEncryptThisNote = cur.is_encrypted !== false && this.shouldEncrypt();
+          if (shouldEncryptThisNote && newContent) {
             try {
               newContent = await this.encryption.encryptText(newContent);
               isEncrypted = true;
@@ -481,8 +501,16 @@ export class NoteService {
         throw urlErr || new Error('Failed to create signed URL');
       }
       
+      // Handle relative URLs from proxy by constructing full URL
+      let signedUrl = urlData.signedUrl;
+      if (signedUrl.startsWith('/')) {
+        // Relative URL - construct full URL using Supabase base URL from environment
+        const baseUrl = this.supabase.getSupabaseUrl();
+        signedUrl = `${baseUrl}${signedUrl}`;
+      }
+      
       // Fetch content via signed URL
-      const response = await fetch(urlData.signedUrl);
+      const response = await fetch(signedUrl);
       if (!response.ok) {
         throw new Error(`Failed to fetch content: ${response.status} ${response.statusText}`);
       }
@@ -505,6 +533,156 @@ export class NoteService {
       console.error('Error fetching storage content:', err);
       throw err;
     }
+  }
+
+  /**
+   * Decrypt note at source when sharing
+   * Fetches encrypted content, decrypts it, re-uploads unencrypted, updates DB
+   * This makes the note readable for anonymous users with share links
+   */
+  async decryptNoteAtSource(noteId: string, userId: string): Promise<void> {
+    console.log('[decryptNoteAtSource] Starting decryption for note:', noteId);
+    
+    // 1. Get current note from DB
+    const { data: note, error: fetchErr } = await this.supabase
+      .from('notes')
+      .select('*')
+      .eq('id', noteId)
+      .eq('user_id', userId)
+      .single();
+    
+    if (fetchErr || !note) {
+      throw new Error('Note not found or access denied');
+    }
+
+    // 2. Check if already unencrypted
+    if (!(note as any).is_encrypted) {
+      console.log('[decryptNoteAtSource] Note is already unencrypted');
+      return;
+    }
+
+    // 3. Get RAW encrypted content from storage (without auto-decryption)
+    let encryptedContent = note.content;
+    
+    if (encryptedContent?.startsWith('storage://')) {
+      // Fetch RAW content from storage without decryption
+      const path = encryptedContent.replace(`storage://${this.BUCKET}/`, '');
+      const { data: urlData, error: urlErr } = await this.supabase.storage
+        .from(this.BUCKET)
+        .createSignedUrl(path, 60);
+      
+      if (urlErr || !urlData?.signedUrl) {
+        throw new Error('Failed to fetch encrypted content from storage');
+      }
+
+      let signedUrl = urlData.signedUrl;
+      if (signedUrl.startsWith('/')) {
+        signedUrl = `${this.supabase.getSupabaseUrl()}${signedUrl}`;
+      }
+
+      const response = await fetch(signedUrl);
+      if (!response.ok) {
+        throw new Error('Failed to download encrypted content');
+      }
+      
+      // Get RAW text without any decryption
+      encryptedContent = await response.text();
+      console.log('[decryptNoteAtSource] Fetched encrypted content from storage, length:', encryptedContent.length);
+    } else {
+      // Content is in DB directly
+      console.log('[decryptNoteAtSource] Content is in database, length:', encryptedContent?.length);
+    }
+
+    // 4. Check if content looks encrypted
+    if (!encryptedContent) {
+      throw new Error('Note content is empty');
+    }
+
+    // If content doesn't look encrypted (no encryption markers), it might already be decrypted
+    const looksEncrypted = encryptedContent.startsWith('enc:v1:') || // Our encryption format
+                          encryptedContent.startsWith('U2FsdGVk'); // "Salted" in base64 (legacy)
+    
+    if (!looksEncrypted) {
+      console.log('[decryptNoteAtSource] Content does not appear to be encrypted, might already be plain text');
+      // Content might already be decrypted - just re-upload as is
+      const decryptedContent = encryptedContent;
+      
+      // Skip to re-upload step
+      const path = `${userId}/${noteId}.md`;
+      const file = new File([decryptedContent], `${noteId}.md`, { type: 'text/markdown' });
+      
+      const { error: uploadErr } = await this.supabase.storage
+        .from(this.BUCKET)
+        .upload(path, file, { upsert: true, contentType: 'text/markdown' });
+      
+      if (uploadErr) {
+        throw new Error('Failed to re-upload content');
+      }
+
+      // Update DB to mark as unencrypted
+      const { error: updateErr } = await this.supabase
+        .from('notes')
+        .update({ 
+          is_encrypted: false,
+          updated_at: new Date().toISOString()
+        })
+        .eq('id', noteId)
+        .eq('user_id', userId);
+      
+      if (updateErr) {
+        throw new Error('Failed to update note encryption status');
+      }
+
+      console.log('[decryptNoteAtSource] Note marked as unencrypted (content was already plain)');
+      return;
+    }
+
+    // Content looks encrypted, proceed with decryption
+    if (!this.encryption.hasKey()) {
+      throw new Error('Encryption key not loaded. Please sign in with your encryption key.');
+    }
+
+    let decryptedContent: string;
+    try {
+      decryptedContent = await this.encryption.decryptText(encryptedContent);
+      console.log('[decryptNoteAtSource] Content decrypted successfully');
+    } catch (decryptErr) {
+      console.error('[decryptNoteAtSource] Decryption failed:', decryptErr);
+      console.error('[decryptNoteAtSource] Content preview:', encryptedContent.substring(0, 100));
+      throw new Error('Failed to decrypt content. The content might be corrupted or use a different encryption key.');
+    }
+
+    // 5. Re-upload unencrypted content to storage
+    const path = `${userId}/${noteId}.md`;
+    const file = new File([decryptedContent], `${noteId}.md`, { type: 'text/markdown' });
+    
+    const { error: uploadErr } = await this.supabase.storage
+      .from(this.BUCKET)
+      .upload(path, file, { upsert: true, contentType: 'text/markdown' });
+    
+    if (uploadErr) {
+      console.error('[decryptNoteAtSource] Re-upload failed:', uploadErr);
+      throw new Error('Failed to re-upload decrypted content');
+    }
+
+    console.log('[decryptNoteAtSource] Unencrypted content uploaded');
+
+    // 6. Update DB to mark as unencrypted
+    const { error: updateErr } = await this.supabase
+      .from('notes')
+      .update({ 
+        is_encrypted: false,
+        updated_at: new Date().toISOString()
+      })
+      .eq('id', noteId)
+      .eq('user_id', userId);
+    
+    if (updateErr) {
+      console.error('[decryptNoteAtSource] DB update failed:', updateErr);
+      throw new Error('Failed to update note encryption status');
+    }
+
+    console.log('[decryptNoteAtSource] Note decrypted at source successfully');
   }
 
   /**

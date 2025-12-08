@@ -165,6 +165,55 @@ $$;
 ALTER FUNCTION "public"."ensure_single_current_device"() OWNER TO "postgres";
 
 
+CREATE OR REPLACE FUNCTION "public"."get_shared_note"("p_share_token" "text") RETURNS TABLE("share_id" "uuid", "note_id" "uuid", "user_id" "uuid", "permission" "text", "view_count" integer, "max_views" integer, "expires_at" timestamp with time zone, "note_title" "text", "note_content" "text", "is_encrypted" boolean, "encryption_version" "text", "created_at" timestamp with time zone, "updated_at" timestamp with time zone)
+    LANGUAGE "plpgsql" SECURITY DEFINER
+    AS $$
+DECLARE
+  v_share public.public_shares%rowtype;
+BEGIN
+  -- Locate the share
+  SELECT * INTO v_share
+  FROM public.public_shares
+  WHERE share_token = p_share_token;
+
+  IF NOT FOUND THEN
+    RETURN;
+  END IF;
+
+  -- Validate expiry
+  IF v_share.expires_at IS NOT NULL AND v_share.expires_at < now() THEN
+    RETURN;
+  END IF;
+
+  -- Validate max views
+  IF v_share.max_views IS NOT NULL AND v_share.view_count >= v_share.max_views THEN
+    RETURN;
+  END IF;
+
+  RETURN QUERY
+  SELECT
+    v_share.id,
+    v_share.note_id,
+    v_share.user_id,
+    v_share.permission,
+    v_share.view_count,
+    v_share.max_views,
+    v_share.expires_at,
+    n.title AS note_title,
+    n.content AS note_content,
+    n.is_encrypted,
+    n.encryption_version,
+    v_share.created_at,
+    v_share.updated_at
+  FROM public.notes n
+  WHERE n.id = v_share.note_id;
+END;
+$$;
+
+
+ALTER FUNCTION "public"."get_shared_note"("p_share_token" "text") OWNER TO "postgres";
+
+
 CREATE OR REPLACE FUNCTION "public"."increment_share_view_count"("share_id" "uuid") RETURNS "void"
     LANGUAGE "plpgsql" SECURITY DEFINER
     AS $$
@@ -179,6 +228,42 @@ $$;
 
 
 ALTER FUNCTION "public"."increment_share_view_count"("share_id" "uuid") OWNER TO "postgres";
+
+
+CREATE OR REPLACE FUNCTION "public"."track_share_access"("p_share_id" "uuid", "p_fingerprint" "text") RETURNS "void"
+    LANGUAGE "plpgsql" SECURITY DEFINER
+    AS $$
+DECLARE
+    v_exists BOOLEAN;
+BEGIN
+    -- Increment total view count (always)
+    UPDATE public_shares
+    SET 
+        view_count = view_count + 1,
+        last_accessed_at = NOW()
+    WHERE id = p_share_id;
+
+    -- Check if this fingerprint has accessed this share before
+    SELECT EXISTS (
+        SELECT 1 
+        FROM public_share_access_logs 
+        WHERE share_id = p_share_id AND fingerprint = p_fingerprint
+    ) INTO v_exists;
+
+    -- If new visitor, log it and increment unique count
+    IF NOT v_exists THEN
+        INSERT INTO public_share_access_logs (share_id, fingerprint)
+        VALUES (p_share_id, p_fingerprint);
+
+        UPDATE public_shares
+        SET unique_view_count = unique_view_count + 1
+        WHERE id = p_share_id;
+    END IF;
+END;
+$$;
+
+
+ALTER FUNCTION "public"."track_share_access"("p_share_id" "uuid", "p_fingerprint" "text") OWNER TO "postgres";
 
 
 CREATE OR REPLACE FUNCTION "public"."update_device_last_seen"() RETURNS "trigger"
@@ -356,6 +441,17 @@ COMMENT ON COLUMN "public"."notifications"."is_read" IS 'Whether the notificatio
 
 
 
+CREATE TABLE IF NOT EXISTS "public"."public_share_access_logs" (
+    "id" "uuid" DEFAULT "extensions"."uuid_generate_v4"() NOT NULL,
+    "share_id" "uuid",
+    "fingerprint" "text" NOT NULL,
+    "created_at" timestamp with time zone DEFAULT "now"()
+);
+
+
+ALTER TABLE "public"."public_share_access_logs" OWNER TO "postgres";
+
+
 CREATE TABLE IF NOT EXISTS "public"."public_shares" (
     "id" "uuid" DEFAULT "gen_random_uuid"() NOT NULL,
     "note_id" "uuid" NOT NULL,
@@ -369,11 +465,17 @@ CREATE TABLE IF NOT EXISTS "public"."public_shares" (
     "created_at" timestamp with time zone DEFAULT "timezone"('utc'::"text", "now"()) NOT NULL,
     "updated_at" timestamp with time zone DEFAULT "timezone"('utc'::"text", "now"()) NOT NULL,
     "expires_at" timestamp with time zone,
+    "max_views" integer,
+    "unique_view_count" integer DEFAULT 0,
     CONSTRAINT "public_shares_permission_check" CHECK (("permission" = ANY (ARRAY['readonly'::"text", 'editable'::"text"])))
 );
 
 
 ALTER TABLE "public"."public_shares" OWNER TO "postgres";
+
+
+COMMENT ON COLUMN "public"."public_shares"."max_views" IS 'Maximum number of views allowed before the share expires. Null means unlimited.';
+
 
 
 CREATE TABLE IF NOT EXISTS "public"."user_devices" (
@@ -480,6 +582,11 @@ ALTER TABLE ONLY "public"."notes"
 
 ALTER TABLE ONLY "public"."notifications"
     ADD CONSTRAINT "notifications_pkey" PRIMARY KEY ("id");
+
+
+
+ALTER TABLE ONLY "public"."public_share_access_logs"
+    ADD CONSTRAINT "public_share_access_logs_pkey" PRIMARY KEY ("id");
 
 
 
@@ -609,6 +716,10 @@ CREATE INDEX "idx_public_shares_user_id" ON "public"."public_shares" USING "btre
 
 
 
+CREATE INDEX "idx_share_access_fingerprint" ON "public"."public_share_access_logs" USING "btree" ("share_id", "fingerprint");
+
+
+
 CREATE INDEX "idx_user_devices_fingerprint_id" ON "public"."user_devices" USING "btree" ("fingerprint_id");
 
 
@@ -710,6 +821,11 @@ ALTER TABLE ONLY "public"."notifications"
 
 ALTER TABLE ONLY "public"."notifications"
     ADD CONSTRAINT "notifications_user_id_fkey" FOREIGN KEY ("user_id") REFERENCES "auth"."users"("id") ON DELETE CASCADE;
+
+
+
+ALTER TABLE ONLY "public"."public_share_access_logs"
+    ADD CONSTRAINT "public_share_access_logs_share_id_fkey" FOREIGN KEY ("share_id") REFERENCES "public"."public_shares"("id") ON DELETE CASCADE;
 
 
 
@@ -1060,9 +1176,21 @@ GRANT ALL ON FUNCTION "public"."ensure_single_current_device"() TO "service_role
 
 
 
+GRANT ALL ON FUNCTION "public"."get_shared_note"("p_share_token" "text") TO "anon";
+GRANT ALL ON FUNCTION "public"."get_shared_note"("p_share_token" "text") TO "authenticated";
+GRANT ALL ON FUNCTION "public"."get_shared_note"("p_share_token" "text") TO "service_role";
+
+
+
 GRANT ALL ON FUNCTION "public"."increment_share_view_count"("share_id" "uuid") TO "anon";
 GRANT ALL ON FUNCTION "public"."increment_share_view_count"("share_id" "uuid") TO "authenticated";
 GRANT ALL ON FUNCTION "public"."increment_share_view_count"("share_id" "uuid") TO "service_role";
+
+
+
+GRANT ALL ON FUNCTION "public"."track_share_access"("p_share_id" "uuid", "p_fingerprint" "text") TO "anon";
+GRANT ALL ON FUNCTION "public"."track_share_access"("p_share_id" "uuid", "p_fingerprint" "text") TO "authenticated";
+GRANT ALL ON FUNCTION "public"."track_share_access"("p_share_id" "uuid", "p_fingerprint" "text") TO "service_role";
 
 
 
@@ -1126,6 +1254,12 @@ GRANT ALL ON TABLE "public"."notes" TO "service_role";
 GRANT ALL ON TABLE "public"."notifications" TO "anon";
 GRANT ALL ON TABLE "public"."notifications" TO "authenticated";
 GRANT ALL ON TABLE "public"."notifications" TO "service_role";
+
+
+
+GRANT ALL ON TABLE "public"."public_share_access_logs" TO "anon";
+GRANT ALL ON TABLE "public"."public_share_access_logs" TO "authenticated";
+GRANT ALL ON TABLE "public"."public_share_access_logs" TO "service_role";
 
 
 

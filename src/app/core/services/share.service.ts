@@ -49,6 +49,19 @@ export class ShareService {
       const note = await this.noteService.getNote(noteId, userId);
       if (!note) throw new Error('Note not found');
 
+      // DECRYPT AT SOURCE: If note is encrypted, decrypt it so shared version is readable
+      // This maintains single source of truth while making content accessible to anonymous users
+      if ((note as any).is_encrypted) {
+        console.log('[createShare] Note is encrypted, decrypting at source for public sharing...');
+        try {
+          await this.noteService.decryptNoteAtSource(noteId, userId);
+          console.log('[createShare] Note decrypted successfully');
+        } catch (decryptErr) {
+          console.error('[createShare] Failed to decrypt note:', decryptErr);
+          throw new Error('Failed to decrypt note for sharing. Please ensure you have the encryption key loaded.');
+        }
+      }
+
       // Generate unique share token
       const shareToken = this.generateShareToken();
 
@@ -280,28 +293,46 @@ export class ShareService {
 
   /**
    * Update note content for editable shares
-   * This allows ANY viewer of an editable share to edit content in real-time
-   * Does not require ownership - the share token itself grants edit access
-   * SINGLE SOURCE OF TRUTH: Updates notes.content directly (not public_content)
-   * All shares of this note will see the change via RPC
+   * This allows signed-in viewers to edit shared content by directly updating storage
+   * Uses Supabase service account to bypass RLS since share token grants access
    */
   async updatePublicContent(shareToken: string, content: string): Promise<void> {
-    // First verify the share exists and is editable
-    // Note: We do NOT require userId authentication here because editable shares
-    // grant edit access to anyone with the token (like a collaborative document)
+    // Verify authentication
+    const userId = this.authState.userId();
+    if (!userId) throw new Error('Authentication required to edit shared notes');
+
+    // Verify the share exists and is editable
     const share = await this.getShareByToken(shareToken);
     if (!share) throw new Error('Share not found');
     if (share.permission !== 'editable') throw new Error('Share is not editable');
 
-    // Update the source note's content directly
-    // All shares of this note will fetch the new content via RPC (no sync needed)
     try {
-      const { error } = await this.supabase.client
+      // Update storage file directly
+      const path = `${share.user_id}/${share.note_id}.md`;
+      const file = new File([content], `${share.note_id}.md`, { type: 'text/markdown' });
+      
+      const { error: uploadErr } = await this.supabase.client.storage
         .from('notes')
-        .update({ content })
+        .upload(path, file, { 
+          upsert: true, 
+          contentType: 'text/markdown'
+        });
+
+      if (uploadErr) {
+        console.error('Storage upload error:', uploadErr);
+        throw new Error('Failed to save changes to storage');
+      }
+
+      // Update the note's updated_at timestamp
+      const { error: updateErr } = await this.supabase.client
+        .from('notes')
+        .update({ updated_at: new Date().toISOString() })
         .eq('id', share.note_id);
 
-      if (error) throw error;
+      if (updateErr) {
+        console.warn('Failed to update timestamp:', updateErr);
+        // Don't throw - content was saved successfully
+      }
     } catch (err) {
       console.error('Failed to update note content:', err);
       throw err;
@@ -449,6 +480,72 @@ export class ShareService {
   }
 
   /**
+   * Ensure Imports folder exists for user
+   */
+  async ensureImportsFolder(userId: string): Promise<any> {
+    // 1. Check if user already has an Imports folder linked in profile
+    const { data: profile } = await this.supabase.client
+      .from('user_profiles')
+      .select('imports_folder_id')
+      .eq('user_id', userId)
+      .single();
+
+    if (profile?.imports_folder_id) {
+      const { data: folder } = await this.supabase.client
+        .from('folders')
+        .select('*')
+        .eq('id', profile.imports_folder_id)
+        .maybeSingle();
+      
+      if (folder) {
+        return folder;
+      }
+    }
+
+    // 2. Check if folder named "Imports" already exists at root level (but not linked in profile)
+    const { data: existingImports } = await this.supabase.client
+      .from('folders')
+      .select('*')
+      .eq('user_id', userId)
+      .eq('name', 'Imports')
+      .is('parent_id', null)
+      .maybeSingle();
+
+    if (existingImports) {
+      // Found it! Link it in profile and return
+      await this.supabase.client
+        .from('user_profiles')
+        .update({ imports_folder_id: existingImports.id })
+        .eq('user_id', userId);
+        
+      return existingImports;
+    }
+
+    // 3. Create new Imports folder at root level
+    const { data: importsFolder, error } = await this.supabase.client
+      .from('folders')
+      .insert({
+        name: 'Imports',
+        user_id: userId,
+        parent_id: null,
+        is_root: false,
+        icon: 'fa-download',
+      })
+      .select()
+      .single();
+
+    if (error) throw error;
+
+    // Link in profile
+    await this.supabase.client
+      .from('user_profiles')
+      .update({ imports_folder_id: importsFolder.id })
+      .eq('user_id', userId);
+
+    return importsFolder;
+  }
+
+  /**
    * Get all notes that have active shares for a user (for Public folder display)
    */
   async getSharedNotesForUser(userId: string): Promise<any[]> {
@@ -499,22 +596,20 @@ export class ShareService {
       const originalShare = await this.getShareByToken(originalShareToken);
       if (!originalShare) throw new Error('Share not found');
 
-      // 2. Ensure Public folder exists
-      const publicFolder = await this.ensurePublicFolder(userId);
+      // 2. Ensure Imports folder exists (forked notes go to Imports)
+      const importsFolder = await this.ensureImportsFolder(userId);
 
-      // 3. Create a new note in the Public folder with the content
-      // Use the original note's title (captured from RPC) or fallback to the share token
-      const content = (originalShare as any).content || ''; // content fetched from RPC
+      // 3. Create a new note in the Imports folder with the content
+      const content = (originalShare as any).content || '';
       const title = originalShare.note_title || originalShare.share_token || 'Shared Note Copy';
 
       const newNote = await this.noteService.createNote(userId, {
         title: title,
         content: content,
-        folder_id: publicFolder.id,
+        folder_id: importsFolder.id,
       });
 
-      // 4. Create a share for this new note so it sticks in the Public folder
-      // We make it 'editable' by default since the user owns this copy.
+      // 4. Create a share for this forked note (makes it editable by the user)
       const newShare = await this.createShare(newNote.id, 'editable');
 
       return newShare;
