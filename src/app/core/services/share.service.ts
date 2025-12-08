@@ -8,6 +8,7 @@ import { LoadingService } from './loading.service';
 import { DeviceFingerprintService } from './device-fingerprint.service';
 import { ActivityLogService } from './activity-log.service';
 import { ActivityAction, ActivityResource } from '../models/activity-log.model';
+import { NotificationService } from './notification.service';
 
 @Injectable({ providedIn: 'root' })
 export class ShareService {
@@ -18,6 +19,7 @@ export class ShareService {
   private fingerprintService = inject(DeviceFingerprintService);
   private encryption = inject(EncryptionService);
   private activityLog = inject(ActivityLogService);
+  private notificationService = inject(NotificationService);
 
   /**
    * Generate a unique share token
@@ -368,12 +370,22 @@ export class ShareService {
 
       // Log edit activity for the note owner (if edited by someone else)
       if (userId !== share.user_id) {
-        await this.activityLog.logActivity(share.user_id, {
+        // Log activity with notification flag
+        const activity = await this.activityLog.logActivity(share.user_id, {
           action_type: ActivityAction.Update,
           resource_type: ActivityResource.PublicShare,
           resource_id: share.id,
           resource_name: share.note_title || 'Shared Note',
-          metadata: { editor_id: userId, share_token: shareToken }
+          metadata: { editor_id: userId, share_token: shareToken },
+          requires_notification: true
+        });
+
+        // Explicitly create notification (since triggers are disabled)
+        await this.notificationService.createNotification(share.user_id, {
+          title: 'Shared Note Edited',
+          message: `Your shared note "${share.note_title || 'Untitled'}" was edited by another user.`,
+          type: 'activity',
+          activity_log_id: activity?.id
         });
       }
     } catch (err) {

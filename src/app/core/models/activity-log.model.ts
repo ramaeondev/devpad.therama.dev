@@ -58,6 +58,7 @@ export interface ActivityLog {
   is_anonymous: boolean;
   metadata?: Record<string, any>;
   created_at: string;
+  requires_notification?: boolean;
 }
 
 export interface ActivityLogFilters {
@@ -83,4 +84,5 @@ export interface CreateActivityLogDto {
   resource_owner_id?: string;
   is_anonymous?: boolean;
   session_id?: string;
+  requires_notification?: boolean;
 }

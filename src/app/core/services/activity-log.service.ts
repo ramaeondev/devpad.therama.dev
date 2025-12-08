@@ -52,6 +52,7 @@ export class ActivityLogService {
         metadata: dto.metadata || {},
         is_anonymous: dto.is_anonymous || !userId,
         session_id: dto.session_id,
+        requires_notification: dto.requires_notification || false
       };
 
       // Insert activity log
