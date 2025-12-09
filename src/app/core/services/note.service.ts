@@ -5,6 +5,7 @@ import { LoadingService } from './loading.service';
 import { EncryptionService } from './encryption.service';
 import { ActivityLogService } from './activity-log.service';
 import { ActivityAction, ActivityResource } from '../models/activity-log.model';
+import { NotificationService } from './notification.service';
 
 @Injectable({ providedIn: 'root' })
 export class NoteService {
@@ -12,6 +13,7 @@ export class NoteService {
   private loading = inject(LoadingService);
   private encryption = inject(EncryptionService);
   private activityLog = inject(ActivityLogService);
+  private notificationService = inject(NotificationService);
   private readonly BUCKET = 'notes';
 
   private shouldEncrypt(): boolean {
@@ -286,12 +288,23 @@ export class NoteService {
       if (error) throw error;
       
       // Log activity
-      await this.activityLog.logActivity(userId, {
+      const activity = await this.activityLog.logActivity(userId, {
         action_type: ActivityAction.Delete,
         resource_type: ActivityResource.Note,
         resource_id: noteId,
         resource_name: note?.title || 'Untitled',
+        requires_notification: true,
       });
+
+      // Explicitly create notification
+      if (activity) {
+        await this.notificationService.createNotification(userId, {
+          title: 'Note Deleted',
+          message: `Note "${note?.title || 'Untitled'}" has been deleted.`,
+          type: 'activity',
+          activity_log_id: activity.id,
+        });
+      }
     });
   }
 
