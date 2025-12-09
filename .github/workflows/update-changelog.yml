@@ -4,6 +4,22 @@ on:
   schedule:
     - cron: '1 0 * * *' # Runs daily at 12:01 AM UTC
   workflow_dispatch:
+    inputs:
+      branch:
+        description: 'Branch to check commits from (optional, defaults to empty)'
+        required: false
+        type: string
+        default: ''
+      commit_date:
+        description: 'Date of commits to fetch (YYYY-MM-DD) (optional, defaults to yesterday)'
+        required: false
+        type: string
+        default: ''
+      changelog_date:
+        description: 'Date to log in changelog (YYYY-MM-DD) (optional, defaults to commit_date or today)'
+        required: false
+        type: string
+        default: ''
 
 jobs:
   update-changelog:
@@ -31,6 +47,10 @@ jobs:
           APPWRITE_MASTER_API_KEY: ${{ secrets.APPWRITE_MASTER_API_KEY }}
           APPWRITE_DATABASE_ID: ${{ secrets.APPWRITE_DATABASE_ID }}
           APPWRITE_COLLECTION_ID: change_logs
+          # Optional manual inputs
+          TARGET_BRANCH: ${{ inputs.branch }}
+          COMMIT_DATE: ${{ inputs.commit_date }}
+          CHANGELOG_DATE: ${{ inputs.changelog_date }}
 
       - name: Changelog Update Complete
         run: echo "✅ Changelog updated successfully in Appwrite"
