@@ -10,13 +10,8 @@ on:
         required: false
         type: string
         default: ''
-      commit_date:
-        description: 'Date of commits to fetch (YYYY-MM-DD) (optional, defaults to yesterday)'
-        required: false
-        type: string
-        default: ''
-      changelog_date:
-        description: 'Date to log in changelog (YYYY-MM-DD) (optional, defaults to commit_date or today)'
+      from_date:
+        description: 'Start date of commits to fetch (YYYY-MM-DD) (optional, fetches until now)'
         required: false
         type: string
         default: ''
@@ -49,8 +44,7 @@ jobs:
           APPWRITE_COLLECTION_ID: change_logs
           # Optional manual inputs
           TARGET_BRANCH: ${{ inputs.branch }}
-          COMMIT_DATE: ${{ inputs.commit_date }}
-          CHANGELOG_DATE: ${{ inputs.changelog_date }}
+          FROM_DATE: ${{ inputs.from_date }}
 
       - name: Changelog Update Complete
         run: echo "✅ Changelog updated successfully in Appwrite"

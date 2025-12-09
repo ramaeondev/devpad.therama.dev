@@ -20,8 +20,7 @@ const DATABASE_ID = process.env.APPWRITE_DATABASE_ID || 'devpad_main';
 const COLLECTION_ID = 'change_logs';
 
 // Optional manual inputs
-const COMMIT_DATE = process.env.COMMIT_DATE; // YYYY-MM-DD
-const CHANGELOG_DATE = process.env.CHANGELOG_DATE; // YYYY-MM-DD
+const FROM_DATE = process.env.FROM_DATE; // YYYY-MM-DD (Start of range)
 const TARGET_BRANCH = process.env.TARGET_BRANCH; // e.g., 'main' or 'develop'
 const DRY_RUN = process.env.DRY_RUN === 'true';
 
@@ -42,28 +41,31 @@ function formatDate(date) {
 
 /**
  * Get commits for a specific date range
+ * If fromDate is provided: fetches from fromDate 00:00 to now
+ * If no fromDate: fetches for Yesterday (00:00 to 23:59) - Original Cron Behavior
  */
-function getCommits(dateStr, branch) {
+function getCommits(fromDateStr, branch) {
   try {
-    const targetDate = dateStr ? new Date(dateStr) : new Date();
-
-    // If no date provided, default to yesterday (cron behavior)
-    // If date provided, use that date
-    if (!dateStr) {
-      targetDate.setDate(targetDate.getDate() - 1);
-    }
-
-    const formattedDate = formatDate(targetDate);
+    let command;
     const branchCmd = branch ? `${branch}` : '';
 
-    console.log(`🔍 Getting commits for ${formattedDate} ${branch ? `on branch ${branch}` : ''}`);
+    if (fromDateStr) {
+      // Manual Range Mode: FROM_DATE to NOW
+      console.log(`🔍 Getting commits from ${fromDateStr} to NOW ${branch ? `on branch ${branch}` : ''}`);
+      command = `git log ${branchCmd} --since="${fromDateStr}T00:00:00" --pretty=format:'{"hash": "%H", "date": "%ad", "message": "%s"},' --date=iso`;
+    } else {
+      // Default/Cron Mode: Yesterday Only
+      const today = new Date();
+      const yesterday = new Date(today);
+      yesterday.setDate(today.getDate() - 1);
+      const yesterdayStr = formatDate(yesterday);
 
-    const command = `git log ${branchCmd} --since="${formattedDate}T00:00:00" --until="${formattedDate}T23:59:59" --pretty=format:'{"hash": "%H", "date": "%ad", "message": "%s"},' --date=iso`;
+      console.log(`🔍 Getting commits for YESTERDAY (${yesterdayStr}) ${branch ? `on branch ${branch}` : ''}`);
+      command = `git log ${branchCmd} --since="${yesterdayStr}T00:00:00" --until="${yesterdayStr}T23:59:59" --pretty=format:'{"hash": "%H", "date": "%ad", "message": "%s"},' --date=iso`;
+    }
 
     if (DRY_RUN) {
       console.log(`[DRY RUN] Executing: ${command}`);
-      // Return dummy data for dry run if needed, or just let it try to run connection
-      // For now, let's actually run the git command even in dry run as it's safe
     }
 
     const result = execSync(command, { encoding: 'utf-8' }).trim();
@@ -160,9 +162,9 @@ async function updateChangelog() {
 
   try {
     // Determine the date to fetch commits for
-    // If COMMIT_DATE is explicitly provided, use it.
-    // Otherwise, undefined (which defaults to yesterday in getCommits)
-    const commits = getCommits(COMMIT_DATE, TARGET_BRANCH);
+    // If FROM_DATE is explicitly provided, fetch from then until now.
+    // Otherwise, fetch yesterday's commits.
+    const commits = getCommits(FROM_DATE, TARGET_BRANCH);
 
     if (commits.length === 0) {
       console.log('✅ No new commits found');
@@ -171,18 +173,8 @@ async function updateChangelog() {
 
     console.log(`📝 Found ${commits.length} commits`);
 
-    // Determine the date to log the entry under
-    // 1. If CHANGELOG_DATE is provided, use it.
-    // 2. If valid COMMIT_DATE is provided, use it (assume backfilling).
-    // 3. Otherwise, use today's date (standard daily log behavior for "yesterday's" commits).
-    let targetLogDate;
-    if (CHANGELOG_DATE) {
-      targetLogDate = CHANGELOG_DATE;
-    } else if (COMMIT_DATE) {
-      targetLogDate = COMMIT_DATE;
-    } else {
-      targetLogDate = formatDate(new Date());
-    }
+    // Always log to TODAY's changelog entry
+    const targetLogDate = formatDate(new Date());
 
     // Update changelog entry
     await updateChangelogEntry(databases, targetLogDate, commits);
