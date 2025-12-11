@@ -16,8 +16,18 @@ export class SupabaseService {
       typeof window !== 'undefined' &&
       window.location.pathname.includes('/auth/callback/onedrive');
 
+    // Validate config before creating the client so the error is actionable
+    const supabaseUrl = environment?.supabase?.url;
+    const supabaseAnonKey = environment?.supabase?.anonKey;
+    if (!supabaseUrl || supabaseUrl.trim() === '') {
+      throw new Error('SUPABASE_URL is required. Ensure environment or build-time injection is configured correctly.');
+    }
+    if (!supabaseAnonKey || supabaseAnonKey.trim() === '') {
+      throw new Error('SUPABASE_ANON_KEY is required. Ensure environment or build-time injection is configured correctly.');
+    }
+
     // Main client for API calls
-    this.supabase = createClient(environment.supabase.url, environment.supabase.anonKey, {
+    this.supabase = createClient(supabaseUrl, supabaseAnonKey, {
       auth: {
         storageKey: 'sb-auth-token',
         autoRefreshToken: true,

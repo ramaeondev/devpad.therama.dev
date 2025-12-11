@@ -3,6 +3,15 @@
 This guide explains how to add a new environment variable to the DevPad project.
 
 ## Quick Steps
+## Required Variables for Production
+
+The application requires these environment variables for production builds and deployment. The `inject-env` script will fail the build if these are not present:
+
+- `SUPABASE_URL` - The URL for your Supabase instance (e.g., https://your-supabase.supabase.co)
+- `SUPABASE_ANON_KEY` - Public anon key for client usage
+
+Other variables used by the app (Google/Microsoft/Appwrite integrations) are optional but recommended for full functionality.
+
 
 When you need to add a new environment variable, follow these steps in order:
 

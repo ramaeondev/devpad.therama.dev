@@ -24,6 +24,16 @@ const envVariables = {
   APPWRITE_DATABASE_ID: process.env.APPWRITE_DATABASE_ID || '',
 };
 
+// Validate required env vars early: fail the build if missing
+if (!envVariables.SUPABASE_URL || envVariables.SUPABASE_URL.trim() === '') {
+  console.error('Missing SUPABASE_URL env var. Set SUPABASE_URL in your build environment.');
+  process.exit(1);
+}
+if (!envVariables.SUPABASE_ANON_KEY || envVariables.SUPABASE_ANON_KEY.trim() === '') {
+  console.error('Missing SUPABASE_ANON_KEY env var. Set SUPABASE_ANON_KEY in your build environment.');
+  process.exit(1);
+}
+
 const generateConfigFile = (filePath) => {
   const microsoftRedirect = envVariables.MICROSOFT_REDIRECT_URI ?
     `'${envVariables.MICROSOFT_REDIRECT_URI}'` :
