@@ -515,13 +515,7 @@ export class NoteService {
         throw urlErr || new Error('Failed to create signed URL');
       }
       
-      // Handle relative URLs from proxy by constructing full URL
-      let signedUrl = urlData.signedUrl;
-      if (signedUrl.startsWith('/')) {
-        // Relative URL - construct full URL using Supabase base URL from environment
-        const baseUrl = this.supabase.getSupabaseUrl();
-        signedUrl = `${baseUrl}${signedUrl}`;
-      }
+      const signedUrl = urlData.signedUrl;
       
       // Fetch content via signed URL
       const response = await fetch(signedUrl);
@@ -589,10 +583,7 @@ export class NoteService {
         throw new Error('Failed to fetch encrypted content from storage');
       }
 
-      let signedUrl = urlData.signedUrl;
-      if (signedUrl.startsWith('/')) {
-        signedUrl = `${this.supabase.getSupabaseUrl()}${signedUrl}`;
-      }
+      const signedUrl = urlData.signedUrl;
 
       const response = await fetch(signedUrl);
       if (!response.ok) {

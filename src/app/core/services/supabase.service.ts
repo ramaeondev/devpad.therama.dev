@@ -7,7 +7,6 @@ import { environment } from '../../../environments/environment';
 })
 export class SupabaseService {
   private supabase: SupabaseClient;
-  private directClient: SupabaseClient | null = null;
 
   constructor() {
     // Check if we are in the OneDrive callback flow
@@ -17,7 +16,7 @@ export class SupabaseService {
       typeof window !== 'undefined' &&
       window.location.pathname.includes('/auth/callback/onedrive');
 
-    // Main client for API calls (uses proxy)
+    // Main client for API calls
     this.supabase = createClient(environment.supabase.url, environment.supabase.anonKey, {
       auth: {
         storageKey: 'sb-auth-token',
@@ -27,23 +26,6 @@ export class SupabaseService {
         storage: window.localStorage,
       },
     });
-
-    // Direct client for OAuth (bypasses proxy to use actual Supabase URL)
-    if (environment.supabase.directUrl) {
-      this.directClient = createClient(
-        environment.supabase.directUrl,
-        environment.supabase.anonKey,
-        {
-          auth: {
-            storageKey: 'sb-auth-token',
-            autoRefreshToken: true,
-            persistSession: true,
-            detectSessionInUrl: !isOneDriveCallback,
-            storage: window.localStorage,
-          },
-        }
-      );
-    }
   }
 
   // Simple session getter - let Supabase handle caching
@@ -64,13 +46,13 @@ export class SupabaseService {
     return this.supabase.auth;
   }
 
-  // OAuth auth methods should use direct client to bypass proxy
+  // Unified auth getter
   get authDirect() {
-    return this.directClient ? this.directClient.auth : this.supabase.auth;
+    return this.supabase.auth;
   }
 
   get realtimeClient() {
-    return this.directClient || this.supabase;
+    return this.supabase;
   }
 
   // IMPORTANT: Return the bound function, not a function that returns it

@@ -68,10 +68,11 @@ export class OneDriveService {
    * @param forceAccountSelection - If true, adds prompt=select_account to force account picker
    */
   private buildAuthUrl(forceAccountSelection: boolean = true): string {
+    const redirectRoot = environment.microsoft.redirectUri || window.location.origin;
     const params = new URLSearchParams({
       client_id: environment.microsoft.clientId,
       response_type: 'token',
-      redirect_uri: environment.microsoft.redirectUri + '/auth/callback/onedrive',
+      redirect_uri: `${redirectRoot}/auth/callback/onedrive`,
       scope: this.SCOPES,
       response_mode: 'fragment',
     });
