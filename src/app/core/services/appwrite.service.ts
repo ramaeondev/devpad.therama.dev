@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { Client, Account, Databases, Storage, Teams } from 'appwrite';
+import { Client, Account, Databases, Storage, Teams, Query } from 'appwrite';
 import { environment } from '../../../environments/environment';
 import { SocialLink } from '../models/social-link.model';
 
@@ -68,22 +68,34 @@ export class AppwriteService {
       if (!environment.appwrite?.databaseId) {
         throw new Error('Appwrite database ID not configured');
       }
-      
-      const response = await this.databases.listDocuments(
-        environment.appwrite.databaseId,
-        'change_logs',
-        []
-      );
-      
+      // Paginate through all documents and accumulate them. Appwrite's
+      // `listDocuments` is paginated and returns up to a default page size,
+      // so we must iterate to retrieve everything.
+      const perPage = 100; // reasonable page size
+      let offset = 0;
+      const allDocs: any[] = [];
+
+      while (true) {
+        const response = await this.databases.listDocuments(
+          environment.appwrite.databaseId,
+          'change_logs',
+          [Query.limit(perPage), Query.offset(offset)]
+        );
+
+        if (!response || !response.documents || response.documents.length === 0) break;
+
+        allDocs.push(...response.documents);
+
+        // If fewer than page size returned, we've reached the last page.
+        if (response.documents.length < perPage) break;
+
+        offset += perPage;
+      }
+
       // Sort by date descending (most recent first)
-      const sorted = response.documents.sort((a: any, b: any) => 
-        b.date.localeCompare(a.date)
-      );
-      
-      return sorted.map((doc: any) => ({
-        date: doc.date,
-        changes: doc.changes
-      }));
+      const sorted = allDocs.sort((a: any, b: any) => b.date.localeCompare(a.date));
+
+      return sorted.map((doc: any) => ({ date: doc.date, changes: doc.changes }));
     } catch (error) {
       console.error('Error fetching changelogs from Appwrite:', error);
       throw error;
