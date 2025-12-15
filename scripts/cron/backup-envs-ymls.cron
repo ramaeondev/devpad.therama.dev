@@ -1,0 +1,8 @@
+# Cron sample: run daily at 03:30
+# Install as root:
+#   cp backup-envs-ymls.sh /usr/local/bin/
+#   chmod +x /usr/local/bin/backup-envs-ymls.sh
+#   echo "30 3 * * * root /usr/local/bin/backup-envs-ymls.sh --repo /path/to/repo --backup-dir /var/backups/envs-ymls >> /var/log/backup-envs-ymls.log 2>&1" > /etc/cron.d/backup-envs-ymls
+
+# Example user crontab entry:
+# 30 3 * * * /usr/local/bin/backup-envs-ymls.sh --repo /path/to/repo --backup-dir /var/backups/envs-ymls >> /var/log/backup-envs-ymls.log 2>&1

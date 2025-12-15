@@ -50,3 +50,6 @@ Thumbs.db
 
 src/config.dev.ts
 src/config.prod.ts
+./backup-temp
+./.backup_temp
+.backup_temp

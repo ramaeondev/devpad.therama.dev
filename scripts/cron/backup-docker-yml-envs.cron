@@ -1,0 +1,13 @@
+# Cron sample: run daily at 02:00
+# Install for root or a user that can run docker & read files
+# As root (recommended):
+#   cp backup-docker-yml-envs.sh /usr/local/bin/
+#   chmod +x /usr/local/bin/backup-docker-yml-envs.sh
+#   echo "0 2 * * * root /usr/local/bin/backup-docker-yml-envs.sh --repo /path/to/repo --backup-dir /var/backups/docker-envs" > /etc/cron.d/backup-docker-yml-envs
+
+# Example user crontab install (not for /etc/cron.d):
+# crontab -e
+# Add the following line:
+# 0 2 * * * /usr/local/bin/backup-docker-yml-envs.sh --repo /path/to/repo --backup-dir /var/backups/docker-envs >> /var/log/backup-docker.log 2>&1
+
+# Note: Running as root or a user with docker privileges is necessary to copy container files.

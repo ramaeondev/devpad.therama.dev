@@ -50,7 +50,11 @@
     "analyze": "ng build --configuration production --stats-json && webpack-bundle-analyzer dist/devpad/stats.json",
     "inject-env": "node scripts/inject-env.js",
     "changelog:update": "node scripts/update-changelog-appwrite.js",
-    "db:backup": "node scripts/db-backup.js"
+    "db:backup": "node scripts/db-backup.js",
+    "backup:docker": "bash ./scripts/backup-docker-yml-envs.sh --repo . --backup-dir ./backup",
+    "backup:envs-ymls": "bash ./scripts/backup-envs-ymls.sh --repo . --backup-dir ./backup/envs-ymls"
+    ,"pull-backups": "bash ./scripts/pull-backups.sh --host root@157.245.105.249 --key ~/.ssh/devpad-digiocean --out ./.backup_temp"
+    ,"pull-files": "bash ./scripts/pull-files.sh --host root@157.245.105.249 --key ~/.ssh/devpad-digiocean --out ./.backup_temp"
   },
   "prettier": {
     "printWidth": 100,
