@@ -10,10 +10,18 @@ import { PublicShare } from '../../../../core/models/public-share.model';
   standalone: true,
   imports: [CommonModule, FormsModule],
   template: `
-    <div class="modal-overlay fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50" (click)="onOverlayClick($event)">
-      <div class="modal-content bg-white dark:bg-gray-800 rounded-lg shadow-xl max-w-md w-full mx-4" (click)="$event.stopPropagation()">
+    <div
+      class="modal-overlay fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
+      (click)="onOverlayClick($event)"
+    >
+      <div
+        class="modal-content bg-white dark:bg-gray-800 rounded-lg shadow-xl max-w-md w-full mx-4"
+        (click)="$event.stopPropagation()"
+      >
         <!-- Header -->
-        <div class="modal-header flex items-center justify-between p-6 border-b border-gray-200 dark:border-gray-700">
+        <div
+          class="modal-header flex items-center justify-between p-6 border-b border-gray-200 dark:border-gray-700"
+        >
           <h2 class="text-xl font-semibold text-gray-900 dark:text-white">
             {{ existingShare() ? 'Manage Share' : 'Share Note' }}
           </h2>
@@ -172,24 +180,32 @@ import { PublicShare } from '../../../../core/models/public-share.model';
               <div class="bg-gray-50 dark:bg-gray-700 rounded-lg p-4">
                 <div class="flex items-center justify-between text-sm">
                   <span class="text-gray-600 dark:text-gray-400">Views</span>
-                  <span class="font-semibold text-gray-900 dark:text-white">{{ existingShare()?.view_count || 0 }}</span>
+                  <span class="font-semibold text-gray-900 dark:text-white">{{
+                    existingShare()?.view_count || 0
+                  }}</span>
                 </div>
                 @if (existingShare()?.expires_at) {
                   <div class="flex items-center justify-between text-sm mt-1">
                     <span class="text-gray-600 dark:text-gray-400">Expires</span>
-                    <span class="font-semibold text-gray-900 dark:text-white">{{ existingShare()?.expires_at | date:'medium' }}</span>
+                    <span class="font-semibold text-gray-900 dark:text-white">{{
+                      existingShare()?.expires_at | date: 'medium'
+                    }}</span>
                   </div>
                 }
                 @if (existingShare()?.max_views) {
                   <div class="flex items-center justify-between text-sm mt-1">
                     <span class="text-gray-600 dark:text-gray-400">Max Views</span>
-                    <span class="font-semibold text-gray-900 dark:text-white">{{ existingShare()?.max_views }}</span>
+                    <span class="font-semibold text-gray-900 dark:text-white">{{
+                      existingShare()?.max_views
+                    }}</span>
                   </div>
                 }
                 @if (existingShare()?.unique_view_count) {
                   <div class="flex items-center justify-between text-sm mt-1">
                     <span class="text-gray-600 dark:text-gray-400">Unique Views</span>
-                    <span class="font-semibold text-gray-900 dark:text-white">{{ existingShare()?.unique_view_count }}</span>
+                    <span class="font-semibold text-gray-900 dark:text-white">{{
+                      existingShare()?.unique_view_count
+                    }}</span>
                   </div>
                 }
               </div>
@@ -207,7 +223,8 @@ import { PublicShare } from '../../../../core/models/public-share.model';
             <!-- Create new share -->
             <div class="space-y-4">
               <p class="text-sm text-gray-600 dark:text-gray-400">
-                Create a shareable link for "<strong>{{ note?.title || 'Untitled' }}</strong>"
+                Create a shareable link for "<strong>{{ note?.title || 'Untitled' }}</strong
+                >"
               </p>
 
               <!-- Permission Selection -->
@@ -272,7 +289,9 @@ import { PublicShare } from '../../../../core/models/public-share.model';
               </div>
 
               <!-- Warning -->
-              <div class="bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg p-3">
+              <div
+                class="bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg p-3"
+              >
                 <p class="text-xs text-yellow-800 dark:text-yellow-200">
                   <i class="fa-solid fa-exclamation-triangle mr-1"></i>
                   Shared content will be publicly accessible. Anyone with the link can access it.
@@ -293,31 +312,37 @@ import { PublicShare } from '../../../../core/models/public-share.model';
       </div>
     </div>
   `,
-  styles: [`
-    .modal-overlay {
-      animation: fadeIn 0.2s ease-out;
-    }
-
-    .modal-content {
-      animation: slideUp 0.3s ease-out;
-    }
-
-    @keyframes fadeIn {
-      from { opacity: 0; }
-      to { opacity: 1; }
-    }
-
-    @keyframes slideUp {
-      from {
-        opacity: 0;
-        transform: translateY(20px);
+  styles: [
+    `
+      .modal-overlay {
+        animation: fadeIn 0.2s ease-out;
       }
-      to {
-        opacity: 1;
-        transform: translateY(0);
+
+      .modal-content {
+        animation: slideUp 0.3s ease-out;
       }
-    }
-  `],
+
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+        }
+        to {
+          opacity: 1;
+        }
+      }
+
+      @keyframes slideUp {
+        from {
+          opacity: 0;
+          transform: translateY(20px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+    `,
+  ],
 })
 export class ShareNoteModalComponent implements OnInit {
   @Input() note: any;
@@ -339,7 +364,7 @@ export class ShareNoteModalComponent implements OnInit {
     { label: '1 Day', value: '1d' },
     { label: '1 Week', value: '1w' },
     { label: 'Once (1 View)', value: 'once' },
-    { label: 'Custom', value: 'custom' }
+    { label: 'Custom', value: 'custom' },
   ];
   selectedExpiry = signal<string>('never');
   customExpiryDate = signal<string>('');
@@ -355,7 +380,7 @@ export class ShareNoteModalComponent implements OnInit {
         const share = shares[0];
         this.existingShare.set(share);
         this.permission = share.permission;
-        
+
         // Determine current expiry selection
         if (share.max_views === 1) {
           this.selectedExpiry.set('once');
@@ -387,10 +412,10 @@ export class ShareNoteModalComponent implements OnInit {
     try {
       const { expiresAt, maxViews } = this.calculateExpiry();
       const share = await this.shareService.createShare(
-        this.note.id, 
+        this.note.id,
         this.permission,
         expiresAt,
-        maxViews
+        maxViews,
       );
       this.existingShare.set(share);
       this.toast.success('Share link created!');
@@ -410,11 +435,11 @@ export class ShareNoteModalComponent implements OnInit {
     this.loading.set(true);
     try {
       const { expiresAt, maxViews } = this.calculateExpiry();
-      
+
       await this.shareService.updatePublicShare(share.id, {
         permission: this.permission,
         expires_at: expiresAt,
-        max_views: maxViews
+        max_views: maxViews,
       });
 
       this.toast.success('Share updated!');
@@ -423,7 +448,7 @@ export class ShareNoteModalComponent implements OnInit {
         ...share,
         permission: this.permission,
         expires_at: expiresAt || undefined,
-        max_views: maxViews || undefined
+        max_views: maxViews || undefined,
       });
     } catch (error: any) {
       console.error('Error updating share:', error);
@@ -434,7 +459,7 @@ export class ShareNoteModalComponent implements OnInit {
   }
 
   // Helper to calculate expiry values based on selection
-  private calculateExpiry(): { expiresAt: string | null, maxViews: number | null } {
+  private calculateExpiry(): { expiresAt: string | null; maxViews: number | null } {
     const selection = this.selectedExpiry();
     let expiresAt: Date | null = null;
     let maxViews: number | null = null;
@@ -465,9 +490,9 @@ export class ShareNoteModalComponent implements OnInit {
         break;
     }
 
-    return { 
-      expiresAt: expiresAt ? expiresAt.toISOString() : null, 
-      maxViews 
+    return {
+      expiresAt: expiresAt ? expiresAt.toISOString() : null,
+      maxViews,
     };
   }
 
@@ -510,12 +535,18 @@ export class ShareNoteModalComponent implements OnInit {
   shareViaTwitter() {
     const url = this.shareUrl();
     const text = this.note?.title || 'Check out this note';
-    window.open(`https://twitter.com/intent/tweet?url=${encodeURIComponent(url)}&text=${encodeURIComponent(text)}`, '_blank');
+    window.open(
+      `https://twitter.com/intent/tweet?url=${encodeURIComponent(url)}&text=${encodeURIComponent(text)}`,
+      '_blank',
+    );
   }
 
   shareViaFacebook() {
     const url = this.shareUrl();
-    window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}`, '_blank');
+    window.open(
+      `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}`,
+      '_blank',
+    );
   }
 
   copyForInstagram() {

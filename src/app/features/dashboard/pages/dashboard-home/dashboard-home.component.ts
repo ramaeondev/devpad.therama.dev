@@ -29,19 +29,25 @@ import { GoogleDriveFile, OneDriveFile } from '../../../../core/models/integrati
         <div class="flex items-center justify-center h-full">
           <div class="text-center">
             <i class="fa-solid fa-file"></i>
-            <h3 class="text-xl font-semibold text-gray-900 dark:text-white mb-2">Welcome to DevPad</h3>
-            <p class="text-gray-600 dark:text-gray-400">Select a file from the sidebar to get started</p>
+            <h3 class="text-xl font-semibold text-gray-900 dark:text-white mb-2">
+              Welcome to DevPad
+            </h3>
+            <p class="text-gray-600 dark:text-gray-400">
+              Select a file from the sidebar to get started
+            </p>
           </div>
         </div>
       }
     </div>
   `,
-  styles: [`
-    :host {
-      display: block;
-      height: 100%;
-    }
-  `],
+  styles: [
+    `
+      :host {
+        display: block;
+        height: 100%;
+      }
+    `,
+  ],
 })
 export class DashboardHomeComponent implements OnInit {
   private workspaceState = inject(WorkspaceStateService);
@@ -53,13 +59,13 @@ export class DashboardHomeComponent implements OnInit {
 
   ngOnInit() {
     console.log('Dashboard home initialized, subscribing to file selection');
-    
-    this.workspaceState.googleDriveFileSelected$.subscribe(file => {
+
+    this.workspaceState.googleDriveFileSelected$.subscribe((file) => {
       console.log('Google Drive file selected in dashboard:', file);
       this.selectedGoogleDriveFile.set(file);
     });
 
-    this.workspaceState.oneDriveFileSelected$.subscribe(file => {
+    this.workspaceState.oneDriveFileSelected$.subscribe((file) => {
       console.log('OneDrive file selected in dashboard:', file);
       this.selectedOneDriveFile.set(file);
     });

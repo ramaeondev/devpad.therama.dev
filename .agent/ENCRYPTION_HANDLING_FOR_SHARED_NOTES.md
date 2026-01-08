@@ -18,17 +18,20 @@ When sharing a note, if that note has encryption enabled (`is_encrypted=true`), 
 ### Architecture
 
 **RPC Changes** (`get_shared_note`):
+
 - Now returns `is_encrypted` and `encryption_version` flags from the notes table
 - Viewers can detect if content is encrypted, even if they can't read it
 - Content is still returned encrypted (as stored in DB)
 
 **Share Service** (`getShareByTokenInternal`):
+
 - Checks if returned note is encrypted: `if (resolvedNote.is_encrypted)`
 - If encrypted AND user has encryption key loaded: **Decrypt before returning**
 - If encrypted AND no key available: **Show encrypted message, set `requiresEncryptionKey` flag**
 - Only owner or users logged in with the same encryption key can decrypt
 
 **Public Note Component**:
+
 - Tracks encryption status via signals: `isEncrypted`, `requiresEncryptionKey`
 - Can display different UI based on encryption state
 - Saves work the same way (content sent as-is to RPC)
@@ -36,6 +39,7 @@ When sharing a note, if that note has encryption enabled (`is_encrypted=true`), 
 ### User Flows
 
 **Owner viewing their encrypted shared note** (has encryption key loaded):
+
 ```
 1. Owner clicks their own shared link
 2. RPC returns: is_encrypted=true, content=encrypted_ciphertext
@@ -45,6 +49,7 @@ When sharing a note, if that note has encryption enabled (`is_encrypted=true`), 
 ```
 
 **Non-owner viewing encrypted shared note** (no encryption key):
+
 ```
 1. Non-owner clicks shared link
 2. RPC returns: is_encrypted=true, content=encrypted_ciphertext
@@ -55,6 +60,7 @@ When sharing a note, if that note has encryption enabled (`is_encrypted=true`), 
 ```
 
 **Owner sharing decrypted note**:
+
 ```
 1. Owner disables encryption on note in dashboard (decrypts content)
 2. Shares the note
@@ -147,11 +153,11 @@ if (resolvedNote.is_encrypted && contentToUse) {
 
 ### Files Modified
 
-| File | Changes |
-|------|---------|
-| `supabase/migrations/.../get_shared_note_rpc.sql` | Added `is_encrypted` and `encryption_version` to response |
-| `src/app/core/services/share.service.ts` | Added decryption logic in `getShareByTokenInternal()` |
-| `src/app/features/notes/pages/public-note/public-note.component.ts` | Added `isEncrypted` and `requiresEncryptionKey` signals |
+| File                                                                | Changes                                                   |
+| ------------------------------------------------------------------- | --------------------------------------------------------- |
+| `supabase/migrations/.../get_shared_note_rpc.sql`                   | Added `is_encrypted` and `encryption_version` to response |
+| `src/app/core/services/share.service.ts`                            | Added decryption logic in `getShareByTokenInternal()`     |
+| `src/app/features/notes/pages/public-note/public-note.component.ts` | Added `isEncrypted` and `requiresEncryptionKey` signals   |
 
 ### Database Impact
 
@@ -165,7 +171,7 @@ if (resolvedNote.is_encrypted && contentToUse) {
 ✅ **Server-side encryption**: RPC never decrypts (that's client-only)  
 ✅ **Anonymous access unchanged**: Public shares still work normally  
 ✅ **RLS still in place**: Database RLS policies unchanged  
-✅ **No new attack surface**: Encryption handling same as dashboard  
+✅ **No new attack surface**: Encryption handling same as dashboard
 
 ## Testing Checklist
 
@@ -186,6 +192,7 @@ if (resolvedNote.is_encrypted && contentToUse) {
 ## Migration Notes
 
 No database migration needed. The `is_encrypted` field already exists on notes table. We're just:
+
 1. Returning it in the RPC response (new)
 2. Handling decryption client-side (new)
 3. Showing appropriate message when can't decrypt (new)

@@ -39,14 +39,14 @@ Go to your Supabase Dashboard:
 ```sql
 -- Check if table exists
 SELECT EXISTS (
-  SELECT FROM information_schema.tables 
-  WHERE table_schema = 'public' 
+  SELECT FROM information_schema.tables
+  WHERE table_schema = 'public'
   AND table_name = 'user_devices'
 );
 
 -- If true, check structure
-SELECT column_name, data_type 
-FROM information_schema.columns 
+SELECT column_name, data_type
+FROM information_schema.columns
 WHERE table_name = 'user_devices'
 ORDER BY ordinal_position;
 
@@ -55,6 +55,7 @@ SELECT COUNT(*) FROM user_devices;
 ```
 
 **Expected Results:**
+
 - First query: `true`
 - Second query: List of columns (id, user_id, fingerprint_id, etc.)
 - Third query: Number (might be 0 if no logins yet)
@@ -75,7 +76,7 @@ Run this in Supabase SQL Editor:
 
 ```sql
 -- Check RLS policies
-SELECT 
+SELECT
   schemaname,
   tablename,
   policyname,
@@ -88,8 +89,9 @@ WHERE tablename = 'user_devices';
 ```
 
 **Expected**: You should see 4 policies:
+
 - ✅ Users can view their own devices (SELECT)
-- ✅ Users can insert their own devices (INSERT)  
+- ✅ Users can insert their own devices (INSERT)
 - ✅ Users can update their own devices (UPDATE)
 - ✅ Users can delete their own devices (DELETE)
 
@@ -100,6 +102,7 @@ WHERE tablename = 'user_devices';
 ### ✅ **Step 3: Test Device Registration**
 
 #### A. Clear your browser console
+
 Press `F12` → Console tab → Clear
 
 #### B. Sign out and sign in again
@@ -117,15 +120,15 @@ Watch the console for these logs:
 
 #### C. What Each Message Means:
 
-| Log | Meaning | Action |
-|-----|---------|--------|
-| 🔐 Starting device registration | Service called | ✅ Good |
-| User ID shown | User authenticated | ✅ Good |
-| Fingerprint ID shown | Fingerprint generated | ✅ Good |
-| Device Info shown | Device detected | ✅ Good |
-| ✨ New device | No existing record (expected first time) | ✅ Good |
-| ✅ Created successfully | Device saved to DB | ✅ Good |
-| ❌ Error creating device | **PROBLEM** | See errors below |
+| Log                             | Meaning                                  | Action           |
+| ------------------------------- | ---------------------------------------- | ---------------- |
+| 🔐 Starting device registration | Service called                           | ✅ Good          |
+| User ID shown                   | User authenticated                       | ✅ Good          |
+| Fingerprint ID shown            | Fingerprint generated                    | ✅ Good          |
+| Device Info shown               | Device detected                          | ✅ Good          |
+| ✨ New device                   | No existing record (expected first time) | ✅ Good          |
+| ✅ Created successfully         | Device saved to DB                       | ✅ Good          |
+| ❌ Error creating device        | **PROBLEM**                              | See errors below |
 
 ---
 
@@ -138,7 +141,7 @@ Open browser console and paste this:
 import('@fingerprintjs/fingerprintjs').then(async (FingerprintJS) => {
   const fp = await FingerprintJS.default.load();
   const result = await fp.get();
-  
+
   console.log('Your Fingerprint ID:', result.visitorId);
   console.log('Browser:', navigator.userAgent);
   console.log('Platform:', navigator.platform);
@@ -160,7 +163,7 @@ In Supabase Dashboard:
 **Run this query:**
 
 ```sql
-SELECT 
+SELECT
   id,
   user_id,
   fingerprint_id,
@@ -186,6 +189,7 @@ ORDER BY created_at DESC;
 **Error**: `relation "public.user_devices" does not exist`
 
 **Fix**:
+
 ```sql
 -- Run the migration file in Supabase SQL Editor
 -- Copy/paste contents of supabase-device-tracking.sql
@@ -198,6 +202,7 @@ ORDER BY created_at DESC;
 **Error**: `row-level security policy for table "user_devices"`
 
 **Fix**:
+
 ```sql
 -- Check RLS is enabled
 ALTER TABLE user_devices ENABLE ROW LEVEL SECURITY;
@@ -249,6 +254,7 @@ ng serve
 **Symptom**: New device created every login
 
 **Causes**:
+
 - Incognito mode
 - Browser updates
 - Extensions blocking fingerprinting
@@ -277,6 +283,7 @@ Use this checklist to verify everything works:
 ## Debug Commands
 
 ### Get Your Fingerprint ID
+
 ```javascript
 // In browser console
 import('@fingerprintjs/fingerprintjs').then(async (FP) => {
@@ -287,22 +294,24 @@ import('@fingerprintjs/fingerprintjs').then(async (FP) => {
 ```
 
 ### Check Database
+
 ```sql
 -- Count total devices
 SELECT COUNT(*) FROM user_devices;
 
 -- See all your devices
-SELECT * FROM user_devices 
+SELECT * FROM user_devices
 WHERE user_id = 'YOUR_USER_ID'
 ORDER BY created_at DESC;
 
 -- See devices from last 24 hours
-SELECT * FROM user_devices 
+SELECT * FROM user_devices
 WHERE created_at > NOW() - INTERVAL '24 hours'
 ORDER BY created_at DESC;
 ```
 
 ### Check RLS
+
 ```sql
 -- Test if you can select
 SELECT * FROM user_devices WHERE user_id = auth.uid();
@@ -419,7 +428,7 @@ const { data: existingDevice, error: fetchError } = await supabase
   .select('*')
   .eq('user_id', userId)
   .eq('fingerprint_id', fingerprintId)
-  .single();  // ← This expects exactly 1 row
+  .single(); // ← This expects exactly 1 row
 
 // If 0 rows found → PGRST116 error (this is EXPECTED!)
 // Our code handles it:

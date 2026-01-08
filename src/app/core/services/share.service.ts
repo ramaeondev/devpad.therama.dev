@@ -40,10 +40,10 @@ export class ShareService {
    * Create a public share for a note
    */
   async createShare(
-    noteId: string, 
-    permission: 'readonly' | 'editable', 
+    noteId: string,
+    permission: 'readonly' | 'editable',
     expiresAt?: string | null, // explicitly allow null
-    maxViews?: number | null   // explicitly allow null
+    maxViews?: number | null, // explicitly allow null
   ): Promise<PublicShare> {
     const userId = this.authState.userId();
     if (!userId) throw new Error('User not authenticated');
@@ -63,7 +63,9 @@ export class ShareService {
           console.log('[createShare] Note decrypted successfully');
         } catch (decryptErr) {
           console.error('[createShare] Failed to decrypt note:', decryptErr);
-          throw new Error('Failed to decrypt note for sharing. Please ensure you have the encryption key loaded.');
+          throw new Error(
+            'Failed to decrypt note for sharing. Please ensure you have the encryption key loaded.',
+          );
         }
       }
 
@@ -99,7 +101,7 @@ export class ShareService {
         resource_type: ActivityResource.Note,
         resource_id: noteId,
         resource_name: note.title,
-        metadata: { permission, share_token: shareToken }
+        metadata: { permission, share_token: shareToken },
       });
 
       return data as PublicShare;
@@ -124,33 +126,35 @@ export class ShareService {
       return null;
     }
 
-      // Check expiration by date
-      if (share.expires_at && new Date(share.expires_at) < new Date()) {
-        return null; // Expired
-      }
+    // Check expiration by date
+    if (share.expires_at && new Date(share.expires_at) < new Date()) {
+      return null; // Expired
+    }
 
-      // Check max views (if set)
-      // Note: view_count is the *current* count before this access
-      if (share.max_views !== null && share.view_count >= share.max_views) {
-        return null; // View limit reached
-      }
+    // Check max views (if set)
+    // Note: view_count is the *current* count before this access
+    if (share.max_views !== null && share.view_count >= share.max_views) {
+      return null; // View limit reached
+    }
 
-      // Log view activity for the note owner (if authenticated viewer)
-      const currentUserId = this.authState.userId();
-      if (currentUserId && currentUserId !== share.user_id) {
-        // Log that someone else viewed their shared note
-        await this.activityLog.logActivity(share.user_id, {
-          action_type: ActivityAction.View,
-          resource_type: ActivityResource.PublicShare,
-          resource_id: share.id,
-          resource_name: share.note_title,
-          metadata: { viewer_id: currentUserId, share_token: token }
-        });
-      }    // Fetch the current note content via secure RPC (respects public share access)
+    // Log view activity for the note owner (if authenticated viewer)
+    const currentUserId = this.authState.userId();
+    if (currentUserId && currentUserId !== share.user_id) {
+      // Log that someone else viewed their shared note
+      await this.activityLog.logActivity(share.user_id, {
+        action_type: ActivityAction.View,
+        resource_type: ActivityResource.PublicShare,
+        resource_id: share.id,
+        resource_name: share.note_title,
+        metadata: { viewer_id: currentUserId, share_token: token },
+      });
+    } // Fetch the current note content via secure RPC (respects public share access)
     // Avoids RLS blocks when using anon key while ensuring we return live note content
     try {
-      const { data: sharedNote, error: rpcError } = await this.supabase.client
-        .rpc('get_shared_note', { p_share_token: token });
+      const { data: sharedNote, error: rpcError } = await this.supabase.client.rpc(
+        'get_shared_note',
+        { p_share_token: token },
+      );
 
       const resolvedNote = Array.isArray(sharedNote) ? sharedNote[0] : sharedNote;
       if (!rpcError && resolvedNote) {
@@ -158,11 +162,11 @@ export class ShareService {
         if (resolvedNote.note_title) {
           share.note_title = resolvedNote.note_title;
         }
-        
+
         // SINGLE SOURCE OF TRUTH: Use note_content directly from RPC
         // No more public_content duplication - all content comes from notes.content
         let contentToUse = resolvedNote.note_content || '';
-        
+
         // STORAGE HANDLING: If content is a storage path, fetch the actual file
         if (contentToUse && contentToUse.startsWith('storage://')) {
           try {
@@ -170,10 +174,11 @@ export class ShareService {
             contentToUse = await this.noteService.fetchStorageContent(contentToUse);
           } catch (storageErr) {
             console.error('Error fetching storage content:', storageErr);
-            contentToUse = '[Content unavailable - the file may have been moved or deleted. Please contact the note owner.]';
+            contentToUse =
+              '[Content unavailable - the file may have been moved or deleted. Please contact the note owner.]';
           }
         }
-        
+
         // ENCRYPTION HANDLING:
         // If note is encrypted, we need the owner's encryption key to decrypt
         // The client will have the key IF the user viewing is the owner or logged in with key loaded
@@ -186,15 +191,16 @@ export class ShareService {
             } else {
               // Mark content as encrypted so client can show appropriate message
               (share as any).requiresEncryptionKey = true;
-              contentToUse = '[This note is encrypted. Sign in with your encryption key to view it.]';
+              contentToUse =
+                '[This note is encrypted. Sign in with your encryption key to view it.]';
             }
           } catch (decryptErr) {
             console.warn('Failed to decrypt shared note content:', decryptErr);
             (share as any).requiresEncryptionKey = true;
-            contentToUse = '[Failed to decrypt note. It may require the owner\'s encryption key.]';
+            contentToUse = "[Failed to decrypt note. It may require the owner's encryption key.]";
           }
         }
-        
+
         (share as any).content = contentToUse;
         (share as any).isEncrypted = resolvedNote.is_encrypted;
       }
@@ -250,12 +256,12 @@ export class ShareService {
    * Update share settings (permission, expiry)
    */
   async updatePublicShare(
-    shareId: string, 
-    updates: { 
-      permission?: 'readonly' | 'editable',
-      expires_at?: string | null,
-      max_views?: number | null
-    }
+    shareId: string,
+    updates: {
+      permission?: 'readonly' | 'editable';
+      expires_at?: string | null;
+      max_views?: number | null;
+    },
   ): Promise<void> {
     const userId = this.authState.userId();
     if (!userId) throw new Error('User not authenticated');
@@ -310,12 +316,12 @@ export class ShareService {
         resource_type: ActivityResource.Note,
         resource_id: share.note_id,
         resource_name: share.note_title || 'Shared Note',
-        metadata: { share_token: share.share_token, permission: share.permission }
+        metadata: { share_token: share.share_token, permission: share.permission },
       });
 
       // Check if there are any other shares for this note
       const otherShares = await this.getSharesForNote(share.note_id);
-      
+
       // If no other shares exist, remove from Public folder
       if (otherShares.length === 0) {
         await this.removeFromPublicFolder(share.note_id, userId);
@@ -344,12 +350,12 @@ export class ShareService {
       // Update storage file directly
       const path = `${share.user_id}/${share.note_id}.md`;
       const file = new File([content], `${share.note_id}.md`, { type: 'text/markdown' });
-      
+
       const { error: uploadErr } = await this.supabase.client.storage
         .from('notes')
-        .upload(path, file, { 
-          upsert: true, 
-          contentType: 'text/markdown'
+        .upload(path, file, {
+          upsert: true,
+          contentType: 'text/markdown',
         });
 
       if (uploadErr) {
@@ -377,7 +383,7 @@ export class ShareService {
           resource_id: share.id,
           resource_name: share.note_title || 'Shared Note',
           metadata: { editor_id: userId, share_token: shareToken },
-          requires_notification: true
+          requires_notification: true,
         });
 
         // Explicitly create notification (since triggers are disabled)
@@ -385,7 +391,7 @@ export class ShareService {
           title: 'Shared Note Edited',
           message: `Your shared note "${share.note_title || 'Untitled'}" was edited by another user.`,
           type: 'activity',
-          activity_log_id: activity?.id
+          activity_log_id: activity?.id,
         });
       }
     } catch (err) {
@@ -402,7 +408,9 @@ export class ShareService {
   async syncShareContent(_noteId: string, _newContent: string): Promise<void> {
     // This method is kept for backward compatibility but no longer does anything
     // Shares will automatically reflect changes when they call get_shared_note RPC
-    console.warn('syncShareContent is deprecated - RPC now returns live content from notes.content');
+    console.warn(
+      'syncShareContent is deprecated - RPC now returns live content from notes.content',
+    );
     // No-op: previously we would update public_shares.public_content for all shares
     // Now shares fetch content live via RPC, so nothing to sync here
     return;
@@ -420,7 +428,7 @@ export class ShareService {
     // Use RPC to track access
     const { error } = await this.supabase.client.rpc('track_share_access', {
       p_share_id: shareId,
-      p_fingerprint: fingerprint
+      p_fingerprint: fingerprint,
     });
 
     if (error) {
@@ -431,7 +439,7 @@ export class ShareService {
         .select('view_count')
         .eq('id', shareId)
         .single();
-      
+
       if (share) {
         await this.supabase.client
           .from('public_shares')
@@ -482,7 +490,7 @@ export class ShareService {
         .select('*')
         .eq('id', profile.public_folder_id)
         .maybeSingle();
-      
+
       if (folder) {
         return folder;
       }
@@ -505,7 +513,7 @@ export class ShareService {
         .from('user_profiles')
         .update({ public_folder_id: existingPublic.id })
         .eq('user_id', userId);
-        
+
       return existingPublic;
     }
 
@@ -551,7 +559,7 @@ export class ShareService {
         .select('*')
         .eq('id', profile.imports_folder_id)
         .maybeSingle();
-      
+
       if (folder) {
         return folder;
       }
@@ -572,7 +580,7 @@ export class ShareService {
         .from('user_profiles')
         .update({ imports_folder_id: existingImports.id })
         .eq('user_id', userId);
-        
+
       return existingImports;
     }
 
@@ -606,7 +614,8 @@ export class ShareService {
   async getSharedNotesForUser(userId: string): Promise<any[]> {
     const { data, error } = await this.supabase.client
       .from('public_shares')
-      .select(`
+      .select(
+        `
         id,
         note_id,
         permission,
@@ -619,7 +628,8 @@ export class ShareService {
           folder_id,
           updated_at
         )
-      `)
+      `,
+      )
       .eq('user_id', userId);
 
     if (error) {
@@ -670,7 +680,7 @@ export class ShareService {
         resource_type: ActivityResource.PublicShare,
         resource_id: originalShare.id,
         resource_name: originalShare.note_title,
-        metadata: { forked_by: userId, new_note_id: newNote.id }
+        metadata: { forked_by: userId, new_note_id: newNote.id },
       });
 
       // 4. Create a share for this forked note (makes it editable by the user)
@@ -681,5 +691,4 @@ export class ShareService {
       this.loading.stop();
     }
   }
-
 }

@@ -42,23 +42,22 @@ This guide walks you through setting up OneDrive OAuth integration for DevPad.
 3. Add **BOTH** redirect URIs (must match exactly - no trailing slashes):
    - Production: `https://devpad.therama.dev/auth/callback/onedrive`
    - Development: `http://localhost:4200/auth/callback/onedrive`
-   
+
    **Important**: The URIs must match EXACTLY what your app sends. Azure is case-sensitive and checks for exact matches including the path.
 
 4. Under "Front-channel logout URL", add (this is for Azure AD to notify your app during sign-out):
    - Production: `https://devpad.therama.dev/auth/logout`
    - Development: `http://localhost:4200/auth/logout`
-   
 5. Under "Implicit grant and hybrid flows":
    - ✅ Check "Access tokens (used for implicit flows)"
    - ✅ Check "ID tokens (used for implicit and hybrid flows)"
-   
 6. Under "Allow public client flows": Select "No"
 7. Click "Save" at the bottom
 
 **⚠️ Common Mistakes:**
+
 - Adding trailing slash: `https://devpad.therama.dev/auth/callback/onedrive/` ❌
-- Wrong protocol: `http://devpad.therama.dev/auth/callback/onedrive` ❌  
+- Wrong protocol: `http://devpad.therama.dev/auth/callback/onedrive` ❌
 - Wrong path: `https://devpad.therama.dev/callback/onedrive` ❌
 - Correct format: `https://devpad.therama.dev/auth/callback/onedrive` ✅
 
@@ -107,15 +106,15 @@ export const environment = {
   production: false,
   supabase: {
     url: 'YOUR_SUPABASE_URL',
-    anonKey: 'YOUR_SUPABASE_ANON_KEY'
+    anonKey: 'YOUR_SUPABASE_ANON_KEY',
   },
   google: {
-    clientId: 'YOUR_GOOGLE_CLIENT_ID.apps.googleusercontent.com'
+    clientId: 'YOUR_GOOGLE_CLIENT_ID.apps.googleusercontent.com',
   },
   microsoft: {
     clientId: 'YOUR_ACTUAL_CLIENT_ID', // Replace this
-    redirectUri: 'http://localhost:4200'
-  }
+    redirectUri: 'http://localhost:4200',
+  },
 };
 ```
 
@@ -129,15 +128,15 @@ export const environment = {
   production: true,
   supabase: {
     url: 'YOUR_SUPABASE_URL',
-    anonKey: 'YOUR_SUPABASE_ANON_KEY'
+    anonKey: 'YOUR_SUPABASE_ANON_KEY',
   },
   google: {
-    clientId: 'YOUR_GOOGLE_CLIENT_ID.apps.googleusercontent.com'
+    clientId: 'YOUR_GOOGLE_CLIENT_ID.apps.googleusercontent.com',
   },
   microsoft: {
     clientId: 'YOUR_ACTUAL_CLIENT_ID', // Replace this
-    redirectUri: 'https://devpad.therama.dev'
-  }
+    redirectUri: 'https://devpad.therama.dev',
+  },
 };
 ```
 
@@ -146,6 +145,7 @@ export const environment = {
 The `integrations` table should already exist from the Google Drive setup. If not, run `supabase-integrations.sql` in Supabase SQL Editor.
 
 The table already supports OneDrive with:
+
 - `provider` field includes 'onedrive' option
 - Same token storage structure
 - Row Level Security policies
@@ -194,6 +194,7 @@ User → DevPad → Azure AD → User Login → Azure AD → Redirect with Token
 ### Permissions
 
 We use minimal permissions required:
+
 - `Files.ReadWrite.All`: Access to user's OneDrive files
 - `offline_access`: Refresh token for long-term access
 - `User.Read`: Get user's email for identification
@@ -221,32 +222,38 @@ We use minimal permissions required:
 ## Troubleshooting
 
 ### "Invalid client" error
+
 - Verify the Client ID is correct in environment files
 - Check that the redirect URI matches exactly in Azure Portal
 
 ### "AADSTS50011: The redirect URI specified in the request does not match"
+
 - Ensure redirect URI in environment matches Azure Portal configuration
 - Check for trailing slashes (should not have them)
 - Verify protocol (http vs https)
 
 ### Popup blocked
+
 - Ensure browser allows popups for your domain
 - Check browser console for popup blocker messages
 - Try clicking "Connect" again
 
 ### Token not saving
+
 - Check browser console for errors
 - Verify Supabase connection
 - Ensure `integrations` table exists and RLS policies are correct
 - Check that user is authenticated
 
 ### "Failed to load files"
+
 - Verify access token is valid
 - Check browser console for API errors
 - Ensure Microsoft Graph API permissions are granted
 - Try disconnecting and reconnecting
 
 ### CORS errors
+
 - Microsoft Graph API should allow CORS from browser
 - If issues persist, check browser console for specific error
 - Verify API permissions are granted
@@ -260,22 +267,24 @@ We use minimal permissions required:
 
 ## Comparison with Google Drive
 
-| Feature | Google Drive | OneDrive |
-|---------|--------------|----------|
-| OAuth Provider | Google Identity Services | Microsoft Identity Platform |
-| Token Type | Access Token | Access Token + Refresh Token |
-| API | Google Drive API v3 | Microsoft Graph API |
-| Scopes | drive.file, drive.readonly | Files.ReadWrite.All, offline_access |
-| Token Loading | Dynamic script injection | Direct API calls |
-| Authentication | Token Client | OAuth 2.0 Implicit Flow |
+| Feature        | Google Drive               | OneDrive                            |
+| -------------- | -------------------------- | ----------------------------------- |
+| OAuth Provider | Google Identity Services   | Microsoft Identity Platform         |
+| Token Type     | Access Token               | Access Token + Refresh Token        |
+| API            | Google Drive API v3        | Microsoft Graph API                 |
+| Scopes         | drive.file, drive.readonly | Files.ReadWrite.All, offline_access |
+| Token Loading  | Dynamic script injection   | Direct API calls                    |
+| Authentication | Token Client               | OAuth 2.0 Implicit Flow             |
 
 ## API Rate Limits
 
 Microsoft Graph API has the following rate limits:
+
 - **Per-app limit**: 10,000 requests per 10 seconds
 - **Per-user limit**: 120 requests per 60 seconds
 
 Best practices:
+
 - Cache file listings when possible
 - Implement exponential backoff for retries
 - Use batch requests for multiple operations
@@ -283,6 +292,7 @@ Best practices:
 ## Support
 
 If you encounter issues:
+
 1. Check browser console for errors
 2. Review Azure Portal logs
 3. Verify app registration configuration

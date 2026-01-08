@@ -1,15 +1,16 @@
 # OneDrive "itemNotFound" Error Fix
 
 ## Problem
+
 When connecting to OneDrive, the application was receiving an "itemNotFound" error when trying to access `/me/drive/root/children`:
 
 ```json
 {
-    "error": {
-        "code": "itemNotFound",
-        "message": "Item does not exist",
-        "localizedMessage": "That item seems to be missing..."
-    }
+  "error": {
+    "code": "itemNotFound",
+    "message": "Item does not exist",
+    "localizedMessage": "That item seems to be missing..."
+  }
 }
 ```
 
@@ -61,6 +62,7 @@ The service now provides specific error messages:
 ### 4. Graceful Degradation
 
 If all attempts fail, the service:
+
 - Sets an empty root folder structure
 - Doesn't crash the application
 - Provides clear feedback to the user
@@ -73,6 +75,7 @@ If all attempts fail, the service:
 **Method**: `loadFiles()`
 
 **Key Improvements**:
+
 1. Added drive existence check
 2. Implemented fallback to `/me/drives` endpoint
 3. Added multiple endpoint attempts for root children
@@ -85,11 +88,13 @@ If all attempts fail, the service:
 ### 1. Test Different Account Types
 
 **Personal Microsoft Account**:
+
 - Sign in with @outlook.com, @hotmail.com, or @live.com
 - Verify files load correctly
 - Check that folder structure appears
 
 **Business/School Account**:
+
 - Sign in with organizational account
 - Test with Microsoft 365 Business
 - Verify SharePoint integration works
@@ -97,16 +102,19 @@ If all attempts fail, the service:
 ### 2. Test Edge Cases
 
 **Empty Drive**:
+
 - Test with a brand new OneDrive account
 - Verify empty state displays correctly
 - Check that no errors are thrown
 
 **Restricted Access**:
+
 - Test with limited permissions
 - Verify fallback to Documents folder works
 - Check error messages are user-friendly
 
 **Expired Token**:
+
 - Wait for token to expire
 - Verify reconnection prompt appears
 - Check that state is cleared properly
@@ -114,11 +122,13 @@ If all attempts fail, the service:
 ### 3. Test Error Recovery
 
 **Network Issues**:
+
 - Disconnect network during load
 - Verify error handling
 - Check retry mechanism
 
 **Invalid Token**:
+
 - Manually invalidate token in database
 - Verify error detection
 - Check reconnection flow
@@ -131,31 +141,37 @@ The service now logs detailed information:
 
 ```javascript
 // Success logs
-"OneDrive info: {...}"
-"Using drive: {...}"
+'OneDrive info: {...}';
+'Using drive: {...}';
 
 // Error logs
-"Drive check error: {...}"
-"Root children error: {...}"
-"Special folder error: {...}"
+'Drive check error: {...}';
+'Root children error: {...}';
+'Special folder error: {...}';
 ```
 
 ### Common Issues and Solutions
 
 #### Issue: "No OneDrive found for this account"
-**Solution**: 
+
+**Solution**:
+
 - User may not have OneDrive enabled
 - Check Microsoft 365 license
 - Verify OneDrive is provisioned in admin center
 
 #### Issue: "Showing Documents folder (root not accessible)"
+
 **Solution**:
+
 - This is expected for some account types
 - Documents folder is being used as fallback
 - Files will still be accessible
 
 #### Issue: "Unable to access OneDrive files"
+
 **Solution**:
+
 - Check OAuth scopes are correct
 - Verify access token is valid
 - Check Microsoft Graph API permissions
@@ -163,11 +179,13 @@ The service now logs detailed information:
 ## OAuth Scopes Required
 
 Current scopes (already configured):
+
 ```typescript
 private readonly SCOPES = 'Files.ReadWrite.All offline_access User.Read';
 ```
 
 **Breakdown**:
+
 - `Files.ReadWrite.All`: Full access to user's files
 - `offline_access`: Allows refresh tokens (for implicit flow)
 - `User.Read`: Read user profile information
@@ -177,15 +195,18 @@ private readonly SCOPES = 'Files.ReadWrite.All offline_access User.Read';
 ## API Endpoints Used
 
 ### Primary Endpoints
+
 1. `/me/drive` - Get user's default drive
 2. `/me/drives` - List all available drives
 3. `/me/drive/root/children` - Get root folder contents
 
 ### Fallback Endpoints
+
 1. `/me/drive/special/documents/children` - Documents folder
 2. `/me/drive/items/root/children` - Alternative root access
 
 ### Other Operations
+
 - `/me/drive/items/{id}/children` - Get folder contents
 - `/me/drive/items/{id}/content` - Download file
 - `/me/drive/items/{id}` - Update/delete item
@@ -194,6 +215,7 @@ private readonly SCOPES = 'Files.ReadWrite.All offline_access User.Read';
 ## Microsoft Graph API Documentation
 
 For reference:
+
 - [OneDrive API Overview](https://learn.microsoft.com/en-us/graph/onedrive-concept-overview)
 - [List Drive Items](https://learn.microsoft.com/en-us/graph/api/driveitem-list-children)
 - [Get Drive](https://learn.microsoft.com/en-us/graph/api/drive-get)
@@ -227,13 +249,16 @@ For reference:
 ## Monitoring
 
 ### Success Metrics
+
 - Connection success rate
 - File load success rate
 - Average load time
 - Error rate by type
 
 ### Error Tracking
+
 Monitor these error codes:
+
 - `itemNotFound`
 - `InvalidAuthenticationToken`
 - `accessDenied`
@@ -266,6 +291,7 @@ If users continue experiencing issues:
 ## Conclusion
 
 The updated OneDrive service now handles the "itemNotFound" error gracefully by:
+
 - ✅ Checking drive existence before accessing files
 - ✅ Trying multiple endpoints as fallbacks
 - ✅ Providing specific error messages

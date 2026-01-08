@@ -12,7 +12,8 @@ export class FileSizeDirective implements OnChanges {
   ngOnChanges(_changes: SimpleChanges): void {
     const text = this.format(this.size);
     this.el.nativeElement.textContent = text;
-    this.el.nativeElement.title = typeof this.size === 'number' ? `${this.size} bytes` : `${this.size ?? ''}`;
+    this.el.nativeElement.title =
+      typeof this.size === 'number' ? `${this.size} bytes` : `${this.size ?? ''}`;
   }
 
   private format(size?: string | number): string {
@@ -22,7 +23,8 @@ export class FileSizeDirective implements OnChanges {
     if (sizeNum < 1024) return `${sizeNum} B`;
     if (sizeNum < 1024 * 1024) return `${(sizeNum / 1024).toFixed(1)} KB`;
     if (sizeNum < 1024 * 1024 * 1024) return `${(sizeNum / (1024 * 1024)).toFixed(1)} MB`;
-    if (sizeNum < 1024 * 1024 * 1024 * 1024) return `${(sizeNum / (1024 * 1024 * 1024)).toFixed(1)} GB`;
+    if (sizeNum < 1024 * 1024 * 1024 * 1024)
+      return `${(sizeNum / (1024 * 1024 * 1024)).toFixed(1)} GB`;
     return `${(sizeNum / (1024 * 1024 * 1024 * 1024)).toFixed(1)} TB`;
   }
 }
