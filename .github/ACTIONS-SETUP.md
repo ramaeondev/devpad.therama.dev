@@ -11,7 +11,7 @@ The CI/CD pipeline includes the following jobs:
    - TypeScript compilation check
 
 2. **Test** - Unit tests
-   - Runs Karma/Jasmine tests in headless Chrome
+   - Runs unit tests with **Jest**
    - Generates code coverage report
    - Uploads coverage to Codecov (optional)
 

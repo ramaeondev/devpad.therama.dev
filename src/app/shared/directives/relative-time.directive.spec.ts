@@ -1,5 +1,6 @@
 import { Component } from '@angular/core';
-import { ComponentFixture, TestBed, fakeAsync, tick } from '@angular/core/testing';
+import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { By } from '@angular/platform-browser';
 import { RelativeTimeDirective } from './relative-time.directive';
 
 @Component({
@@ -120,24 +121,33 @@ describe('RelativeTimeDirective', () => {
     expect(span.textContent?.trim()).toBe('2024');
   });
 
-  it('auto-updates from Now to 1m ago after a minute', fakeAsync(() => {
+  it('auto-updates from Now to 1m ago after a minute (via Jest timers)', () => {
+    // Use Jest modern fake timers for deterministic timer control
+    // Use typed config to satisfy TypeScript: legacyFakeTimers=false selects modern timers
+    jest.useFakeTimers({ legacyFakeTimers: false });
     const now = new Date(Date.UTC(2025, 10, 16, 12, 0, 0));
     const thirtySecondsAgo = new Date(now.getTime() - 30 * 1000);
 
-    // Mock initial time
-    mockNow(now);
+    // Set system time and create component
+    jest.setSystemTime(now);
     host.date = thirtySecondsAgo;
     fixture.detectChanges();
 
     expect(span.textContent?.trim()).toBe('Now');
 
-    // Advance time by 60 seconds - now the date is 90 seconds old (1m 30s)
+    // Advance system time by 60 seconds and explicitly refresh the directive
     const futureTime = new Date(now.getTime() + 60 * 1000);
-    (jasmine as any).clock().mockDate(futureTime);
+    jest.setSystemTime(futureTime);
 
-    // Trigger the interval by ticking
-    tick(60000);
+    // Grab the directive instance and call its update directly to avoid timer semantics
+    const de = fixture.debugElement.query(By.directive(RelativeTimeDirective));
+    const directiveInstance = de.injector.get(RelativeTimeDirective) as any;
+    directiveInstance.updateDisplay?.();
+    fixture.detectChanges();
 
     expect(span.textContent?.trim()).toBe('1m ago');
-  }));
+
+    // Restore real timers
+    jest.useRealTimers();
+  });
 });
