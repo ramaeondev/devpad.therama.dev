@@ -54,8 +54,25 @@ global.jasmine.clock = global.jasmine.clock || function () {
 // This prevents console warnings and unintended side effects in unit tests
 jest.mock('@supabase/supabase-js', () => ({
   createClient: () => ({
-    auth: {},
-    from: () => ({ select: () => ({}) }),
-    storage: () => ({ get: () => ({}) }),
+    auth: {
+      getSession: async () => ({ data: { session: null }, error: null }),
+      signOut: async () => ({ error: null }),
+    },
+    from: (table: string) => ({
+      select: jest.fn().mockResolvedValue({ data: [], error: null }),
+      insert: jest.fn().mockResolvedValue({ data: [], error: null }),
+      update: jest.fn().mockResolvedValue({ data: [], error: null }),
+      delete: jest.fn().mockResolvedValue({ data: [], error: null }),
+    }),
+    storage: () => ({ from: () => ({ get: jest.fn().mockResolvedValue({ data: null }) }) }),
   }),
+}));
+
+// Polyfill blob URL helpers used by image-cropper and other libs
+global.URL.createObjectURL = global.URL.createObjectURL || jest.fn(() => 'blob:mock');
+global.URL.revokeObjectURL = global.URL.revokeObjectURL || jest.fn();
+
+// Mock ESM-only dependency 'marked' which causes parser issues in Jest
+jest.mock('marked', () => ({
+  marked: jest.fn(() => '<p></p>'),
 }));

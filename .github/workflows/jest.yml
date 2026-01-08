@@ -1,0 +1,25 @@
+name: Test (Jest)
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Use Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18
+          cache: 'npm'
+      - name: Install dependencies
+        run: npm ci
+      - name: Run tests with coverage
+        run: npm run test:coverage -- --runInBand
+      - name: Check coverage thresholds
+        env:
+          COVERAGE_THRESHOLD: 80
+        run: node scripts/check-coverage.js
