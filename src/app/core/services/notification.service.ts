@@ -7,7 +7,7 @@ import { Notification, CreateNotificationDto } from '../models/notification.mode
 })
 export class NotificationService {
   private supabase = inject(SupabaseService);
-  
+
   // Signal for unread count
   unreadCount = signal<number>(0);
 
@@ -17,13 +17,10 @@ export class NotificationService {
   async getUserNotifications(
     userId: string,
     unreadOnly: boolean = false,
-    limit: number = 50
+    limit: number = 50,
   ): Promise<Notification[]> {
     try {
-      let query = this.supabase
-        .from('notifications')
-        .select('*')
-        .eq('user_id', userId);
+      let query = this.supabase.from('notifications').select('*').eq('user_id', userId);
 
       if (unreadOnly) {
         query = query.eq('is_read', false);
@@ -127,10 +124,7 @@ export class NotificationService {
    */
   async deleteNotification(notificationId: string): Promise<boolean> {
     try {
-      const { error } = await this.supabase
-        .from('notifications')
-        .delete()
-        .eq('id', notificationId);
+      const { error } = await this.supabase.from('notifications').delete().eq('id', notificationId);
 
       if (error) {
         console.error('Error deleting notification:', error);
@@ -149,7 +143,7 @@ export class NotificationService {
    */
   async createNotification(
     userId: string,
-    dto: CreateNotificationDto
+    dto: CreateNotificationDto,
   ): Promise<Notification | null> {
     try {
       const { data, error } = await this.supabase
@@ -179,10 +173,7 @@ export class NotificationService {
   /**
    * Subscribe to real-time notification updates
    */
-  subscribeToNotifications(
-    userId: string,
-    callback: (notification: Notification) => void
-  ) {
+  subscribeToNotifications(userId: string, callback: (notification: Notification) => void) {
     const channel = this.supabase.realtimeClient
       .channel('notifications')
       .on(
@@ -197,7 +188,7 @@ export class NotificationService {
           callback(payload.new as Notification);
           // Update unread count
           this.getUnreadCount(userId);
-        }
+        },
       )
       .subscribe();
 

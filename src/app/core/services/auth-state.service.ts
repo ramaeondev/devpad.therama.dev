@@ -27,7 +27,7 @@ export class AuthStateService {
     this.currentUser.set(user);
     // Auto-load encryption key when user logs in
     if (user) {
-      this.autoLoadEncryptionKey().catch(err => {
+      this.autoLoadEncryptionKey().catch((err) => {
         console.error('Failed to load encryption key:', err);
       });
     }
@@ -51,7 +51,7 @@ export class AuthStateService {
     try {
       // Get current session
       const sessionResult = await this.supabase.getSession();
-      
+
       if (!sessionResult.session?.access_token) {
         console.warn('No active session for encryption key derivation');
         this.encryptionReady.set(false);
@@ -63,9 +63,9 @@ export class AuthStateService {
       const response = await fetch(functionUrl, {
         method: 'POST',
         headers: {
-          'Authorization': `Bearer ${sessionResult.session.access_token}`,
+          Authorization: `Bearer ${sessionResult.session.access_token}`,
           'Content-Type': 'application/json',
-          'apikey': environment.supabase.anonKey, // Add anon key for edge function
+          apikey: environment.supabase.anonKey, // Add anon key for edge function
         },
       });
 
@@ -75,7 +75,7 @@ export class AuthStateService {
         throw new Error(`Failed to derive encryption key: ${errorText}`);
       }
 
-      const result = await response.json() as { key: string; version: string };
+      const result = (await response.json()) as { key: string; version: string };
       await this.encryption.setKeyFromDerivedMaterial(result.key);
       this.encryptionReady.set(true);
       console.log('✅ Encryption key loaded successfully');

@@ -5,8 +5,8 @@ module.exports = {
   setupFilesAfterEnv: ['<rootDir>/setup-jest.ts'],
 
   moduleNameMapper: {
-    "\\.(css|scss)$": "identity-obj-proxy",
-    "^src/(.*)$": "<rootDir>/src/$1"
+    '\\.(css|scss)$': 'identity-obj-proxy',
+    '^src/(.*)$': '<rootDir>/src/$1'
   },
   moduleFileExtensions: ['ts', 'html', 'js', 'mjs'],
   globals: {
@@ -25,4 +25,4 @@ module.exports = {
     '!src/environments/**',
     '!src/**/*.module.ts'
   ]
-};
+}

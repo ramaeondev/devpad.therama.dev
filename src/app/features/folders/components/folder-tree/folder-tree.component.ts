@@ -35,10 +35,7 @@ import { NoteIconPipe } from '../../../../shared/pipes/note-icon.pipe';
     <div class="folder-tree">
       <!-- Name modal -->
       @if (showNameModal()) {
-        <app-folder-name-modal
-          (cancel)="closeNameModal()"
-          (submit)="handleCreateName($event)"
-        />
+        <app-folder-name-modal (cancel)="closeNameModal()" (submit)="handleCreateName($event)" />
       }
       <!-- Note rename modal -->
       @if (showNoteRenameModal()) {
@@ -77,16 +74,17 @@ import { NoteIconPipe } from '../../../../shared/pipes/note-icon.pipe';
         />
       }
       @for (folder of folders; track folder.id) {
-        <div 
+        <div
           class="folder-item"
           [ngClass]="{
-            'ring-2 ring-primary-500 bg-primary-50 dark:bg-primary-900': dragOverFolderId() === folder.id
+            'ring-2 ring-primary-500 bg-primary-50 dark:bg-primary-900':
+              dragOverFolderId() === folder.id,
           }"
           (dragover)="onFolderDragOver($event, folder)"
           (dragleave)="onFolderDragLeave($event, folder)"
           (drop)="onFolderDrop($event, folder)"
         >
-          <div 
+          <div
             class="folder-header flex items-center gap-2 px-2 sm:px-3 py-2.5 sm:py-2 rounded-lg cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors touch-manipulation"
             [class.bg-gray-100]="selectedFolderId === folder.id"
             [class.dark:bg-gray-800]="selectedFolderId === folder.id"
@@ -94,15 +92,15 @@ import { NoteIconPipe } from '../../../../shared/pipes/note-icon.pipe';
           >
             <!-- Expand/Collapse Icon -->
             @if (folder.children && folder.children.length > 0) {
-              <button 
+              <button
                 class="expand-btn w-6 h-6 sm:w-4 sm:h-4 flex items-center justify-center touch-manipulation"
                 (click)="toggleExpand(folder.id, $event)"
               >
-                  @if (isExpanded(folder.id)) {
-                    <i class="fa-solid fa-chevron-down text-xs"></i>
-                  } @else {
-                    <i class="fa-solid fa-chevron-right text-xs"></i>
-                  }
+                @if (isExpanded(folder.id)) {
+                  <i class="fa-solid fa-chevron-down text-xs"></i>
+                } @else {
+                  <i class="fa-solid fa-chevron-right text-xs"></i>
+                }
               </button>
             } @else {
               <span class="w-4"></span>
@@ -110,11 +108,19 @@ import { NoteIconPipe } from '../../../../shared/pipes/note-icon.pipe';
 
             <!-- Folder Icon -->
             <span class="folder-icon text-lg">
-              <i class="fa-solid" [ngClass]="folder.icon ? folder.icon : (folder.is_root ? 'fa-folder' : 'fa-folder-open')"></i>
+              <i
+                class="fa-solid"
+                [ngClass]="
+                  folder.icon ? folder.icon : folder.is_root ? 'fa-folder' : 'fa-folder-open'
+                "
+              ></i>
             </span>
 
             <!-- Folder Name / Inline Edit -->
-            <span class="folder-name flex-1 text-sm font-medium text-gray-700 dark:text-gray-300" [attr.data-folder-id]="folder.id">
+            <span
+              class="folder-name flex-1 text-sm font-medium text-gray-700 dark:text-gray-300"
+              [attr.data-folder-id]="folder.id"
+            >
               @if (editingId() === folder.id) {
                 <input
                   class="w-full bg-transparent border border-primary-300 dark:border-primary-700 rounded px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500"
@@ -136,7 +142,9 @@ import { NoteIconPipe } from '../../../../shared/pipes/note-icon.pipe';
 
             <!-- Notes Count Badge -->
             @if (folder.notes && folder.notes.length > 0) {
-              <span class="notes-count px-2 py-0.5 text-xs rounded-full bg-primary-100 dark:bg-primary-900 text-primary-700 dark:text-primary-300">
+              <span
+                class="notes-count px-2 py-0.5 text-xs rounded-full bg-primary-100 dark:bg-primary-900 text-primary-700 dark:text-primary-300"
+              >
                 {{ folder.notes.length }}
               </span>
             }
@@ -144,35 +152,53 @@ import { NoteIconPipe } from '../../../../shared/pipes/note-icon.pipe';
             <!-- Actions Dropdown (root: limited, others: full) -->
             <app-dropdown align="right">
               <button dropdownTrigger class="p-1 rounded hover:bg-gray-200 dark:hover:bg-gray-700">
-                  <i class="fa-solid fa-ellipsis-vertical text-base"></i>
+                <i class="fa-solid fa-ellipsis-vertical text-base"></i>
               </button>
               <div dropdownMenu class="text-sm">
-                <button class="dropdown-item w-full text-left px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 flex items-center justify-between" (click)="openCreateSubfolderModal(folder)">
+                <button
+                  class="dropdown-item w-full text-left px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 flex items-center justify-between"
+                  (click)="openCreateSubfolderModal(folder)"
+                >
                   <span>New Subfolder</span>
-                    <i class="fa-solid fa-folder-plus text-base"></i>
+                  <i class="fa-solid fa-folder-plus text-base"></i>
                 </button>
-                <button class="dropdown-item w-full text-left px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 flex items-center justify-between" (click)="createNoteDirect(folder)">
+                <button
+                  class="dropdown-item w-full text-left px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 flex items-center justify-between"
+                  (click)="createNoteDirect(folder)"
+                >
                   <span>New Note (.md)</span>
-                    <i class="fa-solid fa-file-circle-plus text-base"></i>
+                  <i class="fa-solid fa-file-circle-plus text-base"></i>
                 </button>
-                <button class="dropdown-item w-full text-left px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 flex items-center justify-between" (click)="uploadDocument(folder)">
+                <button
+                  class="dropdown-item w-full text-left px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 flex items-center justify-between"
+                  (click)="uploadDocument(folder)"
+                >
                   <span>Upload Document</span>
-                    <i class="fa-solid fa-upload text-base"></i>
+                  <i class="fa-solid fa-upload text-base"></i>
                 </button>
                 <hr class="my-1 border-gray-200 dark:border-gray-700" />
-                <button class="dropdown-item w-full text-left px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 flex items-center justify-between" (click)="startRename(folder)">
+                <button
+                  class="dropdown-item w-full text-left px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 flex items-center justify-between"
+                  (click)="startRename(folder)"
+                >
                   <span>Rename Folder</span>
-                    <i class="fa-solid fa-pen text-base"></i>
+                  <i class="fa-solid fa-pen text-base"></i>
                 </button>
                 @if (!folder.is_root) {
-                  <button class="dropdown-item w-full text-left px-4 py-2 text-red-600 hover:bg-red-50 dark:hover:bg-red-900/30 flex items-center justify-between" (click)="deleteFolder(folder)">
+                  <button
+                    class="dropdown-item w-full text-left px-4 py-2 text-red-600 hover:bg-red-50 dark:hover:bg-red-900/30 flex items-center justify-between"
+                    (click)="deleteFolder(folder)"
+                  >
                     <span>Delete Folder</span>
-                      <i class="fa-solid fa-trash text-base"></i>
+                    <i class="fa-solid fa-trash text-base"></i>
                   </button>
                 } @else {
-                  <button class="dropdown-item w-full text-left px-4 py-2 text-gray-400 cursor-not-allowed flex items-center justify-between" disabled>
+                  <button
+                    class="dropdown-item w-full text-left px-4 py-2 text-gray-400 cursor-not-allowed flex items-center justify-between"
+                    disabled
+                  >
                     <span>Delete Folder (root)</span>
-                      <i class="fa-solid fa-trash text-base"></i>
+                    <i class="fa-solid fa-trash text-base"></i>
                   </button>
                 }
               </div>
@@ -180,7 +206,11 @@ import { NoteIconPipe } from '../../../../shared/pipes/note-icon.pipe';
           </div>
 
           <!-- Notes under this folder -->
-          @if (folder.notes && folder.notes.length > 0 && (isExpanded(folder.id) || !folder.children || folder.children.length === 0)) {
+          @if (
+            folder.notes &&
+            folder.notes.length > 0 &&
+            (isExpanded(folder.id) || !folder.children || folder.children.length === 0)
+          ) {
             <ul class="ml-8 mt-1 space-y-0.5">
               @for (note of folder.notes; track note.id) {
                 <li
@@ -193,36 +223,61 @@ import { NoteIconPipe } from '../../../../shared/pipes/note-icon.pipe';
                   (dragstart)="onNoteDragStart($event, note, folder)"
                   (dragend)="onNoteDragEnd($event)"
                 >
-                    <span class="drag-handle w-4 text-xs text-gray-400 cursor-move select-none">⋮⋮</span>
-                    <i class="fa-solid {{ note | noteIcon }} note-icon w-4 h-4 pointer-events-none" style="font-size:16px;"></i>
-                    <span class="truncate flex-1" [title]="note.title || 'Untitled'">{{ note.title || 'Untitled' }}</span>
+                  <span class="drag-handle w-4 text-xs text-gray-400 cursor-move select-none"
+                    >⋮⋮</span
+                  >
+                  <i
+                    class="fa-solid {{ note | noteIcon }} note-icon w-4 h-4 pointer-events-none"
+                    style="font-size:16px;"
+                  ></i>
+                  <span class="truncate flex-1" [title]="note.title || 'Untitled'">{{
+                    note.title || 'Untitled'
+                  }}</span>
                   <!-- <span class="text-[10px] text-gray-400 pointer-events-none mr-2" [appRelativeTime]="note.updated_at"></span> -->
                   <!-- Note Actions Dropdown -->
                   <div class="dropdown-wrapper" (click)="$event.stopPropagation()">
                     <app-dropdown align="right">
-                      <button dropdownTrigger class="p-0.5 rounded hover:bg-gray-200 dark:hover:bg-gray-600">
+                      <button
+                        dropdownTrigger
+                        class="p-0.5 rounded hover:bg-gray-200 dark:hover:bg-gray-600"
+                      >
                         <i class="fa-solid fa-ellipsis-vertical text-xs"></i>
                       </button>
                       <div dropdownMenu class="text-xs">
-                        <button class="dropdown-item w-full text-left px-3 py-1.5 hover:bg-gray-100 dark:hover:bg-gray-700 flex items-center justify-between" (click)="downloadDocument(note)">
+                        <button
+                          class="dropdown-item w-full text-left px-3 py-1.5 hover:bg-gray-100 dark:hover:bg-gray-700 flex items-center justify-between"
+                          (click)="downloadDocument(note)"
+                        >
                           <span>Download</span>
                           <i class="fa-solid fa-download text-xs"></i>
                         </button>
-                        <button class="dropdown-item w-full text-left px-3 py-1.5 hover:bg-gray-100 dark:hover:bg-gray-700 flex items-center justify-between" (click)="shareNote(note)">
+                        <button
+                          class="dropdown-item w-full text-left px-3 py-1.5 hover:bg-gray-100 dark:hover:bg-gray-700 flex items-center justify-between"
+                          (click)="shareNote(note)"
+                        >
                           <span>Share</span>
                           <i class="fa-solid fa-share-nodes text-xs"></i>
                         </button>
                         <hr class="my-1 border-gray-200 dark:border-gray-700" />
-                        <button class="dropdown-item w-full text-left px-3 py-1.5 hover:bg-gray-100 dark:hover:bg-gray-700 flex items-center justify-between" (click)="startNoteRename(note, folder)">
+                        <button
+                          class="dropdown-item w-full text-left px-3 py-1.5 hover:bg-gray-100 dark:hover:bg-gray-700 flex items-center justify-between"
+                          (click)="startNoteRename(note, folder)"
+                        >
                           <span>Rename</span>
                           <i class="fa-solid fa-pen text-xs"></i>
                         </button>
-                        <button class="dropdown-item w-full text-left px-3 py-1.5 hover:bg-gray-100 dark:hover:bg-gray-700 flex items-center justify-between" (click)="showNoteProperties(note, folder)">
+                        <button
+                          class="dropdown-item w-full text-left px-3 py-1.5 hover:bg-gray-100 dark:hover:bg-gray-700 flex items-center justify-between"
+                          (click)="showNoteProperties(note, folder)"
+                        >
                           <span>Properties</span>
                           <i class="fa-solid fa-circle-info text-xs"></i>
                         </button>
                         <hr class="my-1 border-gray-200 dark:border-gray-700" />
-                        <button class="dropdown-item w-full text-left px-3 py-1.5 text-red-600 hover:bg-red-50 dark:hover:bg-red-900/30 flex items-center justify-between" (click)="deleteNote(note, folder)">
+                        <button
+                          class="dropdown-item w-full text-left px-3 py-1.5 text-red-600 hover:bg-red-50 dark:hover:bg-red-900/30 flex items-center justify-between"
+                          (click)="deleteNote(note, folder)"
+                        >
                           <span>Delete</span>
                           <i class="fa-solid fa-trash text-xs"></i>
                         </button>
@@ -387,15 +442,15 @@ export class FolderTreeComponent {
     event.stopPropagation();
     const currentSet = this.expandedFolders();
     const newSet = new Set(currentSet);
-    
+
     if (newSet.has(folderId)) {
       newSet.delete(folderId);
     } else {
       newSet.add(folderId);
     }
-    
+
     this.expandedFolders.set(newSet);
-    
+
     // After toggling, attempt lazy load for newly expanded folder
     if (newSet.has(folderId)) {
       this.loadNotesForExpanded(folderId);
@@ -413,7 +468,7 @@ export class FolderTreeComponent {
       // Otherwise, select and expand it
       this.workspaceState.setSelectedFolder(folder.id);
       this.folderSelected.emit(folder);
-      
+
       // Expand if it has children
       if (folder.children && folder.children.length > 0) {
         const currentSet = this.expandedFolders();
@@ -424,7 +479,7 @@ export class FolderTreeComponent {
           this.loadNotesForExpanded(folder.id);
         }
       }
-      
+
       // For leaf folders (no child folders), ensure notes are loaded on selection
       if (!folder.children || folder.children.length === 0) {
         if (!folder.notes) {
@@ -702,7 +757,7 @@ export class FolderTreeComponent {
       const response = await fetch(data.signedUrl);
       const blob = await response.blob();
       const blobUrl = URL.createObjectURL(blob);
-      
+
       const link = document.createElement('a');
       link.href = blobUrl;
       link.download = downloadName;
@@ -1089,7 +1144,6 @@ export class FolderTreeComponent {
 
   // Share note handlers
 
-
   shareNote(note: any) {
     this.sharingNote = note;
     this.shareUpdated = false;
@@ -1110,5 +1164,4 @@ export class FolderTreeComponent {
     // Mark as updated but don't refresh tree yet to keep modal open
     this.shareUpdated = true;
   }
-
 }

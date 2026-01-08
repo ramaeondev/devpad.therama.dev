@@ -20,7 +20,7 @@ export class AppwriteService {
   constructor() {
     // Initialize Appwrite client
     this.client = new Client();
-    
+
     if (environment.appwrite?.endpoint && environment.appwrite?.projectId) {
       this.client
         .setEndpoint(environment.appwrite.endpoint)
@@ -79,7 +79,7 @@ export class AppwriteService {
         const response = await this.databases.listDocuments(
           environment.appwrite.databaseId,
           'change_logs',
-          [Query.limit(perPage), Query.offset(offset)]
+          [Query.limit(perPage), Query.offset(offset)],
         );
 
         if (!response || !response.documents || response.documents.length === 0) break;
@@ -105,18 +105,18 @@ export class AppwriteService {
   /**
    * Get all active social links sorted by order
    */
-  async getSocialLinks() : Promise<SocialLink[]> {
+  async getSocialLinks(): Promise<SocialLink[]> {
     try {
       if (!environment.appwrite?.databaseId) {
         throw new Error('Appwrite database ID not configured');
       }
-      
+
       const response = await this.databases.listDocuments(
         environment.appwrite.databaseId,
         'social_links',
-        []
+        [],
       );
-      
+
       // Filter active and sort by order
       const links = response.documents
         .filter((link: any) => link.is_active)
@@ -127,14 +127,13 @@ export class AppwriteService {
           icon: doc.icon,
           display_name: doc.display_name,
           order: doc.order,
-          is_active: doc.is_active
+          is_active: doc.is_active,
         }));
-      
+
       return links;
     } catch (error) {
       console.error('Error fetching social links from Appwrite:', error);
       return [];
     }
   }
-
 }

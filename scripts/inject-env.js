@@ -1,13 +1,13 @@
-const fs = require('fs');
-const path = require('path');
-const dotenv = require('dotenv');
+const fs = require('fs')
+const path = require('path')
+const dotenv = require('dotenv')
 
-dotenv.config();
+dotenv.config()
 
 const configFiles = {
   development: path.resolve(__dirname, '../src/config.dev.ts'),
-  production: path.resolve(__dirname, '../src/config.prod.ts'),
-};
+  production: path.resolve(__dirname, '../src/config.prod.ts')
+}
 
 const envVariables = {
   SUPABASE_URL: process.env.SUPABASE_URL || '',
@@ -21,23 +21,25 @@ const envVariables = {
   APPWRITE_ENDPOINT: process.env.APPWRITE_ENDPOINT || '',
   APPWRITE_PROJECT_ID: process.env.APPWRITE_PROJECT_ID || '',
   APPWRITE_DB_READ_ONLY_API_KEY: process.env.APPWRITE_DB_READ_ONLY_API_KEY || '',
-  APPWRITE_DATABASE_ID: process.env.APPWRITE_DATABASE_ID || '',
-};
+  APPWRITE_DATABASE_ID: process.env.APPWRITE_DATABASE_ID || ''
+}
 
 // Validate required env vars early: fail the build if missing
 if (!envVariables.SUPABASE_URL || envVariables.SUPABASE_URL.trim() === '') {
-  console.error('Missing SUPABASE_URL env var. Set SUPABASE_URL in your build environment.');
-  process.exit(1);
+  console.error('Missing SUPABASE_URL env var. Set SUPABASE_URL in your build environment.')
+  process.exit(1)
 }
 if (!envVariables.SUPABASE_ANON_KEY || envVariables.SUPABASE_ANON_KEY.trim() === '') {
-  console.error('Missing SUPABASE_ANON_KEY env var. Set SUPABASE_ANON_KEY in your build environment.');
-  process.exit(1);
+  console.error(
+    'Missing SUPABASE_ANON_KEY env var. Set SUPABASE_ANON_KEY in your build environment.'
+  )
+  process.exit(1)
 }
 
 const generateConfigFile = (filePath) => {
-  const microsoftRedirect = envVariables.MICROSOFT_REDIRECT_URI ?
-    `'${envVariables.MICROSOFT_REDIRECT_URI}'` :
-    "typeof window !== 'undefined' ? window.location.origin : 'https://devpad.therama.dev'";
+  const microsoftRedirect = envVariables.MICROSOFT_REDIRECT_URI
+    ? `'${envVariables.MICROSOFT_REDIRECT_URI}'`
+    : "typeof window !== 'undefined' ? window.location.origin : 'https://devpad.therama.dev'"
   const content = `export const config = {
   supabase: {
     url: '${envVariables.SUPABASE_URL}',
@@ -59,10 +61,10 @@ const generateConfigFile = (filePath) => {
     databaseId: '${envVariables.APPWRITE_DATABASE_ID}',
   },
 };
-`;
+`
 
-  fs.writeFileSync(filePath, content, { encoding: 'utf8' });
-};
+  fs.writeFileSync(filePath, content, { encoding: 'utf8' })
+}
 
-generateConfigFile(configFiles.development);
-generateConfigFile(configFiles.production);
+generateConfigFile(configFiles.development)
+generateConfigFile(configFiles.production)

@@ -77,9 +77,6 @@ export default [
   },
   {
     path: 'logout',
-    loadComponent: () =>
-      import('./pages/logout/logout.component').then(
-        (m) => m.LogoutComponent,
-      ),
+    loadComponent: () => import('./pages/logout/logout.component').then((m) => m.LogoutComponent),
   },
 ] as Routes;

@@ -50,11 +50,11 @@ import { FormsModule } from '@angular/forms';
   styles: [],
 })
 export class ConfirmModalComponent {
-    @Input() showInput = false;
-    @Input() inputPlaceholder = '';
-    @Input() inputValue = '';
-    @Input() confirmDisabled = false;
-    @Output() inputChange = new EventEmitter<string>();
+  @Input() showInput = false;
+  @Input() inputPlaceholder = '';
+  @Input() inputValue = '';
+  @Input() confirmDisabled = false;
+  @Output() inputChange = new EventEmitter<string>();
   @Input() title = 'Confirm';
   @Input() message = 'Are you sure?';
   @Input() confirmLabel = 'Confirm';

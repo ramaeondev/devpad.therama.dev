@@ -8,7 +8,7 @@ The device management interface is now integrated into your **Settings Panel**!
 
 ### Option 1: From the Dashboard/App
 
-1. **Open your application** 
+1. **Open your application**
 2. **Click the Settings icon** (usually in the sidebar or header)
 3. **Scroll down** to the **"Security & Devices"** section
 4. You'll see all your logged-in devices!
@@ -33,7 +33,7 @@ In the Settings Panel → Security & Devices section:
 ```
 Settings
 ├── Profile
-├── Appearance  
+├── Appearance
 ├── Cloud Storage
 ├── Security & Devices ← HERE!
 │   ├── Device 1: Chrome on macOS (desktop) [Current] [Trusted]
@@ -48,19 +48,23 @@ Settings
 Once you're in the **Security & Devices** section, you can:
 
 ✅ **View all devices**
+
 - See device name, browser, OS
 - Check last seen time
 - Identify current device
 
 ✅ **Edit device names**
+
 - Click the edit icon next to device name
 - Give it a friendly name like "My Work Laptop"
 
 ✅ **Trust devices**
+
 - Click "Trust" button
 - Marks device as trusted for security
 
 ✅ **Remove devices**
+
 - Click "Remove" button
 - Revokes access from that device
 
@@ -72,13 +76,14 @@ Look for where `<app-settings-panel>` is used in your app. Let me check:
 
 ```typescript
 // Usually in your main layout or dashboard
-<app-settings-panel 
+<app-settings-panel
   [open]="showSettings()"
   (close)="showSettings.set(false)">
 </app-settings-panel>
 ```
 
 The settings panel is typically opened via:
+
 - ⚙️ **Settings button** in navigation
 - 👤 **Profile menu** dropdown
 - 🎛️ **Toolbar** button
@@ -93,6 +98,7 @@ The settings panel is typically opened via:
 ## 📱 Mobile View
 
 On mobile devices:
+
 - Settings opens as a **bottom sheet**
 - Swipe up to see all sections
 - **Security & Devices** should be visible after scrolling
@@ -104,7 +110,7 @@ The integration is now complete:
 ✅ **Import**: UserDevicesComponent added to settings  
 ✅ **Template**: Section added to settings-panel.component.html  
 ✅ **Location**: Between "Cloud Storage" and "Actions"  
-✅ **Auto-load**: Devices load when settings panel opens  
+✅ **Auto-load**: Devices load when settings panel opens
 
 ## 🎯 Example Flow
 
@@ -126,6 +132,7 @@ The integration is now complete:
 If you want a full page for device management instead:
 
 1. Create a route in `app.routes.ts`:
+
 ```typescript
 {
   path: 'devices',
@@ -134,6 +141,7 @@ If you want a full page for device management instead:
 ```
 
 2. Create a page component:
+
 ```typescript
 @Component({
   template: `
@@ -141,7 +149,7 @@ If you want a full page for device management instead:
       <h1>Manage Devices</h1>
       <app-user-devices></app-user-devices>
     </div>
-  `
+  `,
 })
 export class DevicesPageComponent {}
 ```

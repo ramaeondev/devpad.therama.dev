@@ -1,6 +1,7 @@
 # Cloud Storage Integrations - Complete Summary
 
 ## Overview
+
 This document provides a complete overview of the cloud storage integrations implemented for DevPad, including both Google Drive and OneDrive.
 
 **Branch**: `google-oauth`  
@@ -102,6 +103,7 @@ Root Documentation Files:
 ### Authentication Flows
 
 #### Google Drive OAuth Flow
+
 ```
 1. User clicks "Connect"
 2. Load Google Identity Services script
@@ -114,6 +116,7 @@ Root Documentation Files:
 ```
 
 #### OneDrive OAuth Flow
+
 ```
 1. User clicks "Connect"
 2. Open popup window with Microsoft OAuth URL
@@ -146,6 +149,7 @@ CREATE TABLE integrations (
 ```
 
 **Row Level Security (RLS)**:
+
 - Users can only SELECT their own integrations
 - Users can only INSERT their own integrations
 - Users can only UPDATE their own integrations
@@ -153,35 +157,36 @@ CREATE TABLE integrations (
 
 ## Features Matrix
 
-| Feature | Google Drive | OneDrive | Notes |
-|---------|:------------:|:--------:|-------|
-| **Authentication** |
-| OAuth 2.0 | ✅ | ✅ | Different methods |
-| Token Storage | ✅ | ✅ | Shared Supabase table |
-| Auto-reconnect | ✅ | ✅ | Checks on app load |
+| Feature             | Google Drive | OneDrive | Notes                 |
+| ------------------- | :----------: | :------: | --------------------- |
+| **Authentication**  |
+| OAuth 2.0           |      ✅      |    ✅    | Different methods     |
+| Token Storage       |      ✅      |    ✅    | Shared Supabase table |
+| Auto-reconnect      |      ✅      |    ✅    | Checks on app load    |
 | **File Operations** |
-| List Files | ✅ | ✅ | Different APIs |
-| Upload Files | ✅ | ✅ | Multipart vs PUT |
-| Download Files | ✅ | ✅ | Binary blob response |
-| Delete Files | ✅ | ✅ | Permanent deletion |
-| Create Folders | ✅ | ✅ | Different metadata |
-| **UI Components** |
-| Folder Tree | ✅ | ✅ | Both recursive |
-| Expand/Collapse | ✅ | ✅ | Signal-based state |
-| File Icons | ✅ | ✅ | Emoji-based |
-| File Size Display | ❌ | ✅ | OneDrive only |
-| Connection Status | ✅ | ✅ | Settings panel |
-| Dark Mode | ✅ | ✅ | Full support |
-| **Downloads** |
-| To Local Storage | ✅ | ✅ | Via NoteService |
-| **Security** |
-| RLS Protection | ✅ | ✅ | Supabase policies |
-| Minimal Scopes | ✅ | ✅ | Least privilege |
-| HTTPS Only | ✅ | ✅ | All API calls |
+| List Files          |      ✅      |    ✅    | Different APIs        |
+| Upload Files        |      ✅      |    ✅    | Multipart vs PUT      |
+| Download Files      |      ✅      |    ✅    | Binary blob response  |
+| Delete Files        |      ✅      |    ✅    | Permanent deletion    |
+| Create Folders      |      ✅      |    ✅    | Different metadata    |
+| **UI Components**   |
+| Folder Tree         |      ✅      |    ✅    | Both recursive        |
+| Expand/Collapse     |      ✅      |    ✅    | Signal-based state    |
+| File Icons          |      ✅      |    ✅    | Emoji-based           |
+| File Size Display   |      ❌      |    ✅    | OneDrive only         |
+| Connection Status   |      ✅      |    ✅    | Settings panel        |
+| Dark Mode           |      ✅      |    ✅    | Full support          |
+| **Downloads**       |
+| To Local Storage    |      ✅      |    ✅    | Via NoteService       |
+| **Security**        |
+| RLS Protection      |      ✅      |    ✅    | Supabase policies     |
+| Minimal Scopes      |      ✅      |    ✅    | Least privilege       |
+| HTTPS Only          |      ✅      |    ✅    | All API calls         |
 
 ## Setup Requirements
 
 ### Google Drive
+
 1. Create Google Cloud Project
 2. Enable Google Drive API
 3. Configure OAuth consent screen
@@ -194,6 +199,7 @@ CREATE TABLE integrations (
 **Documentation**: GOOGLE-DRIVE-SETUP.md
 
 ### OneDrive
+
 1. Create Azure AD app registration
 2. Configure API permissions (Microsoft Graph)
 3. Enable implicit grant flow
@@ -205,6 +211,7 @@ CREATE TABLE integrations (
 **Documentation**: ONEDRIVE-SETUP.md
 
 ### Supabase
+
 1. Run supabase-integrations.sql migration
 2. Verify integrations table created
 3. Check RLS policies are active
@@ -215,38 +222,40 @@ CREATE TABLE integrations (
 ## Configuration
 
 ### Development Environment (`environment.ts`)
+
 ```typescript
 export const environment = {
   production: false,
   supabase: {
     url: 'YOUR_SUPABASE_URL',
-    anonKey: 'YOUR_SUPABASE_ANON_KEY'
+    anonKey: 'YOUR_SUPABASE_ANON_KEY',
   },
   google: {
-    clientId: 'YOUR_GOOGLE_CLIENT_ID.apps.googleusercontent.com'
+    clientId: 'YOUR_GOOGLE_CLIENT_ID.apps.googleusercontent.com',
   },
   microsoft: {
     clientId: 'YOUR_MICROSOFT_CLIENT_ID',
-    redirectUri: 'http://localhost:4200'
-  }
+    redirectUri: 'http://localhost:4200',
+  },
 };
 ```
 
 ### Production Environment (`environment.prod.ts`)
+
 ```typescript
 export const environment = {
   production: true,
   supabase: {
     url: 'YOUR_SUPABASE_URL',
-    anonKey: 'YOUR_SUPABASE_ANON_KEY'
+    anonKey: 'YOUR_SUPABASE_ANON_KEY',
   },
   google: {
-    clientId: 'YOUR_GOOGLE_CLIENT_ID.apps.googleusercontent.com'
+    clientId: 'YOUR_GOOGLE_CLIENT_ID.apps.googleusercontent.com',
   },
   microsoft: {
     clientId: 'YOUR_MICROSOFT_CLIENT_ID',
-    redirectUri: 'https://devpad.therama.dev'
-  }
+    redirectUri: 'https://devpad.therama.dev',
+  },
 };
 ```
 
@@ -279,21 +288,22 @@ export const environment = {
 ### For Developers
 
 1. **Extend for New Provider**
+
    ```typescript
    // 1. Add provider to integration.model.ts
    provider: 'google_drive' | 'onedrive' | 'dropbox'
-   
+
    // 2. Create service (e.g., dropbox.service.ts)
    @Injectable({ providedIn: 'root' })
    export class DropboxService { ... }
-   
+
    // 3. Create tree component
    @Component({ selector: 'app-dropbox-tree', ... })
    export class DropboxTreeComponent { ... }
-   
+
    // 4. Update settings panel
    // Add Dropbox card with connect/disconnect
-   
+
    // 5. Update environment files
    // Add dropbox: { clientId: '...' }
    ```
@@ -310,6 +320,7 @@ export const environment = {
 ## Technical Highlights
 
 ### 1. Service Architecture
+
 - **Dependency Injection**: All services use Angular's `inject()` function
 - **Signal-based State**: Reactive state management with Angular Signals
 - **Type Safety**: Full TypeScript typing with interfaces
@@ -317,6 +328,7 @@ export const environment = {
 - **Loading States**: Integrated with LoadingService
 
 ### 2. Component Design
+
 - **Standalone Components**: No NgModules required
 - **Template Syntax**: Uses @if and @for directives
 - **Recursive Templates**: ngTemplateOutlet for folder trees
@@ -324,6 +336,7 @@ export const environment = {
 - **Tailwind Styling**: Utility-first CSS with dark mode
 
 ### 3. Security Implementation
+
 - **Row Level Security**: Supabase RLS policies per user
 - **OAuth Best Practices**: Minimal scopes, secure token storage
 - **Origin Validation**: postMessage uses origin checks
@@ -331,6 +344,7 @@ export const environment = {
 - **No Token Exposure**: Tokens never logged or displayed
 
 ### 4. API Integration
+
 - **Google Drive API v3**: RESTful endpoints
 - **Microsoft Graph API v1.0**: RESTful endpoints
 - **HttpClient**: Angular's built-in HTTP client
@@ -340,18 +354,21 @@ export const environment = {
 ## Performance Characteristics
 
 ### Google Drive
+
 - **Initial Load**: ~1-2 seconds (100 files)
 - **Folder Tree Build**: Single API call
 - **File Download**: Depends on file size
 - **API Calls**: Minimal (batch operations possible)
 
 ### OneDrive
+
 - **Initial Load**: ~2-5 seconds (depends on folder depth)
 - **Folder Tree Build**: Multiple API calls (recursive)
 - **File Download**: Depends on file size
 - **API Calls**: Higher count (one per folder)
 
 ### Optimization Opportunities
+
 1. Lazy load folders on expand (vs loading all upfront)
 2. Implement pagination for large file lists
 3. Cache folder structures in localStorage
@@ -361,6 +378,7 @@ export const environment = {
 ## Known Limitations
 
 ### General
+
 1. No real-time sync (manual refresh required)
 2. No conflict resolution for duplicate file names
 3. No version history support
@@ -368,11 +386,13 @@ export const environment = {
 5. No offline access
 
 ### Google Drive
+
 1. Only accesses files created by app (drive.file scope)
 2. No pagination implemented (100 file limit)
 3. Silent token refresh may fail on some browsers
 
 ### OneDrive
+
 1. Recursive loading can be slow for deep folder structures
 2. Token refresh requires re-authentication (implicit flow limitation)
 3. Popup blockers may interfere with authentication
@@ -381,12 +401,14 @@ export const environment = {
 ## Future Roadmap
 
 ### Phase 1: Token Management ✅ COMPLETED
+
 - [x] Implement refresh token flow for Google Drive
 - [x] Implement refresh token flow for OneDrive
 - [x] Handle token expiration gracefully
 - [x] Auto-refresh before expiration
 
 **Implementation Details**:
+
 - Added `expires_at` field to integrations table
 - Schedule token refresh 5 minutes before expiration
 - Google Drive: Uses silent re-authentication with Google Identity Services
@@ -395,12 +417,14 @@ export const environment = {
 - Expiration check in `checkConnection()` methods
 
 ### Phase 2: Enhanced File Operations (Medium Priority)
+
 - [ ] Upload from local to cloud storage
 - [ ] Move files between local and cloud
 - [ ] Copy files between providers
 - [ ] Batch operations (select multiple files)
 
 ### Phase 3: Advanced Features (Low Priority)
+
 - [ ] Real-time sync with delta APIs
 - [ ] Conflict resolution UI
 - [ ] Version history viewer
@@ -408,11 +432,13 @@ export const environment = {
 - [ ] Offline mode with sync queue
 
 ### Phase 4: Additional Providers
+
 - [ ] Dropbox integration
 - [ ] Box integration
 - [ ] iCloud Drive integration
 
 ### Phase 5: UI Improvements
+
 - [ ] Replace emoji icons with Material File Icons
 - [ ] Add file preview capabilities
 - [ ] Implement search across cloud files
@@ -422,16 +448,19 @@ export const environment = {
 ## Testing Strategy
 
 ### Unit Tests (Not Implemented)
+
 - Service methods (connect, disconnect, file operations)
 - Component logic (expand/collapse, file selection)
 - Model transformations (flat to tree structure)
 
 ### Integration Tests (Not Implemented)
+
 - OAuth flow end-to-end
 - File upload/download round-trip
 - Multiple provider interactions
 
 ### Manual Testing Checklist
+
 - [x] Google Drive OAuth flow works
 - [x] OneDrive OAuth flow works
 - [x] Files load from both services
@@ -446,6 +475,7 @@ export const environment = {
 ## Deployment Checklist
 
 ### Before Deploying
+
 1. [ ] Obtain real Google OAuth Client ID
 2. [ ] Obtain real Microsoft Client ID
 3. [ ] Update environment.prod.ts with real IDs
@@ -456,6 +486,7 @@ export const environment = {
 8. [ ] Monitor error logs
 
 ### Production Configuration
+
 1. [ ] Set up environment variables (don't commit secrets)
 2. [ ] Configure OAuth redirect URIs for production domain
 3. [ ] Enable RLS on integrations table
@@ -484,7 +515,9 @@ export const environment = {
    - Try inline authentication as fallback
 
 ### Debug Mode
+
 Enable debug logging:
+
 ```typescript
 // In service files, uncomment console.log statements
 console.log('Access token:', accessToken);
@@ -492,6 +525,7 @@ console.log('Files loaded:', files);
 ```
 
 ### Getting Help
+
 1. Check browser console for errors
 2. Review setup documentation (GOOGLE-DRIVE-SETUP.md, ONEDRIVE-SETUP.md)
 3. Verify OAuth configurations in cloud consoles
@@ -501,12 +535,14 @@ console.log('Files loaded:', files);
 ## Resources
 
 ### Documentation
+
 - [GOOGLE-DRIVE-SETUP.md](./GOOGLE-DRIVE-SETUP.md) - Google OAuth setup
 - [GOOGLE-DRIVE-IMPLEMENTATION.md](./GOOGLE-DRIVE-IMPLEMENTATION.md) - Google technical details
 - [ONEDRIVE-SETUP.md](./ONEDRIVE-SETUP.md) - OneDrive OAuth setup
 - [ONEDRIVE-IMPLEMENTATION.md](./ONEDRIVE-IMPLEMENTATION.md) - OneDrive technical details
 
 ### External Links
+
 - [Google Identity Services](https://developers.google.com/identity/gsi/web/guides/overview)
 - [Google Drive API v3](https://developers.google.com/drive/api/v3/reference)
 - [Microsoft Identity Platform](https://docs.microsoft.com/en-us/azure/active-directory/develop/)
@@ -527,6 +563,7 @@ console.log('Files loaded:', files);
 This cloud storage integration provides a solid foundation for syncing files between DevPad and popular cloud storage services. Both Google Drive and OneDrive are fully functional with OAuth authentication, file browsing, and download capabilities.
 
 **Next Steps for Production:**
+
 1. Obtain OAuth client IDs from Google and Microsoft
 2. Update environment files with real credentials
 3. Run Supabase migration

@@ -98,7 +98,7 @@ export class SettingsPanelComponent {
     return provider === 'google' || provider === 'github';
   });
 
-  constructor() { }
+  constructor() {}
 
   private async loadProfile() {
     const userId = this.auth.userId();
@@ -241,7 +241,9 @@ export class SettingsPanelComponent {
     // Log out user
     this.auth.clear();
     // Show toast notification
-    this.toast.info('Your account will be deleted in 24 hours. You will be notified. You are now logged out and cannot log in again.');
+    this.toast.info(
+      'Your account will be deleted in 24 hours. You will be notified. You are now logged out and cannot log in again.',
+    );
     // Redirect to login page
     this.router.navigate(['/auth/login']);
   }

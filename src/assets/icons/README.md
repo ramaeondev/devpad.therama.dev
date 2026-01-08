@@ -8,6 +8,7 @@ Source path (local to copy from):
 /Users/ramu/Documents/cinchdocspoc-adinovis_ntr-1e8c3f66b5b9/Adinivois_UI/src/assets
 
 Supported icon names (use either `name.svg` or `name.png`):
+
 - pdf, doc, docx, xls, xlsx, ppt, pptx, txt
 - jpg, jpeg, png, gif, webp, svg
 - mp4, avi, mov, mp3, wav
@@ -17,6 +18,7 @@ Supported icon names (use either `name.svg` or `name.png`):
 - file (fallback for unknown types)
 
 Examples (actual path used at runtime):
+
 - public/icons/pdf.svg
 - public/icons/docx.svg
 - public/icons/file.svg (fallback generic file icon)

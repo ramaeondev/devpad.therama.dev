@@ -10,7 +10,7 @@ const corsHeaders = {
  * Derives a user-specific encryption key using:
  * - User email (unique per user)
  * - Master secret from Supabase secrets (server-side only)
- * 
+ *
  * Returns base64-encoded key material for client-side AES-GCM encryption
  */
 serve(async (req) => {
@@ -60,14 +60,14 @@ serve(async (req) => {
     // Output: 256-bit key for AES-GCM
     const encoder = new TextEncoder();
     const keyMaterial = encoder.encode(user.email + masterSecret);
-    
+
     // Import key material
     const importedKey = await crypto.subtle.importKey(
       'raw',
       keyMaterial,
       { name: 'PBKDF2' },
       false,
-      ['deriveBits']
+      ['deriveBits'],
     );
 
     // Derive 256-bit key
@@ -79,7 +79,7 @@ serve(async (req) => {
         hash: 'SHA-256',
       },
       importedKey,
-      256 // 256 bits for AES-256
+      256, // 256 bits for AES-256
     );
 
     // Convert to base64 for transmission
@@ -94,7 +94,7 @@ serve(async (req) => {
       {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
         status: 200,
-      }
+      },
     );
   } catch (error) {
     console.error('Error deriving encryption key:', error);
@@ -105,7 +105,7 @@ serve(async (req) => {
       {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
         status: 400,
-      }
+      },
     );
   }
 });

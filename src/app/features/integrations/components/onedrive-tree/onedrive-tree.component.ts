@@ -9,7 +9,10 @@ import { AuthStateService } from '../../../../core/services/auth-state.service';
 import { ToastService } from '../../../../core/services/toast.service';
 import { WorkspaceStateService } from '../../../../core/services/workspace-state.service';
 import { FolderService } from '../../../folders/services/folder.service';
-import { PropertiesModalComponent, PropertyItem } from '../../../../shared/components/ui/properties-modal/properties-modal.component';
+import {
+  PropertiesModalComponent,
+  PropertyItem,
+} from '../../../../shared/components/ui/properties-modal/properties-modal.component';
 import { DropdownComponent } from '../../../../shared/components/ui/dropdown/dropdown.component';
 import { ConfirmModalComponent } from '../../../../shared/components/ui/dialog/confirm-modal.component';
 
@@ -36,12 +39,16 @@ import { ConfirmModalComponent } from '../../../../shared/components/ui/dialog/c
         @if (oneDrive.rootFolder(); as root) {
           <div class="folder-item">
             <!-- Root Folder Header -->
-            <div class="folder-header flex items-center gap-2 px-2 sm:px-3 py-2.5 sm:py-2 rounded-lg cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors">
+            <div
+              class="folder-header flex items-center gap-2 px-2 sm:px-3 py-2.5 sm:py-2 rounded-lg cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+            >
               <div class="flex items-center gap-2 flex-1 min-w-0">
                 <span class="text-lg">
                   <i class="fa-brands fa-microsoft text-blue-600"></i>
                 </span>
-                <h3 class="font-semibold text-gray-700 dark:text-gray-300 flex-1 truncate">{{ root.name }}</h3>
+                <h3 class="font-semibold text-gray-700 dark:text-gray-300 flex-1 truncate">
+                  {{ root.name }}
+                </h3>
               </div>
               <div class="flex gap-1">
                 <button
@@ -63,7 +70,9 @@ import { ConfirmModalComponent } from '../../../../shared/components/ui/dialog/c
 
             <!-- Root Content -->
             <div class="space-y-1 mt-1">
-              <ng-container *ngTemplateOutlet="folderTemplate; context: { $implicit: root, level: 0 }"></ng-container>
+              <ng-container
+                *ngTemplateOutlet="folderTemplate; context: { $implicit: root, level: 0 }"
+              ></ng-container>
             </div>
           </div>
         } @else {
@@ -83,8 +92,10 @@ import { ConfirmModalComponent } from '../../../../shared/components/ui/dialog/c
               (click)="toggleFolder(subFolder.id)"
             >
               @if (subFolder.folders.length > 0) {
-                <button class="expand-btn w-4 h-4 flex items-center justify-center"
-                  (click)="toggleFolder(subFolder.id); $event.stopPropagation()">
+                <button
+                  class="expand-btn w-4 h-4 flex items-center justify-center"
+                  (click)="toggleFolder(subFolder.id); $event.stopPropagation()"
+                >
                   @if (isExpanded(subFolder.id)) {
                     <i class="fa-solid fa-chevron-down text-xs"></i>
                   } @else {
@@ -95,57 +106,90 @@ import { ConfirmModalComponent } from '../../../../shared/components/ui/dialog/c
                 <span class="w-4"></span>
               }
               <span class="text-lg text-yellow-500">
-                <i class="fa-solid" [ngClass]="isExpanded(subFolder.id) ? 'fa-folder-open' : 'fa-folder'"></i>
+                <i
+                  class="fa-solid"
+                  [ngClass]="isExpanded(subFolder.id) ? 'fa-folder-open' : 'fa-folder'"
+                ></i>
               </span>
-              <span class="flex-1 text-sm font-medium text-gray-700 dark:text-gray-300 truncate">{{ subFolder.name }}</span>
+              <span class="flex-1 text-sm font-medium text-gray-700 dark:text-gray-300 truncate">{{
+                subFolder.name
+              }}</span>
               <span class="text-xs text-gray-500 dark:text-gray-400">
                 {{ subFolder.files.length + subFolder.folders.length }}
               </span>
             </div>
             @if (isExpanded(subFolder.id)) {
               <div class="mt-1">
-                <ng-container *ngTemplateOutlet="folderTemplate; context: { $implicit: subFolder, level: level + 1 }"></ng-container>
+                <ng-container
+                  *ngTemplateOutlet="
+                    folderTemplate;
+                    context: { $implicit: subFolder, level: level + 1 }
+                  "
+                ></ng-container>
               </div>
             }
           </div>
         }
-        
+
         <!-- Render files -->
         @for (file of folder.files; track file.id) {
-          <div class="file-item group relative px-2 py-1 rounded cursor-pointer text-xs hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors flex items-center gap-2"
-               (click)="onFileClick(file)">
-            <span class="w-4"></span> <!-- Spacer -->
-            <i class="fa-solid {{ getFileIconName(file) }} w-4 h-4 text-gray-600 dark:text-gray-300 flex-shrink-0" style="font-size:16px;"></i>
-            <span class="flex-1 truncate text-gray-700 dark:text-gray-300" [title]="file.name">{{ file.name }}</span>
-            
+          <div
+            class="file-item group relative px-2 py-1 rounded cursor-pointer text-xs hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors flex items-center gap-2"
+            (click)="onFileClick(file)"
+          >
+            <span class="w-4"></span>
+            <!-- Spacer -->
+            <i
+              class="fa-solid {{
+                getFileIconName(file)
+              }} w-4 h-4 text-gray-600 dark:text-gray-300 flex-shrink-0"
+              style="font-size:16px;"
+            ></i>
+            <span class="flex-1 truncate text-gray-700 dark:text-gray-300" [title]="file.name">{{
+              file.name
+            }}</span>
+
             <!-- Dropdown Menu -->
             <div class="dropdown-wrapper" (click)="$event.stopPropagation()">
               <app-dropdown align="right">
-                <button dropdownTrigger class="p-0.5 rounded hover:bg-gray-200 dark:hover:bg-gray-600 opacity-0 group-hover:opacity-100 transition-opacity">
+                <button
+                  dropdownTrigger
+                  class="p-0.5 rounded hover:bg-gray-200 dark:hover:bg-gray-600 opacity-0 group-hover:opacity-100 transition-opacity"
+                >
                   <i class="fa-solid fa-ellipsis-vertical text-xs"></i>
                 </button>
-                
+
                 <div dropdownMenu class="text-xs min-w-40">
-                  <button class="dropdown-item w-full text-left px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 flex items-center gap-2"
-                          (click)="handleDownload(file)">
+                  <button
+                    class="dropdown-item w-full text-left px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 flex items-center gap-2"
+                    (click)="handleDownload(file)"
+                  >
                     <i class="fa-solid fa-download w-4"></i> Download
                   </button>
-                  <button class="dropdown-item w-full text-left px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 flex items-center gap-2"
-                          (click)="handleImportToDevPad(file)">
+                  <button
+                    class="dropdown-item w-full text-left px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 flex items-center gap-2"
+                    (click)="handleImportToDevPad(file)"
+                  >
                     <i class="fa-solid fa-file-import w-4"></i> Import to DevPad
                   </button>
-                  <button class="dropdown-item w-full text-left px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 flex items-center gap-2"
-                          (click)="handleRename(file)">
+                  <button
+                    class="dropdown-item w-full text-left px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 flex items-center gap-2"
+                    (click)="handleRename(file)"
+                  >
                     <i class="fa-solid fa-pen w-4"></i> Rename
                   </button>
                   <div class="border-t border-gray-200 dark:border-gray-700 my-1"></div>
-                  <button class="dropdown-item w-full text-left px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 flex items-center gap-2"
-                          (click)="handleProperties(file)">
+                  <button
+                    class="dropdown-item w-full text-left px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 flex items-center gap-2"
+                    (click)="handleProperties(file)"
+                  >
                     <i class="fa-solid fa-circle-info w-4"></i> Properties
                   </button>
                   <div class="border-t border-gray-200 dark:border-gray-700 my-1"></div>
-                  <button class="dropdown-item w-full text-left px-4 py-2 text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 flex items-center gap-2"
-                          (click)="handleDelete(file)">
+                  <button
+                    class="dropdown-item w-full text-left px-4 py-2 text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 flex items-center gap-2"
+                    (click)="handleDelete(file)"
+                  >
                     <i class="fa-solid fa-trash w-4"></i> Delete
                   </button>
                 </div>
@@ -230,7 +274,9 @@ export class OneDriveTreeComponent implements OnInit {
 
   deleteConfirmMessage = computed(() => {
     const file = this.fileToDelete();
-    return file ? `Are you sure you want to delete "${file.name}"? This action cannot be undone.` : '';
+    return file
+      ? `Are you sure you want to delete "${file.name}"? This action cannot be undone.`
+      : '';
   });
 
   renameModalMessage = computed(() => {
@@ -325,11 +371,13 @@ export class OneDriveTreeComponent implements OnInit {
       if (!blob) return;
 
       // Create File object and upload to DevPad
-      const fileObj = new File([blob], file.name, { type: file.mimeType || 'application/octet-stream' });
+      const fileObj = new File([blob], file.name, {
+        type: file.mimeType || 'application/octet-stream',
+      });
       await this.noteService.uploadDocument(userId, fileObj, importsFolder.id);
 
       this.toast.success(`Imported ${file.name} to DevPad`);
-      
+
       // Refresh DevPad folder tree
       this.workspaceState.emitFoldersChanged();
     } catch (error) {
@@ -347,7 +395,7 @@ export class OneDriveTreeComponent implements OnInit {
   async confirmRename() {
     const file = this.fileToRename();
     const newName = this.newFileName().trim();
-    
+
     if (!file || !newName || newName === file.name) {
       this.cancelRename();
       return;
@@ -355,7 +403,7 @@ export class OneDriveTreeComponent implements OnInit {
 
     this.showRenameModal.set(false);
     await this.oneDrive.renameFile(file.id, newName);
-    
+
     // Reset state
     this.fileToRename.set(null);
     this.newFileName.set('');
@@ -378,7 +426,7 @@ export class OneDriveTreeComponent implements OnInit {
 
     this.showDeleteConfirm.set(false);
     await this.oneDrive.deleteFile(file.id);
-    
+
     // Reset state
     this.fileToDelete.set(null);
   }
@@ -390,7 +438,9 @@ export class OneDriveTreeComponent implements OnInit {
 
   handleProperties(file: OneDriveFile) {
     const sizeInMB = file.size ? (file.size / (1024 * 1024)).toFixed(2) : 'Unknown';
-    const modifiedDate = file.lastModifiedDateTime ? new Date(file.lastModifiedDateTime).toLocaleString() : 'Unknown';
+    const modifiedDate = file.lastModifiedDateTime
+      ? new Date(file.lastModifiedDateTime).toLocaleString()
+      : 'Unknown';
 
     const properties: PropertyItem[] = [
       { label: 'Name', value: file.name, icon: '📄' },

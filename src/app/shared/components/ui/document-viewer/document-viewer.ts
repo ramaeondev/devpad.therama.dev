@@ -10,7 +10,11 @@ import {
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
-import { getExtensionFromPath, getIconNameFromExt, getTypeLabelFromExt } from '../../../utils/file-type.util';
+import {
+  getExtensionFromPath,
+  getIconNameFromExt,
+  getTypeLabelFromExt,
+} from '../../../utils/file-type.util';
 
 @Component({
   selector: 'app-document-viewer',
@@ -23,7 +27,12 @@ import { getExtensionFromPath, getIconNameFromExt, getTypeLabelFromExt } from '.
         class="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-700"
       >
         <div class="flex items-center gap-3">
-          <i class="fa-solid {{ getFileIconName() }} w-8 h-8 text-gray-600 dark:text-gray-400 flex-shrink-0" style="font-size:32px;"></i>
+          <i
+            class="fa-solid {{
+              getFileIconName()
+            }} w-8 h-8 text-gray-600 dark:text-gray-400 flex-shrink-0"
+            style="font-size:32px;"
+          ></i>
           <div>
             <h1 class="text-lg font-semibold text-gray-900 dark:text-gray-100">
               {{ title || 'Document Viewer' }}
@@ -79,7 +88,12 @@ import { getExtensionFromPath, getIconNameFromExt, getTypeLabelFromExt } from '.
           } @else {
             <div class="h-full flex items-center justify-center bg-gray-50 dark:bg-gray-900 p-8">
               <div class="text-center max-w-md">
-                <i class="fa-solid {{ getFileIconName() }} w-16 h-16 mx-auto mb-4 text-gray-400 flex-shrink-0" style="font-size:64px;"></i>
+                <i
+                  class="fa-solid {{
+                    getFileIconName()
+                  }} w-16 h-16 mx-auto mb-4 text-gray-400 flex-shrink-0"
+                  style="font-size:64px;"
+                ></i>
                 <h3 class="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-2">
                   {{ title || 'Document' }}
                 </h3>
@@ -100,7 +114,12 @@ import { getExtensionFromPath, getIconNameFromExt, getTypeLabelFromExt } from '.
         } @else {
           <div class="h-full flex items-center justify-center bg-gray-50 dark:bg-gray-900">
             <div class="text-center">
-              <i class="fa-solid {{ getFileIconName() }} w-16 h-16 mx-auto mb-4 text-gray-400 flex-shrink-0" style="font-size:64px;"></i>
+              <i
+                class="fa-solid {{
+                  getFileIconName()
+                }} w-16 h-16 mx-auto mb-4 text-gray-400 flex-shrink-0"
+                style="font-size:64px;"
+              ></i>
               <h3 class="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-2">
                 Preview Unavailable
               </h3>

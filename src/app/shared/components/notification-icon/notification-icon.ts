@@ -41,7 +41,7 @@ export class NotificationIconComponent implements OnInit, OnDestroy {
     const notifications = await this.notificationService.getUserNotifications(
       session.session.user.id,
       false,
-      10 // Load 10 most recent
+      10, // Load 10 most recent
     );
     this.notifications.set(notifications);
   }
@@ -50,9 +50,7 @@ export class NotificationIconComponent implements OnInit, OnDestroy {
     const session = await this.supabase.getSession();
     if (!session.session?.user) return;
 
-    const count = await this.notificationService.getUnreadCount(
-      session.session.user.id
-    );
+    const count = await this.notificationService.getUnreadCount(session.session.user.id);
     this.unreadCount.set(count);
   }
 
@@ -70,7 +68,7 @@ export class NotificationIconComponent implements OnInit, OnDestroy {
           ]);
           // Update unread count
           this.loadUnreadCount();
-        }
+        },
       );
     });
   }
@@ -85,16 +83,14 @@ export class NotificationIconComponent implements OnInit, OnDestroy {
 
   async markAsRead(notification: Notification, event: Event) {
     event.stopPropagation();
-    
+
     if (notification.is_read) return;
 
     const success = await this.notificationService.markAsRead(notification.id);
     if (success) {
       // Update local state
       this.notifications.update((notifications) =>
-        notifications.map((n) =>
-          n.id === notification.id ? { ...n, is_read: true } : n
-        )
+        notifications.map((n) => (n.id === notification.id ? { ...n, is_read: true } : n)),
       );
       await this.loadUnreadCount();
     }
@@ -104,13 +100,11 @@ export class NotificationIconComponent implements OnInit, OnDestroy {
     const session = await this.supabase.getSession();
     if (!session.session?.user) return;
 
-    const success = await this.notificationService.markAllAsRead(
-      session.session.user.id
-    );
+    const success = await this.notificationService.markAllAsRead(session.session.user.id);
     if (success) {
       // Update local state
       this.notifications.update((notifications) =>
-        notifications.map((n) => ({ ...n, is_read: true }))
+        notifications.map((n) => ({ ...n, is_read: true })),
       );
       this.unreadCount.set(0);
     }
@@ -119,13 +113,11 @@ export class NotificationIconComponent implements OnInit, OnDestroy {
   async deleteNotification(notification: Notification, event: Event) {
     event.stopPropagation();
 
-    const success = await this.notificationService.deleteNotification(
-      notification.id
-    );
+    const success = await this.notificationService.deleteNotification(notification.id);
     if (success) {
       // Remove from local state
       this.notifications.update((notifications) =>
-        notifications.filter((n) => n.id !== notification.id)
+        notifications.filter((n) => n.id !== notification.id),
       );
       if (!notification.is_read) {
         await this.loadUnreadCount();

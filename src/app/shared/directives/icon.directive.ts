@@ -1,4 +1,13 @@
-import { DestroyRef, Directive, ElementRef, Input, Renderer2, effect, inject, signal } from '@angular/core';
+import {
+  DestroyRef,
+  Directive,
+  ElementRef,
+  Input,
+  Renderer2,
+  effect,
+  inject,
+  signal,
+} from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { catchError, of, switchMap } from 'rxjs';
@@ -59,7 +68,7 @@ export class IconDirective {
           this.renderer.setStyle(img, 'height', '100%');
           this.renderer.appendChild(this.el.nativeElement, img);
           return of(null);
-        })
+        }),
       )
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe((svg: string | null) => {
@@ -68,7 +77,8 @@ export class IconDirective {
         const svgEl = this.el.nativeElement.querySelector('svg') as SVGElement | null;
         const currentSize = this.sizeSig();
         if (svgEl && currentSize) {
-          const sizeStr = typeof currentSize === 'number' ? `${currentSize}px` : String(currentSize);
+          const sizeStr =
+            typeof currentSize === 'number' ? `${currentSize}px` : String(currentSize);
           this.renderer.setAttribute(svgEl, 'width', sizeStr);
           this.renderer.setAttribute(svgEl, 'height', sizeStr);
         }

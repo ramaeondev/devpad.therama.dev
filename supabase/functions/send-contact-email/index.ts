@@ -1,77 +1,89 @@
-import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
-import { Resend } from "npm:resend@2.0.0";
-import { Buffer } from "node:buffer";
-const resend = new Resend(Deno.env.get("RESEND_API_KEY"));
+import { serve } from 'https://deno.land/std@0.168.0/http/server.ts';
+import { Resend } from 'npm:resend@2.0.0';
+import { Buffer } from 'node:buffer';
+const resend = new Resend(Deno.env.get('RESEND_API_KEY'));
 const corsHeaders = {
-  "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type"
+  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
-serve(async (req)=>{
+serve(async (req) => {
   // Handle CORS preflight requests
-  if (req.method === "OPTIONS") {
-    return new Response("ok", {
-      headers: corsHeaders
+  if (req.method === 'OPTIONS') {
+    return new Response('ok', {
+      headers: corsHeaders,
     });
   }
   try {
     const { subject, message, userEmail, userName, attachments } = await req.json();
     if (!subject || !message) {
-      return new Response(JSON.stringify({
-        error: "Subject and message are required"
-      }), {
-        headers: {
-          ...corsHeaders,
-          "Content-Type": "application/json"
+      return new Response(
+        JSON.stringify({
+          error: 'Subject and message are required',
+        }),
+        {
+          headers: {
+            ...corsHeaders,
+            'Content-Type': 'application/json',
+          },
+          status: 400,
         },
-        status: 400
-      });
+      );
     }
     // Basic validation
     if (subject.length > 200) {
-      return new Response(JSON.stringify({
-        error: "Subject must be less than 200 characters"
-      }), {
-        headers: {
-          ...corsHeaders,
-          "Content-Type": "application/json"
+      return new Response(
+        JSON.stringify({
+          error: 'Subject must be less than 200 characters',
+        }),
+        {
+          headers: {
+            ...corsHeaders,
+            'Content-Type': 'application/json',
+          },
+          status: 400,
         },
-        status: 400
-      });
+      );
     }
     if (message.length > 5000) {
-      return new Response(JSON.stringify({
-        error: "Message must be less than 5000 characters"
-      }), {
-        headers: {
-          ...corsHeaders,
-          "Content-Type": "application/json"
+      return new Response(
+        JSON.stringify({
+          error: 'Message must be less than 5000 characters',
+        }),
+        {
+          headers: {
+            ...corsHeaders,
+            'Content-Type': 'application/json',
+          },
+          status: 400,
         },
-        status: 400
-      });
+      );
     }
     // Process attachments if any
     let emailAttachments = [];
     if (attachments && Array.isArray(attachments)) {
       if (attachments.length > 5) {
-        return new Response(JSON.stringify({
-          error: "Maximum 5 attachments allowed"
-        }), {
-          headers: {
-            ...corsHeaders,
-            "Content-Type": "application/json"
+        return new Response(
+          JSON.stringify({
+            error: 'Maximum 5 attachments allowed',
+          }),
+          {
+            headers: {
+              ...corsHeaders,
+              'Content-Type': 'application/json',
+            },
+            status: 400,
           },
-          status: 400
-        });
+        );
       }
       // Convert base64 content to Buffer for Resend
       // Deno handles Buffer from 'node:buffer' or via npm packages,
       // but Resend's npm package should handle base64 strings or Buffers.
       // Let's try passing the base64 string directly first if Resend supports it,
       // or convert to Buffer using Buffer.from (available in Deno via npm compat).
-      emailAttachments = attachments.map((att)=>({
-          filename: att.filename,
-          content: Buffer.from(att.content, 'base64')
-        }));
+      emailAttachments = attachments.map((att) => ({
+        filename: att.filename,
+        content: Buffer.from(att.content, 'base64'),
+      }));
     }
     const emailHtml = `
       <!DOCTYPE html>
@@ -113,9 +125,9 @@ serve(async (req)=>{
             <div style="background-color: #f9fafb; padding: 16px 24px; border-top: 1px solid #e5e7eb; font-size: 12px; color: #9ca3af; text-align: center;">
               <p style="margin: 0;">
                 Sent on ${new Date().toLocaleString('en-US', {
-      dateStyle: 'full',
-      timeStyle: 'short'
-    })}
+                  dateStyle: 'full',
+                  timeStyle: 'short',
+                })}
               </p>
               <p style="margin: 4px 0 0;">
                 &copy; ${new Date().getFullYear()} DevPad. All rights reserved.
@@ -127,29 +139,32 @@ serve(async (req)=>{
     `;
     const data = await resend.emails.send({
       from: `${userName} via DevPad <user@devpad.therama.dev>`,
-      to: Deno.env.get("DEVELOPER_EMAIL") || "notes@therama.dev",
+      to: Deno.env.get('DEVELOPER_EMAIL') || 'notes@therama.dev',
       reply_to: userEmail,
       subject: `[Contact] ${subject}`,
       html: emailHtml,
-      attachments: emailAttachments
+      attachments: emailAttachments,
     });
     return new Response(JSON.stringify(data), {
       headers: {
         ...corsHeaders,
-        "Content-Type": "application/json"
+        'Content-Type': 'application/json',
       },
-      status: 200
+      status: 200,
     });
   } catch (error) {
-    console.error("Error sending email:", error);
-    return new Response(JSON.stringify({
-      error: error.message || "Failed to send email"
-    }), {
-      headers: {
-        ...corsHeaders,
-        "Content-Type": "application/json"
+    console.error('Error sending email:', error);
+    return new Response(
+      JSON.stringify({
+        error: error.message || 'Failed to send email',
+      }),
+      {
+        headers: {
+          ...corsHeaders,
+          'Content-Type': 'application/json',
+        },
+        status: 500,
       },
-      status: 500
-    });
+    );
   }
 });

@@ -75,11 +75,11 @@ export const environment = {
   production: false,
   supabase: {
     url: 'YOUR_SUPABASE_URL',
-    anonKey: 'YOUR_SUPABASE_ANON_KEY'
+    anonKey: 'YOUR_SUPABASE_ANON_KEY',
   },
   google: {
-    clientId: 'YOUR_ACTUAL_CLIENT_ID.apps.googleusercontent.com' // Replace this
-  }
+    clientId: 'YOUR_ACTUAL_CLIENT_ID.apps.googleusercontent.com', // Replace this
+  },
 };
 ```
 
@@ -93,11 +93,11 @@ export const environment = {
   production: true,
   supabase: {
     url: 'YOUR_SUPABASE_URL',
-    anonKey: 'YOUR_SUPABASE_ANON_KEY'
+    anonKey: 'YOUR_SUPABASE_ANON_KEY',
   },
   google: {
-    clientId: 'YOUR_ACTUAL_CLIENT_ID.apps.googleusercontent.com' // Replace this
-  }
+    clientId: 'YOUR_ACTUAL_CLIENT_ID.apps.googleusercontent.com', // Replace this
+  },
 };
 ```
 
@@ -112,6 +112,7 @@ Run the migration SQL to create the integrations table:
 5. Run the query
 
 The migration creates:
+
 - `integrations` table for storing OAuth tokens
 - Row Level Security (RLS) policies
 - Indexes for performance
@@ -141,6 +142,7 @@ The migration creates:
 ### Scopes
 
 We use minimal scopes required:
+
 - `drive.file`: Only access files created by the app (not all Drive files)
 - `drive.metadata.readonly`: View file metadata (for folder tree)
 
@@ -167,26 +169,31 @@ We use minimal scopes required:
 ## Troubleshooting
 
 ### "OAuth client not found" error
+
 - Verify the Client ID is correct in environment files
 - Check that the domain is authorized in Google Cloud Console
 
 ### "Access blocked: Authorization Error"
+
 - Complete the OAuth consent screen configuration
 - Add your email as a test user (if using External)
 - Request verification from Google (for production with External)
 
 ### "Invalid redirect_uri" error
+
 - Ensure your app's origin is in "Authorized JavaScript origins"
 - Check for typos in the URLs
 - Make sure protocol (http/https) matches
 
 ### Token not saving
+
 - Check browser console for errors
 - Verify Supabase connection
 - Ensure `integrations` table exists and RLS policies are correct
 - Check that user is authenticated
 
 ### "Failed to load Google Identity Services"
+
 - Check internet connection
 - Verify no ad blockers are blocking Google scripts
 - Check browser console for CSP errors
@@ -200,6 +207,7 @@ We use minimal scopes required:
 ## Support
 
 If you encounter issues:
+
 1. Check browser console for errors
 2. Review Supabase logs
 3. Verify Google Cloud Console configuration

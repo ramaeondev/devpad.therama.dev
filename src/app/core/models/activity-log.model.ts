@@ -13,7 +13,7 @@ export enum ActivityAction {
   Import = 'import',
   Archive = 'archive',
   Restore = 'restore',
-  Fork = 'fork'
+  Fork = 'fork',
 }
 
 export enum ActivityResource {
@@ -25,14 +25,14 @@ export enum ActivityResource {
   Device = 'device',
   Integration = 'integration',
   PublicShare = 'public_share',
-  Auth = 'auth'
+  Auth = 'auth',
 }
 
 export enum ActivityCategory {
   Access = 'access',
   Content = 'content',
   System = 'system',
-  Security = 'security'
+  Security = 'security',
 }
 
 export interface ActivityLog {

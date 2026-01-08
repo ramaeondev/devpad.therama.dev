@@ -27,15 +27,16 @@ import { DocumentViewerComponent } from './shared/components/ui/document-viewer/
 
 ## Inputs
 
-| Input | Type | Default | Description |
-|-------|------|---------|-------------|
-| `documentUrl` | `string \| null` | `null` | URL of the document to preview |
-| `title` | `string \| null` | `null` | Title to display for the document |
-| `showDownloadButton` | `boolean` | `true` | Whether to show the download button |
+| Input                | Type             | Default | Description                         |
+| -------------------- | ---------------- | ------- | ----------------------------------- |
+| `documentUrl`        | `string \| null` | `null`  | URL of the document to preview      |
+| `title`              | `string \| null` | `null`  | Title to display for the document   |
+| `showDownloadButton` | `boolean`        | `true`  | Whether to show the download button |
 
 ## Supported File Types
 
 ### Iframe Preview (Recommended)
+
 - PDF (.pdf)
 - Word Documents (.doc, .docx)
 - Excel Spreadsheets (.xls, .xlsx)
@@ -44,9 +45,11 @@ import { DocumentViewerComponent } from './shared/components/ui/document-viewer/
 - Google Docs/Drive URLs
 
 ### Direct Display
+
 - Images (.jpg, .jpeg, .png, .gif, .webp, .svg)
 
 ### Download Only
+
 - Videos (.mp4, .avi, .mov)
 - Audio (.mp3, .wav)
 - Archives (.zip, .rar)

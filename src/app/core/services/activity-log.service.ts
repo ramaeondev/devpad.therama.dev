@@ -7,7 +7,7 @@ import {
   CreateActivityLogDto,
   ActivityAction,
   ActivityResource,
-  ActivityCategory
+  ActivityCategory,
 } from '../models/activity-log.model';
 
 @Injectable({
@@ -22,7 +22,7 @@ export class ActivityLogService {
    */
   async logActivity(
     userId: string | undefined, // Nullable for anon
-    dto: CreateActivityLogDto
+    dto: CreateActivityLogDto,
   ): Promise<ActivityLog | null> {
     try {
       // Get device fingerprint and info
@@ -52,7 +52,7 @@ export class ActivityLogService {
         metadata: dto.metadata || {},
         is_anonymous: dto.is_anonymous || !userId,
         session_id: dto.session_id,
-        requires_notification: dto.requires_notification || false
+        requires_notification: dto.requires_notification || false,
       };
 
       // Insert activity log
@@ -78,9 +78,34 @@ export class ActivityLogService {
    * Infer category based on action and resource
    */
   private inferCategory(action: ActivityAction, resource: ActivityResource): ActivityCategory {
-    if ([ActivityAction.Login, ActivityAction.Logout].includes(action) || resource === ActivityResource.Auth) return ActivityCategory.Security;
-    if ([ActivityAction.Create, ActivityAction.Update, ActivityAction.Delete, ActivityAction.Archive, ActivityAction.Restore, ActivityAction.Upload, ActivityAction.Import].includes(action)) return ActivityCategory.Content;
-    if ([ActivityAction.ShareCreate, ActivityAction.ShareUpdate, ActivityAction.ShareDelete, ActivityAction.View, ActivityAction.Download, ActivityAction.Fork].includes(action)) return ActivityCategory.Access;
+    if (
+      [ActivityAction.Login, ActivityAction.Logout].includes(action) ||
+      resource === ActivityResource.Auth
+    )
+      return ActivityCategory.Security;
+    if (
+      [
+        ActivityAction.Create,
+        ActivityAction.Update,
+        ActivityAction.Delete,
+        ActivityAction.Archive,
+        ActivityAction.Restore,
+        ActivityAction.Upload,
+        ActivityAction.Import,
+      ].includes(action)
+    )
+      return ActivityCategory.Content;
+    if (
+      [
+        ActivityAction.ShareCreate,
+        ActivityAction.ShareUpdate,
+        ActivityAction.ShareDelete,
+        ActivityAction.View,
+        ActivityAction.Download,
+        ActivityAction.Fork,
+      ].includes(action)
+    )
+      return ActivityCategory.Access;
     return ActivityCategory.System;
   }
 
@@ -88,12 +113,17 @@ export class ActivityLogService {
    * Helper: Log a content action (Note, Folder, Tag)
    */
   async logContentAction(
-    userId: string, 
-    action: ActivityAction.Create | ActivityAction.Update | ActivityAction.Delete | ActivityAction.Archive | ActivityAction.Restore,
+    userId: string,
+    action:
+      | ActivityAction.Create
+      | ActivityAction.Update
+      | ActivityAction.Delete
+      | ActivityAction.Archive
+      | ActivityAction.Restore,
     resourceType: ActivityResource.Note | ActivityResource.Folder | ActivityResource.Tag,
     resourceId: string,
     resourceName: string,
-    metadata?: any
+    metadata?: any,
   ) {
     return this.logActivity(userId, {
       action_type: action,
@@ -101,7 +131,7 @@ export class ActivityLogService {
       resource_id: resourceId,
       resource_name: resourceName,
       category: ActivityCategory.Content,
-      metadata
+      metadata,
     });
   }
 
@@ -113,7 +143,7 @@ export class ActivityLogService {
     action: ActivityAction.ShareCreate | ActivityAction.ShareUpdate | ActivityAction.ShareDelete,
     resourceId: string, // The Public Share ID
     resourceName: string, // Name of the shard note
-    metadata?: any
+    metadata?: any,
   ) {
     return this.logActivity(userId, {
       action_type: action,
@@ -121,7 +151,7 @@ export class ActivityLogService {
       resource_id: resourceId,
       resource_name: resourceName,
       category: ActivityCategory.Access,
-      metadata
+      metadata,
     });
   }
 
@@ -132,17 +162,14 @@ export class ActivityLogService {
     return this.logActivity(userId, {
       action_type: action,
       resource_type: ActivityResource.Auth,
-      category: ActivityCategory.Security
+      category: ActivityCategory.Security,
     });
   }
 
   /**
    * Get user's activity logs with optional filters
    */
-  async getUserActivityLogs(
-    userId: string,
-    filters?: ActivityLogFilters
-  ): Promise<ActivityLog[]> {
+  async getUserActivityLogs(userId: string, filters?: ActivityLogFilters): Promise<ActivityLog[]> {
     try {
       let query = this.supabase
         .from('activity_logs')
@@ -152,17 +179,23 @@ export class ActivityLogService {
       // Apply filters
       if (filters) {
         if (filters.action_type) {
-          const actions = Array.isArray(filters.action_type) ? filters.action_type : [filters.action_type];
+          const actions = Array.isArray(filters.action_type)
+            ? filters.action_type
+            : [filters.action_type];
           query = query.in('action_type', actions);
         }
 
         if (filters.resource_type) {
-          const resources = Array.isArray(filters.resource_type) ? filters.resource_type : [filters.resource_type];
+          const resources = Array.isArray(filters.resource_type)
+            ? filters.resource_type
+            : [filters.resource_type];
           query = query.in('resource_type', resources);
         }
 
         if (filters.category) {
-          const categories = Array.isArray(filters.category) ? filters.category : [filters.category];
+          const categories = Array.isArray(filters.category)
+            ? filters.category
+            : [filters.category];
           query = query.in('category', categories);
         }
 
@@ -183,10 +216,7 @@ export class ActivityLogService {
         }
 
         if (filters.offset) {
-          query = query.range(
-            filters.offset,
-            filters.offset + (filters.limit || 10) - 1
-          );
+          query = query.range(filters.offset, filters.offset + (filters.limit || 10) - 1);
         }
       }
 
@@ -212,7 +242,7 @@ export class ActivityLogService {
    */
   async getActivityLogsByResource(
     resourceType: ActivityResource,
-    resourceId: string
+    resourceId: string,
   ): Promise<ActivityLog[]> {
     try {
       const { data, error } = await this.supabase
@@ -237,10 +267,7 @@ export class ActivityLogService {
   /**
    * Get activity log count for a user
    */
-  async getActivityLogCount(
-    userId: string,
-    filters?: ActivityLogFilters
-  ): Promise<number> {
+  async getActivityLogCount(userId: string, filters?: ActivityLogFilters): Promise<number> {
     try {
       let query = this.supabase
         .from('activity_logs')
@@ -250,17 +277,23 @@ export class ActivityLogService {
       // Apply filters
       if (filters) {
         if (filters.action_type) {
-          const actions = Array.isArray(filters.action_type) ? filters.action_type : [filters.action_type];
+          const actions = Array.isArray(filters.action_type)
+            ? filters.action_type
+            : [filters.action_type];
           query = query.in('action_type', actions);
         }
 
         if (filters.resource_type) {
-          const resources = Array.isArray(filters.resource_type) ? filters.resource_type : [filters.resource_type];
+          const resources = Array.isArray(filters.resource_type)
+            ? filters.resource_type
+            : [filters.resource_type];
           query = query.in('resource_type', resources);
         }
 
         if (filters.category) {
-          const categories = Array.isArray(filters.category) ? filters.category : [filters.category];
+          const categories = Array.isArray(filters.category)
+            ? filters.category
+            : [filters.category];
           query = query.in('category', categories);
         }
 

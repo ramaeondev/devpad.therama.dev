@@ -13,17 +13,20 @@ export class SupabaseService {
     // OneDrive has its own OAuth token that's not a Supabase session
     // For GitHub and other Supabase OAuth providers, we NEED detectSessionInUrl enabled
     const isOneDriveCallback =
-      typeof window !== 'undefined' &&
-      window.location.pathname.includes('/auth/callback/onedrive');
+      typeof window !== 'undefined' && window.location.pathname.includes('/auth/callback/onedrive');
 
     // Validate config before creating the client so the error is actionable
     const supabaseUrl = environment?.supabase?.url;
     const supabaseAnonKey = environment?.supabase?.anonKey;
     if (!supabaseUrl || supabaseUrl.trim() === '') {
-      throw new Error('SUPABASE_URL is required. Ensure environment or build-time injection is configured correctly.');
+      throw new Error(
+        'SUPABASE_URL is required. Ensure environment or build-time injection is configured correctly.',
+      );
     }
     if (!supabaseAnonKey || supabaseAnonKey.trim() === '') {
-      throw new Error('SUPABASE_ANON_KEY is required. Ensure environment or build-time injection is configured correctly.');
+      throw new Error(
+        'SUPABASE_ANON_KEY is required. Ensure environment or build-time injection is configured correctly.',
+      );
     }
 
     // Main client for API calls

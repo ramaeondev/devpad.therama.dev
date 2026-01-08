@@ -55,7 +55,7 @@ import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 export class TermsModalComponent implements OnChanges {
   @Input() title = 'Terms & Conditions';
   /** Path to an Angular route or component for terms */
-    @Input() termsSrc: string = '/terms';
+  @Input() termsSrc: string = '/terms';
   @Output() close = new EventEmitter<void>();
 
   safeSrc: SafeResourceUrl;

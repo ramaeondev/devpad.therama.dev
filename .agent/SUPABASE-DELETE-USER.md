@@ -3,6 +3,7 @@
 This guide provides safe, copy‑paste SQL you can run manually in the Supabase SQL editor after a user explicitly consents to delete their own account and data.
 
 It removes:
+
 - Database rows in `notes`, `folders`, and `user_profiles` for a specific user
 - Storage objects in the `notes` and `avatars` buckets belonging to that user
 - Optionally, the auth user (requires service role in SQL context)
@@ -12,6 +13,7 @@ It removes:
 ---
 
 ## 1) Dry‑Run Preview (Counts Only)
+
 Run this first to see what will be deleted.
 
 ```sql
@@ -38,6 +40,7 @@ select
 ---
 
 ## 2) Full Deletion (Storage + Database)
+
 Run this to delete the user's data. The script is idempotent (safe to re-run).
 
 ```sql
@@ -89,7 +92,9 @@ END $$;
 ---
 
 ## Expected Schema/Buckets
+
 This script assumes the following exist in your project:
+
 - Tables: `user_profiles`, `folders`, `notes` (each row has `user_id`)
 - Buckets: `notes` (paths like `notes/<user_id>/<note_id>.md`) and `avatars` (paths like `avatars/<user_id>.<ext>`)
 
@@ -98,6 +103,7 @@ If your pathing differs, adjust the `LIKE` patterns accordingly.
 ---
 
 ## How To Run
+
 1. Open Supabase Dashboard → SQL Editor.
 2. Paste the Dry‑Run (Counts) SQL, replace the user id, and run it to confirm scope.
 3. Paste the Full Deletion block, replace the user id, and run it.
@@ -106,6 +112,7 @@ If your pathing differs, adjust the `LIKE` patterns accordingly.
 ---
 
 ## Safety Notes
+
 - This action is destructive. Ensure you have explicit user consent and necessary approvals.
 - The script is idempotent. Re-running will report `0` for already‑deleted records/objects.
 - Consider exporting user data before deletion if your policy requires it.

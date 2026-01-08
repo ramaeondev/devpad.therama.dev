@@ -7,7 +7,10 @@ import { AuthStateService } from '../../../../core/services/auth-state.service';
 import { ToastService } from '../../../../core/services/toast.service';
 import { WorkspaceStateService } from '../../../../core/services/workspace-state.service';
 import { FolderService } from '../../../folders/services/folder.service';
-import { PropertiesModalComponent, PropertyItem } from '../../../../shared/components/ui/properties-modal/properties-modal.component';
+import {
+  PropertiesModalComponent,
+  PropertyItem,
+} from '../../../../shared/components/ui/properties-modal/properties-modal.component';
 import { ConfirmModalComponent } from '../../../../shared/components/ui/dialog/confirm-modal.component';
 import { GoogleDriveIconPipe } from '../../../../shared/pipes/google-drive-icon.pipe';
 import { DropdownComponent } from '../../../../shared/components/ui/dropdown/dropdown.component';
@@ -15,7 +18,13 @@ import { DropdownComponent } from '../../../../shared/components/ui/dropdown/dro
 @Component({
   selector: 'app-google-drive-tree',
   standalone: true,
-  imports: [CommonModule, PropertiesModalComponent, GoogleDriveIconPipe, DropdownComponent, ConfirmModalComponent],
+  imports: [
+    CommonModule,
+    PropertiesModalComponent,
+    GoogleDriveIconPipe,
+    DropdownComponent,
+    ConfirmModalComponent,
+  ],
   templateUrl: './google-drive-tree.component.html',
   styleUrls: ['./google-drive-tree.component.scss'],
 })
@@ -42,7 +51,7 @@ export class GoogleDriveTreeComponent implements OnInit {
   }
 
   toggleRootFolder() {
-    this.isRootExpanded.update(v => !v);
+    this.isRootExpanded.update((v) => !v);
   }
 
   async connectGoogleDrive() {
@@ -118,11 +127,11 @@ export class GoogleDriveTreeComponent implements OnInit {
     this.openMenuId.set(null);
     try {
       const userId = this.auth.userId();
-      
+
       // Find or create "Imports" folder
       const folders = await this.folderService.getFolders(userId);
       let importsFolder = folders.find((f: any) => f.name === 'Imports' && !f.parent_id);
-      
+
       if (!importsFolder) {
         importsFolder = await this.folderService.createFolder(userId, {
           name: 'Imports',
@@ -155,7 +164,7 @@ export class GoogleDriveTreeComponent implements OnInit {
       await this.noteService.uploadDocument(userId, fileObj, importsFolder.id);
 
       this.toast.success(`Imported ${fileName} to DevPad`);
-      
+
       // Refresh DevPad folder tree
       this.workspaceState.emitFoldersChanged();
     } catch (error) {
@@ -195,8 +204,10 @@ export class GoogleDriveTreeComponent implements OnInit {
   handleProperties(file: GoogleDriveFile) {
     this.openMenuId.set(null);
     const sizeInMB = file.size ? (parseInt(file.size) / (1024 * 1024)).toFixed(2) : 'Unknown';
-    const modifiedDate = file.modifiedTime ? new Date(file.modifiedTime).toLocaleString() : 'Unknown';
-    
+    const modifiedDate = file.modifiedTime
+      ? new Date(file.modifiedTime).toLocaleString()
+      : 'Unknown';
+
     const properties: PropertyItem[] = [
       { label: 'Name', value: file.name, icon: '📄' },
       { label: 'Type', value: file.mimeType, icon: '🏷️' },
@@ -204,7 +215,7 @@ export class GoogleDriveTreeComponent implements OnInit {
       { label: 'Modified', value: modifiedDate, icon: '📅' },
       { label: 'File ID', value: file.id, icon: '🔑' },
     ];
-    
+
     this.propertiesModalTitle.set('Google Drive File Properties');
     this.propertiesModalData.set(properties);
     this.showPropertiesModal.set(true);

@@ -19,10 +19,12 @@ This branch migrates the application from hardcoded environment files (`environm
 ### 1. Configuration Files Migration
 
 #### Removed Files
+
 - ❌ `src/environments/environment.ts` - Deleted (contained hardcoded dev config)
 - ❌ `src/environments/environment.prod.ts` - Deleted (contained hardcoded prod config)
 
 #### New Files
+
 - ✅ `src/config.ts` - Base config file with placeholders (committed to repo)
 - ✅ `src/config.dev.ts` - Development config (generated from `.env`, not committed)
 - ✅ `src/config.prod.ts` - Production config (generated from `.env`, not committed)
@@ -32,17 +34,19 @@ This branch migrates the application from hardcoded environment files (`environm
 ### 2. Configuration Structure
 
 **Before:**
+
 ```typescript
 // environment.ts
 export const environment = {
   production: false,
   supabase: { url: '...', anonKey: '...' },
   google: { clientId: '...', apiKey: '...' },
-  microsoft: { clientId: '...', redirectUri: '...' }
+  microsoft: { clientId: '...', redirectUri: '...' },
 };
 ```
 
 **After:**
+
 ```typescript
 // config.ts (base with placeholders)
 export const config = {
@@ -66,6 +70,7 @@ export const config = {
 All services have been updated to import from the new config location:
 
 **Files Modified:**
+
 - `src/app/core/services/supabase.service.ts`
   - Changed: `import { environment } from '../../../environments/environment'`
   - To: `import { config } from '../../../config'`
@@ -85,6 +90,7 @@ All services have been updated to import from the new config location:
 ### 4. Build Configuration
 
 #### `angular.json` Changes
+
 - Updated file replacements for production and development builds:
   ```json
   "fileReplacements": [
@@ -96,12 +102,15 @@ All services have been updated to import from the new config location:
   ```
 
 #### `package.json` Changes
+
 - **Added dependency:**
+
   ```json
   "dotenv": "^16.3.1"
   ```
 
 - **New script:**
+
   ```json
   "inject-env": "node scripts/inject-env.js"
   ```
@@ -116,12 +125,14 @@ All services have been updated to import from the new config location:
 **File:** `scripts/inject-env.js`
 
 This script:
+
 1. Loads environment variables from `.env` using `dotenv`
 2. Generates `config.dev.ts` and `config.prod.ts` with actual values
 3. Replaces placeholders with environment variable values
 4. Ensures config files are always up-to-date before builds
 
 **Environment Variables Required:**
+
 - `SUPABASE_URL`
 - `SUPABASE_ANON_KEY`
 - `GOOGLE_CLIENT_ID`
@@ -132,7 +143,9 @@ This script:
 ### 6. Git Configuration
 
 #### `.gitignore` Updates
+
 Added entries to prevent committing sensitive files:
+
 ```
 # Environment variables
 .env
@@ -145,6 +158,7 @@ Added entries to prevent committing sensitive files:
 ### 7. Deployment Configuration
 
 #### `vercel.json` Updates
+
 - Build command already includes `inject-env`:
   ```json
   "buildCommand": "npm run inject-env && npm run build:prod"
@@ -155,6 +169,7 @@ Added entries to prevent committing sensitive files:
 ### 8. TypeScript Configuration
 
 Minor updates to TypeScript config files:
+
 - `tsconfig.app.json`
 - `tsconfig.json`
 - `tsconfig.spec.json`
@@ -166,6 +181,7 @@ Minor updates to TypeScript config files:
 ### For Local Development
 
 1. **Create `.env` file** in the project root:
+
    ```env
    SUPABASE_URL=your_supabase_url
    SUPABASE_ANON_KEY=your_supabase_anon_key
@@ -176,6 +192,7 @@ Minor updates to TypeScript config files:
    ```
 
 2. **Install dependencies** (if not already done):
+
    ```bash
    npm install
    ```
@@ -221,7 +238,7 @@ Minor updates to TypeScript config files:
    - `ONEDRIVE-SETUP.md`
    - `CLOUD-STORAGE-INTEGRATION.md`
    - `SUPABASE-SETUP.md`
-   
+
    These should be updated to reference the new `.env` setup.
 
 2. **First-time setup** requires creating `.env` file manually (not auto-generated)
@@ -250,13 +267,17 @@ Minor updates to TypeScript config files:
 When you need to add a new environment variable, follow these steps:
 
 ### Step 1: Add to `.env` file
+
 Add your new variable to the `.env` file:
+
 ```env
 NEW_VARIABLE_NAME=your_value_here
 ```
 
 ### Step 2: Update `scripts/inject-env.js`
+
 Add the variable to the `envVariables` object:
+
 ```javascript
 const envVariables = {
   // ... existing variables
@@ -265,7 +286,9 @@ const envVariables = {
 ```
 
 ### Step 3: Update config structure in `inject-env.js`
+
 Add the variable to the config object in the `generateConfigFile` function:
+
 ```javascript
 const content = `export const config = {
   // ... existing config
@@ -277,7 +300,9 @@ const content = `export const config = {
 ```
 
 ### Step 4: Update `src/config.ts`
+
 Add the placeholder to the base config file:
+
 ```typescript
 export const config = {
   // ... existing config
@@ -288,13 +313,17 @@ export const config = {
 ```
 
 ### Step 5: Regenerate config files
+
 Run the inject script to generate updated config files:
+
 ```bash
 npm run inject-env
 ```
 
 ### Step 6: Use in your code
+
 Import and use the new config value:
+
 ```typescript
 import { config } from '../../../config';
 
@@ -303,6 +332,7 @@ const value = config.newSection.newKey;
 ```
 
 ### Step 7: Update deployment platform
+
 Don't forget to add the new environment variable to your deployment platform (Vercel, etc.) for production builds.
 
 ---
@@ -317,4 +347,3 @@ Don't forget to add the new environment variable to your deployment platform (Ve
 ---
 
 **Branch Status:** Ready for review and merge
-

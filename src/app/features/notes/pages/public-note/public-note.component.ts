@@ -36,7 +36,10 @@ import { LogoComponent } from '../../../../shared/components/ui/logo/logo.compon
             <i class="fa-solid fa-exclamation-triangle text-4xl text-red-500 mb-4"></i>
             <h1 class="text-2xl font-bold text-gray-900 dark:text-white mb-2">Share Not Found</h1>
             <p class="text-gray-600 dark:text-gray-400 mb-6">{{ error() }}</p>
-            <a href="/" class="px-6 py-3 bg-primary-500 hover:bg-primary-600 text-white rounded-lg transition-colors inline-block">
+            <a
+              href="/"
+              class="px-6 py-3 bg-primary-500 hover:bg-primary-600 text-white rounded-lg transition-colors inline-block"
+            >
               Go to DevPad
             </a>
           </div>
@@ -57,14 +60,19 @@ import { LogoComponent } from '../../../../shared/components/ui/logo/logo.compon
                 <i class="fa-solid fa-lock mr-2"></i>
                 Sign in to edit this shared note.
               </p>
-              <a [href]="'/auth/signin?returnUrl=' + '/share/' + share()?.share_token" class="text-xs px-3 py-1.5 bg-blue-100 hover:bg-blue-200 dark:bg-blue-800 dark:hover:bg-blue-700 text-blue-800 dark:text-blue-100 rounded-md transition-colors font-medium cursor-pointer">
+              <a
+                [href]="'/auth/signin?returnUrl=' + '/share/' + share()?.share_token"
+                class="text-xs px-3 py-1.5 bg-blue-100 hover:bg-blue-200 dark:bg-blue-800 dark:hover:bg-blue-700 text-blue-800 dark:text-blue-100 rounded-md transition-colors font-medium cursor-pointer"
+              >
                 Sign In
               </a>
             </div>
           </div>
         } @else if (share()?.permission === 'editable') {
           <!-- Editing Banner -->
-          <div class="bg-yellow-50 dark:bg-yellow-900/20 border-b border-yellow-200 dark:border-yellow-800">
+          <div
+            class="bg-yellow-50 dark:bg-yellow-900/20 border-b border-yellow-200 dark:border-yellow-800"
+          >
             <div class="max-w-4xl mx-auto px-4 py-3">
               <p class="text-sm text-yellow-800 dark:text-yellow-200">
                 <i class="fa-solid fa-users-edit mr-2"></i>
@@ -79,10 +87,17 @@ import { LogoComponent } from '../../../../shared/components/ui/logo/logo.compon
         }
 
         <!-- Header -->
-        <div class="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 sticky top-0 z-10">
+        <div
+          class="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 sticky top-0 z-10"
+        >
           <div class="max-w-4xl mx-auto px-4 py-4 flex items-center justify-between">
             <div class="flex items-center gap-3">
-              <i class="fa-solid" [class.fa-file-edit]="canEdit()" [class.fa-file-alt]="!canEdit()" class="text-2xl text-primary-500"></i>
+              <i
+                class="fa-solid"
+                [class.fa-file-edit]="canEdit()"
+                [class.fa-file-alt]="!canEdit()"
+                class="text-2xl text-primary-500"
+              ></i>
               <div>
                 <h1 class="text-xl font-semibold text-gray-900 dark:text-white">
                   {{ noteTitle() }}
@@ -100,7 +115,7 @@ import { LogoComponent } from '../../../../shared/components/ui/logo/logo.compon
                 </p>
               </div>
             </div>
-            
+
             <div class="flex items-center gap-2">
               @if (canEdit()) {
                 <button
@@ -115,7 +130,7 @@ import { LogoComponent } from '../../../../shared/components/ui/logo/logo.compon
                   }
                 </button>
               }
-              
+
               <!-- Owner can open in dashboard for full editor -->
               @if (isOwner()) {
                 <button
@@ -126,7 +141,7 @@ import { LogoComponent } from '../../../../shared/components/ui/logo/logo.compon
                   Open in Dashboard
                 </button>
               }
-              
+
               <!-- Show "Add to My Notes" for non-owners -->
               @if (!isOwner() && isLoggedIn()) {
                 <button
@@ -163,7 +178,9 @@ import { LogoComponent } from '../../../../shared/components/ui/logo/logo.compon
         <div class="max-w-4xl mx-auto px-4 py-8">
           @if (canEdit()) {
             <!-- Editor Mode -->
-            <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700">
+            <div
+              class="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700"
+            >
               <textarea
                 [(ngModel)]="content"
                 (input)="onContentChange()"
@@ -180,9 +197,14 @@ import { LogoComponent } from '../../../../shared/components/ui/logo/logo.compon
             }
           } @else {
             <!-- Viewer Mode (Rendered) -->
-            <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-8">
+            <div
+              class="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-8"
+            >
               @if (content) {
-                <div class="prose dark:prose-invert max-w-none" [innerHTML]="renderedContent()"></div>
+                <div
+                  class="prose dark:prose-invert max-w-none"
+                  [innerHTML]="renderedContent()"
+                ></div>
               } @else {
                 <p class="text-gray-500 dark:text-gray-400 italic">No content available</p>
               }
@@ -192,34 +214,42 @@ import { LogoComponent } from '../../../../shared/components/ui/logo/logo.compon
           <!-- Footer -->
           <div class="mt-8 text-center text-sm text-gray-500 dark:text-gray-400">
             <p>
-              Shared via <a href="/" class="text-primary-500 hover:text-primary-600 font-medium">DevPad</a>
+              Shared via
+              <a href="/" class="text-primary-500 hover:text-primary-600 font-medium">DevPad</a>
             </p>
           </div>
         </div>
       }
     </div>
   `,
-  styles: [`
-    textarea {
-      font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', 'Consolas', 'source-code-pro', monospace;
-      line-height: 1.6;
-    }
-    .prose {
-      @apply text-gray-900 dark:text-gray-100;
-    }
-    .prose h1, .prose h2, .prose h3, .prose h4, .prose h5, .prose h6 {
-      @apply text-gray-900 dark:text-white;
-    }
-    .prose a {
-      @apply text-primary-500 hover:text-primary-600;
-    }
-    .prose code {
-      @apply bg-gray-100 dark:bg-gray-700 px-1 py-0.5 rounded text-sm;
-    }
-    .prose pre {
-      @apply bg-gray-100 dark:bg-gray-700 p-4 rounded-lg overflow-x-auto;
-    }
-  `]
+  styles: [
+    `
+      textarea {
+        font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', 'Consolas', 'source-code-pro', monospace;
+        line-height: 1.6;
+      }
+      .prose {
+        @apply text-gray-900 dark:text-gray-100;
+      }
+      .prose h1,
+      .prose h2,
+      .prose h3,
+      .prose h4,
+      .prose h5,
+      .prose h6 {
+        @apply text-gray-900 dark:text-white;
+      }
+      .prose a {
+        @apply text-primary-500 hover:text-primary-600;
+      }
+      .prose code {
+        @apply bg-gray-100 dark:bg-gray-700 px-1 py-0.5 rounded text-sm;
+      }
+      .prose pre {
+        @apply bg-gray-100 dark:bg-gray-700 p-4 rounded-lg overflow-x-auto;
+      }
+    `,
+  ],
 })
 export class PublicNoteComponent implements OnInit, OnDestroy {
   private route = inject(ActivatedRoute);
@@ -235,7 +265,7 @@ export class PublicNoteComponent implements OnInit, OnDestroy {
   share = signal<PublicShare | null>(null);
   isEncrypted = signal(false);
   requiresEncryptionKey = signal(false);
-  
+
   content = '';
   saving = signal(false);
   forking = signal(false);
@@ -276,7 +306,7 @@ export class PublicNoteComponent implements OnInit, OnDestroy {
       // Content is fetched dynamically via RPC (property 'content' added in-memory by share service)
       // This ensures we always have the latest note.content from the source
       this.content = (shareData as any).content || '';
-      
+
       // Track encryption status for UI
       this.isEncrypted.set((shareData as any).isEncrypted || false);
       this.requiresEncryptionKey.set((shareData as any).requiresEncryptionKey || false);
@@ -310,7 +340,7 @@ export class PublicNoteComponent implements OnInit, OnDestroy {
    * Start periodic refresh of content for readonly viewers
    * This allows viewers to see updates made by the note owner
    * Uses a separate endpoint that doesn't increment view counts
-   * 
+   *
    * Optimizations:
    * - Polls every 30 seconds (reduced from 5 for better performance)
    * - Automatically stops after 5 minutes of viewing
@@ -318,7 +348,7 @@ export class PublicNoteComponent implements OnInit, OnDestroy {
    */
   private startContentRefresh(shareToken: string) {
     this.refreshStartTime = Date.now();
-    
+
     // Set up visibility change listener to pause/resume polling
     this.visibilityHandler = () => {
       if (document.hidden) {
@@ -335,9 +365,9 @@ export class PublicNoteComponent implements OnInit, OnDestroy {
         }
       }
     };
-    
+
     document.addEventListener('visibilitychange', this.visibilityHandler);
-    
+
     // Start the polling
     this.startPolling(shareToken);
   }
@@ -374,7 +404,9 @@ export class PublicNoteComponent implements OnInit, OnDestroy {
 
   private updateMetaTags(share: PublicShare) {
     const title = share.note_title || 'Shared Note';
-    const description = this.content ? this.content.substring(0, 150).replace(/[#*`]/g, '') + '...' : 'Check out this note on DevPad.';
+    const description = this.content
+      ? this.content.substring(0, 150).replace(/[#*`]/g, '') + '...'
+      : 'Check out this note on DevPad.';
     const url = window.location.href;
     const imageUrl = '/og_image.jpg'; // Default image
 
@@ -385,7 +417,7 @@ export class PublicNoteComponent implements OnInit, OnDestroy {
     this.metaService.updateTag({ property: 'og:image', content: imageUrl });
     this.metaService.updateTag({ property: 'og:url', content: url });
     this.metaService.updateTag({ property: 'og:type', content: 'article' });
-    
+
     this.metaService.updateTag({ name: 'twitter:card', content: 'summary_large_image' });
     this.metaService.updateTag({ name: 'twitter:title', content: title });
     this.metaService.updateTag({ name: 'twitter:description', content: description });
@@ -422,7 +454,10 @@ export class PublicNoteComponent implements OnInit, OnDestroy {
     html = html.replace(/^# (.*$)/gim, '<h1>$1</h1>');
     html = html.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
     html = html.replace(/\*(.*?)\*/g, '<em>$1</em>');
-    html = html.replace(/\[(.*?)\]\((.*?)\)/g, '<a href="$2" target="_blank" rel="noopener noreferrer">$1</a>');
+    html = html.replace(
+      /\[(.*?)\]\((.*?)\)/g,
+      '<a href="$2" target="_blank" rel="noopener noreferrer">$1</a>',
+    );
     html = html.replace(/\n/g, '<br>');
     return html;
   }
@@ -449,14 +484,20 @@ export class PublicNoteComponent implements OnInit, OnDestroy {
     try {
       await this.shareService.updatePublicContent(shareData.share_token, this.content);
       this.lastSaved.set(new Date().toLocaleTimeString());
-      
+
       // If owner is editing, move note to Public folder and open in dashboard
       if (this.isOwner()) {
         this.toast.success('Changes saved! Opening in dashboard...');
         const userId = this.authState.userId();
         if (userId) {
           const publicFolder = await this.shareService.ensurePublicFolder(userId);
-          this.router.navigate(['/dashboard', 'folder', publicFolder.id, 'note', shareData.note_id]);
+          this.router.navigate([
+            '/dashboard',
+            'folder',
+            publicFolder.id,
+            'note',
+            shareData.note_id,
+          ]);
         }
       } else {
         this.toast.success('Changes saved');
@@ -472,7 +513,7 @@ export class PublicNoteComponent implements OnInit, OnDestroy {
   async openInDashboard() {
     const share = this.share();
     if (!share || !this.isOwner()) return;
-    
+
     try {
       const publicFolder = await this.shareService.ensurePublicFolder(share.user_id);
       this.router.navigate(['/dashboard', 'folder', publicFolder.id, 'note', share.note_id]);
@@ -495,10 +536,10 @@ export class PublicNoteComponent implements OnInit, OnDestroy {
     this.forking.set(true);
     try {
       this.toast.info('Forking note to your account...');
-      
+
       // Import the share (creates a copy in user's Imports folder)
       const newShare = await this.shareService.importPublicShare(userId, share.share_token);
-      
+
       // Redirect to the imported note in Imports folder
       const importsFolder = await this.shareService.ensureImportsFolder(userId);
       this.toast.success('Note forked successfully! Opening in dashboard...');
@@ -523,7 +564,7 @@ export class PublicNoteComponent implements OnInit, OnDestroy {
         // Get the owner's public folder (where the note actually exists)
         const publicFolder = await this.shareService.ensurePublicFolder(share.user_id);
         this.router.navigate(['/dashboard', 'folder', publicFolder.id, 'note', share.note_id], {
-          replaceUrl: true
+          replaceUrl: true,
         });
       } else {
         // Non-owner viewing readonly share - stay on public page
@@ -550,24 +591,26 @@ export class PublicNoteComponent implements OnInit, OnDestroy {
     // Editable shares cannot be imported - they are always shared
     // Only the original author can control share settings
     if (share.permission === 'editable') {
-      this.toast.error('Editable shares cannot be imported. This shared note is already public with edit access.');
+      this.toast.error(
+        'Editable shares cannot be imported. This shared note is already public with edit access.',
+      );
       this.processingRedirect.set(false);
       return;
     }
 
     this.processingRedirect.set(true);
     // Show a different loading message if possible, or just generic
-    
+
     try {
       this.toast.info('Importing note to your Public folder...');
-      
+
       // Import the share (fork it) - only for readonly shares
       const newShare = await this.shareService.importPublicShare(userId, share.share_token);
-      
+
       // Redirect to dashboard with the NEW note
       const publicFolder = await this.shareService.ensurePublicFolder(userId);
       this.router.navigate(['/dashboard', 'folder', publicFolder.id, 'note', newShare.note_id], {
-        replaceUrl: true
+        replaceUrl: true,
       });
       this.toast.success('Note imported successfully');
     } catch (error) {
@@ -580,7 +623,7 @@ export class PublicNoteComponent implements OnInit, OnDestroy {
   ngOnDestroy() {
     if (this.saveTimeout) clearTimeout(this.saveTimeout);
     if (this.refreshInterval) clearInterval(this.refreshInterval);
-    
+
     // Clean up visibility change listener
     if (this.visibilityHandler) {
       document.removeEventListener('visibilitychange', this.visibilityHandler);

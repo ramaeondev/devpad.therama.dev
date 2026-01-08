@@ -22,9 +22,9 @@ You must be at least 13 years old to use DevPad. By using the service, you repre
 
 You agree to:
 
-* Use DevPad only for lawful and legitimate purposes.
-* Not engage in activities that may harm, disrupt, or interfere with the performance, security, or integrity of the service.
-* Not attempt to gain unauthorized access to systems, accounts, or networks related to DevPad.
+- Use DevPad only for lawful and legitimate purposes.
+- Not engage in activities that may harm, disrupt, or interfere with the performance, security, or integrity of the service.
+- Not attempt to gain unauthorized access to systems, accounts, or networks related to DevPad.
 
 We reserve the right to restrict or terminate access for violations of these Terms.
 
@@ -34,9 +34,9 @@ We reserve the right to restrict or terminate access for violations of these Ter
 
 If you create an account:
 
-* You are responsible for maintaining the confidentiality of your login credentials.
-* You agree to provide accurate and complete information.
-* You are responsible for all activities that occur under your account.
+- You are responsible for maintaining the confidentiality of your login credentials.
+- You agree to provide accurate and complete information.
+- You are responsible for all activities that occur under your account.
 
 We are not liable for any loss or damage arising from unauthorized access to your account.
 
@@ -50,9 +50,9 @@ By using the service, you grant us a limited, non-exclusive license to process a
 
 You agree that your content:
 
-* Does not violate any applicable laws.
-* Does not infringe upon intellectual property rights of third parties.
-* Does not contain harmful, abusive, or malicious material.
+- Does not violate any applicable laws.
+- Does not infringe upon intellectual property rights of third parties.
+- Does not contain harmful, abusive, or malicious material.
 
 You are solely responsible for your content and any consequences arising from it.
 
@@ -62,9 +62,9 @@ You are solely responsible for your content and any consequences arising from it
 
 Our handling of your personal information is governed by our **Privacy Policy**. Please review it to understand:
 
-* What data we collect
-* How we process and store data
-* Your rights regarding your information
+- What data we collect
+- How we process and store data
+- Your rights regarding your information
 
 By using DevPad, you consent to our data practices as described in the Privacy Policy.
 
@@ -76,8 +76,8 @@ All rights, title, and interest in DevPad—including software, design, branding
 
 Except where expressly permitted, you may not:
 
-* Copy, modify, distribute, or reverse-engineer DevPad
-* Use our trademarks or branding without written permission
+- Copy, modify, distribute, or reverse-engineer DevPad
+- Use our trademarks or branding without written permission
 
 ---
 
@@ -85,10 +85,10 @@ Except where expressly permitted, you may not:
 
 You agree NOT to:
 
-* Attempt to circumvent security or authentication measures
-* Use automated scripts or scraping tools
-* Upload malware, viruses, or harmful code
-* Use DevPad for spam, fraud, or unlawful purposes
+- Attempt to circumvent security or authentication measures
+- Use automated scripts or scraping tools
+- Upload malware, viruses, or harmful code
+- Use DevPad for spam, fraud, or unlawful purposes
 
 ---
 
@@ -96,9 +96,9 @@ You agree NOT to:
 
 We strive to provide uninterrupted service but do not guarantee:
 
-* That DevPad will always be available
-* That the service will be error-free
-* That stored data will never be lost (though we take all reasonable precautions)
+- That DevPad will always be available
+- That the service will be error-free
+- That stored data will never be lost (though we take all reasonable precautions)
 
 We may modify, suspend, or discontinue parts of the service at any time.
 
@@ -108,8 +108,8 @@ We may modify, suspend, or discontinue parts of the service at any time.
 
 We may suspend or terminate your access if:
 
-* You violate these Terms
-* You engage in harmful or abusive behavior
+- You violate these Terms
+- You engage in harmful or abusive behavior
 
 Upon termination, your access to your content may be restricted or removed. You are responsible for backing up your data.
 
@@ -127,9 +127,9 @@ Continued use of the service after updates constitutes acceptance of the revised
 
 To the maximum extent permitted by law:
 
-* DevPad is provided "AS IS" and "AS AVAILABLE" without warranties of any kind.
-* We are not liable for indirect, incidental, punitive, or consequential damages.
-* Our total liability for any claim shall not exceed the amount paid by you (if any) in the preceding 12 months.
+- DevPad is provided "AS IS" and "AS AVAILABLE" without warranties of any kind.
+- We are not liable for indirect, incidental, punitive, or consequential damages.
+- Our total liability for any claim shall not exceed the amount paid by you (if any) in the preceding 12 months.
 
 ---
 
@@ -143,8 +143,8 @@ These Terms shall be governed by and interpreted in accordance with the laws of 
 
 For any questions or support requests, contact us:
 
-* **Email:** [support@therama.dev](mailto:support@therama.dev)
-* **Website:** [https://therama.dev](https://therama.dev)
+- **Email:** [support@therama.dev](mailto:support@therama.dev)
+- **Website:** [https://therama.dev](https://therama.dev)
 
 ---
 

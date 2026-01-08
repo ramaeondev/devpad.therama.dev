@@ -3,6 +3,7 @@
 This guide explains how to add a new environment variable to the DevPad project.
 
 ## Quick Steps
+
 ## Required Variables for Production
 
 The application requires these environment variables for production builds and deployment. The `inject-env` script will fail the build if these are not present:
@@ -11,7 +12,6 @@ The application requires these environment variables for production builds and d
 - `SUPABASE_ANON_KEY` - Public anon key for client usage
 
 Other variables used by the app (Google/Microsoft/Appwrite integrations) are optional but recommended for full functionality.
-
 
 When you need to add a new environment variable, follow these steps in order:
 
@@ -32,7 +32,7 @@ const envVariables = {
   SUPABASE_URL: process.env.SUPABASE_URL || '',
   SUPABASE_ANON_KEY: process.env.SUPABASE_ANON_KEY || '',
   // ... other existing variables
-  NEW_VARIABLE_NAME: process.env.NEW_VARIABLE_NAME || '',  // ← Add this
+  NEW_VARIABLE_NAME: process.env.NEW_VARIABLE_NAME || '', // ← Add this
 };
 ```
 
@@ -41,6 +41,7 @@ const envVariables = {
 Add the variable to the config object in the `generateConfigFile` function. Decide where it belongs (new section or existing section):
 
 **Option A: Add to existing section**
+
 ```javascript
 const content = `export const config = {
   supabase: {
@@ -54,6 +55,7 @@ const content = `export const config = {
 ```
 
 **Option B: Create new section**
+
 ```javascript
 const content = `export const config = {
   // ... existing config
@@ -73,7 +75,7 @@ export const config = {
   supabase: {
     url: 'SUPABASE_URL_PLACEHOLDER',
     anonKey: 'SUPABASE_ANON_KEY_PLACEHOLDER',
-    newKey: 'NEW_VARIABLE_NAME_PLACEHOLDER',  // ← Add placeholder
+    newKey: 'NEW_VARIABLE_NAME_PLACEHOLDER', // ← Add placeholder
   },
   // ... rest of config
 };
@@ -113,11 +115,13 @@ const value = config.newSection.newKey;
 Let's say you want to add a `STRIPE_API_KEY`:
 
 ### Step 1: `.env`
+
 ```env
 STRIPE_API_KEY=sk_test_1234567890
 ```
 
 ### Step 2: `scripts/inject-env.js`
+
 ```javascript
 const envVariables = {
   // ... existing
@@ -126,6 +130,7 @@ const envVariables = {
 ```
 
 ### Step 3: `scripts/inject-env.js` (in generateConfigFile)
+
 ```javascript
 const content = `export const config = {
   // ... existing
@@ -137,6 +142,7 @@ const content = `export const config = {
 ```
 
 ### Step 4: `src/config.ts`
+
 ```typescript
 export const config = {
   // ... existing
@@ -147,17 +153,20 @@ export const config = {
 ```
 
 ### Step 5: Run inject
+
 ```bash
 npm run inject-env
 ```
 
 ### Step 6: Use it
+
 ```typescript
 import { config } from '../../../config';
 const stripeKey = config.stripe.apiKey;
 ```
 
 ### Step 7: Add to Vercel
+
 Go to Vercel Dashboard → Project Settings → Environment Variables → Add `STRIPE_API_KEY`
 
 ---
@@ -176,7 +185,8 @@ Go to Vercel Dashboard → Project Settings → Environment Variables → Add `S
 
 **Problem:** New variable shows as placeholder in the app
 
-**Solution:** 
+**Solution:**
+
 - Make sure you ran `npm run inject-env`
 - Check that the variable name matches exactly in all files
 - Verify the variable is in your `.env` file
@@ -185,6 +195,7 @@ Go to Vercel Dashboard → Project Settings → Environment Variables → Add `S
 **Problem:** Variable is undefined
 
 **Solution:**
+
 - Check the variable name spelling (case-sensitive)
 - Verify it's added to the deployment platform's environment variables
 - Make sure you're importing from the correct config file
@@ -204,4 +215,3 @@ When adding a new environment variable:
 - [ ] Added to deployment platform (Vercel, etc.)
 - [ ] Tested locally
 - [ ] Tested in production build
-

@@ -7,11 +7,11 @@ import { LoadingService } from './loading.service';
   providedIn: 'root',
 })
 export class UserService {
-    /** Disable user account immediately */
-    async disableUser(userId: string): Promise<void> {
-      // Defensive: ensure 'disabled' field exists in DB
-      await this.updateUserProfile(userId, { disabled: true } as Partial<UserProfile>);
-    }
+  /** Disable user account immediately */
+  async disableUser(userId: string): Promise<void> {
+    // Defensive: ensure 'disabled' field exists in DB
+    await this.updateUserProfile(userId, { disabled: true } as Partial<UserProfile>);
+  }
   private supabase = inject(SupabaseService);
   private loading = inject(LoadingService);
 
@@ -102,11 +102,14 @@ export class UserService {
       try {
         const { data, error } = await this.supabase
           .from('user_profiles')
-          .upsert({
-            user_id: userId,
-            ...profile,
-            updated_at: new Date().toISOString(),
-          }, { onConflict: 'user_id' })
+          .upsert(
+            {
+              user_id: userId,
+              ...profile,
+              updated_at: new Date().toISOString(),
+            },
+            { onConflict: 'user_id' },
+          )
           .select()
           .single();
 

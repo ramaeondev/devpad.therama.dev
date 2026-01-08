@@ -7,6 +7,7 @@ A complete root folder system that automatically creates a default "My Notes" fo
 ## 📋 Files Created/Modified
 
 ### New Files Created:
+
 1. ✅ `src/app/core/services/user.service.ts` - Manages user profiles and root folder flags
 2. ✅ `src/app/features/folders/services/folder.service.ts` - Comprehensive folder management
 3. ✅ `src/app/features/folders/components/folder-tree/folder-tree.component.ts` - Hierarchical folder display
@@ -17,6 +18,7 @@ A complete root folder system that automatically creates a default "My Notes" fo
 8. ✅ `FOLDER-USAGE-EXAMPLES.md` - Code examples
 
 ### Files Modified:
+
 1. ✅ `src/app/core/models/user.model.ts` - Added `UserProfile` interface
 2. ✅ `src/app/core/models/folder.model.ts` - Added `is_root` field
 3. ✅ `src/app/core/guards/auth.guard.ts` - Added folder initialization
@@ -26,6 +28,7 @@ A complete root folder system that automatically creates a default "My Notes" fo
 ## 🚀 Quick Start Steps
 
 ### 1. Set Up Database (5 minutes)
+
 ```bash
 # Open Supabase Dashboard → SQL Editor
 # Copy contents from: supabase-migration.sql
@@ -33,12 +36,15 @@ A complete root folder system that automatically creates a default "My Notes" fo
 ```
 
 ### 2. Verify Tables
+
 Check that these tables exist in Supabase:
+
 - ✅ `user_profiles` (newly created)
 - ✅ `folders` (with `is_root` column added)
 - ✅ `notes` (should already exist)
 
 ### 3. Test the Flow
+
 ```bash
 # Start your app
 npm start
@@ -55,23 +61,27 @@ npm start
 ## 🔑 Key Features
 
 ### Automatic Root Folder Creation
+
 - ✅ Created on first user authentication
 - ✅ Named "My Notes" with 📁 icon
 - ✅ Marked with `is_root: true` flag
 - ✅ Cannot be deleted (protection built-in)
 
 ### Prevention of Duplicates
+
 - ✅ `user_profiles.is_root_folder_created` flag tracks creation
 - ✅ Double-check in code before creating
 - ✅ Idempotent `initializeUserFolders()` method
 
 ### Folder Hierarchy Support
+
 - ✅ Parent-child relationships via `parent_id`
 - ✅ Tree structure with `getFolderTree()`
 - ✅ Recursive folder display component
 - ✅ Unlimited nesting depth
 
 ### User Experience
+
 - ✅ Seamless initialization during sign-in
 - ✅ No user action required
 - ✅ Errors don't block authentication
@@ -154,40 +164,43 @@ Allow access to protected route
 ## 🛠️ API Methods Available
 
 ### FolderService
+
 ```typescript
 // Main initialization method (call this!)
-folderService.initializeUserFolders(userId)
+folderService.initializeUserFolders(userId);
 
 // Get folder tree for display
-folderService.getFolderTree(userId)
+folderService.getFolderTree(userId);
 
 // CRUD operations
-folderService.createFolder(userId, dto)
-folderService.getFolder(folderId, userId)
-folderService.updateFolder(folderId, userId, dto)
-folderService.deleteFolder(folderId, userId) // Blocks root deletion
+folderService.createFolder(userId, dto);
+folderService.getFolder(folderId, userId);
+folderService.updateFolder(folderId, userId, dto);
+folderService.deleteFolder(folderId, userId); // Blocks root deletion
 
 // Helpers
-folderService.getRootFolder(userId)
-folderService.getChildFolders(parentId, userId)
-folderService.getFolders(userId) // Get all folders
+folderService.getRootFolder(userId);
+folderService.getChildFolders(parentId, userId);
+folderService.getFolders(userId); // Get all folders
 ```
 
 ### UserService
+
 ```typescript
 // Check root folder status
-userService.hasRootFolder(userId)
+userService.hasRootFolder(userId);
 
 // Profile management
-userService.getUserProfile(userId)
-userService.createUserProfile(userId)
-userService.updateUserProfile(userId, updates)
-userService.markRootFolderCreated(userId)
+userService.getUserProfile(userId);
+userService.createUserProfile(userId);
+userService.updateUserProfile(userId, updates);
+userService.markRootFolderCreated(userId);
 ```
 
 ## 🎨 UI Components Ready
 
 ### FolderTreeComponent
+
 ```typescript
 // Use in your sidebar or navigation
 <app-folder-tree
@@ -199,6 +212,7 @@ userService.markRootFolderCreated(userId)
 ```
 
 ### SidebarComponent
+
 ```typescript
 // Example sidebar implementation with folder tree
 <app-sidebar />
@@ -207,11 +221,13 @@ userService.markRootFolderCreated(userId)
 ## ✨ Next Steps
 
 ### Immediate (Required):
+
 1. ✅ Run database migration in Supabase
 2. ✅ Test with a new user signup/signin flow
 3. ✅ Verify root folder appears in database
 
 ### Optional Enhancements:
+
 - [ ] Add drag-and-drop folder reordering
 - [ ] Implement folder color picker
 - [ ] Add folder search/filter
@@ -225,23 +241,22 @@ userService.markRootFolderCreated(userId)
 ## 📝 Integration Points
 
 ### Integrate with Notes:
+
 ```typescript
 // When creating a note, assign to folder
 await supabase.from('notes').insert({
   title: 'My Note',
   content: 'Content here',
   folder_id: selectedFolderId,
-  user_id: userId
+  user_id: userId,
 });
 
 // Filter notes by folder
-const { data } = await supabase
-  .from('notes')
-  .select('*')
-  .eq('folder_id', folderId);
+const { data } = await supabase.from('notes').select('*').eq('folder_id', folderId);
 ```
 
 ### Integrate with Dashboard:
+
 ```typescript
 // In dashboard-home component
 async ngOnInit() {
@@ -253,25 +268,30 @@ async ngOnInit() {
 ## 🐛 Troubleshooting
 
 ### "Cannot read property 'id' of null"
+
 → User not authenticated. Check `authState.userId()`
 
 ### "permission denied for table folders"
+
 → RLS policies not set up. Run Supabase migration
 
 ### "Multiple root folders created"
+
 → Check `user_profiles` table. Clear duplicates:
+
 ```sql
-DELETE FROM folders 
-WHERE is_root = true 
+DELETE FROM folders
+WHERE is_root = true
   AND user_id = 'USER_ID'
   AND id NOT IN (
-    SELECT MIN(id) FROM folders 
-    WHERE is_root = true 
+    SELECT MIN(id) FROM folders
+    WHERE is_root = true
     GROUP BY user_id
   );
 ```
 
 ### "Root folder not appearing"
+
 → Check browser console for errors
 → Verify `initializeUserFolders()` is called
 → Check Supabase logs
@@ -279,6 +299,7 @@ WHERE is_root = true
 ## 📚 Documentation
 
 Detailed docs available in:
+
 - `ROOT-FOLDER-IMPLEMENTATION.md` - Full implementation details
 - `SUPABASE-SETUP.md` - Database setup guide
 - `FOLDER-USAGE-EXAMPLES.md` - Code examples
@@ -286,6 +307,7 @@ Detailed docs available in:
 ## ✅ Checklist
 
 Before deploying:
+
 - [ ] Database migration run successfully
 - [ ] `user_profiles` table exists
 - [ ] `folders.is_root` column added
@@ -300,6 +322,7 @@ Before deploying:
 ## 🎉 You're All Set!
 
 Your DevPad application now has:
+
 - ✅ Automatic root folder creation
 - ✅ Hierarchical folder organization
 - ✅ Protection against duplicates

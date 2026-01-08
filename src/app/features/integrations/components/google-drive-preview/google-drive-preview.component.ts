@@ -5,7 +5,6 @@ import { GoogleDriveFile } from '../../../../core/models/integration.model';
 import { RelativeTimeDirective, FileSizeDirective } from '../../../../shared/directives';
 import { getIconNameFromNameAndMime } from '../../../../shared/utils/file-type.util';
 
-
 @Component({
   selector: 'app-google-drive-preview',
   standalone: true,
@@ -13,9 +12,16 @@ import { getIconNameFromNameAndMime } from '../../../../shared/utils/file-type.u
   template: `
     <div class="google-drive-preview h-full flex flex-col bg-white dark:bg-gray-900">
       <!-- Header -->
-      <div class="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-800">
+      <div
+        class="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-800"
+      >
         <div class="flex items-center gap-3 flex-1">
-          <i class="fa-solid {{ getFileIconName(file) }} w-6 h-6 text-gray-600 dark:text-gray-300 flex-shrink-0" style="font-size:24px;"></i>
+          <i
+            class="fa-solid {{
+              getFileIconName(file)
+            }} w-6 h-6 text-gray-600 dark:text-gray-300 flex-shrink-0"
+            style="font-size:24px;"
+          ></i>
           <div class="flex-1">
             <h2 class="text-lg font-semibold text-gray-900 dark:text-white">
               {{ file.name }}
@@ -28,7 +34,7 @@ import { getIconNameFromNameAndMime } from '../../../../shared/utils/file-type.u
             </p>
           </div>
         </div>
-        
+
         <!-- Actions -->
         <div class="flex items-center gap-2">
           <button
@@ -51,7 +57,12 @@ import { getIconNameFromNameAndMime } from '../../../../shared/utils/file-type.u
         } @else {
           <div class="flex items-center justify-center h-full">
             <div class="text-center">
-              <i class="fa-solid {{ getFileIconName(file) }} w-16 h-16 mx-auto mb-4 text-gray-400 flex-shrink-0" style="font-size:64px;"></i>
+              <i
+                class="fa-solid {{
+                  getFileIconName(file)
+                }} w-16 h-16 mx-auto mb-4 text-gray-400 flex-shrink-0"
+                style="font-size:64px;"
+              ></i>
               <p class="text-gray-600 dark:text-gray-400">Preview not available</p>
             </div>
           </div>
@@ -59,12 +70,14 @@ import { getIconNameFromNameAndMime } from '../../../../shared/utils/file-type.u
       </div>
     </div>
   `,
-  styles: [`
-    :host {
-      display: block;
-      height: 100%;
-    }
-  `],
+  styles: [
+    `
+      :host {
+        display: block;
+        height: 100%;
+      }
+    `,
+  ],
 })
 export class GoogleDrivePreviewComponent {
   @Input() file!: GoogleDriveFile;
@@ -72,7 +85,6 @@ export class GoogleDrivePreviewComponent {
   @Output() onFileAction = new EventEmitter<{ action: string; file: GoogleDriveFile }>();
 
   private sanitizer = inject(DomSanitizer);
-
 
   get sanitizedUrl(): SafeResourceUrl {
     if (!this.file.webViewLink) return '';
@@ -82,5 +94,4 @@ export class GoogleDrivePreviewComponent {
   getFileIconName(file: GoogleDriveFile): string {
     return getIconNameFromNameAndMime(file?.name, file?.mimeType);
   }
-
 }

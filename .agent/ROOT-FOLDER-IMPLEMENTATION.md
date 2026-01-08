@@ -1,6 +1,7 @@
 # Root Folder Implementation Guide
 
 ## Overview
+
 This implementation adds automatic root folder creation for users when they first authenticate. The system uses a flag in the user profile to ensure a root folder is only created once per user.
 
 ## Database Changes
@@ -8,7 +9,9 @@ This implementation adds automatic root folder creation for users when they firs
 ### New Tables
 
 #### `user_profiles`
+
 Tracks user-specific settings and flags:
+
 - `id` (UUID, Primary Key)
 - `user_id` (UUID, References auth.users, Unique)
 - `is_root_folder_created` (Boolean) - Flag to track root folder creation
@@ -18,7 +21,9 @@ Tracks user-specific settings and flags:
 ### Updated Tables
 
 #### `folders`
+
 Added new column:
+
 - `is_root` (Boolean) - Identifies root folders
 
 ## Code Changes
@@ -26,15 +31,19 @@ Added new column:
 ### 1. Models Updated
 
 #### `src/app/core/models/user.model.ts`
+
 - Added `UserProfile` interface with `is_root_folder_created` flag
 
 #### `src/app/core/models/folder.model.ts`
+
 - Added `is_root: boolean` to `Folder` interface
 
 ### 2. New Services
 
 #### `src/app/core/services/user.service.ts`
+
 Handles user profile operations:
+
 - `getUserProfile(userId)` - Get or create user profile
 - `createUserProfile(userId)` - Create new profile
 - `updateUserProfile(userId, updates)` - Update profile
@@ -42,7 +51,9 @@ Handles user profile operations:
 - `hasRootFolder(userId)` - Check if root folder exists
 
 #### `src/app/features/folders/services/folder.service.ts`
+
 Handles all folder operations:
+
 - `createRootFolder(userId)` - Create root folder "My Notes"
 - `getRootFolder(userId)` - Get existing root folder
 - `initializeUserFolders(userId)` - Main initialization method
@@ -56,14 +67,17 @@ Handles all folder operations:
 ### 3. Updated Components & Guards
 
 #### `src/app/core/guards/auth.guard.ts`
+
 - Added folder initialization after successful authentication
 - Calls `folderService.initializeUserFolders()` when user is authenticated
 
 #### `src/app/features/auth/pages/signin/signin.component.ts`
+
 - Added folder initialization after successful sign-in
 - Ensures root folder is created before navigating to dashboard
 
 #### `src/app/features/auth/pages/signup/signup.component.ts`
+
 - Injected `FolderService` for future use (initialization happens on first login)
 
 ## How It Works
@@ -106,6 +120,7 @@ Run the provided SQL migration in your Supabase SQL Editor:
 ```
 
 This will:
+
 1. Create `user_profiles` table
 2. Add `is_root` column to `folders` table
 3. Set up RLS policies
@@ -116,7 +131,7 @@ This will:
 
 ### Safety Mechanisms
 
-1. **Double-check Prevention**: 
+1. **Double-check Prevention**:
    - Checks both `user_profiles.is_root_folder_created` flag
    - Queries for existing root folder before creating
 
@@ -134,11 +149,13 @@ This will:
 ### Folder Organization
 
 The root folder "My Notes" serves as:
+
 - Top-level container for all user folders
 - Starting point for folder tree structure
 - Parent folder (`parent_id: null`, `is_root: true`)
 
 Users can then create subfolders:
+
 ```
 📁 My Notes (Root)
   ├── 📁 Work
@@ -165,7 +182,7 @@ const tree = await folderService.getFolderTree(userId);
 await folderService.createFolder(userId, {
   name: 'Work',
   parent_id: rootFolderId,
-  icon: '💼'
+  icon: '💼',
 });
 
 // Get root folder
@@ -210,17 +227,20 @@ await userService.markRootFolderCreated(userId);
 ## Troubleshooting
 
 ### Root folder not appearing
+
 - Check Supabase logs for errors
 - Verify `user_profiles` table exists
 - Check RLS policies are enabled
 - Ensure `is_root` column exists in `folders` table
 
 ### Multiple root folders created
+
 - Check `user_profiles.is_root_folder_created` flag
 - Verify unique constraint on `user_id` in `user_profiles`
 - Review `initializeUserFolders()` logic
 
 ### Cannot create folders
+
 - Verify user is authenticated
 - Check Supabase RLS policies for `folders` table
 - Ensure foreign key constraints are valid
@@ -228,6 +248,7 @@ await userService.markRootFolderCreated(userId);
 ## Support
 
 For issues or questions, please check:
+
 1. Supabase dashboard for database errors
 2. Browser console for frontend errors
 3. Network tab for API request/response details

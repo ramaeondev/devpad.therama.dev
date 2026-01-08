@@ -32,8 +32,6 @@ export class GoogleDriveService {
     'https://www.googleapis.com/auth/userinfo.email',
   ].join(' ');
 
-
-
   /**
    * Initialize Google Drive OAuth
    */
@@ -126,10 +124,9 @@ export class GoogleDriveService {
       this.loading.start();
       const userId = this.auth.userId();
       // Call backend to exchange code for tokens
-      const data: any = await this.http.post(
-        `${environment.supabase.url}/functions/v1/google-exchange`,
-        { code, user_id: userId }
-      ).toPromise();
+      const data: any = await this.http
+        .post(`${environment.supabase.url}/functions/v1/google-exchange`, { code, user_id: userId })
+        .toPromise();
 
       if (!data?.access_token) {
         throw new Error('No access token returned from backend');
@@ -152,7 +149,7 @@ export class GoogleDriveService {
             email: data.email,
             updated_at: new Date().toISOString(),
           },
-          { onConflict: 'user_id,provider' }
+          { onConflict: 'user_id,provider' },
         )
         .select()
         .single();
@@ -170,7 +167,6 @@ export class GoogleDriveService {
       this.loading.stop();
     }
   }
-
 
   /**
    * Check existing connection
@@ -192,7 +188,7 @@ export class GoogleDriveService {
         // Do not attempt silent refresh — token remains stored server-side.
         this.integration.set(integration);
         this.isConnected.set(true);
-        
+
         // Load saved files from settings
         if (integration.settings?.selected_files) {
           const files = integration.settings.selected_files as GoogleDriveFile[];
@@ -215,11 +211,11 @@ export class GoogleDriveService {
     try {
       const userId = this.auth.userId();
       if (!userId) return;
-      
+
       const currentSettings = this.integration()?.settings || {};
       const newSettings = {
         ...currentSettings,
-        selected_files: files
+        selected_files: files,
       };
 
       const { error } = await this.supabase
@@ -229,9 +225,9 @@ export class GoogleDriveService {
         .eq('provider', 'google_drive');
 
       if (error) throw error;
-      
+
       console.log('💾 Saved', files.length, 'files to database');
-      
+
       // Update local state
       const current = this.integration();
       if (current) {
@@ -243,7 +239,7 @@ export class GoogleDriveService {
         action_type: ActivityAction.Upload, // Using 'upload' as a proxy for 'import' since 'import' isn't in ActionType yet, or I should check ActionType
         resource_type: ActivityResource.Integration,
         resource_name: `Imported ${files.length} files from Google Drive`,
-        metadata: { file_count: files.length, provider: 'google_drive' }
+        metadata: { file_count: files.length, provider: 'google_drive' },
       });
     } catch (error) {
       console.error('Failed to save selected files:', error);
@@ -320,7 +316,10 @@ export class GoogleDriveService {
   /**
    * Centralized Picker logic
    */
-  private async showPicker(type: 'files' | 'folder' | 'shared' | 'search' | 'docs', query?: string): Promise<void> {
+  private async showPicker(
+    type: 'files' | 'folder' | 'shared' | 'search' | 'docs',
+    query?: string,
+  ): Promise<void> {
     if (!this.pickerLoaded()) {
       await this.initGoogleAuth();
     }
@@ -337,24 +336,16 @@ export class GoogleDriveService {
     }
     switch (type) {
       case 'files':
-        view = new gPicker.DocsView()
-          .setIncludeFolders(true)
-          .setSelectFolderEnabled(false);
+        view = new gPicker.DocsView().setIncludeFolders(true).setSelectFolderEnabled(false);
         break;
       case 'folder':
-        view = new gPicker.DocsView()
-          .setIncludeFolders(true)
-          .setSelectFolderEnabled(true);
+        view = new gPicker.DocsView().setIncludeFolders(true).setSelectFolderEnabled(true);
         break;
       case 'shared':
-        view = new gPicker.DocsView()
-          .setIncludeFolders(true)
-          .setOwnedByMe(false);
+        view = new gPicker.DocsView().setIncludeFolders(true).setOwnedByMe(false);
         break;
       case 'search':
-        view = new gPicker.DocsView()
-          .setIncludeFolders(true)
-          .setQuery(query ?? '');
+        view = new gPicker.DocsView().setIncludeFolders(true).setQuery(query ?? '');
         break;
       case 'docs':
         view = new gPicker.DocsView()
@@ -387,7 +378,7 @@ export class GoogleDriveService {
           // Merge new selection with existing files, avoiding duplicates by id
           const existingFiles = this.files() ?? [];
           const mergedFilesMap = new Map<string, GoogleDriveFile>();
-          [...existingFiles, ...newFiles].forEach(file => {
+          [...existingFiles, ...newFiles].forEach((file) => {
             mergedFilesMap.set(file.id, file);
           });
           const mergedFiles = Array.from(mergedFilesMap.values());
@@ -468,11 +459,12 @@ export class GoogleDriveService {
       const formData = new FormData();
       formData.append(
         'metadata',
-        new Blob([JSON.stringify(metadata)], { type: 'application/json' })
+        new Blob([JSON.stringify(metadata)], { type: 'application/json' }),
       );
       formData.append('file', file);
 
-      const url = 'https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart&fields=id,name,mimeType,modifiedTime,size,webViewLink,iconLink,parents';
+      const url =
+        'https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart&fields=id,name,mimeType,modifiedTime,size,webViewLink,iconLink,parents';
 
       const response = await this.authFetch(url, { method: 'POST', body: formData }, true, true);
 
@@ -490,7 +482,7 @@ export class GoogleDriveService {
       };
 
       this.toast.success('File uploaded to Google Drive');
-      
+
       // Log activity
       const userId = this.auth.userId();
       if (userId) {
@@ -499,7 +491,7 @@ export class GoogleDriveService {
           resource_type: ActivityResource.Integration,
           resource_name: uploadedFile.name,
           resource_id: uploadedFile.id,
-          metadata: { provider: 'google_drive', mime_type: uploadedFile.mimeType }
+          metadata: { provider: 'google_drive', mime_type: uploadedFile.mimeType },
         });
       }
 
@@ -528,9 +520,12 @@ export class GoogleDriveService {
 
       // Check if it's a Google Workspace file that needs to be exported
       const exportMapping: Record<string, string> = {
-        'application/vnd.google-apps.document': 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', // .docx
-        'application/vnd.google-apps.spreadsheet': 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', // .xlsx
-        'application/vnd.google-apps.presentation': 'application/vnd.openxmlformats-officedocument.presentationml.presentation', // .pptx
+        'application/vnd.google-apps.document':
+          'application/vnd.openxmlformats-officedocument.wordprocessingml.document', // .docx
+        'application/vnd.google-apps.spreadsheet':
+          'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', // .xlsx
+        'application/vnd.google-apps.presentation':
+          'application/vnd.openxmlformats-officedocument.presentationml.presentation', // .pptx
         'application/vnd.google-apps.drawing': 'image/png',
         'application/vnd.google-apps.script': 'application/vnd.google-apps.script+json',
       };
@@ -548,7 +543,9 @@ export class GoogleDriveService {
 
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}));
-        throw new Error(`Download failed: ${response.status} ${response.statusText} - ${JSON.stringify(errorData)}`);
+        throw new Error(
+          `Download failed: ${response.status} ${response.statusText} - ${JSON.stringify(errorData)}`,
+        );
       }
 
       return await response.blob();
@@ -575,10 +572,10 @@ export class GoogleDriveService {
       }
 
       this.toast.success('File deleted from Google Drive');
-      
+
       // Update local state and save
       const currentFiles = this.files();
-      const newFiles = currentFiles.filter(f => f.id !== fileId);
+      const newFiles = currentFiles.filter((f) => f.id !== fileId);
       this.files.set(newFiles);
       this.buildFolderTree(newFiles);
       this.saveSelectedFiles(newFiles);
@@ -591,7 +588,7 @@ export class GoogleDriveService {
           resource_type: ActivityResource.Integration,
           resource_name: 'Google Drive File',
           resource_id: fileId,
-          metadata: { provider: 'google_drive' }
+          metadata: { provider: 'google_drive' },
         });
       }
 
@@ -624,7 +621,11 @@ export class GoogleDriveService {
       };
 
       const url = 'https://www.googleapis.com/drive/v3/files';
-      const response = await this.authFetch(url, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(metadata) });
+      const response = await this.authFetch(url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(metadata),
+      });
 
       if (!response.ok) {
         throw new Error(`Create folder failed: ${response.status} ${response.statusText}`);
@@ -641,7 +642,7 @@ export class GoogleDriveService {
       };
 
       this.toast.success('Folder created in Google Drive');
-      
+
       // Log activity
       const userId = this.auth.userId();
       if (userId) {
@@ -650,7 +651,7 @@ export class GoogleDriveService {
           resource_type: ActivityResource.Integration,
           resource_name: folder.name,
           resource_id: folder.id,
-          metadata: { provider: 'google_drive', is_folder: true }
+          metadata: { provider: 'google_drive', is_folder: true },
         });
       }
 
@@ -672,14 +673,18 @@ export class GoogleDriveService {
     try {
       this.loading.start();
       const url = `https://www.googleapis.com/drive/v3/files/${fileId}`;
-      const response = await this.authFetch(url, { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ name: newName }) });
+      const response = await this.authFetch(url, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name: newName }),
+      });
 
       if (!response.ok) {
         throw new Error(`Rename failed: ${response.status} ${response.statusText}`);
       }
 
       this.toast.success('File renamed successfully');
-      
+
       // Log activity
       const userId = this.auth.userId();
       if (userId) {
@@ -688,7 +693,7 @@ export class GoogleDriveService {
           resource_type: ActivityResource.Integration,
           resource_name: newName,
           resource_id: fileId,
-          metadata: { provider: 'google_drive', action: 'rename' }
+          metadata: { provider: 'google_drive', action: 'rename' },
         });
       }
 
@@ -714,7 +719,12 @@ export class GoogleDriveService {
   // Token refresh intentionally removed: access tokens are persisted in Supabase
 
   // Helper: centralized fetch with token handling and server-side refresh
-  private async authFetch(url: string, options: RequestInit = {}, allowMultipart = false, skipJsonHeaders = false): Promise<Response> {
+  private async authFetch(
+    url: string,
+    options: RequestInit = {},
+    allowMultipart = false,
+    skipJsonHeaders = false,
+  ): Promise<Response> {
     const integration = this.integration?.();
     const accessToken = integration?.access_token;
 
@@ -753,15 +763,18 @@ export class GoogleDriveService {
     try {
       const userId = this.auth.userId();
       // Call Supabase Edge Function for token refresh
-      const data: any = await this.http.post(
-        `${environment.supabase.url}/functions/v1/google-refresh`,
-        { user_id: userId }
-      ).toPromise();
+      const data: any = await this.http
+        .post(`${environment.supabase.url}/functions/v1/google-refresh`, { user_id: userId })
+        .toPromise();
 
       if (data?.access_token) {
         // Update local integration state
-        const current = this.integration ? this.integration() ?? {} : {};
-        this.integration.set({ ...current, access_token: data.access_token, expires_at: data.expires_at } as Integration);
+        const current = this.integration ? (this.integration() ?? {}) : {};
+        this.integration.set({
+          ...current,
+          access_token: data.access_token,
+          expires_at: data.expires_at,
+        } as Integration);
         this.isConnected.set(true);
         this.toast.success('Google Drive session refreshed');
         return true;
@@ -774,5 +787,3 @@ export class GoogleDriveService {
     }
   }
 }
-
-

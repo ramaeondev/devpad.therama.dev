@@ -7,12 +7,14 @@ This application now integrates **FingerprintJS** to track and manage user devic
 ## Features
 
 ### 🔐 Security
+
 - Track all devices where a user is logged in
 - Detect suspicious logins from new devices
 - Allow users to trust specific devices
 - Remote device session management
 
 ### 📱 Device Management
+
 - Automatic device detection (mobile, tablet, desktop)
 - Browser and OS identification
 - Device naming and customization
@@ -20,6 +22,7 @@ This application now integrates **FingerprintJS** to track and manage user devic
 - Current device highlighting
 
 ### 🎯 Use Cases
+
 1. **Security Monitoring**: Alert users when logging in from a new device
 2. **Session Management**: View and revoke access from specific devices
 3. **Device Trust**: Mark frequently used devices as trusted
@@ -33,11 +36,11 @@ This application now integrates **FingerprintJS** to track and manage user devic
 CREATE TABLE user_devices (
   id UUID PRIMARY KEY,
   user_id UUID NOT NULL REFERENCES auth.users(id),
-  
+
   -- Fingerprint
   fingerprint_id TEXT NOT NULL,
   visitor_id TEXT,
-  
+
   -- Device Info
   device_name TEXT,
   device_type TEXT,  -- mobile, tablet, desktop
@@ -45,28 +48,28 @@ CREATE TABLE user_devices (
   browser_version TEXT,
   os_name TEXT,
   os_version TEXT,
-  
+
   -- Location (optional)
   ip_address INET,
   country TEXT,
   city TEXT,
-  
+
   -- Session
   first_seen_at TIMESTAMP,
   last_seen_at TIMESTAMP,
   last_login_at TIMESTAMP,
-  
+
   -- Security
   is_trusted BOOLEAN DEFAULT false,
   is_current BOOLEAN DEFAULT false,
-  
+
   -- Metadata
   user_agent TEXT,
   additional_data JSONB,
-  
+
   created_at TIMESTAMP,
   updated_at TIMESTAMP,
-  
+
   UNIQUE(user_id, fingerprint_id)
 );
 ```
@@ -113,7 +116,7 @@ import { DeviceFingerprintService } from '@core/services/device-fingerprint.serv
 
 export class MyComponent {
   private deviceService = inject(DeviceFingerprintService);
-  
+
   async checkDevice() {
     const fingerprint = await this.deviceService.getDeviceFingerprint();
     console.log('Device fingerprint:', fingerprint);
@@ -127,7 +130,7 @@ export class MyComponent {
 async onLogin(userId: string) {
   // Automatically registers or updates device
   const device = await this.deviceService.registerDevice(userId);
-  
+
   if (device && !device.is_trusted) {
     // Show "New device detected" warning
     this.showNewDeviceWarning();
@@ -149,7 +152,7 @@ async loadDevices(userId: string) {
 ```typescript
 async checkTrust(userId: string) {
   const isTrusted = await this.deviceService.isCurrentDeviceTrusted(userId);
-  
+
   if (!isTrusted) {
     // Require additional verification
     this.requireTwoFactorAuth();
@@ -188,7 +191,7 @@ import { UserDevicesComponent } from '@shared/components/user-devices/user-devic
     <div class="settings-section">
       <app-user-devices></app-user-devices>
     </div>
-  `
+  `,
 })
 export class SettingsComponent {}
 ```
@@ -238,7 +241,7 @@ console.log(deviceInfo);
 
 ```typescript
 // Update device name
-await this.deviceService.updateDeviceName(deviceId, "My MacBook Pro");
+await this.deviceService.updateDeviceName(deviceId, 'My MacBook Pro');
 ```
 
 ### 4. Get Current Device
@@ -261,11 +264,11 @@ Notify users when they log in from a new device:
 ```typescript
 async onLogin(userId: string) {
   const device = await this.deviceService.registerDevice(userId);
-  
+
   if (device && !device.is_trusted) {
     // Send email notification
     await this.emailService.sendNewDeviceAlert(userId, device);
-    
+
     // Show in-app notification
     this.toast.warning('New device detected. Please verify this login.');
   }
@@ -277,11 +280,11 @@ async onLogin(userId: string) {
 ```typescript
 async performSensitiveAction(userId: string) {
   const isTrusted = await this.deviceService.isCurrentDeviceTrusted(userId);
-  
+
   if (!isTrusted) {
     throw new Error('This action requires a trusted device');
   }
-  
+
   // Proceed with sensitive action
 }
 ```
@@ -304,11 +307,11 @@ Implement a maximum device limit:
 ```typescript
 async registerDevice(userId: string) {
   const devices = await this.getUserDevices(userId);
-  
+
   if (devices.length >= MAX_DEVICES_PER_USER) {
     throw new Error('Maximum device limit reached. Please remove an old device.');
   }
-  
+
   // Register new device
 }
 ```
@@ -317,23 +320,24 @@ async registerDevice(userId: string) {
 
 ### DeviceFingerprintService Methods
 
-| Method | Description | Returns |
-|--------|-------------|---------|
-| `getDeviceFingerprint()` | Get unique device fingerprint | `Promise<string>` |
-| `getDeviceInfo()` | Get detailed device information | `Promise<DeviceInfo>` |
-| `registerDevice(userId, deviceInfo?)` | Register or update device | `Promise<UserDevice \| null>` |
-| `getUserDevices(userId)` | Get all user devices | `Promise<UserDevice[]>` |
-| `getCurrentDevice(userId)` | Get current device | `Promise<UserDevice \| null>` |
-| `trustDevice(deviceId)` | Mark device as trusted | `Promise<boolean>` |
-| `removeDevice(deviceId)` | Remove device | `Promise<boolean>` |
-| `updateDeviceName(deviceId, name)` | Update device name | `Promise<boolean>` |
-| `isCurrentDeviceTrusted(userId)` | Check if current device is trusted | `Promise<boolean>` |
+| Method                                | Description                        | Returns                       |
+| ------------------------------------- | ---------------------------------- | ----------------------------- |
+| `getDeviceFingerprint()`              | Get unique device fingerprint      | `Promise<string>`             |
+| `getDeviceInfo()`                     | Get detailed device information    | `Promise<DeviceInfo>`         |
+| `registerDevice(userId, deviceInfo?)` | Register or update device          | `Promise<UserDevice \| null>` |
+| `getUserDevices(userId)`              | Get all user devices               | `Promise<UserDevice[]>`       |
+| `getCurrentDevice(userId)`            | Get current device                 | `Promise<UserDevice \| null>` |
+| `trustDevice(deviceId)`               | Mark device as trusted             | `Promise<boolean>`            |
+| `removeDevice(deviceId)`              | Remove device                      | `Promise<boolean>`            |
+| `updateDeviceName(deviceId, name)`    | Update device name                 | `Promise<boolean>`            |
+| `isCurrentDeviceTrusted(userId)`      | Check if current device is trusted | `Promise<boolean>`            |
 
 ## Troubleshooting
 
 ### Issue: Fingerprint changes on browser updates
 
 **Solution**: FingerprintJS generates stable fingerprints, but major browser updates might change them. Consider:
+
 - Using FingerprintJS Pro for more stable fingerprints
 - Implementing a grace period for fingerprint changes
 - Allowing users to re-verify their device
@@ -344,7 +348,8 @@ async registerDevice(userId: string) {
 
 ### Issue: Privacy concerns
 
-**Solution**: 
+**Solution**:
+
 - Be transparent in your Privacy Policy
 - Allow users to opt out of device tracking
 - Only collect necessary device information
@@ -378,6 +383,7 @@ Consider implementing:
 ## Support
 
 For issues or questions:
+
 1. Check the device fingerprint service logs
 2. Verify the database migration was successful
 3. Ensure FingerprintJS is properly loaded
