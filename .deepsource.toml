@@ -1,0 +1,17 @@
+version = 1
+
+[[analyzers]]
+name = "javascript"
+
+  [analyzers.meta]
+  plugins = ["angular"]
+  environment = [
+    "nodejs",
+    "jest"
+  ]
+
+[[code_formatters]]
+name = "prettier"
+
+[[code_formatters]]
+name = "standardjs"
