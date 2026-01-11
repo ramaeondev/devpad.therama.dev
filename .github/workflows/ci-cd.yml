@@ -13,14 +13,13 @@ on:
       - master
   workflow_dispatch: 
 
-permissions:
-  contents: read
-  checks: write
-  pull-requests: write
-
 jobs:
   unit-tests:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      checks: write
+      pull-requests: write
     steps:
       - uses: actions/checkout@v4
       - name: Use Node.js
