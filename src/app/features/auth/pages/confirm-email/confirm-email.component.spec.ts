@@ -4,7 +4,9 @@ import { RouterTestingModule } from '@angular/router/testing';
 
 describe('ConfirmEmailComponent', () => {
   it('displays provided email', async () => {
-    await TestBed.configureTestingModule({ imports: [ConfirmEmailComponent, RouterTestingModule] }).compileComponents();
+    await TestBed.configureTestingModule({
+      imports: [ConfirmEmailComponent, RouterTestingModule],
+    }).compileComponents();
     const fixture = TestBed.createComponent(ConfirmEmailComponent);
     const comp = fixture.componentInstance;
     fixture.detectChanges();

@@ -2,17 +2,42 @@ import { TestBed } from '@angular/core/testing';
 import { ShareNoteModalComponent } from './share-note-modal.component';
 
 class MockShare {
-  generateShareUrl(t: string) { return `https://share/${t}` }
-  async getSharesForNote(_id: string) { return []; }
-  async createShare() { return { id: 's1', share_token: 't1', permission: 'readonly' } }
-  async updatePublicShare() { return {} }
-  async deleteShare() { return {} }
+  generateShareUrl(t: string) {
+    return `https://share/${t}`;
+  }
+  async getSharesForNote(_id: string) {
+    return [];
+  }
+  async createShare() {
+    return { id: 's1', share_token: 't1', permission: 'readonly' };
+  }
+  async updatePublicShare() {
+    return {};
+  }
+  async deleteShare() {
+    return {};
+  }
 }
-class MockToast { success = jest.fn(); error = jest.fn(); }
+class MockToast {
+  success = jest.fn();
+  error = jest.fn();
+}
 
 describe('ShareNoteModalComponent', () => {
   it('ngOnInit returns early when no note', async () => {
-    await TestBed.configureTestingModule({ imports: [ShareNoteModalComponent], providers: [ { provide: (await import('../../../../core/services/share.service')).ShareService, useClass: MockShare }, { provide: (await import('../../../../core/services/toast.service')).ToastService, useClass: MockToast } ] }).compileComponents();
+    await TestBed.configureTestingModule({
+      imports: [ShareNoteModalComponent],
+      providers: [
+        {
+          provide: (await import('../../../../core/services/share.service')).ShareService,
+          useClass: MockShare,
+        },
+        {
+          provide: (await import('../../../../core/services/toast.service')).ToastService,
+          useClass: MockToast,
+        },
+      ],
+    }).compileComponents();
     const fixture = TestBed.createComponent(ShareNoteModalComponent);
     const comp = fixture.componentInstance;
     comp.note = undefined as any;
@@ -22,9 +47,23 @@ describe('ShareNoteModalComponent', () => {
 
   it('ngOnInit loads existing share and parses expiry/maxViews', async () => {
     const mock = new MockShare();
-    mock.getSharesForNote = jest.fn().mockResolvedValue([{ id: 's2', share_token: 'tok', permission: 'editable', max_views: 1 }]);
+    mock.getSharesForNote = jest
+      .fn()
+      .mockResolvedValue([{ id: 's2', share_token: 'tok', permission: 'editable', max_views: 1 }]);
 
-    await TestBed.configureTestingModule({ imports: [ShareNoteModalComponent], providers: [ { provide: (await import('../../../../core/services/share.service')).ShareService, useValue: mock }, { provide: (await import('../../../../core/services/toast.service')).ToastService, useClass: MockToast } ] }).compileComponents();
+    await TestBed.configureTestingModule({
+      imports: [ShareNoteModalComponent],
+      providers: [
+        {
+          provide: (await import('../../../../core/services/share.service')).ShareService,
+          useValue: mock,
+        },
+        {
+          provide: (await import('../../../../core/services/toast.service')).ToastService,
+          useClass: MockToast,
+        },
+      ],
+    }).compileComponents();
     const fixture = TestBed.createComponent(ShareNoteModalComponent);
     const comp = fixture.componentInstance;
     comp.note = { id: 'n1' } as any;
@@ -39,10 +78,24 @@ describe('ShareNoteModalComponent', () => {
 
   it('createShare calls service and emits shared & shows toast on success', async () => {
     const mock = new MockShare();
-    mock.createShare = jest.fn().mockResolvedValue({ id: 's3', share_token: 't3', permission: 'readonly' });
+    mock.createShare = jest
+      .fn()
+      .mockResolvedValue({ id: 's3', share_token: 't3', permission: 'readonly' });
     const toast = new MockToast();
 
-    await TestBed.configureTestingModule({ imports: [ShareNoteModalComponent], providers: [ { provide: (await import('../../../../core/services/share.service')).ShareService, useValue: mock }, { provide: (await import('../../../../core/services/toast.service')).ToastService, useValue: toast } ] }).compileComponents();
+    await TestBed.configureTestingModule({
+      imports: [ShareNoteModalComponent],
+      providers: [
+        {
+          provide: (await import('../../../../core/services/share.service')).ShareService,
+          useValue: mock,
+        },
+        {
+          provide: (await import('../../../../core/services/toast.service')).ToastService,
+          useValue: toast,
+        },
+      ],
+    }).compileComponents();
     const fixture = TestBed.createComponent(ShareNoteModalComponent);
     const comp = fixture.componentInstance;
     comp.note = { id: 'n1', title: 'T' } as any;
@@ -63,7 +116,19 @@ describe('ShareNoteModalComponent', () => {
     mock.createShare = jest.fn().mockRejectedValue(err);
     const toast = new MockToast();
 
-    await TestBed.configureTestingModule({ imports: [ShareNoteModalComponent], providers: [ { provide: (await import('../../../../core/services/share.service')).ShareService, useValue: mock }, { provide: (await import('../../../../core/services/toast.service')).ToastService, useValue: toast } ] }).compileComponents();
+    await TestBed.configureTestingModule({
+      imports: [ShareNoteModalComponent],
+      providers: [
+        {
+          provide: (await import('../../../../core/services/share.service')).ShareService,
+          useValue: mock,
+        },
+        {
+          provide: (await import('../../../../core/services/toast.service')).ToastService,
+          useValue: toast,
+        },
+      ],
+    }).compileComponents();
     const fixture = TestBed.createComponent(ShareNoteModalComponent);
     const comp = fixture.componentInstance;
     comp.note = { id: 'n1' } as any;
@@ -78,7 +143,19 @@ describe('ShareNoteModalComponent', () => {
     mock.updatePublicShare = jest.fn().mockResolvedValue({});
     const toast = new MockToast();
 
-    await TestBed.configureTestingModule({ imports: [ShareNoteModalComponent], providers: [ { provide: (await import('../../../../core/services/share.service')).ShareService, useValue: mock }, { provide: (await import('../../../../core/services/toast.service')).ToastService, useValue: toast } ] }).compileComponents();
+    await TestBed.configureTestingModule({
+      imports: [ShareNoteModalComponent],
+      providers: [
+        {
+          provide: (await import('../../../../core/services/share.service')).ShareService,
+          useValue: mock,
+        },
+        {
+          provide: (await import('../../../../core/services/toast.service')).ToastService,
+          useValue: toast,
+        },
+      ],
+    }).compileComponents();
     const fixture = TestBed.createComponent(ShareNoteModalComponent);
     const comp = fixture.componentInstance;
     comp.existingShare.set({ id: 's4', permission: 'readonly' } as any);
@@ -95,7 +172,19 @@ describe('ShareNoteModalComponent', () => {
     mock.updatePublicShare = jest.fn().mockRejectedValue(new Error('nope'));
     const toast = new MockToast();
 
-    await TestBed.configureTestingModule({ imports: [ShareNoteModalComponent], providers: [ { provide: (await import('../../../../core/services/share.service')).ShareService, useValue: mock }, { provide: (await import('../../../../core/services/toast.service')).ToastService, useValue: toast } ] }).compileComponents();
+    await TestBed.configureTestingModule({
+      imports: [ShareNoteModalComponent],
+      providers: [
+        {
+          provide: (await import('../../../../core/services/share.service')).ShareService,
+          useValue: mock,
+        },
+        {
+          provide: (await import('../../../../core/services/toast.service')).ToastService,
+          useValue: toast,
+        },
+      ],
+    }).compileComponents();
     const fixture = TestBed.createComponent(ShareNoteModalComponent);
     const comp = fixture.componentInstance;
     comp.existingShare.set({ id: 's4', permission: 'readonly' } as any);
@@ -110,7 +199,19 @@ describe('ShareNoteModalComponent', () => {
     mock.deleteShare = jest.fn().mockResolvedValue({});
     const toast = new MockToast();
 
-    await TestBed.configureTestingModule({ imports: [ShareNoteModalComponent], providers: [ { provide: (await import('../../../../core/services/share.service')).ShareService, useValue: mock }, { provide: (await import('../../../../core/services/toast.service')).ToastService, useValue: toast } ] }).compileComponents();
+    await TestBed.configureTestingModule({
+      imports: [ShareNoteModalComponent],
+      providers: [
+        {
+          provide: (await import('../../../../core/services/share.service')).ShareService,
+          useValue: mock,
+        },
+        {
+          provide: (await import('../../../../core/services/toast.service')).ToastService,
+          useValue: toast,
+        },
+      ],
+    }).compileComponents();
     const fixture = TestBed.createComponent(ShareNoteModalComponent);
     const comp = fixture.componentInstance;
     comp.existingShare.set({ id: 's5' } as any);
@@ -130,7 +231,19 @@ describe('ShareNoteModalComponent', () => {
     mock.deleteShare = jest.fn().mockRejectedValue(new Error('err'));
     const toast = new MockToast();
 
-    await TestBed.configureTestingModule({ imports: [ShareNoteModalComponent], providers: [ { provide: (await import('../../../../core/services/share.service')).ShareService, useValue: mock }, { provide: (await import('../../../../core/services/toast.service')).ToastService, useValue: toast } ] }).compileComponents();
+    await TestBed.configureTestingModule({
+      imports: [ShareNoteModalComponent],
+      providers: [
+        {
+          provide: (await import('../../../../core/services/share.service')).ShareService,
+          useValue: mock,
+        },
+        {
+          provide: (await import('../../../../core/services/toast.service')).ToastService,
+          useValue: toast,
+        },
+      ],
+    }).compileComponents();
     const fixture = TestBed.createComponent(ShareNoteModalComponent);
     const comp = fixture.componentInstance;
     comp.existingShare.set({ id: 's5' } as any);
@@ -145,7 +258,19 @@ describe('ShareNoteModalComponent', () => {
     const mock = new MockShare();
     const toast = new MockToast();
 
-    await TestBed.configureTestingModule({ imports: [ShareNoteModalComponent], providers: [ { provide: (await import('../../../../core/services/share.service')).ShareService, useValue: mock }, { provide: (await import('../../../../core/services/toast.service')).ToastService, useValue: toast } ] }).compileComponents();
+    await TestBed.configureTestingModule({
+      imports: [ShareNoteModalComponent],
+      providers: [
+        {
+          provide: (await import('../../../../core/services/share.service')).ShareService,
+          useValue: mock,
+        },
+        {
+          provide: (await import('../../../../core/services/toast.service')).ToastService,
+          useValue: toast,
+        },
+      ],
+    }).compileComponents();
     const fixture = TestBed.createComponent(ShareNoteModalComponent);
     const comp = fixture.componentInstance;
     comp.existingShare.set({ id: 's1', share_token: 'tok' } as any);
@@ -166,7 +291,19 @@ describe('ShareNoteModalComponent', () => {
 
   it('shareVia helpers call window.open with expected url fragments', async () => {
     const mock = new MockShare();
-    await TestBed.configureTestingModule({ imports: [ShareNoteModalComponent], providers: [ { provide: (await import('../../../../core/services/share.service')).ShareService, useValue: mock }, { provide: (await import('../../../../core/services/toast.service')).ToastService, useClass: MockToast } ] }).compileComponents();
+    await TestBed.configureTestingModule({
+      imports: [ShareNoteModalComponent],
+      providers: [
+        {
+          provide: (await import('../../../../core/services/share.service')).ShareService,
+          useValue: mock,
+        },
+        {
+          provide: (await import('../../../../core/services/toast.service')).ToastService,
+          useClass: MockToast,
+        },
+      ],
+    }).compileComponents();
     const fixture = TestBed.createComponent(ShareNoteModalComponent);
     const comp = fixture.componentInstance;
     comp.note = { id: 'n1', title: 'Hello' } as any;
@@ -178,15 +315,33 @@ describe('ShareNoteModalComponent', () => {
     expect((window as any).open).toHaveBeenCalledWith(expect.stringContaining('wa.me'), '_blank');
 
     comp.shareViaTwitter();
-    expect((window as any).open).toHaveBeenCalledWith(expect.stringContaining('twitter.com'), '_blank');
+    expect((window as any).open).toHaveBeenCalledWith(
+      expect.stringContaining('twitter.com'),
+      '_blank',
+    );
 
     comp.shareViaFacebook();
-    expect((window as any).open).toHaveBeenCalledWith(expect.stringContaining('facebook.com'), '_blank');
+    expect((window as any).open).toHaveBeenCalledWith(
+      expect.stringContaining('facebook.com'),
+      '_blank',
+    );
   });
 
   it('shareUrl returns generated share url', async () => {
     const mock = new MockShare();
-    await TestBed.configureTestingModule({ imports: [ShareNoteModalComponent], providers: [ { provide: (await import('../../../../core/services/share.service')).ShareService, useValue: mock }, { provide: (await import('../../../../core/services/toast.service')).ToastService, useClass: MockToast } ] }).compileComponents();
+    await TestBed.configureTestingModule({
+      imports: [ShareNoteModalComponent],
+      providers: [
+        {
+          provide: (await import('../../../../core/services/share.service')).ShareService,
+          useValue: mock,
+        },
+        {
+          provide: (await import('../../../../core/services/toast.service')).ToastService,
+          useClass: MockToast,
+        },
+      ],
+    }).compileComponents();
     const fixture = TestBed.createComponent(ShareNoteModalComponent);
     const comp = fixture.componentInstance;
     comp.existingShare.set({ id: 's1', share_token: 'abc' } as any);
@@ -199,7 +354,19 @@ describe('ShareNoteModalComponent', () => {
     mock.createShare = jest.fn().mockResolvedValue({ id: 's9', share_token: 't9' });
     const toast = new MockToast();
 
-    await TestBed.configureTestingModule({ imports: [ShareNoteModalComponent], providers: [ { provide: (await import('../../../../core/services/share.service')).ShareService, useValue: mock }, { provide: (await import('../../../../core/services/toast.service')).ToastService, useValue: toast } ] }).compileComponents();
+    await TestBed.configureTestingModule({
+      imports: [ShareNoteModalComponent],
+      providers: [
+        {
+          provide: (await import('../../../../core/services/share.service')).ShareService,
+          useValue: mock,
+        },
+        {
+          provide: (await import('../../../../core/services/toast.service')).ToastService,
+          useValue: toast,
+        },
+      ],
+    }).compileComponents();
     const fixture = TestBed.createComponent(ShareNoteModalComponent);
     const comp = fixture.componentInstance;
     comp.note = { id: 'n1' } as any;
@@ -214,14 +381,38 @@ describe('ShareNoteModalComponent', () => {
     comp.selectedExpiry.set('custom');
     comp.customExpiryDate.set('2026-01-09T12:00');
     await comp.createShare();
-    expect(mock.createShare).toHaveBeenCalledWith('n1', comp.permission, new Date('2026-01-09T12:00').toISOString(), null);
+    expect(mock.createShare).toHaveBeenCalledWith(
+      'n1',
+      comp.permission,
+      new Date('2026-01-09T12:00').toISOString(),
+      null,
+    );
   });
 
   it('ngOnInit sets custom expiry date when share has expires_at', async () => {
     const mock = new MockShare();
-    mock.getSharesForNote = jest.fn().mockResolvedValue([{ id: 's7', share_token: 't7', permission: 'readonly', expires_at: '2026-01-09T12:00:00.000Z' }]);
+    mock.getSharesForNote = jest.fn().mockResolvedValue([
+      {
+        id: 's7',
+        share_token: 't7',
+        permission: 'readonly',
+        expires_at: '2026-01-09T12:00:00.000Z',
+      },
+    ]);
 
-    await TestBed.configureTestingModule({ imports: [ShareNoteModalComponent], providers: [ { provide: (await import('../../../../core/services/share.service')).ShareService, useValue: mock }, { provide: (await import('../../../../core/services/toast.service')).ToastService, useClass: MockToast } ] }).compileComponents();
+    await TestBed.configureTestingModule({
+      imports: [ShareNoteModalComponent],
+      providers: [
+        {
+          provide: (await import('../../../../core/services/share.service')).ShareService,
+          useValue: mock,
+        },
+        {
+          provide: (await import('../../../../core/services/toast.service')).ToastService,
+          useClass: MockToast,
+        },
+      ],
+    }).compileComponents();
     const fixture = TestBed.createComponent(ShareNoteModalComponent);
     const comp = fixture.componentInstance;
     comp.note = { id: 'n2' } as any;
@@ -236,7 +427,19 @@ describe('ShareNoteModalComponent', () => {
     const mock = new MockShare();
     const toast = new MockToast();
 
-    await TestBed.configureTestingModule({ imports: [ShareNoteModalComponent], providers: [ { provide: (await import('../../../../core/services/share.service')).ShareService, useValue: mock }, { provide: (await import('../../../../core/services/toast.service')).ToastService, useValue: toast } ] }).compileComponents();
+    await TestBed.configureTestingModule({
+      imports: [ShareNoteModalComponent],
+      providers: [
+        {
+          provide: (await import('../../../../core/services/share.service')).ShareService,
+          useValue: mock,
+        },
+        {
+          provide: (await import('../../../../core/services/toast.service')).ToastService,
+          useValue: toast,
+        },
+      ],
+    }).compileComponents();
     const fixture = TestBed.createComponent(ShareNoteModalComponent);
     const comp = fixture.componentInstance;
     comp.existingShare.set({ id: 's1', share_token: 'tok' } as any);
@@ -246,11 +449,25 @@ describe('ShareNoteModalComponent', () => {
     comp.copyForInstagram();
     await Promise.resolve();
 
-    expect(toast.success).toHaveBeenCalledWith('Link copied! Paste it in your Instagram bio or story.');
+    expect(toast.success).toHaveBeenCalledWith(
+      'Link copied! Paste it in your Instagram bio or story.',
+    );
   });
 
   it('onOverlayClick emits cancel only when clicking overlay', async () => {
-    await TestBed.configureTestingModule({ imports: [ShareNoteModalComponent], providers: [ { provide: (await import('../../../../core/services/share.service')).ShareService, useClass: MockShare }, { provide: (await import('../../../../core/services/toast.service')).ToastService, useClass: MockToast } ] }).compileComponents();
+    await TestBed.configureTestingModule({
+      imports: [ShareNoteModalComponent],
+      providers: [
+        {
+          provide: (await import('../../../../core/services/share.service')).ShareService,
+          useClass: MockShare,
+        },
+        {
+          provide: (await import('../../../../core/services/toast.service')).ToastService,
+          useClass: MockToast,
+        },
+      ],
+    }).compileComponents();
     const fixture = TestBed.createComponent(ShareNoteModalComponent);
     const comp = fixture.componentInstance;
 

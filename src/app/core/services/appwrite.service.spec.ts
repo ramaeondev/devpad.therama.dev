@@ -3,7 +3,7 @@ import { AppwriteService } from './appwrite.service';
 import { Databases } from 'appwrite';
 
 const makeDatabasesMock = () => ({
-  listDocuments: jest.fn()
+  listDocuments: jest.fn(),
 });
 
 describe('AppwriteService', () => {
@@ -42,8 +42,8 @@ describe('AppwriteService', () => {
   it('getChangelogs paginates and sorts', async () => {
     // Simulate a full first page (perPage=100) and a second short page so the loop continues
     const many = new Array(99).fill({ date: '2023-12-31', changes: 'X' });
-    const docsPage1 = { documents: [ { date: '2024-01-02', changes: 'B' }, ...many ] };
-    const docsPage2 = { documents: [ { date: '2024-01-01', changes: 'A' } ] };
+    const docsPage1 = { documents: [{ date: '2024-01-02', changes: 'B' }, ...many] };
+    const docsPage2 = { documents: [{ date: '2024-01-01', changes: 'A' }] };
     // first call returns page1 (100 items), second call returns page2 (1 item), third returns empty
     mockDatabases.listDocuments
       .mockResolvedValueOnce(docsPage1)
@@ -53,12 +53,17 @@ describe('AppwriteService', () => {
     const res = await service.getChangelogs();
     expect(Array.isArray(res)).toBe(true);
     expect(res.length).toBeGreaterThanOrEqual(2);
-    expect(res.some(r => r.date === '2024-01-02')).toBe(true);
-    expect(res.some(r => r.date === '2024-01-01')).toBe(true);
+    expect(res.some((r) => r.date === '2024-01-02')).toBe(true);
+    expect(res.some((r) => r.date === '2024-01-01')).toBe(true);
   });
 
   it('getSocialLinks returns active links sorted and returns [] on error', async () => {
-    const resp = { documents: [ { platform: 'a', order: 2, is_active: false }, { platform: 'b', order: 1, is_active: true, url: 'u', icon: 'i', display_name: 'd' } ] };
+    const resp = {
+      documents: [
+        { platform: 'a', order: 2, is_active: false },
+        { platform: 'b', order: 1, is_active: true, url: 'u', icon: 'i', display_name: 'd' },
+      ],
+    };
     mockDatabases.listDocuments.mockResolvedValue(resp);
 
     const res = await service.getSocialLinks();
@@ -69,5 +74,4 @@ describe('AppwriteService', () => {
     const res2 = await service.getSocialLinks();
     expect(res2).toEqual([]);
   });
-
 });

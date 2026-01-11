@@ -66,9 +66,19 @@ describe('file-type.util', () => {
 
   describe('getIconNameFromMime', () => {
     it('maps mimetypes to icons', () => {
-      expect(getIconNameFromMime('application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')).toBe('fa-file-excel');
-      expect(getIconNameFromMime('application/vnd.openxmlformats-officedocument.presentationml.presentation')).toBe('fa-file-powerpoint');
-      expect(getIconNameFromMime('application/vnd.openxmlformats-officedocument.wordprocessingml.document')).toBe('fa-file-word');
+      expect(
+        getIconNameFromMime('application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'),
+      ).toBe('fa-file-excel');
+      expect(
+        getIconNameFromMime(
+          'application/vnd.openxmlformats-officedocument.presentationml.presentation',
+        ),
+      ).toBe('fa-file-powerpoint');
+      expect(
+        getIconNameFromMime(
+          'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+        ),
+      ).toBe('fa-file-word');
       expect(getIconNameFromMime('application/pdf')).toBe('fa-file-pdf');
       expect(getIconNameFromMime('image/png')).toBe('fa-file-image');
       expect(getIconNameFromMime('')).toBe('fa-file');

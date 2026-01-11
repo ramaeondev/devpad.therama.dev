@@ -3,11 +3,22 @@ import { NoteEditorComponent } from './note-editor.component';
 import { of } from 'rxjs';
 
 function makeRouter() {
-  return { navigate: jest.fn(), createUrlTree: jest.fn().mockReturnValue({}), serializeUrl: jest.fn().mockReturnValue('/'), events: of() };
+  return {
+    navigate: jest.fn(),
+    createUrlTree: jest.fn().mockReturnValue({}),
+    serializeUrl: jest.fn().mockReturnValue('/'),
+    events: of(),
+  };
 }
 
-class MockToast { success = jest.fn(); error = jest.fn(); }
-class MockWorkspace { emitNoteCreated = jest.fn(); emitFoldersChanged = jest.fn(); }
+class MockToast {
+  success = jest.fn();
+  error = jest.fn();
+}
+class MockWorkspace {
+  emitNoteCreated = jest.fn();
+  emitFoldersChanged = jest.fn();
+}
 
 describe('NoteEditorComponent', () => {
   afterEach(() => TestBed.resetTestingModule());
@@ -23,13 +34,29 @@ describe('NoteEditorComponent', () => {
     await TestBed.configureTestingModule({
       imports: [NoteEditorComponent],
       providers: [
-        { provide: (await import('@angular/router')).ActivatedRoute, useValue: { snapshot: { paramMap: { get: () => 'new' } } } },
+        {
+          provide: (await import('@angular/router')).ActivatedRoute,
+          useValue: { snapshot: { paramMap: { get: () => 'new' } } },
+        },
         { provide: (await import('@angular/router')).Router, useValue: router },
-        { provide: (await import('../../../../core/services/note.service')).NoteService, useValue: noteSvc },
-        { provide: (await import('../../../../core/services/auth-state.service')).AuthStateService, useValue: auth },
-        { provide: (await import('../../../../core/services/toast.service')).ToastService, useValue: toast },
-        { provide: (await import('../../../../core/services/workspace-state.service')).WorkspaceStateService, useValue: ws }
-      ]
+        {
+          provide: (await import('../../../../core/services/note.service')).NoteService,
+          useValue: noteSvc,
+        },
+        {
+          provide: (await import('../../../../core/services/auth-state.service')).AuthStateService,
+          useValue: auth,
+        },
+        {
+          provide: (await import('../../../../core/services/toast.service')).ToastService,
+          useValue: toast,
+        },
+        {
+          provide: (await import('../../../../core/services/workspace-state.service'))
+            .WorkspaceStateService,
+          useValue: ws,
+        },
+      ],
     }).compileComponents();
 
     const fixture = TestBed.createComponent(NoteEditorComponent);
@@ -41,7 +68,10 @@ describe('NoteEditorComponent', () => {
 
     await comp.onSave();
 
-    expect(noteSvc.createNote).toHaveBeenCalledWith('u1', expect.objectContaining({ title: 'Hello', content: 'World' }));
+    expect(noteSvc.createNote).toHaveBeenCalledWith(
+      'u1',
+      expect.objectContaining({ title: 'Hello', content: 'World' }),
+    );
     expect(toast.success).toHaveBeenCalledWith('Note created');
     expect(ws.emitNoteCreated).toHaveBeenCalledWith(created);
     expect(ws.emitFoldersChanged).toHaveBeenCalled();
@@ -55,11 +85,38 @@ describe('NoteEditorComponent', () => {
     const auth: any = { userId: jest.fn().mockReturnValue('u1') };
     const toast = new MockToast();
 
-    await TestBed.configureTestingModule({ imports: [NoteEditorComponent], providers: [ { provide: (await import('@angular/router')).ActivatedRoute, useValue: { snapshot: { paramMap: { get: () => 'new' } } } }, { provide: (await import('@angular/router')).Router, useValue: makeRouter() }, { provide: (await import('../../../../core/services/note.service')).NoteService, useValue: noteSvc }, { provide: (await import('../../../../core/services/auth-state.service')).AuthStateService, useValue: auth }, { provide: (await import('../../../../core/services/toast.service')).ToastService, useValue: toast }, { provide: (await import('../../../../core/services/workspace-state.service')).WorkspaceStateService, useValue: new MockWorkspace() } ] }).compileComponents();
+    await TestBed.configureTestingModule({
+      imports: [NoteEditorComponent],
+      providers: [
+        {
+          provide: (await import('@angular/router')).ActivatedRoute,
+          useValue: { snapshot: { paramMap: { get: () => 'new' } } },
+        },
+        { provide: (await import('@angular/router')).Router, useValue: makeRouter() },
+        {
+          provide: (await import('../../../../core/services/note.service')).NoteService,
+          useValue: noteSvc,
+        },
+        {
+          provide: (await import('../../../../core/services/auth-state.service')).AuthStateService,
+          useValue: auth,
+        },
+        {
+          provide: (await import('../../../../core/services/toast.service')).ToastService,
+          useValue: toast,
+        },
+        {
+          provide: (await import('../../../../core/services/workspace-state.service'))
+            .WorkspaceStateService,
+          useValue: new MockWorkspace(),
+        },
+      ],
+    }).compileComponents();
 
     const fixture = TestBed.createComponent(NoteEditorComponent);
     const comp = fixture.componentInstance;
-    comp.title.set('X'); comp.content.set('Y');
+    comp.title.set('X');
+    comp.content.set('Y');
 
     await comp.onSave();
 
@@ -69,13 +126,39 @@ describe('NoteEditorComponent', () => {
 
   it('updates an existing note on save', async () => {
     const updated = { title: 'Updated' };
-    const noteSvc: any = { getNote: jest.fn().mockResolvedValue({ id: 'n1', title: 'Old', content: 'c' }), updateNote: jest.fn().mockResolvedValue(updated) };
+    const noteSvc: any = {
+      getNote: jest.fn().mockResolvedValue({ id: 'n1', title: 'Old', content: 'c' }),
+      updateNote: jest.fn().mockResolvedValue(updated),
+    };
     const auth: any = { userId: jest.fn().mockReturnValue('u1') };
     const route: any = { snapshot: { paramMap: { get: () => 'n1' } } };
     const router: any = makeRouter();
     const toast = new MockToast();
 
-    await TestBed.configureTestingModule({ imports: [NoteEditorComponent], providers: [ { provide: (await import('@angular/router')).ActivatedRoute, useValue: route }, { provide: (await import('@angular/router')).Router, useValue: router }, { provide: (await import('../../../../core/services/note.service')).NoteService, useValue: noteSvc }, { provide: (await import('../../../../core/services/auth-state.service')).AuthStateService, useValue: auth }, { provide: (await import('../../../../core/services/toast.service')).ToastService, useValue: toast }, { provide: (await import('../../../../core/services/workspace-state.service')).WorkspaceStateService, useValue: new MockWorkspace() } ] }).compileComponents();
+    await TestBed.configureTestingModule({
+      imports: [NoteEditorComponent],
+      providers: [
+        { provide: (await import('@angular/router')).ActivatedRoute, useValue: route },
+        { provide: (await import('@angular/router')).Router, useValue: router },
+        {
+          provide: (await import('../../../../core/services/note.service')).NoteService,
+          useValue: noteSvc,
+        },
+        {
+          provide: (await import('../../../../core/services/auth-state.service')).AuthStateService,
+          useValue: auth,
+        },
+        {
+          provide: (await import('../../../../core/services/toast.service')).ToastService,
+          useValue: toast,
+        },
+        {
+          provide: (await import('../../../../core/services/workspace-state.service'))
+            .WorkspaceStateService,
+          useValue: new MockWorkspace(),
+        },
+      ],
+    }).compileComponents();
 
     const fixture = TestBed.createComponent(NoteEditorComponent);
     const comp = fixture.componentInstance;
@@ -89,25 +172,59 @@ describe('NoteEditorComponent', () => {
 
     await comp.onSave();
 
-    expect(noteSvc.updateNote).toHaveBeenCalledWith('n1', 'u1', expect.objectContaining({ title: 'New title', content: 'Content' }));
+    expect(noteSvc.updateNote).toHaveBeenCalledWith(
+      'n1',
+      'u1',
+      expect.objectContaining({ title: 'New title', content: 'Content' }),
+    );
     expect(toast.success).toHaveBeenCalledWith('Note saved');
     expect(comp.title()).toBe('Updated');
   });
 
   it('delete navigates on success', async () => {
-    const noteSvc: any = { deleteNote: jest.fn().mockResolvedValue(true), getNote: jest.fn().mockResolvedValue({ id: 'n2', title: 't', content: '' }) };
+    const noteSvc: any = {
+      deleteNote: jest.fn().mockResolvedValue(true),
+      getNote: jest.fn().mockResolvedValue({ id: 'n2', title: 't', content: '' }),
+    };
     const auth: any = { userId: jest.fn().mockReturnValue('u1') };
     const router: any = makeRouter();
     const toast = new MockToast();
 
-    await TestBed.configureTestingModule({ imports: [NoteEditorComponent], providers: [ { provide: (await import('@angular/router')).ActivatedRoute, useValue: { snapshot: { paramMap: { get: () => 'n2' } } } }, { provide: (await import('@angular/router')).Router, useValue: router }, { provide: (await import('../../../../core/services/note.service')).NoteService, useValue: noteSvc }, { provide: (await import('../../../../core/services/auth-state.service')).AuthStateService, useValue: auth }, { provide: (await import('../../../../core/services/toast.service')).ToastService, useValue: toast }, { provide: (await import('../../../../core/services/workspace-state.service')).WorkspaceStateService, useValue: new MockWorkspace() } ] }).compileComponents();
+    await TestBed.configureTestingModule({
+      imports: [NoteEditorComponent],
+      providers: [
+        {
+          provide: (await import('@angular/router')).ActivatedRoute,
+          useValue: { snapshot: { paramMap: { get: () => 'n2' } } },
+        },
+        { provide: (await import('@angular/router')).Router, useValue: router },
+        {
+          provide: (await import('../../../../core/services/note.service')).NoteService,
+          useValue: noteSvc,
+        },
+        {
+          provide: (await import('../../../../core/services/auth-state.service')).AuthStateService,
+          useValue: auth,
+        },
+        {
+          provide: (await import('../../../../core/services/toast.service')).ToastService,
+          useValue: toast,
+        },
+        {
+          provide: (await import('../../../../core/services/workspace-state.service'))
+            .WorkspaceStateService,
+          useValue: new MockWorkspace(),
+        },
+      ],
+    }).compileComponents();
 
     const fixture = TestBed.createComponent(NoteEditorComponent);
     const comp = fixture.componentInstance;
     fixture.detectChanges();
     await fixture.whenStable();
 
-    comp.noteId.set('n2'); comp.isNew.set(false);
+    comp.noteId.set('n2');
+    comp.isNew.set(false);
 
     await comp.onDelete();
 
@@ -121,11 +238,38 @@ describe('NoteEditorComponent', () => {
     const auth: any = { userId: jest.fn().mockReturnValue('u1') };
     const toast = new MockToast();
 
-    await TestBed.configureTestingModule({ imports: [NoteEditorComponent], providers: [ { provide: (await import('@angular/router')).ActivatedRoute, useValue: { snapshot: { paramMap: { get: () => 'n2' } } } }, { provide: (await import('@angular/router')).Router, useValue: makeRouter() }, { provide: (await import('../../../../core/services/note.service')).NoteService, useValue: noteSvc }, { provide: (await import('../../../../core/services/auth-state.service')).AuthStateService, useValue: auth }, { provide: (await import('../../../../core/services/toast.service')).ToastService, useValue: toast }, { provide: (await import('../../../../core/services/workspace-state.service')).WorkspaceStateService, useValue: new MockWorkspace() } ] }).compileComponents();
+    await TestBed.configureTestingModule({
+      imports: [NoteEditorComponent],
+      providers: [
+        {
+          provide: (await import('@angular/router')).ActivatedRoute,
+          useValue: { snapshot: { paramMap: { get: () => 'n2' } } },
+        },
+        { provide: (await import('@angular/router')).Router, useValue: makeRouter() },
+        {
+          provide: (await import('../../../../core/services/note.service')).NoteService,
+          useValue: noteSvc,
+        },
+        {
+          provide: (await import('../../../../core/services/auth-state.service')).AuthStateService,
+          useValue: auth,
+        },
+        {
+          provide: (await import('../../../../core/services/toast.service')).ToastService,
+          useValue: toast,
+        },
+        {
+          provide: (await import('../../../../core/services/workspace-state.service'))
+            .WorkspaceStateService,
+          useValue: new MockWorkspace(),
+        },
+      ],
+    }).compileComponents();
 
     const fixture = TestBed.createComponent(NoteEditorComponent);
     const comp = fixture.componentInstance;
-    comp.noteId.set('n2'); comp.isNew.set(false);
+    comp.noteId.set('n2');
+    comp.isNew.set(false);
 
     await comp.onDelete();
     expect(toast.error).toHaveBeenCalledWith('Failed to delete note');
@@ -137,7 +281,33 @@ describe('NoteEditorComponent', () => {
     const router: any = makeRouter();
     const toast = new MockToast();
 
-    await TestBed.configureTestingModule({ imports: [NoteEditorComponent], providers: [ { provide: (await import('@angular/router')).ActivatedRoute, useValue: { snapshot: { paramMap: { get: () => 'n1' } } } }, { provide: (await import('@angular/router')).Router, useValue: router }, { provide: (await import('../../../../core/services/note.service')).NoteService, useValue: noteSvc }, { provide: (await import('../../../../core/services/auth-state.service')).AuthStateService, useValue: auth }, { provide: (await import('../../../../core/services/toast.service')).ToastService, useValue: toast }, { provide: (await import('../../../../core/services/workspace-state.service')).WorkspaceStateService, useValue: new MockWorkspace() } ] }).compileComponents();
+    await TestBed.configureTestingModule({
+      imports: [NoteEditorComponent],
+      providers: [
+        {
+          provide: (await import('@angular/router')).ActivatedRoute,
+          useValue: { snapshot: { paramMap: { get: () => 'n1' } } },
+        },
+        { provide: (await import('@angular/router')).Router, useValue: router },
+        {
+          provide: (await import('../../../../core/services/note.service')).NoteService,
+          useValue: noteSvc,
+        },
+        {
+          provide: (await import('../../../../core/services/auth-state.service')).AuthStateService,
+          useValue: auth,
+        },
+        {
+          provide: (await import('../../../../core/services/toast.service')).ToastService,
+          useValue: toast,
+        },
+        {
+          provide: (await import('../../../../core/services/workspace-state.service'))
+            .WorkspaceStateService,
+          useValue: new MockWorkspace(),
+        },
+      ],
+    }).compileComponents();
 
     const fixture = TestBed.createComponent(NoteEditorComponent);
     fixture.detectChanges();
@@ -154,7 +324,33 @@ describe('NoteEditorComponent', () => {
     const router: any = makeRouter();
     const toast = new MockToast();
 
-    await TestBed.configureTestingModule({ imports: [NoteEditorComponent], providers: [ { provide: (await import('@angular/router')).ActivatedRoute, useValue: { snapshot: { paramMap: { get: () => 'n1' } } } }, { provide: (await import('@angular/router')).Router, useValue: router }, { provide: (await import('../../../../core/services/note.service')).NoteService, useValue: noteSvc }, { provide: (await import('../../../../core/services/auth-state.service')).AuthStateService, useValue: auth }, { provide: (await import('../../../../core/services/toast.service')).ToastService, useValue: toast }, { provide: (await import('../../../../core/services/workspace-state.service')).WorkspaceStateService, useValue: new MockWorkspace() } ] }).compileComponents();
+    await TestBed.configureTestingModule({
+      imports: [NoteEditorComponent],
+      providers: [
+        {
+          provide: (await import('@angular/router')).ActivatedRoute,
+          useValue: { snapshot: { paramMap: { get: () => 'n1' } } },
+        },
+        { provide: (await import('@angular/router')).Router, useValue: router },
+        {
+          provide: (await import('../../../../core/services/note.service')).NoteService,
+          useValue: noteSvc,
+        },
+        {
+          provide: (await import('../../../../core/services/auth-state.service')).AuthStateService,
+          useValue: auth,
+        },
+        {
+          provide: (await import('../../../../core/services/toast.service')).ToastService,
+          useValue: toast,
+        },
+        {
+          provide: (await import('../../../../core/services/workspace-state.service'))
+            .WorkspaceStateService,
+          useValue: new MockWorkspace(),
+        },
+      ],
+    }).compileComponents();
 
     const fixture = TestBed.createComponent(NoteEditorComponent);
     fixture.detectChanges();
@@ -167,7 +363,33 @@ describe('NoteEditorComponent', () => {
     noteSvc.getNote = jest.fn().mockRejectedValue(new Error('boom'));
     TestBed.resetTestingModule();
 
-    await TestBed.configureTestingModule({ imports: [NoteEditorComponent], providers: [ { provide: (await import('@angular/router')).ActivatedRoute, useValue: { snapshot: { paramMap: { get: () => 'n1' } } } }, { provide: (await import('@angular/router')).Router, useValue: router }, { provide: (await import('../../../../core/services/note.service')).NoteService, useValue: noteSvc }, { provide: (await import('../../../../core/services/auth-state.service')).AuthStateService, useValue: auth }, { provide: (await import('../../../../core/services/toast.service')).ToastService, useValue: toast }, { provide: (await import('../../../../core/services/workspace-state.service')).WorkspaceStateService, useValue: new MockWorkspace() } ] }).compileComponents();
+    await TestBed.configureTestingModule({
+      imports: [NoteEditorComponent],
+      providers: [
+        {
+          provide: (await import('@angular/router')).ActivatedRoute,
+          useValue: { snapshot: { paramMap: { get: () => 'n1' } } },
+        },
+        { provide: (await import('@angular/router')).Router, useValue: router },
+        {
+          provide: (await import('../../../../core/services/note.service')).NoteService,
+          useValue: noteSvc,
+        },
+        {
+          provide: (await import('../../../../core/services/auth-state.service')).AuthStateService,
+          useValue: auth,
+        },
+        {
+          provide: (await import('../../../../core/services/toast.service')).ToastService,
+          useValue: toast,
+        },
+        {
+          provide: (await import('../../../../core/services/workspace-state.service'))
+            .WorkspaceStateService,
+          useValue: new MockWorkspace(),
+        },
+      ],
+    }).compileComponents();
 
     const fixture2 = TestBed.createComponent(NoteEditorComponent);
     fixture2.detectChanges();
@@ -177,7 +399,33 @@ describe('NoteEditorComponent', () => {
   });
 
   it('isDocument detection and title input work', async () => {
-    await TestBed.configureTestingModule({ imports: [NoteEditorComponent], providers: [ { provide: (await import('@angular/router')).ActivatedRoute, useValue: { snapshot: { paramMap: { get: () => 'new' } } } }, { provide: (await import('@angular/router')).Router, useValue: makeRouter() }, { provide: (await import('../../../../core/services/note.service')).NoteService, useValue: {} }, { provide: (await import('../../../../core/services/auth-state.service')).AuthStateService, useValue: { userId: () => 'u1' } }, { provide: (await import('../../../../core/services/toast.service')).ToastService, useValue: new MockToast() }, { provide: (await import('../../../../core/services/workspace-state.service')).WorkspaceStateService, useValue: new MockWorkspace() } ] }).compileComponents();
+    await TestBed.configureTestingModule({
+      imports: [NoteEditorComponent],
+      providers: [
+        {
+          provide: (await import('@angular/router')).ActivatedRoute,
+          useValue: { snapshot: { paramMap: { get: () => 'new' } } },
+        },
+        { provide: (await import('@angular/router')).Router, useValue: makeRouter() },
+        {
+          provide: (await import('../../../../core/services/note.service')).NoteService,
+          useValue: {},
+        },
+        {
+          provide: (await import('../../../../core/services/auth-state.service')).AuthStateService,
+          useValue: { userId: () => 'u1' },
+        },
+        {
+          provide: (await import('../../../../core/services/toast.service')).ToastService,
+          useValue: new MockToast(),
+        },
+        {
+          provide: (await import('../../../../core/services/workspace-state.service'))
+            .WorkspaceStateService,
+          useValue: new MockWorkspace(),
+        },
+      ],
+    }).compileComponents();
 
     const fixture = TestBed.createComponent(NoteEditorComponent);
     const comp = fixture.componentInstance;

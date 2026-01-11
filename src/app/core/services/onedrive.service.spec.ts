@@ -8,7 +8,9 @@ import { HttpClient } from '@angular/common/http';
 import { ActivityLogService } from './activity-log.service';
 
 const makeSupabaseMock = () => ({
-  getSession: jest.fn().mockResolvedValue({ session: { user: { id: 'u1' }, access_token: 'sbtoken' } }),
+  getSession: jest
+    .fn()
+    .mockResolvedValue({ session: { user: { id: 'u1' }, access_token: 'sbtoken' } }),
   from: jest.fn().mockReturnThis(),
   delete: jest.fn().mockReturnThis(),
   eq: jest.fn().mockReturnThis(),
@@ -41,7 +43,7 @@ describe('OneDriveService', () => {
         { provide: LoadingService, useValue: mockLoading },
         { provide: HttpClient, useValue: mockHttp },
         { provide: ActivityLogService, useValue: mockActivity },
-      ]
+      ],
     });
 
     service = TestBed.inject(OneDriveService);
@@ -55,11 +57,14 @@ describe('OneDriveService', () => {
   it('handleAuthSuccess saves integration and schedules refresh', async () => {
     // mock /me userinfo
     mockHttp.get.mockImplementation((url: string) => {
-      if (url.includes('/me')) return { toPromise: () => Promise.resolve({ mail: 'me@example.com' }) } as any;
+      if (url.includes('/me'))
+        return { toPromise: () => Promise.resolve({ mail: 'me@example.com' }) } as any;
       return { toPromise: () => Promise.resolve([]) } as any;
     });
     // mock post to save integration (returns array with saved row)
-    mockHttp.post.mockReturnValue({ toPromise: () => Promise.resolve([{ id: 'i1', provider: 'onedrive' }]) });
+    mockHttp.post.mockReturnValue({
+      toPromise: () => Promise.resolve([{ id: 'i1', provider: 'onedrive' }]),
+    });
     // spy on scheduleTokenRefresh and loadFiles
     const scheduleSpy = jest.spyOn(service as any, 'scheduleTokenRefresh');
     jest.spyOn(service as any, 'loadFiles').mockResolvedValue();
@@ -85,7 +90,23 @@ describe('OneDriveService', () => {
     // drive info succeeds
     mockHttp.get.mockImplementation((url: string) => {
       if (url.endsWith('/me')) return { toPromise: () => Promise.resolve({ id: 'drive1' }) } as any;
-      if (url.includes('/root/children')) return { toPromise: () => Promise.resolve({ value: [{ id: '1', name: 'file', file: {}, size: 10, webUrl: 'w', createdDateTime: 't', lastModifiedDateTime: 't' }] }) } as any;
+      if (url.includes('/root/children'))
+        return {
+          toPromise: () =>
+            Promise.resolve({
+              value: [
+                {
+                  id: '1',
+                  name: 'file',
+                  file: {},
+                  size: 10,
+                  webUrl: 'w',
+                  createdDateTime: 't',
+                  lastModifiedDateTime: 't',
+                },
+              ],
+            }),
+        } as any;
       return { toPromise: () => Promise.resolve({}) } as any;
     });
 
@@ -98,9 +119,14 @@ describe('OneDriveService', () => {
     service.integration.set({ access_token: 'at' } as any);
     // first call to /me/drive fails (ensure we reject the exact /me/drive endpoint)
     mockHttp.get.mockImplementation((url: string) => {
-      if (url.endsWith('/me/drive')) return { toPromise: () => Promise.reject(new Error('fail')) } as any;
-      if (url.endsWith('/me/drives')) return { toPromise: () => Promise.resolve({ value: [{ id: 'd1' }] }) } as any;
-      if (url.includes('/drives/d1/root/children')) return { toPromise: () => Promise.resolve({ value: [{ id: '2', name: 'f2', file: {}, size: 5 }] }) } as any;
+      if (url.endsWith('/me/drive'))
+        return { toPromise: () => Promise.reject(new Error('fail')) } as any;
+      if (url.endsWith('/me/drives'))
+        return { toPromise: () => Promise.resolve({ value: [{ id: 'd1' }] }) } as any;
+      if (url.includes('/drives/d1/root/children'))
+        return {
+          toPromise: () => Promise.resolve({ value: [{ id: '2', name: 'f2', file: {}, size: 5 }] }),
+        } as any;
       return { toPromise: () => Promise.resolve({}) } as any;
     });
 
@@ -113,8 +139,14 @@ describe('OneDriveService', () => {
     service.integration.set({ access_token: 'at' } as any);
     // root children throws with itemNotFound
     mockHttp.get.mockImplementation((url: string) => {
-      if (url.includes('/root/children')) return { toPromise: () => Promise.reject({ error: { error: { code: 'itemNotFound' } } }) } as any;
-      if (url.includes('/special/documents/children')) return { toPromise: () => Promise.resolve({ value: [{ id: 'doc1', name: 'doc' }] }) } as any;
+      if (url.includes('/root/children'))
+        return {
+          toPromise: () => Promise.reject({ error: { error: { code: 'itemNotFound' } } }),
+        } as any;
+      if (url.includes('/special/documents/children'))
+        return {
+          toPromise: () => Promise.resolve({ value: [{ id: 'doc1', name: 'doc' }] }),
+        } as any;
       return { toPromise: () => Promise.resolve({}) } as any;
     });
 
@@ -131,7 +163,18 @@ describe('OneDriveService', () => {
     expect(mockToast.error).toHaveBeenCalledWith('Not connected to OneDrive');
 
     service.integration.set({ access_token: 'at' } as any);
-    mockHttp.put.mockReturnValue({ toPromise: () => Promise.resolve({ id: 'u1', name: 'a.txt', file: {}, size: 1, webUrl: 'w', createdDateTime: 't', lastModifiedDateTime: 't' }) } as any);
+    mockHttp.put.mockReturnValue({
+      toPromise: () =>
+        Promise.resolve({
+          id: 'u1',
+          name: 'a.txt',
+          file: {},
+          size: 1,
+          webUrl: 'w',
+          createdDateTime: 't',
+          lastModifiedDateTime: 't',
+        }),
+    } as any);
     jest.spyOn(service as any, 'loadFiles').mockResolvedValue();
 
     const res2 = await service.uploadFile(file);
@@ -187,7 +230,9 @@ describe('OneDriveService', () => {
     jest.spyOn(service as any, 'revokeMicrosoftSession').mockResolvedValue(undefined);
     service.integration.set({ id: 'i1' } as any);
     // Make from().delete().eq(...) return a resolved object with { error: null }
-    mockSupabase.from = jest.fn().mockReturnValue({ delete: jest.fn().mockReturnValue({ eq: jest.fn().mockResolvedValue({ error: null }) }) });
+    mockSupabase.from = jest.fn().mockReturnValue({
+      delete: jest.fn().mockReturnValue({ eq: jest.fn().mockResolvedValue({ error: null }) }),
+    });
 
     await service.disconnect();
     expect(service.integration()).toBeNull();
@@ -223,7 +268,11 @@ describe('OneDriveService', () => {
     jest.spyOn(service as any, 'revokeMicrosoftSession').mockResolvedValue(undefined);
     service.integration.set({ id: 'i1' } as any);
     // Simulate supabase delete returning an error
-    mockSupabase.from = jest.fn().mockReturnValue({ delete: jest.fn().mockReturnValue({ eq: jest.fn().mockResolvedValue({ error: new Error('no') }) }) });
+    mockSupabase.from = jest.fn().mockReturnValue({
+      delete: jest
+        .fn()
+        .mockReturnValue({ eq: jest.fn().mockResolvedValue({ error: new Error('no') }) }),
+    });
 
     await service.disconnect();
     expect(mockToast.error).toHaveBeenCalledWith('Failed to disconnect OneDrive');
@@ -232,11 +281,21 @@ describe('OneDriveService', () => {
     service.integration.set({ access_token: 'at' } as any);
     // /me/drive fails -> /me/drives returns drive -> root/children returns itemNotFound -> special/documents fails -> items root children succeeds
     mockHttp.get.mockImplementation((url: string) => {
-      if (url.endsWith('/me/drive')) return { toPromise: () => Promise.reject(new Error('fail')) } as any;
-      if (url.endsWith('/me/drives')) return { toPromise: () => Promise.resolve({ value: [{ id: 'd1' }] }) } as any;
-      if (url.includes('/drives/d1/root/children')) return { toPromise: () => Promise.reject({ error: { error: { code: 'itemNotFound' } } }) } as any;
-      if (url.includes('/drives/d1/special/documents/children')) return { toPromise: () => Promise.reject(new Error('special fail')) } as any;
-      if (url.includes('/drives/d1/items/root/children')) return { toPromise: () => Promise.resolve({ value: [{ id: 'item1', name: 'i1', file: {}, size: 1 }] }) } as any;
+      if (url.endsWith('/me/drive'))
+        return { toPromise: () => Promise.reject(new Error('fail')) } as any;
+      if (url.endsWith('/me/drives'))
+        return { toPromise: () => Promise.resolve({ value: [{ id: 'd1' }] }) } as any;
+      if (url.includes('/drives/d1/root/children'))
+        return {
+          toPromise: () => Promise.reject({ error: { error: { code: 'itemNotFound' } } }),
+        } as any;
+      if (url.includes('/drives/d1/special/documents/children'))
+        return { toPromise: () => Promise.reject(new Error('special fail')) } as any;
+      if (url.includes('/drives/d1/items/root/children'))
+        return {
+          toPromise: () =>
+            Promise.resolve({ value: [{ id: 'item1', name: 'i1', file: {}, size: 1 }] }),
+        } as any;
       return { toPromise: () => Promise.resolve({}) } as any;
     });
 
@@ -250,31 +309,46 @@ describe('OneDriveService', () => {
     service.integration.set({ access_token: 'at' } as any);
     // /me/drive fails -> /me/drives returns drive -> root/children returns itemNotFound -> special/documents fails -> items root children fails
     mockHttp.get.mockImplementation((url: string) => {
-      if (url.endsWith('/me/drive')) return { toPromise: () => Promise.reject(new Error('fail')) } as any;
-      if (url.endsWith('/me/drives')) return { toPromise: () => Promise.resolve({ value: [{ id: 'd1' }] }) } as any;
-      if (url.includes('/drives/d1/root/children')) return { toPromise: () => Promise.reject({ error: { error: { code: 'itemNotFound' } } }) } as any;
-      if (url.includes('/drives/d1/special/documents/children')) return { toPromise: () => Promise.reject(new Error('special fail')) } as any;
-      if (url.includes('/drives/d1/items/root/children')) return { toPromise: () => Promise.reject(new Error('items fail')) } as any;
+      if (url.endsWith('/me/drive'))
+        return { toPromise: () => Promise.reject(new Error('fail')) } as any;
+      if (url.endsWith('/me/drives'))
+        return { toPromise: () => Promise.resolve({ value: [{ id: 'd1' }] }) } as any;
+      if (url.includes('/drives/d1/root/children'))
+        return {
+          toPromise: () => Promise.reject({ error: { error: { code: 'itemNotFound' } } }),
+        } as any;
+      if (url.includes('/drives/d1/special/documents/children'))
+        return { toPromise: () => Promise.reject(new Error('special fail')) } as any;
+      if (url.includes('/drives/d1/items/root/children'))
+        return { toPromise: () => Promise.reject(new Error('items fail')) } as any;
       return { toPromise: () => Promise.resolve({}) } as any;
     });
 
     await service.loadFiles();
 
-    expect(mockToast.error).toHaveBeenCalledWith('Unable to access OneDrive files. The drive may be empty or inaccessible.');
+    expect(mockToast.error).toHaveBeenCalledWith(
+      'Unable to access OneDrive files. The drive may be empty or inaccessible.',
+    );
     expect(service.rootFolder()).toBeTruthy();
     expect(service.files().length).toBe(0);
   });
 
   it('disconnect continues when revoke fails but still deletes integration', async () => {
     const warnSpy = jest.spyOn(console, 'warn').mockImplementation(() => {});
-    jest.spyOn(service as any, 'revokeMicrosoftSession').mockRejectedValue(new Error('revoke fail'));
+    jest
+      .spyOn(service as any, 'revokeMicrosoftSession')
+      .mockRejectedValue(new Error('revoke fail'));
     service.integration.set({ id: 'i1' } as any);
-    mockSupabase.from = jest.fn().mockReturnValue({ delete: jest.fn().mockReturnValue({ eq: jest.fn().mockResolvedValue({ error: null }) }) });
+    mockSupabase.from = jest.fn().mockReturnValue({
+      delete: jest.fn().mockReturnValue({ eq: jest.fn().mockResolvedValue({ error: null }) }),
+    });
 
     await service.disconnect();
     expect(warnSpy).toHaveBeenCalled();
     expect(service.integration()).toBeNull();
-    expect(mockToast.success).toHaveBeenCalledWith('OneDrive disconnected successfully. You can now connect with a different account.');
+    expect(mockToast.success).toHaveBeenCalledWith(
+      'OneDrive disconnected successfully. You can now connect with a different account.',
+    );
     warnSpy.mockRestore();
   });
 
@@ -292,9 +366,11 @@ describe('OneDriveService', () => {
     service.integration.set({ access_token: 'at' } as any);
     // /me/drive fails
     mockHttp.get.mockImplementation((url: string) => {
-      if (url.endsWith('/me/drive')) return { toPromise: () => Promise.reject(new Error('fail')) } as any;
+      if (url.endsWith('/me/drive'))
+        return { toPromise: () => Promise.reject(new Error('fail')) } as any;
       // /me/drives returns empty
-      if (url.endsWith('/me/drives')) return { toPromise: () => Promise.resolve({ value: [] }) } as any;
+      if (url.endsWith('/me/drives'))
+        return { toPromise: () => Promise.resolve({ value: [] }) } as any;
       return { toPromise: () => Promise.resolve({}) } as any;
     });
 
@@ -324,21 +400,32 @@ describe('OneDriveService', () => {
     const spy = jest.spyOn(service as any, 'handleAuthSuccess').mockResolvedValue(undefined);
 
     // Origin mismatch: should do nothing
-    await (service as any).handleOAuthCallback({ origin: 'http://evil', data: { accessToken: 'x' } } as any);
+    await (service as any).handleOAuthCallback({
+      origin: 'http://evil',
+      data: { accessToken: 'x' },
+    } as any);
     expect(spy).not.toHaveBeenCalled();
 
     // Valid origin with error: should show toast
-    await (service as any).handleOAuthCallback({ origin: realOrigin, data: { error: 'err' } } as any);
+    await (service as any).handleOAuthCallback({
+      origin: realOrigin,
+      data: { error: 'err' },
+    } as any);
     expect(mockToast.error).toHaveBeenCalledWith('Failed to connect OneDrive');
 
     // Valid origin with token should call handleAuthSuccess
-    await (service as any).handleOAuthCallback({ origin: realOrigin, data: { accessToken: 'tok', expiresIn: 3600 } } as any);
+    await (service as any).handleOAuthCallback({
+      origin: realOrigin,
+      data: { accessToken: 'tok', expiresIn: 3600 },
+    } as any);
     expect(spy).toHaveBeenCalledWith('tok', 3600);
     spy.mockRestore();
   });
 
   it('handleAuthSuccess shows error when saving integration returns no data', async () => {
-    mockHttp.get.mockReturnValue({ toPromise: () => Promise.resolve({ mail: 'me@example.com' }) } as any);
+    mockHttp.get.mockReturnValue({
+      toPromise: () => Promise.resolve({ mail: 'me@example.com' }),
+    } as any);
     mockHttp.post.mockReturnValue({ toPromise: () => Promise.resolve([]) } as any); // no returned row
 
     await (service as any).handleAuthSuccess('access-token-err', 3600);
@@ -352,7 +439,12 @@ describe('OneDriveService', () => {
 
     await service.connect(true);
     // dispatch a message event to window
-    window.dispatchEvent(new MessageEvent('message', { origin: window.location.origin, data: { accessToken: 'x', expiresIn: 3600 } }));
+    window.dispatchEvent(
+      new MessageEvent('message', {
+        origin: window.location.origin,
+        data: { accessToken: 'x', expiresIn: 3600 },
+      }),
+    );
     // wait a tick for handler to run
     await new Promise((r) => setTimeout(r, 0));
 
@@ -399,7 +491,9 @@ describe('OneDriveService', () => {
 
   it('renameFile returns false and shows error when patch fails', async () => {
     service.integration.set({ access_token: 'at' } as any);
-    mockHttp.patch = jest.fn().mockReturnValue({ toPromise: () => Promise.reject(new Error('boom')) } as any);
+    mockHttp.patch = jest
+      .fn()
+      .mockReturnValue({ toPromise: () => Promise.reject(new Error('boom')) } as any);
     const res = await service.renameFile('fR', 'new');
     expect(res).toBe(false);
     expect(mockToast.error).toHaveBeenCalledWith('Failed to rename file');
@@ -409,8 +503,13 @@ describe('OneDriveService', () => {
     service.integration.set({ access_token: 'at' } as any);
     // drive info succeeds but root children throws InvalidAuthenticationToken
     mockHttp.get.mockImplementation((url: string) => {
-      if (url.endsWith('/me/drive')) return { toPromise: () => Promise.resolve({ id: 'd1' }) } as any;
-      if (url.includes('/root/children')) return { toPromise: () => Promise.reject({ error: { error: { code: 'InvalidAuthenticationToken' } } }) } as any;
+      if (url.endsWith('/me/drive'))
+        return { toPromise: () => Promise.resolve({ id: 'd1' }) } as any;
+      if (url.includes('/root/children'))
+        return {
+          toPromise: () =>
+            Promise.reject({ error: { error: { code: 'InvalidAuthenticationToken' } } }),
+        } as any;
       return { toPromise: () => Promise.resolve({}) } as any;
     });
 
@@ -418,5 +517,4 @@ describe('OneDriveService', () => {
     expect(service.isConnected()).toBe(false);
     expect(mockToast.error).toHaveBeenCalledWith('OneDrive session expired. Please reconnect.');
   });
-
 });

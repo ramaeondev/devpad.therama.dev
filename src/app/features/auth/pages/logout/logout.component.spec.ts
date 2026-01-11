@@ -36,6 +36,9 @@ describe('LogoutComponent', () => {
     expect((window as any).location.href).toBe('/');
 
     // restore
-    Object.defineProperty(window, 'location', { value: { href: originalHref }, configurable: true });
+    Object.defineProperty(window, 'location', {
+      value: { href: originalHref },
+      configurable: true,
+    });
   }));
 });

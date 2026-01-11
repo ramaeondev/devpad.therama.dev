@@ -2,17 +2,80 @@ import { TestBed } from '@angular/core/testing';
 import { signal } from '@angular/core';
 import { NoteWorkspaceComponent } from './note-workspace.component';
 
-class MockFolderService { getFolderTree = jest.fn().mockResolvedValue([]); }
-class MockNoteService { getNotesForFolder = jest.fn().mockResolvedValue([]); createNote = jest.fn().mockResolvedValue({ id: 'c1', title: 't', updated_at: Date.now() }); updateNote = jest.fn().mockResolvedValue({ title: 't2' }); deleteNote = jest.fn().mockResolvedValue(true); getNote = jest.fn().mockResolvedValue({ id: 'n1', title: 't', content: 'c' }); }
-class MockAuth { userId = jest.fn().mockReturnValue('u1'); }
-class MockToast { success = jest.fn(); error = jest.fn(); info = jest.fn(); }
-class MockWorkspace { selectedFolderId = jest.fn().mockReturnValue(null); setSelectedFolder = jest.fn(); emitFoldersChanged = jest.fn(); noteCreated$ = { subscribe: jest.fn() }; googleDriveFileSelected$ = { subscribe: jest.fn() }; oneDriveFileSelected$ = { subscribe: jest.fn() }; foldersChanged$ = { subscribe: jest.fn() }; noteSelected$ = { subscribe: jest.fn() }; }
-class MockGoogle { renameFile = jest.fn().mockResolvedValue({}); deleteFile = jest.fn().mockResolvedValue(true); }
-class MockOneDrive { renameFile = jest.fn().mockResolvedValue({}); deleteFile = jest.fn().mockResolvedValue(true); }
+class MockFolderService {
+  getFolderTree = jest.fn().mockResolvedValue([]);
+}
+class MockNoteService {
+  getNotesForFolder = jest.fn().mockResolvedValue([]);
+  createNote = jest.fn().mockResolvedValue({ id: 'c1', title: 't', updated_at: Date.now() });
+  updateNote = jest.fn().mockResolvedValue({ title: 't2' });
+  deleteNote = jest.fn().mockResolvedValue(true);
+  getNote = jest.fn().mockResolvedValue({ id: 'n1', title: 't', content: 'c' });
+}
+class MockAuth {
+  userId = jest.fn().mockReturnValue('u1');
+}
+class MockToast {
+  success = jest.fn();
+  error = jest.fn();
+  info = jest.fn();
+}
+class MockWorkspace {
+  selectedFolderId = jest.fn().mockReturnValue(null);
+  setSelectedFolder = jest.fn();
+  emitFoldersChanged = jest.fn();
+  noteCreated$ = { subscribe: jest.fn() };
+  googleDriveFileSelected$ = { subscribe: jest.fn() };
+  oneDriveFileSelected$ = { subscribe: jest.fn() };
+  foldersChanged$ = { subscribe: jest.fn() };
+  noteSelected$ = { subscribe: jest.fn() };
+}
+class MockGoogle {
+  renameFile = jest.fn().mockResolvedValue({});
+  deleteFile = jest.fn().mockResolvedValue(true);
+}
+class MockOneDrive {
+  renameFile = jest.fn().mockResolvedValue({});
+  deleteFile = jest.fn().mockResolvedValue(true);
+}
 
 describe('NoteWorkspaceComponent', () => {
   it('createNewNote warns without folder', async () => {
-    await TestBed.configureTestingModule({ imports: [NoteWorkspaceComponent], providers: [ { provide: (await import('../../../folders/services/folder.service')).FolderService, useClass: MockFolderService }, { provide: (await import('../../../../core/services/note.service')).NoteService, useClass: MockNoteService }, { provide: (await import('../../../../core/services/auth-state.service')).AuthStateService, useClass: MockAuth }, { provide: (await import('../../../../core/services/toast.service')).ToastService, useClass: MockToast }, { provide: (await import('../../../../core/services/workspace-state.service')).WorkspaceStateService, useClass: MockWorkspace }, { provide: (await import('../../../../core/services/google-drive.service')).GoogleDriveService, useClass: MockGoogle }, { provide: (await import('../../../../core/services/onedrive.service')).OneDriveService, useClass: MockOneDrive } ] }).compileComponents();
+    await TestBed.configureTestingModule({
+      imports: [NoteWorkspaceComponent],
+      providers: [
+        {
+          provide: (await import('../../../folders/services/folder.service')).FolderService,
+          useClass: MockFolderService,
+        },
+        {
+          provide: (await import('../../../../core/services/note.service')).NoteService,
+          useClass: MockNoteService,
+        },
+        {
+          provide: (await import('../../../../core/services/auth-state.service')).AuthStateService,
+          useClass: MockAuth,
+        },
+        {
+          provide: (await import('../../../../core/services/toast.service')).ToastService,
+          useClass: MockToast,
+        },
+        {
+          provide: (await import('../../../../core/services/workspace-state.service'))
+            .WorkspaceStateService,
+          useClass: MockWorkspace,
+        },
+        {
+          provide: (await import('../../../../core/services/google-drive.service'))
+            .GoogleDriveService,
+          useClass: MockGoogle,
+        },
+        {
+          provide: (await import('../../../../core/services/onedrive.service')).OneDriveService,
+          useClass: MockOneDrive,
+        },
+      ],
+    }).compileComponents();
 
     const fixture = TestBed.createComponent(NoteWorkspaceComponent);
     const comp = fixture.componentInstance;
@@ -20,12 +83,48 @@ describe('NoteWorkspaceComponent', () => {
     // Ensure workspace selectedFolderId returns null
     comp['workspaceState'].selectedFolderId = jest.fn().mockReturnValue(null);
     comp.createNewNote();
-    const toast = TestBed.inject((await import('../../../../core/services/toast.service')).ToastService as any);
+    const toast = TestBed.inject(
+      (await import('../../../../core/services/toast.service')).ToastService as any,
+    );
     expect(toast.info).toHaveBeenCalled();
   });
 
   it('saveNote creates when none selected', async () => {
-    await TestBed.configureTestingModule({ imports: [NoteWorkspaceComponent], providers: [ { provide: (await import('../../../folders/services/folder.service')).FolderService, useClass: MockFolderService }, { provide: (await import('../../../../core/services/note.service')).NoteService, useClass: MockNoteService }, { provide: (await import('../../../../core/services/auth-state.service')).AuthStateService, useClass: MockAuth }, { provide: (await import('../../../../core/services/toast.service')).ToastService, useClass: MockToast }, { provide: (await import('../../../../core/services/workspace-state.service')).WorkspaceStateService, useClass: MockWorkspace }, { provide: (await import('../../../../core/services/google-drive.service')).GoogleDriveService, useClass: MockGoogle }, { provide: (await import('../../../../core/services/onedrive.service')).OneDriveService, useClass: MockOneDrive } ] }).compileComponents();
+    await TestBed.configureTestingModule({
+      imports: [NoteWorkspaceComponent],
+      providers: [
+        {
+          provide: (await import('../../../folders/services/folder.service')).FolderService,
+          useClass: MockFolderService,
+        },
+        {
+          provide: (await import('../../../../core/services/note.service')).NoteService,
+          useClass: MockNoteService,
+        },
+        {
+          provide: (await import('../../../../core/services/auth-state.service')).AuthStateService,
+          useClass: MockAuth,
+        },
+        {
+          provide: (await import('../../../../core/services/toast.service')).ToastService,
+          useClass: MockToast,
+        },
+        {
+          provide: (await import('../../../../core/services/workspace-state.service'))
+            .WorkspaceStateService,
+          useClass: MockWorkspace,
+        },
+        {
+          provide: (await import('../../../../core/services/google-drive.service'))
+            .GoogleDriveService,
+          useClass: MockGoogle,
+        },
+        {
+          provide: (await import('../../../../core/services/onedrive.service')).OneDriveService,
+          useClass: MockOneDrive,
+        },
+      ],
+    }).compileComponents();
 
     const fixture = TestBed.createComponent(NoteWorkspaceComponent);
     const comp = fixture.componentInstance;
@@ -37,13 +136,28 @@ describe('NoteWorkspaceComponent', () => {
 
     await comp.saveNote();
 
-    const noteService = TestBed.inject((await import('../../../../core/services/note.service')).NoteService as any);
+    const noteService = TestBed.inject(
+      (await import('../../../../core/services/note.service')).NoteService as any,
+    );
     expect(noteService.createNote).toHaveBeenCalled();
     expect(comp.selectedNoteId()).toBe('c1');
   });
 
   it('handleGoogleDriveFileAction delete closes preview on success', async () => {
-    await TestBed.configureTestingModule({ imports: [NoteWorkspaceComponent], providers: [ { provide: (await import('../../../../core/services/google-drive.service')).GoogleDriveService, useClass: MockGoogle }, { provide: (await import('../../../../core/services/onedrive.service')).OneDriveService, useClass: MockOneDrive } ] }).compileComponents();
+    await TestBed.configureTestingModule({
+      imports: [NoteWorkspaceComponent],
+      providers: [
+        {
+          provide: (await import('../../../../core/services/google-drive.service'))
+            .GoogleDriveService,
+          useClass: MockGoogle,
+        },
+        {
+          provide: (await import('../../../../core/services/onedrive.service')).OneDriveService,
+          useClass: MockOneDrive,
+        },
+      ],
+    }).compileComponents();
 
     const fixture = TestBed.createComponent(NoteWorkspaceComponent);
     const comp = fixture.componentInstance;
@@ -53,10 +167,41 @@ describe('NoteWorkspaceComponent', () => {
   });
 
   it('reloadFolders sets folders and handles error', async () => {
-    const mockFolderSvc: any = { getFolderTree: jest.fn().mockResolvedValue([{ id: 'r', is_root: true }]) };
-    const mockWS: any = { selectedFolderId: jest.fn().mockReturnValue(null), setSelectedFolder: jest.fn() };
+    const mockFolderSvc: any = {
+      getFolderTree: jest.fn().mockResolvedValue([{ id: 'r', is_root: true }]),
+    };
+    const mockWS: any = {
+      selectedFolderId: jest.fn().mockReturnValue(null),
+      setSelectedFolder: jest.fn(),
+    };
 
-    await TestBed.configureTestingModule({ imports: [NoteWorkspaceComponent], providers: [ { provide: (await import('../../../folders/services/folder.service')).FolderService, useValue: mockFolderSvc }, { provide: (await import('../../../../core/services/workspace-state.service')).WorkspaceStateService, useValue: mockWS }, { provide: (await import('../../../../core/services/google-drive.service')).GoogleDriveService, useClass: MockGoogle }, { provide: (await import('../../../../core/services/onedrive.service')).OneDriveService, useClass: MockOneDrive }, { provide: (await import('../../../../core/services/toast.service')).ToastService, useClass: MockToast } ] }).compileComponents();
+    await TestBed.configureTestingModule({
+      imports: [NoteWorkspaceComponent],
+      providers: [
+        {
+          provide: (await import('../../../folders/services/folder.service')).FolderService,
+          useValue: mockFolderSvc,
+        },
+        {
+          provide: (await import('../../../../core/services/workspace-state.service'))
+            .WorkspaceStateService,
+          useValue: mockWS,
+        },
+        {
+          provide: (await import('../../../../core/services/google-drive.service'))
+            .GoogleDriveService,
+          useClass: MockGoogle,
+        },
+        {
+          provide: (await import('../../../../core/services/onedrive.service')).OneDriveService,
+          useClass: MockOneDrive,
+        },
+        {
+          provide: (await import('../../../../core/services/toast.service')).ToastService,
+          useClass: MockToast,
+        },
+      ],
+    }).compileComponents();
 
     const fixture = TestBed.createComponent(NoteWorkspaceComponent);
     const comp = fixture.componentInstance;
@@ -66,17 +211,46 @@ describe('NoteWorkspaceComponent', () => {
 
     // simulate error path
     mockFolderSvc.getFolderTree.mockRejectedValueOnce(new Error('err'));
-    const toast = TestBed.inject((await import('../../../../core/services/toast.service')).ToastService as any);
+    const toast = TestBed.inject(
+      (await import('../../../../core/services/toast.service')).ToastService as any,
+    );
     jest.spyOn(toast, 'error');
     await comp.reloadFolders();
     expect(toast.error).toHaveBeenCalled();
   });
 
   it('openNote fetches full note when content missing and handles errors', async () => {
-    const mockNote: any = { getNote: jest.fn().mockResolvedValue({ id: 'n1', content: 'content' }) };
+    const mockNote: any = {
+      getNote: jest.fn().mockResolvedValue({ id: 'n1', content: 'content' }),
+    };
     const mockAuth: any = { userId: () => 'u1' };
 
-    await TestBed.configureTestingModule({ imports: [NoteWorkspaceComponent], providers: [ { provide: (await import('../../../../core/services/note.service')).NoteService, useValue: mockNote }, { provide: (await import('../../../../core/services/auth-state.service')).AuthStateService, useValue: mockAuth }, { provide: (await import('../../../../core/services/google-drive.service')).GoogleDriveService, useClass: MockGoogle }, { provide: (await import('../../../../core/services/onedrive.service')).OneDriveService, useClass: MockOneDrive }, { provide: (await import('../../../../core/services/toast.service')).ToastService, useClass: MockToast } ] }).compileComponents();
+    await TestBed.configureTestingModule({
+      imports: [NoteWorkspaceComponent],
+      providers: [
+        {
+          provide: (await import('../../../../core/services/note.service')).NoteService,
+          useValue: mockNote,
+        },
+        {
+          provide: (await import('../../../../core/services/auth-state.service')).AuthStateService,
+          useValue: mockAuth,
+        },
+        {
+          provide: (await import('../../../../core/services/google-drive.service'))
+            .GoogleDriveService,
+          useClass: MockGoogle,
+        },
+        {
+          provide: (await import('../../../../core/services/onedrive.service')).OneDriveService,
+          useClass: MockOneDrive,
+        },
+        {
+          provide: (await import('../../../../core/services/toast.service')).ToastService,
+          useClass: MockToast,
+        },
+      ],
+    }).compileComponents();
 
     const fixture = TestBed.createComponent(NoteWorkspaceComponent);
     const comp = fixture.componentInstance;
@@ -94,10 +268,29 @@ describe('NoteWorkspaceComponent', () => {
   });
 
   it('close previews and handle file actions for Google/OneDrive', async () => {
-    const mockGoogle: any = { renameFile: jest.fn().mockResolvedValue({}), deleteFile: jest.fn().mockResolvedValue(true) };
-    const mockOne: any = { renameFile: jest.fn().mockResolvedValue({}), deleteFile: jest.fn().mockResolvedValue(false) };
+    const mockGoogle: any = {
+      renameFile: jest.fn().mockResolvedValue({}),
+      deleteFile: jest.fn().mockResolvedValue(true),
+    };
+    const mockOne: any = {
+      renameFile: jest.fn().mockResolvedValue({}),
+      deleteFile: jest.fn().mockResolvedValue(false),
+    };
 
-    await TestBed.configureTestingModule({ imports: [NoteWorkspaceComponent], providers: [ { provide: (await import('../../../../core/services/google-drive.service')).GoogleDriveService, useValue: mockGoogle }, { provide: (await import('../../../../core/services/onedrive.service')).OneDriveService, useValue: mockOne } ] }).compileComponents();
+    await TestBed.configureTestingModule({
+      imports: [NoteWorkspaceComponent],
+      providers: [
+        {
+          provide: (await import('../../../../core/services/google-drive.service'))
+            .GoogleDriveService,
+          useValue: mockGoogle,
+        },
+        {
+          provide: (await import('../../../../core/services/onedrive.service')).OneDriveService,
+          useValue: mockOne,
+        },
+      ],
+    }).compileComponents();
 
     const fixture = TestBed.createComponent(NoteWorkspaceComponent);
     const comp = fixture.componentInstance;
@@ -107,7 +300,10 @@ describe('NoteWorkspaceComponent', () => {
     expect(comp.selectedGoogleDriveFile()).toBeNull();
 
     // rename
-    await comp.handleGoogleDriveFileAction({ action: 'rename', file: { id: 'g1', name: 'n' } as any });
+    await comp.handleGoogleDriveFileAction({
+      action: 'rename',
+      file: { id: 'g1', name: 'n' } as any,
+    });
     expect(mockGoogle.renameFile).toHaveBeenCalledWith('g1', 'n');
 
     // delete success closes preview
@@ -125,7 +321,20 @@ describe('NoteWorkspaceComponent', () => {
   });
 
   it('onTitleInput updates title', async () => {
-    await TestBed.configureTestingModule({ imports: [NoteWorkspaceComponent], providers: [{ provide: (await import('../../../../core/services/google-drive.service')).GoogleDriveService, useClass: MockGoogle }, { provide: (await import('../../../../core/services/onedrive.service')).OneDriveService, useClass: MockOneDrive }] }).compileComponents();
+    await TestBed.configureTestingModule({
+      imports: [NoteWorkspaceComponent],
+      providers: [
+        {
+          provide: (await import('../../../../core/services/google-drive.service'))
+            .GoogleDriveService,
+          useClass: MockGoogle,
+        },
+        {
+          provide: (await import('../../../../core/services/onedrive.service')).OneDriveService,
+          useClass: MockOneDrive,
+        },
+      ],
+    }).compileComponents();
     const fixture = TestBed.createComponent(NoteWorkspaceComponent);
     const comp = fixture.componentInstance;
 
@@ -134,11 +343,56 @@ describe('NoteWorkspaceComponent', () => {
     expect(comp.title()).toBe('Hello');
   });
   it('saveNote updates existing note', async () => {
-    const mockNote: any = { updateNote: jest.fn().mockResolvedValue({ title: 't2' }), getNotesForFolder: jest.fn().mockResolvedValue([]) };
-    const mockWS: any = { selectedFolderId: jest.fn().mockReturnValue('f1'), setSelectedFolder: jest.fn(), noteCreated$: { subscribe: jest.fn() }, googleDriveFileSelected$: { subscribe: jest.fn() }, oneDriveFileSelected$: { subscribe: jest.fn() }, foldersChanged$: { subscribe: jest.fn() }, noteSelected$: { subscribe: jest.fn() } };
+    const mockNote: any = {
+      updateNote: jest.fn().mockResolvedValue({ title: 't2' }),
+      getNotesForFolder: jest.fn().mockResolvedValue([]),
+    };
+    const mockWS: any = {
+      selectedFolderId: jest.fn().mockReturnValue('f1'),
+      setSelectedFolder: jest.fn(),
+      noteCreated$: { subscribe: jest.fn() },
+      googleDriveFileSelected$: { subscribe: jest.fn() },
+      oneDriveFileSelected$: { subscribe: jest.fn() },
+      foldersChanged$: { subscribe: jest.fn() },
+      noteSelected$: { subscribe: jest.fn() },
+    };
     const toast = { success: jest.fn(), error: jest.fn() };
 
-    await TestBed.configureTestingModule({ imports: [NoteWorkspaceComponent], providers: [ { provide: (await import('../../../folders/services/folder.service')).FolderService, useClass: MockFolderService }, { provide: (await import('../../../../core/services/note.service')).NoteService, useValue: mockNote }, { provide: (await import('../../../../core/services/auth-state.service')).AuthStateService, useClass: MockAuth }, { provide: (await import('../../../../core/services/toast.service')).ToastService, useValue: toast }, { provide: (await import('../../../../core/services/workspace-state.service')).WorkspaceStateService, useValue: mockWS }, { provide: (await import('../../../../core/services/google-drive.service')).GoogleDriveService, useClass: MockGoogle }, { provide: (await import('../../../../core/services/onedrive.service')).OneDriveService, useClass: MockOneDrive } ] }).compileComponents();
+    await TestBed.configureTestingModule({
+      imports: [NoteWorkspaceComponent],
+      providers: [
+        {
+          provide: (await import('../../../folders/services/folder.service')).FolderService,
+          useClass: MockFolderService,
+        },
+        {
+          provide: (await import('../../../../core/services/note.service')).NoteService,
+          useValue: mockNote,
+        },
+        {
+          provide: (await import('../../../../core/services/auth-state.service')).AuthStateService,
+          useClass: MockAuth,
+        },
+        {
+          provide: (await import('../../../../core/services/toast.service')).ToastService,
+          useValue: toast,
+        },
+        {
+          provide: (await import('../../../../core/services/workspace-state.service'))
+            .WorkspaceStateService,
+          useValue: mockWS,
+        },
+        {
+          provide: (await import('../../../../core/services/google-drive.service'))
+            .GoogleDriveService,
+          useClass: MockGoogle,
+        },
+        {
+          provide: (await import('../../../../core/services/onedrive.service')).OneDriveService,
+          useClass: MockOneDrive,
+        },
+      ],
+    }).compileComponents();
 
     const fixture = TestBed.createComponent(NoteWorkspaceComponent);
     const comp = fixture.componentInstance;
@@ -156,11 +410,44 @@ describe('NoteWorkspaceComponent', () => {
 
   it('saveNote handles failures and exceptions', async () => {
     // failure path (updateNote returns falsey via throw)
-    const mockFail: any = { updateNote: jest.fn().mockRejectedValue(new Error('fail')), getNotesForFolder: jest.fn().mockResolvedValue([]) };
+    const mockFail: any = {
+      updateNote: jest.fn().mockRejectedValue(new Error('fail')),
+      getNotesForFolder: jest.fn().mockResolvedValue([]),
+    };
     const toast1 = { success: jest.fn(), error: jest.fn() };
 
     TestBed.resetTestingModule();
-    await TestBed.configureTestingModule({ imports: [NoteWorkspaceComponent], providers: [ { provide: (await import('../../../../core/services/note.service')).NoteService, useValue: mockFail }, { provide: (await import('../../../../core/services/auth-state.service')).AuthStateService, useClass: MockAuth }, { provide: (await import('../../../../core/services/toast.service')).ToastService, useValue: toast1 }, { provide: (await import('../../../../core/services/workspace-state.service')).WorkspaceStateService, useValue: { selectedFolderId: jest.fn().mockReturnValue('f1') } }, { provide: (await import('../../../../core/services/google-drive.service')).GoogleDriveService, useClass: MockGoogle }, { provide: (await import('../../../../core/services/onedrive.service')).OneDriveService, useClass: MockOneDrive } ] }).compileComponents();
+    await TestBed.configureTestingModule({
+      imports: [NoteWorkspaceComponent],
+      providers: [
+        {
+          provide: (await import('../../../../core/services/note.service')).NoteService,
+          useValue: mockFail,
+        },
+        {
+          provide: (await import('../../../../core/services/auth-state.service')).AuthStateService,
+          useClass: MockAuth,
+        },
+        {
+          provide: (await import('../../../../core/services/toast.service')).ToastService,
+          useValue: toast1,
+        },
+        {
+          provide: (await import('../../../../core/services/workspace-state.service'))
+            .WorkspaceStateService,
+          useValue: { selectedFolderId: jest.fn().mockReturnValue('f1') },
+        },
+        {
+          provide: (await import('../../../../core/services/google-drive.service'))
+            .GoogleDriveService,
+          useClass: MockGoogle,
+        },
+        {
+          provide: (await import('../../../../core/services/onedrive.service')).OneDriveService,
+          useClass: MockOneDrive,
+        },
+      ],
+    }).compileComponents();
 
     const fixture1 = TestBed.createComponent(NoteWorkspaceComponent);
     const comp1 = fixture1.componentInstance;
@@ -173,11 +460,44 @@ describe('NoteWorkspaceComponent', () => {
     expect(toast1.error).toHaveBeenCalledWith('Failed to save note');
 
     // creation failure
-    const mockCreateErr: any = { createNote: jest.fn().mockRejectedValue(new Error('boom')), getNotesForFolder: jest.fn().mockResolvedValue([]) };
+    const mockCreateErr: any = {
+      createNote: jest.fn().mockRejectedValue(new Error('boom')),
+      getNotesForFolder: jest.fn().mockResolvedValue([]),
+    };
     const toast2 = { success: jest.fn(), error: jest.fn() };
 
     TestBed.resetTestingModule();
-    await TestBed.configureTestingModule({ imports: [NoteWorkspaceComponent], providers: [ { provide: (await import('../../../../core/services/note.service')).NoteService, useValue: mockCreateErr }, { provide: (await import('../../../../core/services/auth-state.service')).AuthStateService, useClass: MockAuth }, { provide: (await import('../../../../core/services/toast.service')).ToastService, useValue: toast2 }, { provide: (await import('../../../../core/services/workspace-state.service')).WorkspaceStateService, useValue: { selectedFolderId: jest.fn().mockReturnValue('f1') } }, { provide: (await import('../../../../core/services/google-drive.service')).GoogleDriveService, useClass: MockGoogle }, { provide: (await import('../../../../core/services/onedrive.service')).OneDriveService, useClass: MockOneDrive } ] }).compileComponents();
+    await TestBed.configureTestingModule({
+      imports: [NoteWorkspaceComponent],
+      providers: [
+        {
+          provide: (await import('../../../../core/services/note.service')).NoteService,
+          useValue: mockCreateErr,
+        },
+        {
+          provide: (await import('../../../../core/services/auth-state.service')).AuthStateService,
+          useClass: MockAuth,
+        },
+        {
+          provide: (await import('../../../../core/services/toast.service')).ToastService,
+          useValue: toast2,
+        },
+        {
+          provide: (await import('../../../../core/services/workspace-state.service'))
+            .WorkspaceStateService,
+          useValue: { selectedFolderId: jest.fn().mockReturnValue('f1') },
+        },
+        {
+          provide: (await import('../../../../core/services/google-drive.service'))
+            .GoogleDriveService,
+          useClass: MockGoogle,
+        },
+        {
+          provide: (await import('../../../../core/services/onedrive.service')).OneDriveService,
+          useClass: MockOneDrive,
+        },
+      ],
+    }).compileComponents();
 
     const fixture2 = TestBed.createComponent(NoteWorkspaceComponent);
     const comp2 = fixture2.componentInstance;
@@ -190,11 +510,44 @@ describe('NoteWorkspaceComponent', () => {
   });
 
   it('deleteNote success path', async () => {
-    const mock: any = { deleteNote: jest.fn().mockResolvedValue(true), getNotesForFolder: jest.fn().mockResolvedValue([]) };
+    const mock: any = {
+      deleteNote: jest.fn().mockResolvedValue(true),
+      getNotesForFolder: jest.fn().mockResolvedValue([]),
+    };
     const toast = { success: jest.fn(), error: jest.fn() };
 
     TestBed.resetTestingModule();
-    await TestBed.configureTestingModule({ imports: [NoteWorkspaceComponent], providers: [ { provide: (await import('../../../../core/services/note.service')).NoteService, useValue: mock }, { provide: (await import('../../../../core/services/auth-state.service')).AuthStateService, useClass: MockAuth }, { provide: (await import('../../../../core/services/toast.service')).ToastService, useValue: toast }, { provide: (await import('../../../../core/services/workspace-state.service')).WorkspaceStateService, useValue: { selectedFolderId: jest.fn().mockReturnValue('f1') } }, { provide: (await import('../../../../core/services/google-drive.service')).GoogleDriveService, useClass: MockGoogle }, { provide: (await import('../../../../core/services/onedrive.service')).OneDriveService, useClass: MockOneDrive } ] }).compileComponents();
+    await TestBed.configureTestingModule({
+      imports: [NoteWorkspaceComponent],
+      providers: [
+        {
+          provide: (await import('../../../../core/services/note.service')).NoteService,
+          useValue: mock,
+        },
+        {
+          provide: (await import('../../../../core/services/auth-state.service')).AuthStateService,
+          useClass: MockAuth,
+        },
+        {
+          provide: (await import('../../../../core/services/toast.service')).ToastService,
+          useValue: toast,
+        },
+        {
+          provide: (await import('../../../../core/services/workspace-state.service'))
+            .WorkspaceStateService,
+          useValue: { selectedFolderId: jest.fn().mockReturnValue('f1') },
+        },
+        {
+          provide: (await import('../../../../core/services/google-drive.service'))
+            .GoogleDriveService,
+          useClass: MockGoogle,
+        },
+        {
+          provide: (await import('../../../../core/services/onedrive.service')).OneDriveService,
+          useClass: MockOneDrive,
+        },
+      ],
+    }).compileComponents();
 
     const fixture = TestBed.createComponent(NoteWorkspaceComponent);
     const comp = fixture.componentInstance;
@@ -210,7 +563,37 @@ describe('NoteWorkspaceComponent', () => {
     const toast = { success: jest.fn(), error: jest.fn() };
 
     TestBed.resetTestingModule();
-    await TestBed.configureTestingModule({ imports: [NoteWorkspaceComponent], providers: [ { provide: (await import('../../../../core/services/note.service')).NoteService, useValue: mock }, { provide: (await import('../../../../core/services/auth-state.service')).AuthStateService, useClass: MockAuth }, { provide: (await import('../../../../core/services/toast.service')).ToastService, useValue: toast }, { provide: (await import('../../../../core/services/workspace-state.service')).WorkspaceStateService, useValue: { selectedFolderId: jest.fn().mockReturnValue('f1') } }, { provide: (await import('../../../../core/services/google-drive.service')).GoogleDriveService, useClass: MockGoogle }, { provide: (await import('../../../../core/services/onedrive.service')).OneDriveService, useClass: MockOneDrive } ] }).compileComponents();
+    await TestBed.configureTestingModule({
+      imports: [NoteWorkspaceComponent],
+      providers: [
+        {
+          provide: (await import('../../../../core/services/note.service')).NoteService,
+          useValue: mock,
+        },
+        {
+          provide: (await import('../../../../core/services/auth-state.service')).AuthStateService,
+          useClass: MockAuth,
+        },
+        {
+          provide: (await import('../../../../core/services/toast.service')).ToastService,
+          useValue: toast,
+        },
+        {
+          provide: (await import('../../../../core/services/workspace-state.service'))
+            .WorkspaceStateService,
+          useValue: { selectedFolderId: jest.fn().mockReturnValue('f1') },
+        },
+        {
+          provide: (await import('../../../../core/services/google-drive.service'))
+            .GoogleDriveService,
+          useClass: MockGoogle,
+        },
+        {
+          provide: (await import('../../../../core/services/onedrive.service')).OneDriveService,
+          useClass: MockOneDrive,
+        },
+      ],
+    }).compileComponents();
 
     const fixture = TestBed.createComponent(NoteWorkspaceComponent);
     const comp = fixture.componentInstance;
@@ -234,7 +617,32 @@ describe('NoteWorkspaceComponent', () => {
     const toast = { success: jest.fn(), error: jest.fn() };
 
     TestBed.resetTestingModule();
-    await TestBed.configureTestingModule({ imports: [NoteWorkspaceComponent], providers: [ { provide: (await import('../../../../core/services/note.service')).NoteService, useValue: mock }, { provide: (await import('../../../../core/services/auth-state.service')).AuthStateService, useClass: MockAuth }, { provide: (await import('../../../../core/services/toast.service')).ToastService, useValue: toast }, { provide: (await import('../../../../core/services/google-drive.service')).GoogleDriveService, useClass: MockGoogle }, { provide: (await import('../../../../core/services/onedrive.service')).OneDriveService, useClass: MockOneDrive } ] }).compileComponents();
+    await TestBed.configureTestingModule({
+      imports: [NoteWorkspaceComponent],
+      providers: [
+        {
+          provide: (await import('../../../../core/services/note.service')).NoteService,
+          useValue: mock,
+        },
+        {
+          provide: (await import('../../../../core/services/auth-state.service')).AuthStateService,
+          useClass: MockAuth,
+        },
+        {
+          provide: (await import('../../../../core/services/toast.service')).ToastService,
+          useValue: toast,
+        },
+        {
+          provide: (await import('../../../../core/services/google-drive.service'))
+            .GoogleDriveService,
+          useClass: MockGoogle,
+        },
+        {
+          provide: (await import('../../../../core/services/onedrive.service')).OneDriveService,
+          useClass: MockOneDrive,
+        },
+      ],
+    }).compileComponents();
 
     const fixture = TestBed.createComponent(NoteWorkspaceComponent);
     const comp = fixture.componentInstance;
@@ -244,7 +652,41 @@ describe('NoteWorkspaceComponent', () => {
   });
 
   it('isDocument detection works for storage:// files', async () => {
-    await TestBed.configureTestingModule({ imports: [NoteWorkspaceComponent], providers: [ { provide: (await import('../../../folders/services/folder.service')).FolderService, useClass: MockFolderService }, { provide: (await import('../../../../core/services/note.service')).NoteService, useClass: MockNoteService }, { provide: (await import('../../../../core/services/auth-state.service')).AuthStateService, useClass: MockAuth }, { provide: (await import('../../../../core/services/toast.service')).ToastService, useClass: MockToast }, { provide: (await import('../../../../core/services/workspace-state.service')).WorkspaceStateService, useClass: MockWorkspace }, { provide: (await import('../../../../core/services/google-drive.service')).GoogleDriveService, useClass: MockGoogle }, { provide: (await import('../../../../core/services/onedrive.service')).OneDriveService, useClass: MockOneDrive } ] }).compileComponents();
+    await TestBed.configureTestingModule({
+      imports: [NoteWorkspaceComponent],
+      providers: [
+        {
+          provide: (await import('../../../folders/services/folder.service')).FolderService,
+          useClass: MockFolderService,
+        },
+        {
+          provide: (await import('../../../../core/services/note.service')).NoteService,
+          useClass: MockNoteService,
+        },
+        {
+          provide: (await import('../../../../core/services/auth-state.service')).AuthStateService,
+          useClass: MockAuth,
+        },
+        {
+          provide: (await import('../../../../core/services/toast.service')).ToastService,
+          useClass: MockToast,
+        },
+        {
+          provide: (await import('../../../../core/services/workspace-state.service'))
+            .WorkspaceStateService,
+          useClass: MockWorkspace,
+        },
+        {
+          provide: (await import('../../../../core/services/google-drive.service'))
+            .GoogleDriveService,
+          useClass: MockGoogle,
+        },
+        {
+          provide: (await import('../../../../core/services/onedrive.service')).OneDriveService,
+          useClass: MockOneDrive,
+        },
+      ],
+    }).compileComponents();
 
     const fixture = TestBed.createComponent(NoteWorkspaceComponent);
     const comp = fixture.componentInstance;
@@ -257,10 +699,44 @@ describe('NoteWorkspaceComponent', () => {
   });
 
   it('onFolderDropdownChange calls workspace setSelectedFolder', async () => {
-    const ws: any = { selectedFolderId: jest.fn().mockReturnValue('f1'), setSelectedFolder: jest.fn(), noteCreated$: { subscribe: jest.fn() }, googleDriveFileSelected$: { subscribe: jest.fn() }, oneDriveFileSelected$: { subscribe: jest.fn() }, foldersChanged$: { subscribe: jest.fn() }, noteSelected$: { subscribe: jest.fn() } };
+    const ws: any = {
+      selectedFolderId: jest.fn().mockReturnValue('f1'),
+      setSelectedFolder: jest.fn(),
+      noteCreated$: { subscribe: jest.fn() },
+      googleDriveFileSelected$: { subscribe: jest.fn() },
+      oneDriveFileSelected$: { subscribe: jest.fn() },
+      foldersChanged$: { subscribe: jest.fn() },
+      noteSelected$: { subscribe: jest.fn() },
+    };
 
     TestBed.resetTestingModule();
-    await TestBed.configureTestingModule({ imports: [NoteWorkspaceComponent], providers: [ { provide: (await import('../../../../core/services/workspace-state.service')).WorkspaceStateService, useValue: ws }, { provide: (await import('../../../../core/services/toast.service')).ToastService, useClass: MockToast }, { provide: (await import('../../../../core/services/auth-state.service')).AuthStateService, useClass: MockAuth }, { provide: (await import('../../../../core/services/google-drive.service')).GoogleDriveService, useClass: MockGoogle }, { provide: (await import('../../../../core/services/onedrive.service')).OneDriveService, useClass: MockOneDrive } ] }).compileComponents();
+    await TestBed.configureTestingModule({
+      imports: [NoteWorkspaceComponent],
+      providers: [
+        {
+          provide: (await import('../../../../core/services/workspace-state.service'))
+            .WorkspaceStateService,
+          useValue: ws,
+        },
+        {
+          provide: (await import('../../../../core/services/toast.service')).ToastService,
+          useClass: MockToast,
+        },
+        {
+          provide: (await import('../../../../core/services/auth-state.service')).AuthStateService,
+          useClass: MockAuth,
+        },
+        {
+          provide: (await import('../../../../core/services/google-drive.service'))
+            .GoogleDriveService,
+          useClass: MockGoogle,
+        },
+        {
+          provide: (await import('../../../../core/services/onedrive.service')).OneDriveService,
+          useClass: MockOneDrive,
+        },
+      ],
+    }).compileComponents();
 
     const fixture = TestBed.createComponent(NoteWorkspaceComponent);
     const comp = fixture.componentInstance;
@@ -271,7 +747,16 @@ describe('NoteWorkspaceComponent', () => {
   });
 
   it('noteCreated subscription opens note and reloads', async () => {
-    const noteCreatedSubject: any = { subscribers: [], subscribe: jest.fn(function (fn: any) { this.subscribers.push(fn); return { unsubscribe: jest.fn() }; }), next(note: any) { this.subscribers.forEach((s: any) => s(note)); } };
+    const noteCreatedSubject: any = {
+      subscribers: [],
+      subscribe: jest.fn(function (fn: any) {
+        this.subscribers.push(fn);
+        return { unsubscribe: jest.fn() };
+      }),
+      next(note: any) {
+        this.subscribers.forEach((s: any) => s(note));
+      },
+    };
     const ws: any = {
       selectedFolderId: jest.fn().mockReturnValue('f1'),
       setSelectedFolder: jest.fn(),
@@ -279,14 +764,51 @@ describe('NoteWorkspaceComponent', () => {
       googleDriveFileSelected$: { subscribe: jest.fn() },
       oneDriveFileSelected$: { subscribe: jest.fn() },
       foldersChanged$: { subscribe: jest.fn() },
-      noteSelected$: { subscribe: jest.fn() }
+      noteSelected$: { subscribe: jest.fn() },
     };
 
-    const mockNoteSvc: any = { getNote: jest.fn().mockResolvedValue({ id: 'n1', title: 't', content: 'c' }), getNotesForFolder: jest.fn().mockResolvedValue([]) };
+    const mockNoteSvc: any = {
+      getNote: jest.fn().mockResolvedValue({ id: 'n1', title: 't', content: 'c' }),
+      getNotesForFolder: jest.fn().mockResolvedValue([]),
+    };
     const toast = { success: jest.fn(), error: jest.fn() };
 
     TestBed.resetTestingModule();
-    await TestBed.configureTestingModule({ imports: [NoteWorkspaceComponent], providers: [ { provide: (await import('../../../folders/services/folder.service')).FolderService, useClass: MockFolderService }, { provide: (await import('../../../../core/services/workspace-state.service')).WorkspaceStateService, useValue: ws }, { provide: (await import('../../../../core/services/note.service')).NoteService, useValue: mockNoteSvc }, { provide: (await import('../../../../core/services/toast.service')).ToastService, useValue: toast }, { provide: (await import('../../../../core/services/auth-state.service')).AuthStateService, useClass: MockAuth }, { provide: (await import('../../../../core/services/google-drive.service')).GoogleDriveService, useClass: MockGoogle }, { provide: (await import('../../../../core/services/onedrive.service')).OneDriveService, useClass: MockOneDrive } ] }).compileComponents();
+    await TestBed.configureTestingModule({
+      imports: [NoteWorkspaceComponent],
+      providers: [
+        {
+          provide: (await import('../../../folders/services/folder.service')).FolderService,
+          useClass: MockFolderService,
+        },
+        {
+          provide: (await import('../../../../core/services/workspace-state.service'))
+            .WorkspaceStateService,
+          useValue: ws,
+        },
+        {
+          provide: (await import('../../../../core/services/note.service')).NoteService,
+          useValue: mockNoteSvc,
+        },
+        {
+          provide: (await import('../../../../core/services/toast.service')).ToastService,
+          useValue: toast,
+        },
+        {
+          provide: (await import('../../../../core/services/auth-state.service')).AuthStateService,
+          useClass: MockAuth,
+        },
+        {
+          provide: (await import('../../../../core/services/google-drive.service'))
+            .GoogleDriveService,
+          useClass: MockGoogle,
+        },
+        {
+          provide: (await import('../../../../core/services/onedrive.service')).OneDriveService,
+          useClass: MockOneDrive,
+        },
+      ],
+    }).compileComponents();
 
     const fixture = TestBed.createComponent(NoteWorkspaceComponent);
     const comp = fixture.componentInstance;
@@ -308,7 +830,25 @@ describe('NoteWorkspaceComponent', () => {
   });
 
   it('createNewNote initializes when folder selected', async () => {
-    await TestBed.configureTestingModule({ imports: [NoteWorkspaceComponent], providers: [ { provide: (await import('../../../../core/services/workspace-state.service')).WorkspaceStateService, useValue: { selectedFolderId: jest.fn().mockReturnValue('f1') } }, { provide: (await import('../../../../core/services/google-drive.service')).GoogleDriveService, useClass: MockGoogle }, { provide: (await import('../../../../core/services/onedrive.service')).OneDriveService, useClass: MockOneDrive } ] }).compileComponents();
+    await TestBed.configureTestingModule({
+      imports: [NoteWorkspaceComponent],
+      providers: [
+        {
+          provide: (await import('../../../../core/services/workspace-state.service'))
+            .WorkspaceStateService,
+          useValue: { selectedFolderId: jest.fn().mockReturnValue('f1') },
+        },
+        {
+          provide: (await import('../../../../core/services/google-drive.service'))
+            .GoogleDriveService,
+          useClass: MockGoogle,
+        },
+        {
+          provide: (await import('../../../../core/services/onedrive.service')).OneDriveService,
+          useClass: MockOneDrive,
+        },
+      ],
+    }).compileComponents();
 
     const fixture = TestBed.createComponent(NoteWorkspaceComponent);
     const comp = fixture.componentInstance;
@@ -323,12 +863,56 @@ describe('NoteWorkspaceComponent', () => {
   });
 
   it('saveNote still succeeds if emitFoldersChanged throws', async () => {
-    const mockNote: any = { createNote: jest.fn().mockResolvedValue({ id: 'c2' }), getNotesForFolder: jest.fn().mockResolvedValue([]) };
-    const ws: any = { selectedFolderId: jest.fn().mockReturnValue('f1'), emitFoldersChanged: jest.fn(() => { throw new Error('boom'); }), setSelectedFolder: jest.fn(), noteCreated$: { subscribe: jest.fn() }, googleDriveFileSelected$: { subscribe: jest.fn() }, oneDriveFileSelected$: { subscribe: jest.fn() }, foldersChanged$: { subscribe: jest.fn() }, noteSelected$: { subscribe: jest.fn() } };
+    const mockNote: any = {
+      createNote: jest.fn().mockResolvedValue({ id: 'c2' }),
+      getNotesForFolder: jest.fn().mockResolvedValue([]),
+    };
+    const ws: any = {
+      selectedFolderId: jest.fn().mockReturnValue('f1'),
+      emitFoldersChanged: jest.fn(() => {
+        throw new Error('boom');
+      }),
+      setSelectedFolder: jest.fn(),
+      noteCreated$: { subscribe: jest.fn() },
+      googleDriveFileSelected$: { subscribe: jest.fn() },
+      oneDriveFileSelected$: { subscribe: jest.fn() },
+      foldersChanged$: { subscribe: jest.fn() },
+      noteSelected$: { subscribe: jest.fn() },
+    };
     const toast = { success: jest.fn(), error: jest.fn() };
 
     TestBed.resetTestingModule();
-    await TestBed.configureTestingModule({ imports: [NoteWorkspaceComponent], providers: [ { provide: (await import('../../../../core/services/note.service')).NoteService, useValue: mockNote }, { provide: (await import('../../../../core/services/workspace-state.service')).WorkspaceStateService, useValue: ws }, { provide: (await import('../../../../core/services/toast.service')).ToastService, useValue: toast }, { provide: (await import('../../../../core/services/auth-state.service')).AuthStateService, useClass: MockAuth }, { provide: (await import('../../../../core/services/google-drive.service')).GoogleDriveService, useClass: MockGoogle }, { provide: (await import('../../../../core/services/onedrive.service')).OneDriveService, useClass: MockOneDrive } ] }).compileComponents();
+    await TestBed.configureTestingModule({
+      imports: [NoteWorkspaceComponent],
+      providers: [
+        {
+          provide: (await import('../../../../core/services/note.service')).NoteService,
+          useValue: mockNote,
+        },
+        {
+          provide: (await import('../../../../core/services/workspace-state.service'))
+            .WorkspaceStateService,
+          useValue: ws,
+        },
+        {
+          provide: (await import('../../../../core/services/toast.service')).ToastService,
+          useValue: toast,
+        },
+        {
+          provide: (await import('../../../../core/services/auth-state.service')).AuthStateService,
+          useClass: MockAuth,
+        },
+        {
+          provide: (await import('../../../../core/services/google-drive.service'))
+            .GoogleDriveService,
+          useClass: MockGoogle,
+        },
+        {
+          provide: (await import('../../../../core/services/onedrive.service')).OneDriveService,
+          useClass: MockOneDrive,
+        },
+      ],
+    }).compileComponents();
 
     const fixture = TestBed.createComponent(NoteWorkspaceComponent);
     const comp = fixture.componentInstance;
@@ -343,7 +927,20 @@ describe('NoteWorkspaceComponent', () => {
   });
 
   it('handleGoogleDriveFileAction imported branch does nothing', async () => {
-    await TestBed.configureTestingModule({ imports: [NoteWorkspaceComponent], providers: [ { provide: (await import('../../../../core/services/google-drive.service')).GoogleDriveService, useClass: MockGoogle }, { provide: (await import('../../../../core/services/onedrive.service')).OneDriveService, useClass: MockOneDrive } ] }).compileComponents();
+    await TestBed.configureTestingModule({
+      imports: [NoteWorkspaceComponent],
+      providers: [
+        {
+          provide: (await import('../../../../core/services/google-drive.service'))
+            .GoogleDriveService,
+          useClass: MockGoogle,
+        },
+        {
+          provide: (await import('../../../../core/services/onedrive.service')).OneDriveService,
+          useClass: MockOneDrive,
+        },
+      ],
+    }).compileComponents();
 
     const fixture = TestBed.createComponent(NoteWorkspaceComponent);
     const comp = fixture.componentInstance;
@@ -355,8 +952,24 @@ describe('NoteWorkspaceComponent', () => {
   });
 
   it('handleOneDriveFileAction delete success closes preview', async () => {
-    const mockOne: any = { deleteFile: jest.fn().mockResolvedValue(true), renameFile: jest.fn().mockResolvedValue({}) };
-    await TestBed.configureTestingModule({ imports: [NoteWorkspaceComponent], providers: [ { provide: (await import('../../../../core/services/google-drive.service')).GoogleDriveService, useClass: MockGoogle }, { provide: (await import('../../../../core/services/onedrive.service')).OneDriveService, useValue: mockOne } ] }).compileComponents();
+    const mockOne: any = {
+      deleteFile: jest.fn().mockResolvedValue(true),
+      renameFile: jest.fn().mockResolvedValue({}),
+    };
+    await TestBed.configureTestingModule({
+      imports: [NoteWorkspaceComponent],
+      providers: [
+        {
+          provide: (await import('../../../../core/services/google-drive.service'))
+            .GoogleDriveService,
+          useClass: MockGoogle,
+        },
+        {
+          provide: (await import('../../../../core/services/onedrive.service')).OneDriveService,
+          useValue: mockOne,
+        },
+      ],
+    }).compileComponents();
 
     const fixture = TestBed.createComponent(NoteWorkspaceComponent);
     const comp = fixture.componentInstance;
@@ -367,11 +980,52 @@ describe('NoteWorkspaceComponent', () => {
   });
 
   it('noteSelected handler (direct) handles getNote errors and shows toast', async () => {
-    const mockNote: any = { getNote: jest.fn().mockRejectedValue(new Error('err')), getNotesForFolder: jest.fn().mockResolvedValue([]) };
+    const mockNote: any = {
+      getNote: jest.fn().mockRejectedValue(new Error('err')),
+      getNotesForFolder: jest.fn().mockResolvedValue([]),
+    };
     const toast = { success: jest.fn(), error: jest.fn() };
 
     TestBed.resetTestingModule();
-    await TestBed.configureTestingModule({ imports: [NoteWorkspaceComponent], providers: [ { provide: (await import('../../../../core/services/note.service')).NoteService, useValue: mockNote }, { provide: (await import('../../../../core/services/toast.service')).ToastService, useValue: toast }, { provide: (await import('../../../../core/services/auth-state.service')).AuthStateService, useClass: MockAuth }, { provide: (await import('../../../../core/services/workspace-state.service')).WorkspaceStateService, useValue: { selectedFolderId: jest.fn().mockReturnValue('f1'), setSelectedFolder: jest.fn(), noteCreated$: { subscribe: jest.fn() }, googleDriveFileSelected$: { subscribe: jest.fn() }, oneDriveFileSelected$: { subscribe: jest.fn() }, foldersChanged$: { subscribe: jest.fn() }, noteSelected$: { subscribe: jest.fn() } } }, { provide: (await import('../../../../core/services/google-drive.service')).GoogleDriveService, useClass: MockGoogle }, { provide: (await import('../../../../core/services/onedrive.service')).OneDriveService, useClass: MockOneDrive } ] }).compileComponents();
+    await TestBed.configureTestingModule({
+      imports: [NoteWorkspaceComponent],
+      providers: [
+        {
+          provide: (await import('../../../../core/services/note.service')).NoteService,
+          useValue: mockNote,
+        },
+        {
+          provide: (await import('../../../../core/services/toast.service')).ToastService,
+          useValue: toast,
+        },
+        {
+          provide: (await import('../../../../core/services/auth-state.service')).AuthStateService,
+          useClass: MockAuth,
+        },
+        {
+          provide: (await import('../../../../core/services/workspace-state.service'))
+            .WorkspaceStateService,
+          useValue: {
+            selectedFolderId: jest.fn().mockReturnValue('f1'),
+            setSelectedFolder: jest.fn(),
+            noteCreated$: { subscribe: jest.fn() },
+            googleDriveFileSelected$: { subscribe: jest.fn() },
+            oneDriveFileSelected$: { subscribe: jest.fn() },
+            foldersChanged$: { subscribe: jest.fn() },
+            noteSelected$: { subscribe: jest.fn() },
+          },
+        },
+        {
+          provide: (await import('../../../../core/services/google-drive.service'))
+            .GoogleDriveService,
+          useClass: MockGoogle,
+        },
+        {
+          provide: (await import('../../../../core/services/onedrive.service')).OneDriveService,
+          useClass: MockOneDrive,
+        },
+      ],
+    }).compileComponents();
 
     const fixture = TestBed.createComponent(NoteWorkspaceComponent);
     const comp = fixture.componentInstance;
@@ -391,10 +1045,16 @@ describe('NoteWorkspaceComponent', () => {
       comp.content.set('');
       comp.currentNote.set(noteRef);
 
-      const userId = TestBed.inject((await import('../../../../core/services/auth-state.service')).AuthStateService as any).userId();
-      await TestBed.inject((await import('../../../../core/services/note.service')).NoteService as any).getNote(noteRef.id, userId);
+      const userId = TestBed.inject(
+        (await import('../../../../core/services/auth-state.service')).AuthStateService as any,
+      ).userId();
+      await TestBed.inject(
+        (await import('../../../../core/services/note.service')).NoteService as any,
+      ).getNote(noteRef.id, userId);
     } catch (e) {
-      const t = TestBed.inject((await import('../../../../core/services/toast.service')).ToastService as any);
+      const t = TestBed.inject(
+        (await import('../../../../core/services/toast.service')).ToastService as any,
+      );
       t.error('Failed to open note');
     }
 
@@ -403,10 +1063,39 @@ describe('NoteWorkspaceComponent', () => {
   });
 
   it('flatFolders flattens nested folder trees', async () => {
-    const mockFolderSvc: any = { getFolderTree: jest.fn().mockResolvedValue([{ id: 'r', is_root: true, children: [{ id: 'c1' }, { id: 'c2', children: [{ id: 'c2a' }] }] }]) };
+    const mockFolderSvc: any = {
+      getFolderTree: jest.fn().mockResolvedValue([
+        {
+          id: 'r',
+          is_root: true,
+          children: [{ id: 'c1' }, { id: 'c2', children: [{ id: 'c2a' }] }],
+        },
+      ]),
+    };
 
     TestBed.resetTestingModule();
-    await TestBed.configureTestingModule({ imports: [NoteWorkspaceComponent], providers: [ { provide: (await import('../../../folders/services/folder.service')).FolderService, useValue: mockFolderSvc }, { provide: (await import('../../../../core/services/auth-state.service')).AuthStateService, useClass: MockAuth }, { provide: (await import('../../../../core/services/google-drive.service')).GoogleDriveService, useClass: MockGoogle }, { provide: (await import('../../../../core/services/onedrive.service')).OneDriveService, useClass: MockOneDrive } ] }).compileComponents();
+    await TestBed.configureTestingModule({
+      imports: [NoteWorkspaceComponent],
+      providers: [
+        {
+          provide: (await import('../../../folders/services/folder.service')).FolderService,
+          useValue: mockFolderSvc,
+        },
+        {
+          provide: (await import('../../../../core/services/auth-state.service')).AuthStateService,
+          useClass: MockAuth,
+        },
+        {
+          provide: (await import('../../../../core/services/google-drive.service'))
+            .GoogleDriveService,
+          useClass: MockGoogle,
+        },
+        {
+          provide: (await import('../../../../core/services/onedrive.service')).OneDriveService,
+          useClass: MockOneDrive,
+        },
+      ],
+    }).compileComponents();
 
     const fixture = TestBed.createComponent(NoteWorkspaceComponent);
     const comp = fixture.componentInstance;
@@ -416,7 +1105,20 @@ describe('NoteWorkspaceComponent', () => {
   });
 
   it('openNote with content sets content immediately', async () => {
-    await TestBed.configureTestingModule({ imports: [NoteWorkspaceComponent], providers: [ { provide: (await import('../../../../core/services/google-drive.service')).GoogleDriveService, useClass: MockGoogle }, { provide: (await import('../../../../core/services/onedrive.service')).OneDriveService, useClass: MockOneDrive } ] }).compileComponents();
+    await TestBed.configureTestingModule({
+      imports: [NoteWorkspaceComponent],
+      providers: [
+        {
+          provide: (await import('../../../../core/services/google-drive.service'))
+            .GoogleDriveService,
+          useClass: MockGoogle,
+        },
+        {
+          provide: (await import('../../../../core/services/onedrive.service')).OneDriveService,
+          useClass: MockOneDrive,
+        },
+      ],
+    }).compileComponents();
 
     const fixture = TestBed.createComponent(NoteWorkspaceComponent);
     const comp = fixture.componentInstance;
@@ -426,7 +1128,20 @@ describe('NoteWorkspaceComponent', () => {
   });
 
   it('handleOneDriveFileAction imported branch does nothing', async () => {
-    await TestBed.configureTestingModule({ imports: [NoteWorkspaceComponent], providers: [ { provide: (await import('../../../../core/services/google-drive.service')).GoogleDriveService, useClass: MockGoogle }, { provide: (await import('../../../../core/services/onedrive.service')).OneDriveService, useClass: MockOneDrive } ] }).compileComponents();
+    await TestBed.configureTestingModule({
+      imports: [NoteWorkspaceComponent],
+      providers: [
+        {
+          provide: (await import('../../../../core/services/google-drive.service'))
+            .GoogleDriveService,
+          useClass: MockGoogle,
+        },
+        {
+          provide: (await import('../../../../core/services/onedrive.service')).OneDriveService,
+          useClass: MockOneDrive,
+        },
+      ],
+    }).compileComponents();
 
     const fixture = TestBed.createComponent(NoteWorkspaceComponent);
     const comp = fixture.componentInstance;
@@ -437,11 +1152,54 @@ describe('NoteWorkspaceComponent', () => {
   });
 
   it('googleDriveFileSelected subscription opens preview and clears other state', async () => {
-    const fileSub: any = { _subs: [], subscribe(fn: any) { this._subs.push(fn); return { unsubscribe: () => {} }; }, emit(file: any) { this._subs.forEach((s: any) => s(file)); } };
-    const ws: any = { selectedFolderId: jest.fn().mockReturnValue(null), setSelectedFolder: jest.fn(), noteCreated$: { subscribe: jest.fn() }, googleDriveFileSelected$: { subscribe: jest.fn((fn: any) => fileSub.subscribe(fn)) }, oneDriveFileSelected$: { subscribe: jest.fn() }, foldersChanged$: { subscribe: jest.fn() }, noteSelected$: { subscribe: jest.fn() } };
+    const fileSub: any = {
+      _subs: [],
+      subscribe(fn: any) {
+        this._subs.push(fn);
+        return { unsubscribe: () => {} };
+      },
+      emit(file: any) {
+        this._subs.forEach((s: any) => s(file));
+      },
+    };
+    const ws: any = {
+      selectedFolderId: jest.fn().mockReturnValue(null),
+      setSelectedFolder: jest.fn(),
+      noteCreated$: { subscribe: jest.fn() },
+      googleDriveFileSelected$: { subscribe: jest.fn((fn: any) => fileSub.subscribe(fn)) },
+      oneDriveFileSelected$: { subscribe: jest.fn() },
+      foldersChanged$: { subscribe: jest.fn() },
+      noteSelected$: { subscribe: jest.fn() },
+    };
     const mockNoteSvc: any = { getNotesForFolder: jest.fn().mockResolvedValue([]) };
 
-    await TestBed.configureTestingModule({ imports: [NoteWorkspaceComponent], providers: [ { provide: (await import('../../../folders/services/folder.service')).FolderService, useClass: MockFolderService }, { provide: (await import('../../../../core/services/workspace-state.service')).WorkspaceStateService, useValue: ws }, { provide: (await import('../../../../core/services/note.service')).NoteService, useValue: mockNoteSvc }, { provide: (await import('../../../../core/services/google-drive.service')).GoogleDriveService, useClass: MockGoogle }, { provide: (await import('../../../../core/services/onedrive.service')).OneDriveService, useClass: MockOneDrive } ] }).compileComponents();
+    await TestBed.configureTestingModule({
+      imports: [NoteWorkspaceComponent],
+      providers: [
+        {
+          provide: (await import('../../../folders/services/folder.service')).FolderService,
+          useClass: MockFolderService,
+        },
+        {
+          provide: (await import('../../../../core/services/workspace-state.service'))
+            .WorkspaceStateService,
+          useValue: ws,
+        },
+        {
+          provide: (await import('../../../../core/services/note.service')).NoteService,
+          useValue: mockNoteSvc,
+        },
+        {
+          provide: (await import('../../../../core/services/google-drive.service'))
+            .GoogleDriveService,
+          useClass: MockGoogle,
+        },
+        {
+          provide: (await import('../../../../core/services/onedrive.service')).OneDriveService,
+          useClass: MockOneDrive,
+        },
+      ],
+    }).compileComponents();
 
     const fixture = TestBed.createComponent(NoteWorkspaceComponent);
     const comp = fixture.componentInstance;
@@ -465,11 +1223,54 @@ describe('NoteWorkspaceComponent', () => {
   });
 
   it('oneDriveFileSelected subscription opens preview and clears other state', async () => {
-    const fileSub: any = { _subs: [], subscribe(fn: any) { this._subs.push(fn); return { unsubscribe: () => {} }; }, emit(file: any) { this._subs.forEach((s: any) => s(file)); } };
-    const ws: any = { selectedFolderId: jest.fn().mockReturnValue(null), setSelectedFolder: jest.fn(), noteCreated$: { subscribe: jest.fn() }, googleDriveFileSelected$: { subscribe: jest.fn() }, oneDriveFileSelected$: { subscribe: jest.fn((fn: any) => fileSub.subscribe(fn)) }, foldersChanged$: { subscribe: jest.fn() }, noteSelected$: { subscribe: jest.fn() } };
+    const fileSub: any = {
+      _subs: [],
+      subscribe(fn: any) {
+        this._subs.push(fn);
+        return { unsubscribe: () => {} };
+      },
+      emit(file: any) {
+        this._subs.forEach((s: any) => s(file));
+      },
+    };
+    const ws: any = {
+      selectedFolderId: jest.fn().mockReturnValue(null),
+      setSelectedFolder: jest.fn(),
+      noteCreated$: { subscribe: jest.fn() },
+      googleDriveFileSelected$: { subscribe: jest.fn() },
+      oneDriveFileSelected$: { subscribe: jest.fn((fn: any) => fileSub.subscribe(fn)) },
+      foldersChanged$: { subscribe: jest.fn() },
+      noteSelected$: { subscribe: jest.fn() },
+    };
     const mockNoteSvc: any = { getNotesForFolder: jest.fn().mockResolvedValue([]) };
 
-    await TestBed.configureTestingModule({ imports: [NoteWorkspaceComponent], providers: [ { provide: (await import('../../../folders/services/folder.service')).FolderService, useClass: MockFolderService }, { provide: (await import('../../../../core/services/workspace-state.service')).WorkspaceStateService, useValue: ws }, { provide: (await import('../../../../core/services/note.service')).NoteService, useValue: mockNoteSvc }, { provide: (await import('../../../../core/services/google-drive.service')).GoogleDriveService, useClass: MockGoogle }, { provide: (await import('../../../../core/services/onedrive.service')).OneDriveService, useClass: MockOneDrive } ] }).compileComponents();
+    await TestBed.configureTestingModule({
+      imports: [NoteWorkspaceComponent],
+      providers: [
+        {
+          provide: (await import('../../../folders/services/folder.service')).FolderService,
+          useClass: MockFolderService,
+        },
+        {
+          provide: (await import('../../../../core/services/workspace-state.service'))
+            .WorkspaceStateService,
+          useValue: ws,
+        },
+        {
+          provide: (await import('../../../../core/services/note.service')).NoteService,
+          useValue: mockNoteSvc,
+        },
+        {
+          provide: (await import('../../../../core/services/google-drive.service'))
+            .GoogleDriveService,
+          useClass: MockGoogle,
+        },
+        {
+          provide: (await import('../../../../core/services/onedrive.service')).OneDriveService,
+          useClass: MockOneDrive,
+        },
+      ],
+    }).compileComponents();
 
     const fixture = TestBed.createComponent(NoteWorkspaceComponent);
     const comp = fixture.componentInstance;
@@ -494,9 +1295,47 @@ describe('NoteWorkspaceComponent', () => {
 
   it('constructor effect reacts to selectedFolderId changes and loads notes', async () => {
     const mockNoteSvc: any = { getNotesForFolder: jest.fn().mockResolvedValue([{ id: 'n1' }]) };
-    const mockWS: any = { selectedFolderId: signal(null), setSelectedFolder: jest.fn(), noteCreated$: { subscribe: jest.fn() }, googleDriveFileSelected$: { subscribe: jest.fn() }, oneDriveFileSelected$: { subscribe: jest.fn() }, foldersChanged$: { subscribe: jest.fn() }, noteSelected$: { subscribe: jest.fn() } };
+    const mockWS: any = {
+      selectedFolderId: signal(null),
+      setSelectedFolder: jest.fn(),
+      noteCreated$: { subscribe: jest.fn() },
+      googleDriveFileSelected$: { subscribe: jest.fn() },
+      oneDriveFileSelected$: { subscribe: jest.fn() },
+      foldersChanged$: { subscribe: jest.fn() },
+      noteSelected$: { subscribe: jest.fn() },
+    };
 
-    await TestBed.configureTestingModule({ imports: [NoteWorkspaceComponent], providers: [ { provide: (await import('../../../folders/services/folder.service')).FolderService, useClass: MockFolderService }, { provide: (await import('../../../../core/services/note.service')).NoteService, useValue: mockNoteSvc }, { provide: (await import('../../../../core/services/workspace-state.service')).WorkspaceStateService, useValue: mockWS }, { provide: (await import('../../../../core/services/auth-state.service')).AuthStateService, useClass: MockAuth }, { provide: (await import('../../../../core/services/google-drive.service')).GoogleDriveService, useClass: MockGoogle }, { provide: (await import('../../../../core/services/onedrive.service')).OneDriveService, useClass: MockOneDrive } ] }).compileComponents();
+    await TestBed.configureTestingModule({
+      imports: [NoteWorkspaceComponent],
+      providers: [
+        {
+          provide: (await import('../../../folders/services/folder.service')).FolderService,
+          useClass: MockFolderService,
+        },
+        {
+          provide: (await import('../../../../core/services/note.service')).NoteService,
+          useValue: mockNoteSvc,
+        },
+        {
+          provide: (await import('../../../../core/services/workspace-state.service'))
+            .WorkspaceStateService,
+          useValue: mockWS,
+        },
+        {
+          provide: (await import('../../../../core/services/auth-state.service')).AuthStateService,
+          useClass: MockAuth,
+        },
+        {
+          provide: (await import('../../../../core/services/google-drive.service'))
+            .GoogleDriveService,
+          useClass: MockGoogle,
+        },
+        {
+          provide: (await import('../../../../core/services/onedrive.service')).OneDriveService,
+          useClass: MockOneDrive,
+        },
+      ],
+    }).compileComponents();
 
     const fixture = TestBed.createComponent(NoteWorkspaceComponent);
     const comp = fixture.componentInstance;

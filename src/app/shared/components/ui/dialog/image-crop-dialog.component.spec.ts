@@ -3,7 +3,9 @@ import { ImageCropDialogComponent } from './image-crop-dialog.component';
 
 describe('ImageCropDialogComponent', () => {
   it('initializes and shows tips text when open', async () => {
-    await TestBed.configureTestingModule({ imports: [ImageCropDialogComponent] }).compileComponents();
+    await TestBed.configureTestingModule({
+      imports: [ImageCropDialogComponent],
+    }).compileComponents();
     const fixture = TestBed.createComponent(ImageCropDialogComponent);
     const comp = fixture.componentInstance;
     comp.open = true;
@@ -12,7 +14,9 @@ describe('ImageCropDialogComponent', () => {
   });
 
   it('emits cancel on onCancel', async () => {
-    await TestBed.configureTestingModule({ imports: [ImageCropDialogComponent] }).compileComponents();
+    await TestBed.configureTestingModule({
+      imports: [ImageCropDialogComponent],
+    }).compileComponents();
     const fixture = TestBed.createComponent(ImageCropDialogComponent);
     const comp = fixture.componentInstance;
     const spy = jest.fn();
@@ -22,7 +26,9 @@ describe('ImageCropDialogComponent', () => {
   });
 
   it('does not emit save when no cropped blob exists and Save button is disabled', async () => {
-    await TestBed.configureTestingModule({ imports: [ImageCropDialogComponent] }).compileComponents();
+    await TestBed.configureTestingModule({
+      imports: [ImageCropDialogComponent],
+    }).compileComponents();
     const fixture = TestBed.createComponent(ImageCropDialogComponent);
     const comp = fixture.componentInstance;
     // open the dialog so footer buttons are rendered
@@ -34,7 +40,9 @@ describe('ImageCropDialogComponent', () => {
 
     const buttons = fixture.nativeElement.querySelectorAll('button');
     // last button is 'Save Photo'
-    const saveButton = Array.from(buttons).find((b: any) => b.textContent.includes('Save Photo')) as HTMLButtonElement;
+    const saveButton = Array.from(buttons).find((b: any) =>
+      b.textContent.includes('Save Photo'),
+    ) as HTMLButtonElement;
     expect(saveButton).toBeTruthy();
     expect(saveButton.disabled).toBeTruthy();
 
@@ -44,7 +52,9 @@ describe('ImageCropDialogComponent', () => {
   });
 
   it('sets cropped image/blob and emits save', async () => {
-    await TestBed.configureTestingModule({ imports: [ImageCropDialogComponent] }).compileComponents();
+    await TestBed.configureTestingModule({
+      imports: [ImageCropDialogComponent],
+    }).compileComponents();
     const fixture = TestBed.createComponent(ImageCropDialogComponent);
     const comp = fixture.componentInstance;
     const blob = new Blob(['a']);
@@ -59,7 +69,9 @@ describe('ImageCropDialogComponent', () => {
   });
 
   it('sets loading false and clears error on imageLoaded', async () => {
-    await TestBed.configureTestingModule({ imports: [ImageCropDialogComponent] }).compileComponents();
+    await TestBed.configureTestingModule({
+      imports: [ImageCropDialogComponent],
+    }).compileComponents();
     const fixture = TestBed.createComponent(ImageCropDialogComponent);
     const comp = fixture.componentInstance;
     // set loading true then call imageLoaded
@@ -71,7 +83,9 @@ describe('ImageCropDialogComponent', () => {
   });
 
   it('sets loading false on cropperReady and sets error on loadImageFailed', async () => {
-    await TestBed.configureTestingModule({ imports: [ImageCropDialogComponent] }).compileComponents();
+    await TestBed.configureTestingModule({
+      imports: [ImageCropDialogComponent],
+    }).compileComponents();
     const fixture = TestBed.createComponent(ImageCropDialogComponent);
     const comp = fixture.componentInstance;
 
@@ -86,7 +100,9 @@ describe('ImageCropDialogComponent', () => {
   });
 
   it('resetState clears cropped image/blob', async () => {
-    await TestBed.configureTestingModule({ imports: [ImageCropDialogComponent] }).compileComponents();
+    await TestBed.configureTestingModule({
+      imports: [ImageCropDialogComponent],
+    }).compileComponents();
     const fixture = TestBed.createComponent(ImageCropDialogComponent);
     const comp = fixture.componentInstance;
     comp.croppedBlob.set(new Blob(['x']));

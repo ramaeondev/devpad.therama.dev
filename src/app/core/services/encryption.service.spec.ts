@@ -27,7 +27,7 @@ import { EncryptionService } from './encryption.service';
     const proto = (EncryptionService as any).prototype;
     // Provide a simple fake SubtleCrypto that performs identity transforms for encrypt/decrypt
     const fakeSubtle = {
-      importKey: async (_format: any, _keyMaterial: any) => ({ _fakeKey: true } as CryptoKey),
+      importKey: async (_format: any, _keyMaterial: any) => ({ _fakeKey: true }) as CryptoKey,
       encrypt: async (_algo: any, _key: any, data: any) => {
         // Return an ArrayBuffer for the input bytes
         if (data instanceof ArrayBuffer) return data;

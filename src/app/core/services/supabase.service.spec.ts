@@ -37,14 +37,22 @@ describe('SupabaseService', () => {
 
       createClientMock = jest.fn().mockImplementation((url: string, key: string, opts: any) => {
         return {
-          auth: { getSession: jest.fn().mockResolvedValue({ data: { session: { user: { id: 'u1' } } }, error: null }) },
+          auth: {
+            getSession: jest
+              .fn()
+              .mockResolvedValue({ data: { session: { user: { id: 'u1' } } }, error: null }),
+          },
           from: jest.fn(),
           storage: {},
         };
       });
 
-      try { delete require.cache[require.resolve('@supabase/supabase-js')]; } catch (e) {}
-      jest.doMock('@supabase/supabase-js', () => ({ createClient: createClientMock }), { virtual: true });
+      try {
+        delete require.cache[require.resolve('@supabase/supabase-js')];
+      } catch (e) {}
+      jest.doMock('@supabase/supabase-js', () => ({ createClient: createClientMock }), {
+        virtual: true,
+      });
 
       // Import under fresh module context
       // eslint-disable-next-line @typescript-eslint/no-var-requires
@@ -54,7 +62,13 @@ describe('SupabaseService', () => {
     const svc = new SupabaseServiceCtor();
 
     // Replace the internal client with a controlled mock to ensure deterministic behavior
-    (svc as any).supabase = { auth: { getSession: jest.fn().mockResolvedValue({ data: { session: { user: { id: 'u1' } } }, error: null }) } };
+    (svc as any).supabase = {
+      auth: {
+        getSession: jest
+          .fn()
+          .mockResolvedValue({ data: { session: { user: { id: 'u1' } } }, error: null }),
+      },
+    };
 
     const session = await svc.getSession();
     expect(session.session).toBeTruthy();

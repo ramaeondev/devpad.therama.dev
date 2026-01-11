@@ -41,7 +41,9 @@ describe('TermsModalComponent', () => {
     await TestBed.configureTestingModule({ imports: [TermsModalComponent] }).compileComponents();
     const sanitizer = TestBed.inject((await import('@angular/platform-browser')).DomSanitizer);
     const trustedInitial = sanitizer.bypassSecurityTrustResourceUrl('/initial');
-    const spy = jest.spyOn(sanitizer, 'bypassSecurityTrustResourceUrl').mockReturnValue(trustedInitial as any);
+    const spy = jest
+      .spyOn(sanitizer, 'bypassSecurityTrustResourceUrl')
+      .mockReturnValue(trustedInitial as any);
 
     const fixture = TestBed.createComponent(TermsModalComponent);
     const comp = fixture.componentInstance;
@@ -56,7 +58,16 @@ describe('TermsModalComponent', () => {
     const trustedCustom = sanitizer.bypassSecurityTrustResourceUrl('/custom-terms');
     spy.mockReturnValue(trustedCustom as any);
     comp.termsSrc = '/custom-terms';
-    comp.ngOnChanges({ termsSrc: { currentValue: '/custom-terms', previousValue: '/terms', firstChange: false, isFirstChange() { return false; } } as any });
+    comp.ngOnChanges({
+      termsSrc: {
+        currentValue: '/custom-terms',
+        previousValue: '/terms',
+        firstChange: false,
+        isFirstChange() {
+          return false;
+        },
+      } as any,
+    });
     fixture.detectChanges();
 
     expect(fixture.nativeElement.textContent).toContain('Site Terms');

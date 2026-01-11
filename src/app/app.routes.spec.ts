@@ -7,18 +7,30 @@ describe('app.routes', () => {
   });
 
   it('contains a wildcard that redirects to dashboard', () => {
-    const wildcard = routes.find(r => r.path === '**');
+    const wildcard = routes.find((r) => r.path === '**');
     expect(wildcard).toBeDefined();
     expect((wildcard as any).redirectTo).toBe('dashboard');
   });
 
   it('contains expected top-level paths', () => {
-    const paths = routes.map(r => r.path);
-    expect(paths).toEqual(expect.arrayContaining(['', 'changelog', 'auth', 'dashboard', 'notes', 'folders', 'share/:shareToken', 'policy', 'terms']));
+    const paths = routes.map((r) => r.path);
+    expect(paths).toEqual(
+      expect.arrayContaining([
+        '',
+        'changelog',
+        'auth',
+        'dashboard',
+        'notes',
+        'folders',
+        'share/:shareToken',
+        'policy',
+        'terms',
+      ]),
+    );
   });
 
   it('dashboard route requires authGuard', () => {
-    const dash = routes.find(r => r.path === 'dashboard');
+    const dash = routes.find((r) => r.path === 'dashboard');
     expect(dash).toBeDefined();
     expect(dash?.canActivate).toBeDefined();
     expect((dash?.canActivate?.length ?? 0) > 0).toBe(true);
@@ -32,7 +44,7 @@ describe('app.routes', () => {
   });
 
   it('top-level loadComponent functions resolve', async () => {
-    const toLoad = routes.filter(r => typeof (r as any).loadComponent === 'function');
+    const toLoad = routes.filter((r) => typeof (r as any).loadComponent === 'function');
     for (const r of toLoad) {
       const comp = await (r as any).loadComponent();
       expect(comp).toBeTruthy();

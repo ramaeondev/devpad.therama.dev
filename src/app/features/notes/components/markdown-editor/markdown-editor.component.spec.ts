@@ -5,7 +5,9 @@ jest.mock('marked', () => ({ marked: { parse: (s: string) => `<p>${s}</p>` } }))
 
 describe('MarkdownEditorComponent', () => {
   it('initializes content and toggles preview', async () => {
-    await TestBed.configureTestingModule({ imports: [MarkdownEditorComponent] }).compileComponents();
+    await TestBed.configureTestingModule({
+      imports: [MarkdownEditorComponent],
+    }).compileComponents();
     const fixture = TestBed.createComponent(MarkdownEditorComponent);
     const comp = fixture.componentInstance;
     comp.initialContent = 'hello';
@@ -17,7 +19,9 @@ describe('MarkdownEditorComponent', () => {
   });
 
   it('wraps selection and updates content', async () => {
-    await TestBed.configureTestingModule({ imports: [MarkdownEditorComponent] }).compileComponents();
+    await TestBed.configureTestingModule({
+      imports: [MarkdownEditorComponent],
+    }).compileComponents();
     const fixture = TestBed.createComponent(MarkdownEditorComponent);
     const comp = fixture.componentInstance;
     comp.initialContent = 'hello world';
@@ -42,7 +46,9 @@ describe('MarkdownEditorComponent', () => {
   });
 
   it('inserts tab as two spaces on handleTab', async () => {
-    await TestBed.configureTestingModule({ imports: [MarkdownEditorComponent] }).compileComponents();
+    await TestBed.configureTestingModule({
+      imports: [MarkdownEditorComponent],
+    }).compileComponents();
     const fixture = TestBed.createComponent(MarkdownEditorComponent);
     const comp = fixture.componentInstance;
     comp.initialContent = 'x';
@@ -58,7 +64,9 @@ describe('MarkdownEditorComponent', () => {
   });
 
   it('toggles preview and renders markdown', async () => {
-    await TestBed.configureTestingModule({ imports: [MarkdownEditorComponent] }).compileComponents();
+    await TestBed.configureTestingModule({
+      imports: [MarkdownEditorComponent],
+    }).compileComponents();
     const fixture = TestBed.createComponent(MarkdownEditorComponent);
     const comp = fixture.componentInstance;
     comp.initialContent = '# Hello';
@@ -75,7 +83,9 @@ describe('MarkdownEditorComponent', () => {
   });
 
   it('prepends line prefix at current line', async () => {
-    await TestBed.configureTestingModule({ imports: [MarkdownEditorComponent] }).compileComponents();
+    await TestBed.configureTestingModule({
+      imports: [MarkdownEditorComponent],
+    }).compileComponents();
     const fixture = TestBed.createComponent(MarkdownEditorComponent);
     const comp = fixture.componentInstance;
 
@@ -98,7 +108,9 @@ describe('MarkdownEditorComponent', () => {
   });
 
   it('insert helpers add correct markdown wrappers', async () => {
-    await TestBed.configureTestingModule({ imports: [MarkdownEditorComponent] }).compileComponents();
+    await TestBed.configureTestingModule({
+      imports: [MarkdownEditorComponent],
+    }).compileComponents();
     const fixture = TestBed.createComponent(MarkdownEditorComponent);
     const comp = fixture.componentInstance;
 
@@ -143,7 +155,9 @@ describe('MarkdownEditorComponent', () => {
   });
 
   it('syncScroll adjusts preview scroll when preview active', async () => {
-    await TestBed.configureTestingModule({ imports: [MarkdownEditorComponent] }).compileComponents();
+    await TestBed.configureTestingModule({
+      imports: [MarkdownEditorComponent],
+    }).compileComponents();
     const fixture = TestBed.createComponent(MarkdownEditorComponent);
     const comp = fixture.componentInstance;
 
@@ -162,14 +176,18 @@ describe('MarkdownEditorComponent', () => {
     try {
       comp.preview.set(true);
       comp.syncScroll({ target: ta } as unknown as Event);
-      expect(preview.scrollTop).toBeCloseTo((ta.scrollTop / ta.scrollHeight) * preview.scrollHeight);
+      expect(preview.scrollTop).toBeCloseTo(
+        (ta.scrollTop / ta.scrollHeight) * preview.scrollHeight,
+      );
     } finally {
       document.body.removeChild(host);
     }
   });
 
   it('syncScroll does nothing when preview is false', async () => {
-    await TestBed.configureTestingModule({ imports: [MarkdownEditorComponent] }).compileComponents();
+    await TestBed.configureTestingModule({
+      imports: [MarkdownEditorComponent],
+    }).compileComponents();
     const fixture = TestBed.createComponent(MarkdownEditorComponent);
     const comp = fixture.componentInstance;
 
@@ -195,7 +213,9 @@ describe('MarkdownEditorComponent', () => {
   });
 
   it('insert helpers are no-ops when no textarea is present', async () => {
-    await TestBed.configureTestingModule({ imports: [MarkdownEditorComponent] }).compileComponents();
+    await TestBed.configureTestingModule({
+      imports: [MarkdownEditorComponent],
+    }).compileComponents();
     const fixture = TestBed.createComponent(MarkdownEditorComponent);
     const comp = fixture.componentInstance;
     const spy = jest.fn();

@@ -2,30 +2,78 @@ import { TestBed } from '@angular/core/testing';
 import { DashboardLayoutComponent } from './dashboard-layout.component';
 import { RouterTestingModule } from '@angular/router/testing';
 
-class MockAuth { userId() { return 'u1'; } userEmail() { return 'e@example.com'; } clear() {} }
-class MockUserService { async getUserProfile() { return { first_name: 'Sam', last_name: 'Lee', avatar_url: null }; } }
-class MockLoading { withLoading(fn: any) { return fn(); } isLoading() { return false; } }
+class MockAuth {
+  userId() {
+    return 'u1';
+  }
+  userEmail() {
+    return 'e@example.com';
+  }
+  clear() {}
+}
+class MockUserService {
+  async getUserProfile() {
+    return { first_name: 'Sam', last_name: 'Lee', avatar_url: null };
+  }
+}
+class MockLoading {
+  withLoading(fn: any) {
+    return fn();
+  }
+  isLoading() {
+    return false;
+  }
+}
 
 describe('DashboardLayoutComponent', () => {
   async function setup(overrides: any[] = []) {
     const providers = [
-      { provide: (await import('../../core/services/auth-state.service')).AuthStateService, useClass: MockAuth },
-      { provide: (await import('../../core/services/user.service')).UserService, useClass: MockUserService },
-      { provide: (await import('../../core/services/loading.service')).LoadingService, useClass: MockLoading },
-      { provide: (await import('../../core/services/google-drive.service')).GoogleDriveService, useValue: { isConnected: () => false, checkConnection: async () => false } },
-      { provide: (await import('../../core/services/onedrive.service')).OneDriveService, useValue: { isConnected: () => false, checkConnection: async () => false } },
-      { provide: (await import('../../core/services/supabase.service')).SupabaseService, useValue: { getSession: async () => ({ session: { user: { id: 'u1' } } }), getUser: async () => null } },
-      { provide: (await import('../../features/folders/services/folder.service')).FolderService, useValue: { getFolderTree: async () => [] } },
+      {
+        provide: (await import('../../core/services/auth-state.service')).AuthStateService,
+        useClass: MockAuth,
+      },
+      {
+        provide: (await import('../../core/services/user.service')).UserService,
+        useClass: MockUserService,
+      },
+      {
+        provide: (await import('../../core/services/loading.service')).LoadingService,
+        useClass: MockLoading,
+      },
+      {
+        provide: (await import('../../core/services/google-drive.service')).GoogleDriveService,
+        useValue: { isConnected: () => false, checkConnection: async () => false },
+      },
+      {
+        provide: (await import('../../core/services/onedrive.service')).OneDriveService,
+        useValue: { isConnected: () => false, checkConnection: async () => false },
+      },
+      {
+        provide: (await import('../../core/services/supabase.service')).SupabaseService,
+        useValue: {
+          getSession: async () => ({ session: { user: { id: 'u1' } } }),
+          getUser: async () => null,
+        },
+      },
+      {
+        provide: (await import('../../features/folders/services/folder.service')).FolderService,
+        useValue: { getFolderTree: async () => [] },
+      },
       // allow overrides
-      ...overrides
+      ...overrides,
     ];
 
     // Prevent NotificationIconComponent from running its ngOnInit during layout tests (it hits Supabase.getSession)
-    const NotificationIcon = (await import('../../shared/components/notification-icon/notification-icon')).NotificationIconComponent;
+    const NotificationIcon = (
+      await import('../../shared/components/notification-icon/notification-icon')
+    ).NotificationIconComponent;
     jest.spyOn(NotificationIcon.prototype, 'ngOnInit').mockImplementation(() => {});
     jest.spyOn(NotificationIcon.prototype, 'ngOnDestroy').mockImplementation(() => {});
 
-    await TestBed.configureTestingModule({ imports: [DashboardLayoutComponent, RouterTestingModule], providers }).compileComponents();
+    await TestBed.configureTestingModule({
+      imports: [DashboardLayoutComponent, RouterTestingModule],
+      providers,
+    }).compileComponents();
 
     const fixture = TestBed.createComponent(DashboardLayoutComponent);
     fixture.detectChanges();
@@ -121,13 +169,29 @@ describe('DashboardLayoutComponent', () => {
     const mockActivity: any = { logActivity: jest.fn().mockResolvedValue({}) };
     const mockSupabase: any = { auth: { signOut: jest.fn().mockResolvedValue({}) } };
     const mockLoading: any = { withLoading: (fn: any) => fn(), isLoading: () => false };
-    const mockAuth: any = { userId: () => 'u1', clear: jest.fn(), userEmail: () => 'e@example.com' };
+    const mockAuth: any = {
+      userId: () => 'u1',
+      clear: jest.fn(),
+      userEmail: () => 'e@example.com',
+    };
 
     const { comp } = await setup([
-      { provide: (await import('../../core/services/activity-log.service')).ActivityLogService, useValue: mockActivity },
-      { provide: (await import('../../core/services/supabase.service')).SupabaseService, useValue: mockSupabase },
-      { provide: (await import('../../core/services/loading.service')).LoadingService, useValue: mockLoading },
-      { provide: (await import('../../core/services/auth-state.service')).AuthStateService, useValue: mockAuth }
+      {
+        provide: (await import('../../core/services/activity-log.service')).ActivityLogService,
+        useValue: mockActivity,
+      },
+      {
+        provide: (await import('../../core/services/supabase.service')).SupabaseService,
+        useValue: mockSupabase,
+      },
+      {
+        provide: (await import('../../core/services/loading.service')).LoadingService,
+        useValue: mockLoading,
+      },
+      {
+        provide: (await import('../../core/services/auth-state.service')).AuthStateService,
+        useValue: mockAuth,
+      },
     ]);
 
     const router = TestBed.inject((await import('@angular/router')).Router as any);

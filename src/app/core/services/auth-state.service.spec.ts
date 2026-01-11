@@ -5,7 +5,7 @@ import { EncryptionService } from './encryption.service';
 
 function tick() {
   // Allow async background tasks triggered by setUser to complete
-  return new Promise<void>(resolve => setTimeout(resolve, 0));
+  return new Promise<void>((resolve) => setTimeout(resolve, 0));
 }
 
 describe('AuthStateService', () => {
@@ -64,7 +64,10 @@ describe('AuthStateService', () => {
 
     // stub global fetch
     const originalFetch = (global as any).fetch;
-    const fetchMock = jest.fn().mockResolvedValue({ ok: true, json: async () => ({ key: 'the-key', version: 'v1' }) } as any);
+    const fetchMock = jest.fn().mockResolvedValue({
+      ok: true,
+      json: async () => ({ key: 'the-key', version: 'v1' }),
+    } as any);
     (global as any).fetch = fetchMock;
 
     service.setUser({ id: 'u3', email: 'a@b.c' } as any);
@@ -78,7 +81,9 @@ describe('AuthStateService', () => {
   });
 
   it('handles edge function failure gracefully', async () => {
-    (mockSupabase!.getSession as jest.Mock).mockResolvedValue({ session: { access_token: 'tok2' } });
+    (mockSupabase!.getSession as jest.Mock).mockResolvedValue({
+      session: { access_token: 'tok2' },
+    });
     const originalFetch = (global as any).fetch;
     const fetchMock = jest.fn().mockResolvedValue({ ok: false, text: async () => 'bad' } as any);
     (global as any).fetch = fetchMock;

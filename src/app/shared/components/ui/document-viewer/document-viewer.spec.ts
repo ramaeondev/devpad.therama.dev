@@ -53,11 +53,20 @@ describe('DocumentViewerComponent', () => {
     // spy on real DomSanitizer
     const fixture2 = TestBed.createComponent(DocumentViewerComponent);
     const comp2 = fixture2.componentInstance;
-    const sanitizer = TestBed.inject((await import('@angular/platform-browser')).DomSanitizer as any);
+    const sanitizer = TestBed.inject(
+      (await import('@angular/platform-browser')).DomSanitizer as any,
+    );
     const spy = jest.spyOn(sanitizer, 'bypassSecurityTrustResourceUrl');
 
     comp2.documentUrl = 'https://example.com/doc.pdf';
-    comp2.ngOnChanges({ documentUrl: { currentValue: 'https://example.com/doc.pdf', previousValue: null, firstChange: true, isFirstChange: () => true } });
+    comp2.ngOnChanges({
+      documentUrl: {
+        currentValue: 'https://example.com/doc.pdf',
+        previousValue: null,
+        firstChange: true,
+        isFirstChange: () => true,
+      },
+    });
 
     expect(spy).toHaveBeenCalledWith('https://example.com/doc.pdf');
     expect(comp2.safeUrl()).toBeTruthy();
@@ -66,13 +75,24 @@ describe('DocumentViewerComponent', () => {
   it('handles sanitizer throwing an error gracefully', async () => {
     const fixture2 = TestBed.createComponent(DocumentViewerComponent);
     const comp2 = fixture2.componentInstance;
-    const sanitizer = TestBed.inject((await import('@angular/platform-browser')).DomSanitizer as any);
+    const sanitizer = TestBed.inject(
+      (await import('@angular/platform-browser')).DomSanitizer as any,
+    );
     const original = sanitizer.bypassSecurityTrustResourceUrl;
-    jest.spyOn(sanitizer, 'bypassSecurityTrustResourceUrl').mockImplementation(() => { throw new Error('boom'); });
+    jest.spyOn(sanitizer, 'bypassSecurityTrustResourceUrl').mockImplementation(() => {
+      throw new Error('boom');
+    });
     const consoleSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
 
     comp2.documentUrl = 'https://example.com/doc.pdf';
-    comp2.ngOnChanges({ documentUrl: { currentValue: 'https://example.com/doc.pdf', previousValue: null, firstChange: true, isFirstChange: () => true } });
+    comp2.ngOnChanges({
+      documentUrl: {
+        currentValue: 'https://example.com/doc.pdf',
+        previousValue: null,
+        firstChange: true,
+        isFirstChange: () => true,
+      },
+    });
 
     expect(consoleSpy).toHaveBeenCalled();
     expect(comp2.safeUrl()).toBeNull();

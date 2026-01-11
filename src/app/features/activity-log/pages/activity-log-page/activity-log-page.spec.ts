@@ -9,7 +9,9 @@ const makeActivityService = () => ({
   getActivityLogCount: jest.fn().mockResolvedValue(1),
 });
 
-const makeSupabase = () => ({ getSession: jest.fn().mockResolvedValue({ session: { user: { id: 'u1' } } }) });
+const makeSupabase = () => ({
+  getSession: jest.fn().mockResolvedValue({ session: { user: { id: 'u1' } } }),
+});
 
 describe('ActivityLogPageComponent', () => {
   let mockActivity: any;
@@ -158,7 +160,9 @@ describe('ActivityLogPageComponent', () => {
 
     const a: any = { href: '', download: '', click: jest.fn() };
     jest.spyOn(document, 'createElement').mockReturnValue(a as any);
-    jest.spyOn(URL, 'createObjectURL').mockImplementation(() => { throw new Error('fail'); });
+    jest.spyOn(URL, 'createObjectURL').mockImplementation(() => {
+      throw new Error('fail');
+    });
 
     expect(() => instance.downloadJson({ id: 'l1' } as any)).toThrow('fail');
 
@@ -215,12 +219,12 @@ describe('ActivityLogPageComponent', () => {
     const fixture = TestBed.createComponent(ActivityLogPageComponent);
     const instance = fixture.componentInstance as ActivityLogPageComponent;
 
-    expect(instance.getActionIcon((0 as any))).toBeDefined();
-    expect(instance.getActionColor((0 as any))).toBeDefined();
+    expect(instance.getActionIcon(0 as any)).toBeDefined();
+    expect(instance.getActionColor(0 as any)).toBeDefined();
 
     // Use a couple of concrete enum values
-    expect(instance.getActionIcon((1 as any))).toMatch(/fa/);
-    expect(instance.getActionColor((1 as any))).toMatch(/text|gray|purple|red|green/);
+    expect(instance.getActionIcon(1 as any)).toMatch(/fa/);
+    expect(instance.getActionColor(1 as any)).toMatch(/text|gray|purple|red|green/);
   });
 
   it('getRelativeTime returns days ago for older dates', () => {

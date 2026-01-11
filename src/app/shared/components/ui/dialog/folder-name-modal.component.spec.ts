@@ -3,7 +3,9 @@ import { FolderNameModalComponent } from './folder-name-modal.component';
 
 describe('FolderNameModalComponent', () => {
   it('emits cancel', async () => {
-    await TestBed.configureTestingModule({ imports: [FolderNameModalComponent] }).compileComponents();
+    await TestBed.configureTestingModule({
+      imports: [FolderNameModalComponent],
+    }).compileComponents();
     const fixture = TestBed.createComponent(FolderNameModalComponent);
     const comp = fixture.componentInstance;
     const spy = jest.fn();
@@ -13,7 +15,9 @@ describe('FolderNameModalComponent', () => {
   });
 
   it('validate and submit', async () => {
-    await TestBed.configureTestingModule({ imports: [FolderNameModalComponent] }).compileComponents();
+    await TestBed.configureTestingModule({
+      imports: [FolderNameModalComponent],
+    }).compileComponents();
     const fixture = TestBed.createComponent(FolderNameModalComponent);
     const comp = fixture.componentInstance;
     const spy = jest.fn();

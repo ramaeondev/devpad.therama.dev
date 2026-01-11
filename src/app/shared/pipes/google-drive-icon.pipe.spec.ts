@@ -15,9 +15,15 @@ describe('GoogleDriveIconPipe', () => {
   });
 
   it('falls back to google mime types when name has no ext', () => {
-    expect(pipe.transform({ name: '', mimeType: 'application/vnd.google-apps.document' } as any)).toBe('fa-file-word');
-    expect(pipe.transform({ name: '', mimeType: 'application/vnd.google-apps.spreadsheet' } as any)).toBe('fa-file-excel');
-    expect(pipe.transform({ name: '', mimeType: 'application/vnd.google-apps.presentation' } as any)).toBe('fa-file-powerpoint');
+    expect(
+      pipe.transform({ name: '', mimeType: 'application/vnd.google-apps.document' } as any),
+    ).toBe('fa-file-word');
+    expect(
+      pipe.transform({ name: '', mimeType: 'application/vnd.google-apps.spreadsheet' } as any),
+    ).toBe('fa-file-excel');
+    expect(
+      pipe.transform({ name: '', mimeType: 'application/vnd.google-apps.presentation' } as any),
+    ).toBe('fa-file-powerpoint');
   });
 
   it('falls back to pdf and image mime checks when name has no ext', () => {
@@ -26,6 +32,8 @@ describe('GoogleDriveIconPipe', () => {
   });
 
   it('returns default fallback', () => {
-    expect(pipe.transform({ name: 'Untitled', mimeType: 'application/octet-stream' } as any)).toBe('fa-file');
+    expect(pipe.transform({ name: 'Untitled', mimeType: 'application/octet-stream' } as any)).toBe(
+      'fa-file',
+    );
   });
 });

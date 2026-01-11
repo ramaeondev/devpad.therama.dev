@@ -40,7 +40,13 @@ describe('device.types', () => {
       const missing = { id: '1', user_id: 'u1' };
       expect(isUserDevice(missing)).toBe(false);
 
-      const wrongTypes = { id: 1, user_id: 'u1', fingerprint_id: 'f1', is_trusted: 'no', is_current: 'yes' };
+      const wrongTypes = {
+        id: 1,
+        user_id: 'u1',
+        fingerprint_id: 'f1',
+        is_trusted: 'no',
+        is_current: 'yes',
+      };
       expect(isUserDevice(wrongTypes)).toBe(false);
 
       expect(isUserDevice(null)).toBe(false);
