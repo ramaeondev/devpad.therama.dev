@@ -17,7 +17,9 @@ const makeSupabaseMock = () => ({
   storage: {
     from: jest.fn().mockReturnValue({
       upload: jest.fn().mockResolvedValue({ error: null }),
-      getPublicUrl: jest.fn().mockReturnValue({ data: { publicUrl: 'https://cdn/avatars/u1.png' } }),
+      getPublicUrl: jest
+        .fn()
+        .mockReturnValue({ data: { publicUrl: 'https://cdn/avatars/u1.png' } }),
     }),
   },
 });
@@ -35,7 +37,13 @@ describe('UserService', () => {
     mockSupabase = makeSupabaseMock();
     mockLoading = makeLoadingMock();
 
-    TestBed.configureTestingModule({ providers: [UserService, { provide: SupabaseService, useValue: mockSupabase }, { provide: LoadingService, useValue: mockLoading }] });
+    TestBed.configureTestingModule({
+      providers: [
+        UserService,
+        { provide: SupabaseService, useValue: mockSupabase },
+        { provide: LoadingService, useValue: mockLoading },
+      ],
+    });
     service = TestBed.inject(UserService);
   });
 
@@ -43,7 +51,11 @@ describe('UserService', () => {
 
   it('getUserProfile returns profile when found', async () => {
     const expected = { user_id: 'u1', first_name: 'Ramu' } as any;
-    mockSupabase.from.mockReturnValueOnce({ select: jest.fn().mockReturnThis(), eq: jest.fn().mockReturnThis(), single: jest.fn().mockResolvedValue({ data: expected, error: null }) });
+    mockSupabase.from.mockReturnValueOnce({
+      select: jest.fn().mockReturnThis(),
+      eq: jest.fn().mockReturnThis(),
+      single: jest.fn().mockResolvedValue({ data: expected, error: null }),
+    });
 
     const profile = await service.getUserProfile('u1');
     expect(profile).toEqual(expected);
@@ -52,42 +64,76 @@ describe('UserService', () => {
   it('getUserProfile creates profile when not found (PGRST116)', async () => {
     const created = { user_id: 'u1', is_root_folder_created: false } as any;
     // first call (select) returns PGRST116
-    mockSupabase.from.mockReturnValueOnce({ select: jest.fn().mockReturnThis(), eq: jest.fn().mockReturnThis(), single: jest.fn().mockResolvedValue({ data: null, error: { code: 'PGRST116' } }) });
+    mockSupabase.from.mockReturnValueOnce({
+      select: jest.fn().mockReturnThis(),
+      eq: jest.fn().mockReturnThis(),
+      single: jest.fn().mockResolvedValue({ data: null, error: { code: 'PGRST116' } }),
+    });
     // second call (insert in createUserProfile) returns created
-    mockSupabase.from.mockReturnValueOnce({ insert: jest.fn().mockReturnThis(), select: jest.fn().mockReturnThis(), single: jest.fn().mockResolvedValue({ data: created, error: null }) });
+    mockSupabase.from.mockReturnValueOnce({
+      insert: jest.fn().mockReturnThis(),
+      select: jest.fn().mockReturnThis(),
+      single: jest.fn().mockResolvedValue({ data: created, error: null }),
+    });
 
     const profile = await service.getUserProfile('u1');
     expect(profile).toEqual(created);
   });
 
   it('getUserProfile throws on unknown error', async () => {
-    mockSupabase.from.mockReturnValueOnce({ select: jest.fn().mockReturnThis(), eq: jest.fn().mockReturnThis(), single: jest.fn().mockResolvedValue({ data: null, error: { code: 'E' } }) });
+    mockSupabase.from.mockReturnValueOnce({
+      select: jest.fn().mockReturnThis(),
+      eq: jest.fn().mockReturnThis(),
+      single: jest.fn().mockResolvedValue({ data: null, error: { code: 'E' } }),
+    });
     await expect(service.getUserProfile('u1')).rejects.toEqual({ code: 'E' });
   });
 
   it('createUserProfile returns created profile or throws on error', async () => {
     const created = { user_id: 'u1' } as any;
-    mockSupabase.from.mockReturnValueOnce({ insert: jest.fn().mockReturnThis(), select: jest.fn().mockReturnThis(), single: jest.fn().mockResolvedValue({ data: created, error: null }) });
+    mockSupabase.from.mockReturnValueOnce({
+      insert: jest.fn().mockReturnThis(),
+      select: jest.fn().mockReturnThis(),
+      single: jest.fn().mockResolvedValue({ data: created, error: null }),
+    });
     const p = await service.createUserProfile('u1');
     expect(p).toEqual(created);
 
-    mockSupabase.from.mockReturnValueOnce({ insert: jest.fn().mockReturnThis(), select: jest.fn().mockReturnThis(), single: jest.fn().mockResolvedValue({ data: null, error: { code: 'E' } }) });
+    mockSupabase.from.mockReturnValueOnce({
+      insert: jest.fn().mockReturnThis(),
+      select: jest.fn().mockReturnThis(),
+      single: jest.fn().mockResolvedValue({ data: null, error: { code: 'E' } }),
+    });
     await expect(service.createUserProfile('u1')).rejects.toEqual({ code: 'E' });
   });
 
   it('updateUserProfile returns updated profile or throws', async () => {
     const updated = { user_id: 'u1', first_name: 'X' } as any;
-    mockSupabase.from.mockReturnValueOnce({ update: jest.fn().mockReturnThis(), eq: jest.fn().mockReturnThis(), select: jest.fn().mockReturnThis(), single: jest.fn().mockResolvedValue({ data: updated, error: null }) });
+    mockSupabase.from.mockReturnValueOnce({
+      update: jest.fn().mockReturnThis(),
+      eq: jest.fn().mockReturnThis(),
+      select: jest.fn().mockReturnThis(),
+      single: jest.fn().mockResolvedValue({ data: updated, error: null }),
+    });
     const p = await service.updateUserProfile('u1', { first_name: 'X' });
     expect(p).toEqual(updated);
 
-    mockSupabase.from.mockReturnValueOnce({ update: jest.fn().mockReturnThis(), eq: jest.fn().mockReturnThis(), select: jest.fn().mockReturnThis(), single: jest.fn().mockResolvedValue({ data: null, error: { code: 'E' } }) });
+    mockSupabase.from.mockReturnValueOnce({
+      update: jest.fn().mockReturnThis(),
+      eq: jest.fn().mockReturnThis(),
+      select: jest.fn().mockReturnThis(),
+      single: jest.fn().mockResolvedValue({ data: null, error: { code: 'E' } }),
+    });
     await expect(service.updateUserProfile('u1', {})).rejects.toEqual({ code: 'E' });
   });
 
   it('upsertUserProfile works', async () => {
     const up = { user_id: 'u1', updated_at: new Date().toISOString() } as any;
-    mockSupabase.from.mockReturnValueOnce({ upsert: jest.fn().mockReturnThis(), select: jest.fn().mockReturnThis(), single: jest.fn().mockResolvedValue({ data: up, error: null }) });
+    mockSupabase.from.mockReturnValueOnce({
+      upsert: jest.fn().mockReturnThis(),
+      select: jest.fn().mockReturnThis(),
+      single: jest.fn().mockResolvedValue({ data: up, error: null }),
+    });
     const p = await service.upsertUserProfile('u1', { first_name: 'A' });
     expect(p).toEqual(up);
   });
@@ -99,10 +145,14 @@ describe('UserService', () => {
   });
 
   it('hasRootFolder returns correct boolean and handles errors', async () => {
-    jest.spyOn(service as any, 'getUserProfile').mockResolvedValue({ is_root_folder_created: true } as any);
+    jest
+      .spyOn(service as any, 'getUserProfile')
+      .mockResolvedValue({ is_root_folder_created: true } as any);
     expect(await service.hasRootFolder('u1')).toBe(true);
 
-    jest.spyOn(service as any, 'getUserProfile').mockResolvedValue({ is_root_folder_created: false } as any);
+    jest
+      .spyOn(service as any, 'getUserProfile')
+      .mockResolvedValue({ is_root_folder_created: false } as any);
     expect(await service.hasRootFolder('u1')).toBe(false);
 
     jest.spyOn(service as any, 'getUserProfile').mockRejectedValue(new Error('boom'));
@@ -112,14 +162,25 @@ describe('UserService', () => {
   it('uploadAvatar uploads and returns public url with timestamp or throws', async () => {
     // ensure upload succeeds
     const getPublic = { data: { publicUrl: 'https://cdn/avatars/u1.png' } };
-    mockSupabase.storage.from.mockReturnValueOnce({ upload: jest.fn().mockResolvedValue({ error: null }), getPublicUrl: jest.fn().mockReturnValue(getPublic) });
+    mockSupabase.storage.from.mockReturnValueOnce({
+      upload: jest.fn().mockResolvedValue({ error: null }),
+      getPublicUrl: jest.fn().mockReturnValue(getPublic),
+    });
     jest.spyOn(Date, 'now').mockReturnValue(123456);
-    const url = await service.uploadAvatar('u1', new File(['x'], 'avatar.png', { type: 'image/png' }));
+    const url = await service.uploadAvatar(
+      'u1',
+      new File(['x'], 'avatar.png', { type: 'image/png' }),
+    );
     expect(url).toBe('https://cdn/avatars/u1.png?t=123456');
 
     // upload error
-    mockSupabase.storage.from.mockReturnValueOnce({ upload: jest.fn().mockResolvedValue({ error: { code: 'E' } }), getPublicUrl: jest.fn().mockReturnValue(getPublic) });
-    await expect(service.uploadAvatar('u1', new File(['x'], 'avatar.png', { type: 'image/png' }))).rejects.toEqual({ code: 'E' });
+    mockSupabase.storage.from.mockReturnValueOnce({
+      upload: jest.fn().mockResolvedValue({ error: { code: 'E' } }),
+      getPublicUrl: jest.fn().mockReturnValue(getPublic),
+    });
+    await expect(
+      service.uploadAvatar('u1', new File(['x'], 'avatar.png', { type: 'image/png' })),
+    ).rejects.toEqual({ code: 'E' });
   });
 
   it('disableUser calls updateUserProfile with disabled true', async () => {

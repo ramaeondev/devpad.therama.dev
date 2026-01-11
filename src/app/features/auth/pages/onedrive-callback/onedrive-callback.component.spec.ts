@@ -18,7 +18,10 @@ describe('OneDriveCallbackComponent', () => {
 
     comp.ngOnInit();
 
-    expect(mockOpener.postMessage).toHaveBeenCalledWith(expect.objectContaining({ accessToken: 'abc123' }), window.location.origin);
+    expect(mockOpener.postMessage).toHaveBeenCalledWith(
+      expect.objectContaining({ accessToken: 'abc123' }),
+      window.location.origin,
+    );
     expect(closeSpy).toHaveBeenCalled();
 
     // cleanup

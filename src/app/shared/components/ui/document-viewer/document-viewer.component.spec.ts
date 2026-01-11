@@ -4,7 +4,9 @@ import { DocumentViewerComponent } from './document-viewer';
 
 describe('DocumentViewerComponent', () => {
   it('sanitizes and sets safeUrl for previewable document', async () => {
-    await TestBed.configureTestingModule({ imports: [DocumentViewerComponent] }).compileComponents();
+    await TestBed.configureTestingModule({
+      imports: [DocumentViewerComponent],
+    }).compileComponents();
     const fixture = TestBed.createComponent(DocumentViewerComponent);
     const comp = fixture.componentInstance;
     comp.documentUrl = 'https://cdn/example.pdf';
@@ -15,7 +17,9 @@ describe('DocumentViewerComponent', () => {
   });
 
   it('isImage returns true for image urls and image is rendered', async () => {
-    await TestBed.configureTestingModule({ imports: [DocumentViewerComponent] }).compileComponents();
+    await TestBed.configureTestingModule({
+      imports: [DocumentViewerComponent],
+    }).compileComponents();
     const fixture = TestBed.createComponent(DocumentViewerComponent);
     const comp = fixture.componentInstance;
     comp.documentUrl = 'https://cdn/example.png';
@@ -31,7 +35,9 @@ describe('DocumentViewerComponent', () => {
   });
 
   it('downloadDocument creates a link and clicks it', async () => {
-    await TestBed.configureTestingModule({ imports: [DocumentViewerComponent] }).compileComponents();
+    await TestBed.configureTestingModule({
+      imports: [DocumentViewerComponent],
+    }).compileComponents();
     const fixture = TestBed.createComponent(DocumentViewerComponent);
     const comp = fixture.componentInstance;
     comp.documentUrl = 'https://cdn/example.txt';
@@ -48,7 +54,9 @@ describe('DocumentViewerComponent', () => {
   });
 
   it('canPreviewInIframe recognizes google drive urls', async () => {
-    await TestBed.configureTestingModule({ imports: [DocumentViewerComponent] }).compileComponents();
+    await TestBed.configureTestingModule({
+      imports: [DocumentViewerComponent],
+    }).compileComponents();
     const fixture = TestBed.createComponent(DocumentViewerComponent);
     const comp = fixture.componentInstance;
 
@@ -60,7 +68,9 @@ describe('DocumentViewerComponent', () => {
   });
 
   it('getFileExtension and type/icon helpers work', async () => {
-    await TestBed.configureTestingModule({ imports: [DocumentViewerComponent] }).compileComponents();
+    await TestBed.configureTestingModule({
+      imports: [DocumentViewerComponent],
+    }).compileComponents();
     const fixture = TestBed.createComponent(DocumentViewerComponent);
     const comp = fixture.componentInstance;
     comp.documentUrl = 'storage://notes/hello.xlsx';
@@ -72,8 +82,15 @@ describe('DocumentViewerComponent', () => {
   });
 
   it('handles sanitizer errors and sets safeUrl to null', async () => {
-    const sanitizerMock = { bypassSecurityTrustResourceUrl: jest.fn(() => { throw new Error('nope'); }) } as any;
-    await TestBed.configureTestingModule({ imports: [DocumentViewerComponent], providers: [{ provide: DomSanitizer, useValue: sanitizerMock }] }).compileComponents();
+    const sanitizerMock = {
+      bypassSecurityTrustResourceUrl: jest.fn(() => {
+        throw new Error('nope');
+      }),
+    } as any;
+    await TestBed.configureTestingModule({
+      imports: [DocumentViewerComponent],
+      providers: [{ provide: DomSanitizer, useValue: sanitizerMock }],
+    }).compileComponents();
     const fixture = TestBed.createComponent(DocumentViewerComponent);
     const comp = fixture.componentInstance;
     comp.documentUrl = 'https://cdn/bad.pdf';
@@ -84,7 +101,9 @@ describe('DocumentViewerComponent', () => {
   });
 
   it('downloadDocument does nothing when documentUrl missing', async () => {
-    await TestBed.configureTestingModule({ imports: [DocumentViewerComponent] }).compileComponents();
+    await TestBed.configureTestingModule({
+      imports: [DocumentViewerComponent],
+    }).compileComponents();
     const fixture = TestBed.createComponent(DocumentViewerComponent);
     const comp = fixture.componentInstance;
     comp.documentUrl = null;
@@ -98,12 +117,16 @@ describe('DocumentViewerComponent', () => {
   });
 
   it('downloadDocument handles DOM errors gracefully', async () => {
-    await TestBed.configureTestingModule({ imports: [DocumentViewerComponent] }).compileComponents();
+    await TestBed.configureTestingModule({
+      imports: [DocumentViewerComponent],
+    }).compileComponents();
     const fixture = TestBed.createComponent(DocumentViewerComponent);
     const comp = fixture.componentInstance;
     comp.documentUrl = 'https://cdn/example.pdf';
 
-    const createSpy = jest.spyOn(document, 'createElement').mockImplementation(() => { throw new Error('boom'); });
+    const createSpy = jest.spyOn(document, 'createElement').mockImplementation(() => {
+      throw new Error('boom');
+    });
     const consoleSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
 
     comp.downloadDocument();
@@ -115,18 +138,29 @@ describe('DocumentViewerComponent', () => {
   });
 
   it('ngOnChanges updates when documentUrl changes', async () => {
-    await TestBed.configureTestingModule({ imports: [DocumentViewerComponent] }).compileComponents();
+    await TestBed.configureTestingModule({
+      imports: [DocumentViewerComponent],
+    }).compileComponents();
     const fixture = TestBed.createComponent(DocumentViewerComponent);
     const comp = fixture.componentInstance;
     comp.documentUrl = 'https://cdn/a.png';
 
-    comp.ngOnChanges({ documentUrl: { currentValue: 'https://cdn/a.png', previousValue: null, firstChange: false, isFirstChange: () => false } as any });
+    comp.ngOnChanges({
+      documentUrl: {
+        currentValue: 'https://cdn/a.png',
+        previousValue: null,
+        firstChange: false,
+        isFirstChange: () => false,
+      } as any,
+    });
 
     expect(comp.safeUrl()).toBeTruthy();
   });
 
   it('getFileExtension returns empty for null url', async () => {
-    await TestBed.configureTestingModule({ imports: [DocumentViewerComponent] }).compileComponents();
+    await TestBed.configureTestingModule({
+      imports: [DocumentViewerComponent],
+    }).compileComponents();
     const fixture = TestBed.createComponent(DocumentViewerComponent);
     const comp = fixture.componentInstance;
     comp.documentUrl = null;

@@ -4,7 +4,9 @@ import { RouterTestingModule } from '@angular/router/testing';
 
 describe('HomeComponent', () => {
   it('renders and includes router link', async () => {
-    await TestBed.configureTestingModule({ imports: [HomeComponent, RouterTestingModule] }).compileComponents();
+    await TestBed.configureTestingModule({
+      imports: [HomeComponent, RouterTestingModule],
+    }).compileComponents();
     const fixture = TestBed.createComponent(HomeComponent);
     fixture.detectChanges();
     expect(fixture.nativeElement).toBeTruthy();

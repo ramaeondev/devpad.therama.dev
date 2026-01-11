@@ -2,14 +2,21 @@ import { TestBed } from '@angular/core/testing';
 import { GlobalSpinnerComponent } from './global-spinner.component';
 
 class MockLoadingService {
-  isLoading() { return true; }
+  isLoading() {
+    return true;
+  }
 }
 
 describe('GlobalSpinnerComponent', () => {
   it('shows spinner when loading', async () => {
     await TestBed.configureTestingModule({
       imports: [GlobalSpinnerComponent],
-      providers: [{ provide: (await import('../../../../core/services/loading.service')).LoadingService, useClass: MockLoadingService }]
+      providers: [
+        {
+          provide: (await import('../../../../core/services/loading.service')).LoadingService,
+          useClass: MockLoadingService,
+        },
+      ],
     }).compileComponents();
 
     const fixture = TestBed.createComponent(GlobalSpinnerComponent);
@@ -19,10 +26,19 @@ describe('GlobalSpinnerComponent', () => {
   });
 
   it('hides spinner when not loading', async () => {
-    class NotLoading { isLoading() { return false; } }
+    class NotLoading {
+      isLoading() {
+        return false;
+      }
+    }
     await TestBed.configureTestingModule({
       imports: [GlobalSpinnerComponent],
-      providers: [{ provide: (await import('../../../../core/services/loading.service')).LoadingService, useClass: NotLoading }]
+      providers: [
+        {
+          provide: (await import('../../../../core/services/loading.service')).LoadingService,
+          useClass: NotLoading,
+        },
+      ],
     }).compileComponents();
 
     const fixture = TestBed.createComponent(GlobalSpinnerComponent);
