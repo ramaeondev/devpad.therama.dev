@@ -51,6 +51,64 @@ jobs:
           path: coverage/lcov-report
           retention-days: 7
 
+      - name: Generate HTML JUnit report
+        run: |
+          python -m pip install --upgrade junit2html
+          junit2html test-results/junit.xml test-results/junit-report.html
+
+      - name: Upload JUnit HTML report
+        uses: actions/upload-artifact@v4
+        with:
+          name: unit-test-junit-html
+          path: test-results/junit-report.html
+          retention-days: 7
+
+      - name: Parse JUnit XML to outputs
+        id: parse_junit
+        run: |
+          python - <<'PY'
+import xml.etree.ElementTree as ET, os
+
+root = ET.parse('test-results/junit.xml').getroot()
+# Normalize to testsuites
+if root.tag == 'testsuite':
+    testsuites = [root]
+else:
+    testsuites = list(root.findall('testsuite'))
+
+tests = sum(int(ts.attrib.get('tests', 0)) for ts in testsuites)
+failures = sum(int(ts.attrib.get('failures', 0)) for ts in testsuites)
+errors = sum(int(ts.attrib.get('errors', 0)) for ts in testsuites)
+skipped = sum(int(ts.attrib.get('skipped', ts.attrib.get('skips', 0))) for ts in testsuites)
+time = sum(float(ts.attrib.get('time', 0)) for ts in testsuites)
+
+with open(os.environ['GITHUB_OUTPUT'], 'a') as fh:
+    fh.write(f"tests={tests}\n")
+    fh.write(f"failures={failures}\n")
+    fh.write(f"errors={errors}\n")
+    fh.write(f"skipped={skipped}\n")
+    fh.write(f"time={time}\n")
+PY
+
+      - name: Post unit test summary as PR comment
+        if: github.event_name == 'pull_request'
+        uses: peter-evans/create-or-update-comment@v4
+        with:
+          issue-number: ${{ github.event.pull_request.number }}
+          body: |
+            **Unit Test Report**
+
+            - **Tests:** ${{ steps.parse_junit.outputs.tests }}
+            - **Failures:** ${{ steps.parse_junit.outputs.failures }}
+            - **Errors:** ${{ steps.parse_junit.outputs.errors }}
+            - **Skipped:** ${{ steps.parse_junit.outputs.skipped }}
+            - **Total time (s):** ${{ steps.parse_junit.outputs.time }}
+
+            Artifacts:
+            - JUnit XML: `unit-test-junit`
+            - JUnit HTML: `unit-test-junit-html`
+            - Coverage HTML: `unit-test-coverage`
+
   build:
     needs: unit-tests
     runs-on: ubuntu-latest
