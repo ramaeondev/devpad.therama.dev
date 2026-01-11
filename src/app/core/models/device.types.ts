@@ -226,7 +226,7 @@ export const isValidDeviceType = (type: string): type is 'mobile' | 'tablet' | '
 };
 
 export const isUserDevice = (obj: any): obj is UserDevice => {
-    return (
+    return !!(
         obj &&
         typeof obj.id === 'string' &&
         typeof obj.user_id === 'string' &&

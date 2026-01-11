@@ -81,4 +81,125 @@ describe('ActivityLogService', () => {
     expect(res2).toBe(0);
   });
 
+  it('logActivity returns null when device info fails', async () => {
+    mockDevice.getDeviceInfo.mockRejectedValue(new Error('fp fail'));
+    const res = await service.logActivity('u1', { action_type: ActivityAction.Create, resource_type: ActivityResource.Note } as any);
+    expect(res).toBeNull();
+  });
+
+  it('logActivity returns null when insert returns error and supports undefined userId (anonymous)', async () => {
+    mockSupabase.single.mockResolvedValueOnce({ data: null, error: { code: 'E' } });
+    const res = await service.logActivity(undefined as any, { action_type: ActivityAction.Create, resource_type: ActivityResource.Note } as any);
+    expect(res).toBeNull();
+  });
+
+  it('logContentAction, logShareAction, logAuthAction call logActivity', async () => {
+    const spy = jest.spyOn(service as any, 'logActivity').mockResolvedValue({ id: 'a3' } as any);
+    await service.logContentAction('u1', ActivityAction.Create, ActivityResource.Note, 'n1', 'N');
+    expect(spy).toHaveBeenCalled();
+
+    await service.logShareAction('u1', ActivityAction.ShareCreate, 's1', 'S');
+    expect(spy).toHaveBeenCalled();
+
+    await service.logAuthAction('u1', ActivityAction.Login);
+    expect(spy).toHaveBeenCalled();
+  });
+
+  it('getUserActivityLogs returns data with filters and handles thrown exception', async () => {
+    mockSupabase.order.mockReturnValue(Promise.resolve({ data: [{ id: 'a2' }], error: null }));
+    const res = await service.getUserActivityLogs('u1', { action_type: [ActivityAction.Create], resource_type: ActivityResource.Note as any, category: undefined });
+    expect(res.length).toBe(1);
+    expect(mockSupabase.in).toHaveBeenCalled();
+
+    // thrown exception returns []
+    mockSupabase.from = jest.fn().mockImplementation(() => { throw new Error('boom'); });
+    const res2 = await service.getUserActivityLogs('u1');
+    expect(res2).toEqual([]);
+  });
+
+  it('getActivityLogsByResource handles thrown exception', async () => {
+    mockSupabase.from = jest.fn().mockImplementation(() => { throw new Error('boom'); });
+    const res = await service.getActivityLogsByResource(ActivityResource.Note, 'n1');
+    expect(res).toEqual([]);
+  });
+
+  it('getActivityLogCount handles rejected promise', async () => {
+    mockSupabase.or.mockReturnValue(Promise.reject(new Error('boom')));
+    const res = await service.getActivityLogCount('u1');
+    expect(res).toBe(0);
+  });
+
+  it('logActivity infers categories correctly and logs with inferred category', async () => {
+    jest.clearAllMocks();
+    await service.logActivity('u1', { action_type: ActivityAction.Login, resource_type: ActivityResource.Auth } as any);
+    expect(mockSupabase.insert).toHaveBeenCalledWith(expect.objectContaining({ category: expect.any(String) }));
+    expect(mockSupabase.insert.mock.calls[0][0].category).toBeDefined();
+
+    jest.clearAllMocks();
+    await service.logActivity('u1', { action_type: ActivityAction.Create, resource_type: ActivityResource.Note } as any);
+    expect(mockSupabase.insert).toHaveBeenCalledWith(expect.objectContaining({ category: expect.any(String) }));
+    expect(mockSupabase.insert.mock.calls[0][0].category).toBe('content');
+
+    jest.clearAllMocks();
+    await service.logActivity('u1', { action_type: ActivityAction.ShareCreate, resource_type: ActivityResource.PublicShare } as any);
+    expect(mockSupabase.insert).toHaveBeenCalledWith(expect.objectContaining({ category: 'access' }));
+
+    jest.clearAllMocks();
+    // Unknown action should fallback to system
+    await service.logActivity('u1', { action_type: 'unknown' as any, resource_type: ActivityResource.Note } as any);
+    expect(mockSupabase.insert).toHaveBeenCalledWith(expect.objectContaining({ category: 'system' }));
+  });
+
+  it('logActivity marks anonymous when userId undefined', async () => {
+    jest.clearAllMocks();
+    await service.logActivity(undefined as any, { action_type: ActivityAction.Create, resource_type: ActivityResource.Note } as any);
+    expect(mockSupabase.insert).toHaveBeenCalledWith(expect.objectContaining({ is_anonymous: true, user_id: null }));
+  });
+
+  it('getUserActivityLogs applies complex filters and pagination', async () => {
+    const filters = {
+      resource_type: [ActivityResource.Note],
+      category: ["content" as any],
+      start_date: '2020-01-01',
+      end_date: '2020-12-31',
+      device_fingerprint: 'fp-1',
+      limit: 5,
+      offset: 10
+    } as any;
+
+    mockSupabase.order.mockReturnValue(Promise.resolve({ data: [{ id: 'a5' }], error: null }));
+
+    const res = await service.getUserActivityLogs('u1', filters);
+    expect(res.length).toBe(1);
+    expect(mockSupabase.in).toHaveBeenCalled();
+    expect(mockSupabase.gte).toHaveBeenCalledWith('created_at', '2020-01-01');
+    expect(mockSupabase.lte).toHaveBeenCalledWith('created_at', '2020-12-31');
+    expect(mockSupabase.eq).toHaveBeenCalledWith('device_fingerprint', 'fp-1');
+    expect(mockSupabase.limit).toHaveBeenCalledWith(5);
+    expect(mockSupabase.range).toHaveBeenCalledWith(10, 14);
+  });
+
+  it('getActivityLogCount applies filters and returns count', async () => {
+    const filters = { action_type: [ActivityAction.Create], resource_type: ActivityResource.Note, start_date: '2021-01-01', end_date: '2021-02-01' } as any;
+    // construct a chain object that supports further chaining and is awaited to the result
+    const chain: any = {
+      in: jest.fn().mockReturnThis(),
+      gte: jest.fn().mockReturnThis(),
+      lte: jest.fn().mockReturnThis(),
+      eq: jest.fn().mockReturnThis(),
+      then: (resolve: any) => resolve({ count: 7, error: null })
+    };
+    // first in call returns the chain
+    mockSupabase.in.mockReturnValue(chain);
+
+    const count = await service.getActivityLogCount('u1', filters);
+    expect(count).toBe(7);
+    // initial in call (action_type) happened on the supabase mock
+    expect(mockSupabase.in).toHaveBeenCalledWith('action_type', [ActivityAction.Create]);
+    // subsequent chain.in called for resource_type
+    expect(chain.in).toHaveBeenCalledWith('resource_type', [ActivityResource.Note]);
+    expect(chain.gte).toHaveBeenCalledWith('created_at', '2021-01-01');
+    expect(chain.lte).toHaveBeenCalledWith('created_at', '2021-02-01');
+  });
+
 });

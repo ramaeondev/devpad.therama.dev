@@ -105,4 +105,56 @@ describe('NotificationService', () => {
     expect(mockSupabase.realtimeClient.removeChannel).toHaveBeenCalledWith(channel);
   });
 
+  it('getUserNotifications catches thrown error and returns []', async () => {
+    mockSupabase.from = jest.fn().mockImplementation(() => { throw new Error('boom'); });
+    const res = await service.getUserNotifications('u1');
+    expect(res).toEqual([]);
+  });
+
+  it('getUnreadCount handles rejected promise and returns 0', async () => {
+    mockSupabase.from.mockReturnValueOnce({ select: jest.fn().mockReturnValue(Promise.reject(new Error('boom'))) });
+    const cnt = await service.getUnreadCount('u1');
+    expect(cnt).toBe(0);
+  });
+
+  it('markAsRead returns false when update rejects', async () => {
+    mockSupabase.from.mockReturnValueOnce({ update: jest.fn().mockReturnValue({ eq: jest.fn().mockRejectedValue(new Error('boom')) }) });
+    const res = await service.markAsRead('n1');
+    expect(res).toBe(false);
+  });
+
+  it('markAllAsRead returns false when update rejects', async () => {
+    mockSupabase.from.mockReturnValueOnce({ update: jest.fn().mockReturnValue({ eq: jest.fn().mockRejectedValue(new Error('boom')) }) });
+    const res = await service.markAllAsRead('u1');
+    expect(res).toBe(false);
+  });
+
+  it('deleteNotification returns false when delete rejects', async () => {
+    mockSupabase.from.mockReturnValueOnce({ delete: jest.fn().mockReturnValue({ eq: jest.fn().mockRejectedValue(new Error('boom')) }) });
+    const res = await service.deleteNotification('n1');
+    expect(res).toBe(false);
+  });
+
+  it('createNotification returns null on rejected single()', async () => {
+    mockSupabase.from.mockReturnValueOnce({ insert: jest.fn().mockReturnThis(), select: jest.fn().mockReturnThis(), single: jest.fn().mockRejectedValue(new Error('boom')) });
+    const res = await service.createNotification('u1', { title: 'T', message: 'M', type: 'info' } as any);
+    expect(res).toBeNull();
+  });
+
+  it('subscribeToNotifications invokes callback and triggers getUnreadCount', async () => {
+    let savedCb: any;
+    mockSupabase.realtimeClient.on = jest.fn().mockImplementation((event: any, opts: any, cb: any) => { savedCb = cb; return mockSupabase.realtimeClient; });
+    mockSupabase.realtimeClient.subscribe = jest.fn().mockReturnValue({ id: 'ch2' });
+
+    const cb = jest.fn();
+    const guSpy = jest.spyOn(service, 'getUnreadCount').mockResolvedValue(5 as any);
+    const channel = service.subscribeToNotifications('u1', cb);
+    expect(channel).toBeTruthy();
+
+    // Simulate inbound insert payload
+    savedCb({ new: { id: 'n9' } });
+    expect(cb).toHaveBeenCalledWith({ id: 'n9' });
+    expect(guSpy).toHaveBeenCalledWith('u1');
+  });
+
 });

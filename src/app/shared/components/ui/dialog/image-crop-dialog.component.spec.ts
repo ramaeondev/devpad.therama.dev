@@ -57,4 +57,42 @@ describe('ImageCropDialogComponent', () => {
     comp.onSave();
     expect(spy).toHaveBeenCalled();
   });
+
+  it('sets loading false and clears error on imageLoaded', async () => {
+    await TestBed.configureTestingModule({ imports: [ImageCropDialogComponent] }).compileComponents();
+    const fixture = TestBed.createComponent(ImageCropDialogComponent);
+    const comp = fixture.componentInstance;
+    // set loading true then call imageLoaded
+    comp.loading.set(true);
+    comp.errorMessage.set('some error');
+    comp.imageLoaded();
+    expect(comp.loading()).toBe(false);
+    expect(comp.errorMessage()).toBe('');
+  });
+
+  it('sets loading false on cropperReady and sets error on loadImageFailed', async () => {
+    await TestBed.configureTestingModule({ imports: [ImageCropDialogComponent] }).compileComponents();
+    const fixture = TestBed.createComponent(ImageCropDialogComponent);
+    const comp = fixture.componentInstance;
+
+    comp.loading.set(true);
+    comp.cropperReady();
+    expect(comp.loading()).toBe(false);
+
+    comp.loading.set(true);
+    comp.loadImageFailed();
+    expect(comp.loading()).toBe(false);
+    expect(comp.errorMessage()).toContain('Failed to load image');
+  });
+
+  it('resetState clears cropped image/blob', async () => {
+    await TestBed.configureTestingModule({ imports: [ImageCropDialogComponent] }).compileComponents();
+    const fixture = TestBed.createComponent(ImageCropDialogComponent);
+    const comp = fixture.componentInstance;
+    comp.croppedBlob.set(new Blob(['x']));
+    comp.croppedImage.set('some' as any);
+    (comp as any).resetState();
+    expect(comp.croppedBlob()).toBeNull();
+    expect(comp.croppedImage()).toBeNull();
+  });
 });

@@ -31,4 +31,48 @@ describe('NoteNameModalComponent', () => {
     comp.trySubmit();
     expect(spy).toHaveBeenCalledWith('New Note');
   });
+
+  it('shows error on empty input and canSubmit false', async () => {
+    await TestBed.configureTestingModule({ imports: [NoteNameModalComponent] }).compileComponents();
+    const fixture = TestBed.createComponent(NoteNameModalComponent);
+    const comp = fixture.componentInstance;
+
+    comp.onInput({ target: { value: '' } } as any);
+    expect(comp.error()).toBe('Title is required');
+    expect(comp.canSubmit()).toBe(false);
+  });
+
+  it('onCancel emits cancel', async () => {
+    await TestBed.configureTestingModule({ imports: [NoteNameModalComponent] }).compileComponents();
+    const fixture = TestBed.createComponent(NoteNameModalComponent);
+    const comp = fixture.componentInstance;
+
+    const cancelSpy = jest.fn();
+    comp.cancel.subscribe(cancelSpy);
+    comp.onCancel();
+    expect(cancelSpy).toHaveBeenCalled();
+  });
+
+  it('trySubmit does not emit when invalid', async () => {
+    await TestBed.configureTestingModule({ imports: [NoteNameModalComponent] }).compileComponents();
+    const fixture = TestBed.createComponent(NoteNameModalComponent);
+    const comp = fixture.componentInstance;
+
+    const submitSpy = jest.fn();
+    comp.submit.subscribe(submitSpy);
+    comp.name.set('');
+    comp.trySubmit();
+    expect(submitSpy).not.toHaveBeenCalled();
+  });
+
+  it('validate clears error on valid name', async () => {
+    await TestBed.configureTestingModule({ imports: [NoteNameModalComponent] }).compileComponents();
+    const fixture = TestBed.createComponent(NoteNameModalComponent);
+    const comp = fixture.componentInstance;
+
+    comp.existingNames = ['existing'];
+    comp.onInput({ target: { value: 'New Name' } } as any);
+    expect(comp.error()).toBeNull();
+    expect(comp.canSubmit()).toBe(true);
+  });
 });

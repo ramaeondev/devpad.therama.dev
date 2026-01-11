@@ -184,6 +184,54 @@ describe('ShareNoteModalComponent', () => {
     expect((window as any).open).toHaveBeenCalledWith(expect.stringContaining('facebook.com'), '_blank');
   });
 
+  it('shareUrl returns generated share url', async () => {
+    const mock = new MockShare();
+    await TestBed.configureTestingModule({ imports: [ShareNoteModalComponent], providers: [ { provide: (await import('../../../../core/services/share.service')).ShareService, useValue: mock }, { provide: (await import('../../../../core/services/toast.service')).ToastService, useClass: MockToast } ] }).compileComponents();
+    const fixture = TestBed.createComponent(ShareNoteModalComponent);
+    const comp = fixture.componentInstance;
+    comp.existingShare.set({ id: 's1', share_token: 'abc' } as any);
+
+    expect(comp.shareUrl()).toBe('https://share/abc');
+  });
+
+  it('createShare passes maxViews for once and custom expiry for custom', async () => {
+    const mock = new MockShare();
+    mock.createShare = jest.fn().mockResolvedValue({ id: 's9', share_token: 't9' });
+    const toast = new MockToast();
+
+    await TestBed.configureTestingModule({ imports: [ShareNoteModalComponent], providers: [ { provide: (await import('../../../../core/services/share.service')).ShareService, useValue: mock }, { provide: (await import('../../../../core/services/toast.service')).ToastService, useValue: toast } ] }).compileComponents();
+    const fixture = TestBed.createComponent(ShareNoteModalComponent);
+    const comp = fixture.componentInstance;
+    comp.note = { id: 'n1' } as any;
+
+    // once
+    comp.selectedExpiry.set('once');
+    await comp.createShare();
+    expect(mock.createShare).toHaveBeenCalledWith('n1', comp.permission, null, 1);
+
+    // custom
+    mock.createShare = jest.fn().mockResolvedValue({ id: 's10', share_token: 't10' });
+    comp.selectedExpiry.set('custom');
+    comp.customExpiryDate.set('2026-01-09T12:00');
+    await comp.createShare();
+    expect(mock.createShare).toHaveBeenCalledWith('n1', comp.permission, new Date('2026-01-09T12:00').toISOString(), null);
+  });
+
+  it('ngOnInit sets custom expiry date when share has expires_at', async () => {
+    const mock = new MockShare();
+    mock.getSharesForNote = jest.fn().mockResolvedValue([{ id: 's7', share_token: 't7', permission: 'readonly', expires_at: '2026-01-09T12:00:00.000Z' }]);
+
+    await TestBed.configureTestingModule({ imports: [ShareNoteModalComponent], providers: [ { provide: (await import('../../../../core/services/share.service')).ShareService, useValue: mock }, { provide: (await import('../../../../core/services/toast.service')).ToastService, useClass: MockToast } ] }).compileComponents();
+    const fixture = TestBed.createComponent(ShareNoteModalComponent);
+    const comp = fixture.componentInstance;
+    comp.note = { id: 'n2' } as any;
+
+    await comp.ngOnInit();
+
+    expect(comp.selectedExpiry()).toBe('custom');
+    expect(comp.customExpiryDate()).toBe('2026-01-09T12:00');
+  });
+
   it('copyForInstagram calls copyLink and shows toast', async () => {
     const mock = new MockShare();
     const toast = new MockToast();

@@ -96,4 +96,117 @@ describe('MarkdownEditorComponent', () => {
     expect(fakeTa.value).toContain('> line2');
     expect(spy).toHaveBeenCalledWith(expect.stringContaining('> line2'));
   });
+
+  it('insert helpers add correct markdown wrappers', async () => {
+    await TestBed.configureTestingModule({ imports: [MarkdownEditorComponent] }).compileComponents();
+    const fixture = TestBed.createComponent(MarkdownEditorComponent);
+    const comp = fixture.componentInstance;
+
+    const makeHost = () => {
+      const host = document.createElement('app-markdown-editor');
+      const ta = document.createElement('textarea');
+      ta.value = 'hello';
+      ta.selectionStart = 0;
+      ta.selectionEnd = 5;
+      host.appendChild(ta);
+      document.body.appendChild(host);
+      return { host, ta };
+    };
+
+    try {
+      const { host: h1, ta: ta1 } = makeHost();
+      comp.insertLink();
+      expect(ta1.value).toContain('[');
+      expect(ta1.value).toContain('](https://)');
+      document.body.removeChild(h1);
+
+      const { host: h2, ta: ta2 } = makeHost();
+      comp.insertImage();
+      expect(ta2.value).toContain('![');
+      expect(ta2.value).toContain('](https://)');
+      document.body.removeChild(h2);
+
+      const { host: h3, ta: ta3 } = makeHost();
+      comp.insertCodeBlock();
+      expect(ta3.value).toContain('```');
+      document.body.removeChild(h3);
+
+      const { host: h4, ta: ta4 } = makeHost();
+      comp.insertInlineCode();
+      expect(ta4.value).toContain('`');
+      document.body.removeChild(h4);
+    } finally {
+      // ensure cleanup in case of failures
+      const remaining = document.querySelectorAll('app-markdown-editor');
+      remaining.forEach((n) => n.remove());
+    }
+  });
+
+  it('syncScroll adjusts preview scroll when preview active', async () => {
+    await TestBed.configureTestingModule({ imports: [MarkdownEditorComponent] }).compileComponents();
+    const fixture = TestBed.createComponent(MarkdownEditorComponent);
+    const comp = fixture.componentInstance;
+
+    const host = document.createElement('app-markdown-editor');
+    const ta = document.createElement('textarea');
+    ta.scrollTop = 50;
+    Object.defineProperty(ta, 'scrollHeight', { value: 200, configurable: true });
+    const preview = document.createElement('div');
+    preview.className = 'prose';
+    // give preview a taller scrollHeight
+    Object.defineProperty(preview, 'scrollHeight', { value: 400, configurable: true });
+    host.appendChild(ta);
+    host.appendChild(preview);
+    document.body.appendChild(host);
+
+    try {
+      comp.preview.set(true);
+      comp.syncScroll({ target: ta } as unknown as Event);
+      expect(preview.scrollTop).toBeCloseTo((ta.scrollTop / ta.scrollHeight) * preview.scrollHeight);
+    } finally {
+      document.body.removeChild(host);
+    }
+  });
+
+  it('syncScroll does nothing when preview is false', async () => {
+    await TestBed.configureTestingModule({ imports: [MarkdownEditorComponent] }).compileComponents();
+    const fixture = TestBed.createComponent(MarkdownEditorComponent);
+    const comp = fixture.componentInstance;
+
+    const host = document.createElement('app-markdown-editor');
+    const ta = document.createElement('textarea');
+    ta.scrollTop = 70;
+    Object.defineProperty(ta, 'scrollHeight', { value: 200, configurable: true });
+    const preview = document.createElement('div');
+    preview.className = 'prose';
+    Object.defineProperty(preview, 'scrollHeight', { value: 400, configurable: true });
+    preview.scrollTop = 123;
+    host.appendChild(ta);
+    host.appendChild(preview);
+    document.body.appendChild(host);
+
+    try {
+      comp.preview.set(false);
+      comp.syncScroll({ target: ta } as unknown as Event);
+      expect(preview.scrollTop).toBe(123);
+    } finally {
+      document.body.removeChild(host);
+    }
+  });
+
+  it('insert helpers are no-ops when no textarea is present', async () => {
+    await TestBed.configureTestingModule({ imports: [MarkdownEditorComponent] }).compileComponents();
+    const fixture = TestBed.createComponent(MarkdownEditorComponent);
+    const comp = fixture.componentInstance;
+    const spy = jest.fn();
+    comp.contentChange.subscribe(spy);
+
+    // no host/textarea appended
+    comp.insertLink();
+    comp.insertImage();
+    comp.insertCodeBlock();
+    comp.insertInlineCode();
+
+    expect(spy).not.toHaveBeenCalled();
+  });
 });
