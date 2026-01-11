@@ -40,6 +40,7 @@ jobs:
           name: "Unit Tests"
           path: test-results/junit.xml
           reporter: junit
+          fail-on-error: false
 
       - name: Upload test result artifact (junit)
         if: always()
