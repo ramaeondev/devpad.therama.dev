@@ -7,8 +7,8 @@ module.exports = {
   moduleNameMapper: {
     "\\.(css|scss)$": "identity-obj-proxy",
     "^src/(.*)$": "<rootDir>/src/$1",
-    "^\\.\\./config\\.dev$": "<rootDir>/src/config.dev.ts",
-    "^\\.\\./config\\.prod$": "<rootDir>/src/config.prod.ts"
+    "^\\.\\./config\\.dev$": "<rootDir>/src/__mocks__/config.dev.ts",
+    "^\\.\\./config\\.prod$": "<rootDir>/src/__mocks__/config.prod.ts"
   },
   moduleFileExtensions: ['ts', 'html', 'js', 'mjs'],
   globals: {
