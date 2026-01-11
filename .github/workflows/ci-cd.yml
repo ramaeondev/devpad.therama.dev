@@ -75,39 +75,39 @@ jobs:
         id: parse_junit
         if: always()
         run: |
-          python - <<'PY'
-import xml.etree.ElementTree as ET, os, sys
-
-if not os.path.exists('test-results/junit.xml'):
-    # No results - output zeros
-    with open(os.environ['GITHUB_OUTPUT'], 'a') as fh:
-        fh.write(f"tests=0\n")
-        fh.write(f"failures=0\n")
-        fh.write(f"errors=0\n")
-        fh.write(f"skipped=0\n")
-        fh.write(f"time=0\n")
-    sys.exit(0)
-
-root = ET.parse('test-results/junit.xml').getroot()
-# Normalize to testsuites
-if root.tag == 'testsuite':
-    testsuites = [root]
-else:
-    testsuites = list(root.findall('testsuite'))
-
-tests = sum(int(ts.attrib.get('tests', 0)) for ts in testsuites)
-failures = sum(int(ts.attrib.get('failures', 0)) for ts in testsuites)
-errors = sum(int(ts.attrib.get('errors', 0)) for ts in testsuites)
-skipped = sum(int(ts.attrib.get('skipped', ts.attrib.get('skips', 0))) for ts in testsuites)
-time = sum(float(ts.attrib.get('time', 0)) for ts in testsuites)
-
-with open(os.environ['GITHUB_OUTPUT'], 'a') as fh:
-    fh.write(f"tests={tests}\n")
-    fh.write(f"failures={failures}\n")
-    fh.write(f"errors={errors}\n")
-    fh.write(f"skipped={skipped}\n")
-    fh.write(f"time={time}\n")
-PY
+          python3 <<'EOF'
+          import xml.etree.ElementTree as ET
+          import os
+          import sys
+          
+          if not os.path.exists('test-results/junit.xml'):
+              with open(os.environ['GITHUB_OUTPUT'], 'a') as fh:
+                  fh.write("tests=0\n")
+                  fh.write("failures=0\n")
+                  fh.write("errors=0\n")
+                  fh.write("skipped=0\n")
+                  fh.write("time=0\n")
+              sys.exit(0)
+          
+          root = ET.parse('test-results/junit.xml').getroot()
+          if root.tag == 'testsuite':
+              testsuites = [root]
+          else:
+              testsuites = list(root.findall('testsuite'))
+          
+          tests = sum(int(ts.attrib.get('tests', 0)) for ts in testsuites)
+          failures = sum(int(ts.attrib.get('failures', 0)) for ts in testsuites)
+          errors = sum(int(ts.attrib.get('errors', 0)) for ts in testsuites)
+          skipped = sum(int(ts.attrib.get('skipped', ts.attrib.get('skips', 0))) for ts in testsuites)
+          time = sum(float(ts.attrib.get('time', 0)) for ts in testsuites)
+          
+          with open(os.environ['GITHUB_OUTPUT'], 'a') as fh:
+              fh.write(f"tests={tests}\n")
+              fh.write(f"failures={failures}\n")
+              fh.write(f"errors={errors}\n")
+              fh.write(f"skipped={skipped}\n")
+              fh.write(f"time={time}\n")
+          EOF
 
       - name: Post unit test summary as PR comment
         if: "always() && github.event_name == 'pull_request'"
