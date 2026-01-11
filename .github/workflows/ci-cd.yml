@@ -31,6 +31,7 @@ jobs:
           npm run test:coverage -- --runInBand --reporters=default --reporters=jest-junit
 
       - name: Publish test report (Checks summary)
+        if: always()
         uses: dorny/test-reporter@v1
         with:
           name: "Unit Tests"
@@ -38,6 +39,7 @@ jobs:
           reporter: junit
 
       - name: Upload test result artifact (junit)
+        if: always()
         uses: actions/upload-artifact@v4
         with:
           name: unit-test-junit
@@ -52,11 +54,17 @@ jobs:
           retention-days: 7
 
       - name: Generate HTML JUnit report
+        if: always()
         run: |
-          python -m pip install --upgrade junit2html
-          junit2html test-results/junit.xml test-results/junit-report.html
+          if [ -f test-results/junit.xml ]; then
+            python -m pip install --upgrade junit2html
+            junit2html test-results/junit.xml test-results/junit-report.html
+          else
+            echo "No junit xml found, skipping HTML report generation"
+          fi
 
       - name: Upload JUnit HTML report
+        if: always()
         uses: actions/upload-artifact@v4
         with:
           name: unit-test-junit-html
@@ -65,9 +73,20 @@ jobs:
 
       - name: Parse JUnit XML to outputs
         id: parse_junit
+        if: always()
         run: |
           python - <<'PY'
-import xml.etree.ElementTree as ET, os
+import xml.etree.ElementTree as ET, os, sys
+
+if not os.path.exists('test-results/junit.xml'):
+    # No results - output zeros
+    with open(os.environ['GITHUB_OUTPUT'], 'a') as fh:
+        fh.write(f"tests=0\n")
+        fh.write(f"failures=0\n")
+        fh.write(f"errors=0\n")
+        fh.write(f"skipped=0\n")
+        fh.write(f"time=0\n")
+    sys.exit(0)
 
 root = ET.parse('test-results/junit.xml').getroot()
 # Normalize to testsuites
@@ -91,7 +110,7 @@ with open(os.environ['GITHUB_OUTPUT'], 'a') as fh:
 PY
 
       - name: Post unit test summary as PR comment
-        if: github.event_name == 'pull_request'
+        if: "always() && github.event_name == 'pull_request'"
         uses: peter-evans/create-or-update-comment@v4
         with:
           issue-number: ${{ github.event.pull_request.number }}
