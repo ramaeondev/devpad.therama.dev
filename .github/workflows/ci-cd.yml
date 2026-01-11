@@ -22,8 +22,34 @@ jobs:
           cache: 'npm'
       - name: Install dependencies
         run: npm ci
-      - name: Run unit tests
-        run: npm test --silent -- --runInBand
+      - name: Run unit tests (coverage + JUnit)
+        env:
+          JEST_JUNIT_OUTPUT_DIR: test-results
+          JEST_JUNIT_OUTPUT_NAME: junit.xml
+        run: |
+          mkdir -p test-results
+          npm run test:coverage -- --runInBand --reporters=default --reporters=jest-junit
+
+      - name: Publish test report (Checks summary)
+        uses: dorny/test-reporter@v1
+        with:
+          name: "Unit Tests"
+          path: test-results/junit.xml
+          reporter: junit
+
+      - name: Upload test result artifact (junit)
+        uses: actions/upload-artifact@v4
+        with:
+          name: unit-test-junit
+          path: test-results/junit.xml
+
+      - name: Upload coverage HTML
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: unit-test-coverage
+          path: coverage/lcov-report
+          retention-days: 7
 
   build:
     needs: unit-tests
