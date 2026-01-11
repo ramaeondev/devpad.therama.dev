@@ -6,6 +6,9 @@
   "homepage": "https://devpad.therama.dev",
   "author": "Ramaeon",
   "license": "MIT",
+  "engines": {
+    "node": ">=20 <21"
+  },
   "repository": {
     "type": "git",
     "url": ""
