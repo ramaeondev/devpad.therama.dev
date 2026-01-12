@@ -5,6 +5,7 @@ CI lint behavior
 - On pushes (branches/master): CI runs a full lint across the codebase.
 
 Notes:
+
 - ESLint and Prettier were added; a `lint` job was added to `.github/workflows/ci-cd.yml` and `lint` is required before `Deploy-Production`.
 - I updated `package-lock.json` to include the new devDependencies and added `tsconfig.eslint.json` to scope ESLint to project files.
 - Local verification: `npm ci`, `npm run lint` (changed-file mode showed results), unit tests, and `npm run build` passed locally. There was a bundle size budget warning during build (initial bundle ~722 kB > 500 kB budget).
