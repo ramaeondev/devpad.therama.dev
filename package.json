@@ -51,6 +51,8 @@
     "test:coverage": "jest --coverage",
     "test:watch": "jest --watch",
     "format": "prettier --write \"src/**/*.{ts,html,scss,css,json}\"",
+    "lint": "eslint \"src/**/*.{ts,html}\" --ext .ts,.html --max-warnings=0",
+    "lint:fix": "eslint \"src/**/*.{ts,html}\" --ext .ts,.html --fix",
     "analyze": "ng build --configuration production --stats-json && webpack-bundle-analyzer dist/devpad/stats.json",
     "inject-env": "node scripts/inject-env.js",
     "changelog:update": "node scripts/update-changelog-appwrite.js",
@@ -114,6 +116,13 @@
     "tailwindcss": "^3.4.17",
     "ts-jest": "^29.1.0",
     "typescript": "~5.9.2",
-    "webpack-bundle-analyzer": "^4.10.2"
+    "webpack-bundle-analyzer": "^4.10.2",
+    "eslint": "^8.50.0",
+    "@typescript-eslint/parser": "^6.1.0",
+    "@typescript-eslint/eslint-plugin": "^6.1.0",
+    "@angular-eslint/eslint-plugin": "^16.0.0",
+    "@angular-eslint/eslint-plugin-template": "^16.0.0",
+    "@angular-eslint/template-parser": "^16.0.0",
+    "eslint-config-prettier": "^9.0.0"
   }
 }

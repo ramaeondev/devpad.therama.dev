@@ -1,0 +1,1451 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuites name="jest tests" tests="630" failures="0" errors="0" time="12.785">
+  <testsuite name="NoteWorkspaceComponent" errors="0" failures="0" skipped="0" timestamp="2026-01-12T07:33:47" time="1.168" tests="26">
+    <testcase classname="NoteWorkspaceComponent createNewNote warns without folder" name="NoteWorkspaceComponent createNewNote warns without folder" time="0.056">
+    </testcase>
+    <testcase classname="NoteWorkspaceComponent saveNote creates when none selected" name="NoteWorkspaceComponent saveNote creates when none selected" time="0.003">
+    </testcase>
+    <testcase classname="NoteWorkspaceComponent handleGoogleDriveFileAction delete closes preview on success" name="NoteWorkspaceComponent handleGoogleDriveFileAction delete closes preview on success" time="0.004">
+    </testcase>
+    <testcase classname="NoteWorkspaceComponent reloadFolders sets folders and handles error" name="NoteWorkspaceComponent reloadFolders sets folders and handles error" time="0.011">
+    </testcase>
+    <testcase classname="NoteWorkspaceComponent openNote fetches full note when content missing and handles errors" name="NoteWorkspaceComponent openNote fetches full note when content missing and handles errors" time="0.003">
+    </testcase>
+    <testcase classname="NoteWorkspaceComponent close previews and handle file actions for Google/OneDrive" name="NoteWorkspaceComponent close previews and handle file actions for Google/OneDrive" time="0.003">
+    </testcase>
+    <testcase classname="NoteWorkspaceComponent onTitleInput updates title" name="NoteWorkspaceComponent onTitleInput updates title" time="0.002">
+    </testcase>
+    <testcase classname="NoteWorkspaceComponent saveNote updates existing note" name="NoteWorkspaceComponent saveNote updates existing note" time="0.002">
+    </testcase>
+    <testcase classname="NoteWorkspaceComponent saveNote handles failures and exceptions" name="NoteWorkspaceComponent saveNote handles failures and exceptions" time="0.006">
+    </testcase>
+    <testcase classname="NoteWorkspaceComponent deleteNote success path" name="NoteWorkspaceComponent deleteNote success path" time="0.002">
+    </testcase>
+    <testcase classname="NoteWorkspaceComponent deleteNote failure and exception paths show error" name="NoteWorkspaceComponent deleteNote failure and exception paths show error" time="0.005">
+    </testcase>
+    <testcase classname="NoteWorkspaceComponent loadNotes handles error" name="NoteWorkspaceComponent loadNotes handles error" time="0.002">
+    </testcase>
+    <testcase classname="NoteWorkspaceComponent isDocument detection works for storage:// files" name="NoteWorkspaceComponent isDocument detection works for storage:// files" time="0.001">
+    </testcase>
+    <testcase classname="NoteWorkspaceComponent onFolderDropdownChange calls workspace setSelectedFolder" name="NoteWorkspaceComponent onFolderDropdownChange calls workspace setSelectedFolder" time="0.002">
+    </testcase>
+    <testcase classname="NoteWorkspaceComponent noteCreated subscription opens note and reloads" name="NoteWorkspaceComponent noteCreated subscription opens note and reloads" time="0.026">
+    </testcase>
+    <testcase classname="NoteWorkspaceComponent createNewNote initializes when folder selected" name="NoteWorkspaceComponent createNewNote initializes when folder selected" time="0.003">
+    </testcase>
+    <testcase classname="NoteWorkspaceComponent saveNote still succeeds if emitFoldersChanged throws" name="NoteWorkspaceComponent saveNote still succeeds if emitFoldersChanged throws" time="0.003">
+    </testcase>
+    <testcase classname="NoteWorkspaceComponent handleGoogleDriveFileAction imported branch does nothing" name="NoteWorkspaceComponent handleGoogleDriveFileAction imported branch does nothing" time="0.002">
+    </testcase>
+    <testcase classname="NoteWorkspaceComponent handleOneDriveFileAction delete success closes preview" name="NoteWorkspaceComponent handleOneDriveFileAction delete success closes preview" time="0.002">
+    </testcase>
+    <testcase classname="NoteWorkspaceComponent noteSelected handler (direct) handles getNote errors and shows toast" name="NoteWorkspaceComponent noteSelected handler (direct) handles getNote errors and shows toast" time="0.002">
+    </testcase>
+    <testcase classname="NoteWorkspaceComponent flatFolders flattens nested folder trees" name="NoteWorkspaceComponent flatFolders flattens nested folder trees" time="0.002">
+    </testcase>
+    <testcase classname="NoteWorkspaceComponent openNote with content sets content immediately" name="NoteWorkspaceComponent openNote with content sets content immediately" time="0.001">
+    </testcase>
+    <testcase classname="NoteWorkspaceComponent handleOneDriveFileAction imported branch does nothing" name="NoteWorkspaceComponent handleOneDriveFileAction imported branch does nothing" time="0.001">
+    </testcase>
+    <testcase classname="NoteWorkspaceComponent googleDriveFileSelected subscription opens preview and clears other state" name="NoteWorkspaceComponent googleDriveFileSelected subscription opens preview and clears other state" time="0.003">
+    </testcase>
+    <testcase classname="NoteWorkspaceComponent oneDriveFileSelected subscription opens preview and clears other state" name="NoteWorkspaceComponent oneDriveFileSelected subscription opens preview and clears other state" time="0.002">
+    </testcase>
+    <testcase classname="NoteWorkspaceComponent constructor effect reacts to selectedFolderId changes and loads notes" name="NoteWorkspaceComponent constructor effect reacts to selectedFolderId changes and loads notes" time="0.004">
+    </testcase>
+  </testsuite>
+  <testsuite name="FolderTreeComponent" errors="0" failures="0" skipped="0" timestamp="2026-01-12T07:33:48" time="0.397" tests="28">
+    <testcase classname="FolderTreeComponent uniqueName returns incremented name when exists" name="FolderTreeComponent uniqueName returns incremented name when exists" time="0.066">
+    </testcase>
+    <testcase classname="FolderTreeComponent createNoteDirect creates note and emits selection" name="FolderTreeComponent createNoteDirect creates note and emits selection" time="0.016">
+    </testcase>
+    <testcase classname="FolderTreeComponent deleteFolder does not allow deleting root" name="FolderTreeComponent deleteFolder does not allow deleting root" time="0.002">
+    </testcase>
+    <testcase classname="FolderTreeComponent ngOnInit auto-expands root folders" name="FolderTreeComponent ngOnInit auto-expands root folders" time="0.002">
+    </testcase>
+    <testcase classname="FolderTreeComponent toggleExpand toggles expanded state and stops propagation" name="FolderTreeComponent toggleExpand toggles expanded state and stops propagation" time="0.002">
+    </testcase>
+    <testcase classname="FolderTreeComponent onFolderClick loads notes for leaf folders and emits selection" name="FolderTreeComponent onFolderClick loads notes for leaf folders and emits selection" time="0.003">
+    </testcase>
+    <testcase classname="FolderTreeComponent commitRename updates folder and emits on success" name="FolderTreeComponent commitRename updates folder and emits on success" time="0.001">
+    </testcase>
+    <testcase classname="FolderTreeComponent deleteFolder removes non-root folders on success" name="FolderTreeComponent deleteFolder removes non-root folders on success" time="0.002">
+    </testcase>
+    <testcase classname="FolderTreeComponent openCreateSubfolderModal sets pending parent and shows modal" name="FolderTreeComponent openCreateSubfolderModal sets pending parent and shows modal" time="0.002">
+    </testcase>
+    <testcase classname="FolderTreeComponent startRename and cancelRename behavior and onNameInput" name="FolderTreeComponent startRename and cancelRename behavior and onNameInput" time="0.002">
+    </testcase>
+    <testcase classname="FolderTreeComponent commitRename with empty draft cancels edit" name="FolderTreeComponent commitRename with empty draft cancels edit" time="0.002">
+    </testcase>
+    <testcase classname="FolderTreeComponent downloadDocument handles no storage path and fetch errors" name="FolderTreeComponent downloadDocument handles no storage path and fetch errors" time="0.002">
+    </testcase>
+    <testcase classname="FolderTreeComponent onNoteDragStart and onNoteDragEnd set and clear state and styles" name="FolderTreeComponent onNoteDragStart and onNoteDragEnd set and clear state and styles" time="0.002">
+    </testcase>
+    <testcase classname="FolderTreeComponent onFolderDragOver and onFolderDragLeave handle visual feedback" name="FolderTreeComponent onFolderDragOver and onFolderDragLeave handle visual feedback" time="0.001">
+    </testcase>
+    <testcase classname="FolderTreeComponent onFolderDrop moves note between folders and handles same-folder gracefully" name="FolderTreeComponent onFolderDrop moves note between folders and handles same-folder gracefully" time="0.002">
+    </testcase>
+    <testcase classname="FolderTreeComponent performDeleteNote deletes note and clears selection" name="FolderTreeComponent performDeleteNote deletes note and clears selection" time="0.002">
+    </testcase>
+    <testcase classname="FolderTreeComponent renamingExistingNames returns other note titles" name="FolderTreeComponent renamingExistingNames returns other note titles" time="0.001">
+    </testcase>
+    <testcase classname="FolderTreeComponent showNoteProperties sets modal props on success" name="FolderTreeComponent showNoteProperties sets modal props on success" time="0.005">
+    </testcase>
+    <testcase classname="FolderTreeComponent fetchNotesForFolder handles share service errors gracefully" name="FolderTreeComponent fetchNotesForFolder handles share service errors gracefully" time="0.004">
+    </testcase>
+    <testcase classname="FolderTreeComponent loadNotesForExpanded returns early when no userId" name="FolderTreeComponent loadNotesForExpanded returns early when no userId" time="0.004">
+    </testcase>
+    <testcase classname="FolderTreeComponent commitRename handles update failure and clears editingId" name="FolderTreeComponent commitRename handles update failure and clears editingId" time="0.003">
+    </testcase>
+    <testcase classname="FolderTreeComponent createNoteDirect handles create failure with error message" name="FolderTreeComponent createNoteDirect handles create failure with error message" time="0.003">
+    </testcase>
+    <testcase classname="FolderTreeComponent downloadDocument success creates link and revokes URL" name="FolderTreeComponent downloadDocument success creates link and revokes URL" time="0.014">
+    </testcase>
+    <testcase classname="FolderTreeComponent downloadDocument handles missing signed URL" name="FolderTreeComponent downloadDocument handles missing signed URL" time="0.002">
+    </testcase>
+    <testcase classname="FolderTreeComponent deleteFolder failure shows error and keeps folder" name="FolderTreeComponent deleteFolder failure shows error and keeps folder" time="0.002">
+    </testcase>
+    <testcase classname="FolderTreeComponent onFolderDrop unauthenticated user shows error and clears drag state" name="FolderTreeComponent onFolderDrop unauthenticated user shows error and clears drag state" time="0.001">
+    </testcase>
+    <testcase classname="FolderTreeComponent onFolderDrop handles updateNote failure and shows error" name="FolderTreeComponent onFolderDrop handles updateNote failure and shows error" time="0.001">
+    </testcase>
+    <testcase classname="FolderTreeComponent showNoteProperties failure shows error" name="FolderTreeComponent showNoteProperties failure shows error" time="0.002">
+    </testcase>
+  </testsuite>
+  <testsuite name="NoteService" errors="0" failures="0" skipped="0" timestamp="2026-01-12T07:33:49" time="0.131" tests="32">
+    <testcase classname="NoteService createNote uploads empty content and returns final when no content" name="NoteService createNote uploads empty content and returns final when no content" time="0.005">
+    </testcase>
+    <testcase classname="NoteService createNote encrypts when key present and sets is_encrypted" name="NoteService createNote encrypts when key present and sets is_encrypted" time="0.006">
+    </testcase>
+    <testcase classname="NoteService getNote returns null on PGRST116 error" name="NoteService getNote returns null on PGRST116 error" time="0.003">
+    </testcase>
+    <testcase classname="NoteService getNote fetches and decrypts content when is_encrypted and has key" name="NoteService getNote fetches and decrypts content when is_encrypted and has key" time="0.001">
+    </testcase>
+    <testcase classname="NoteService verifyUpload succeeds when signed url and fetch return content" name="NoteService verifyUpload succeeds when signed url and fetch return content" time="0.001">
+    </testcase>
+    <testcase classname="NoteService verifyUpload throws when createSignedUrl fails" name="NoteService verifyUpload throws when createSignedUrl fails" time="0.001">
+    </testcase>
+    <testcase classname="NoteService verifyUpload throws when fetch returns non-ok" name="NoteService verifyUpload throws when fetch returns non-ok" time="0.001">
+    </testcase>
+    <testcase classname="NoteService verifyUpload throws when fetched body is empty" name="NoteService verifyUpload throws when fetched body is empty" time="0.001">
+    </testcase>
+    <testcase classname="NoteService updateNote migrates raw DB content to storage and marks encrypted when encryption enabled" name="NoteService updateNote migrates raw DB content to storage and marks encrypted when encryption enabled" time="0.001">
+    </testcase>
+    <testcase classname="NoteService updateNote overwrites storage when dto.content provided and encrypts when needed" name="NoteService updateNote overwrites storage when dto.content provided and encrypts when needed" time="0">
+    </testcase>
+    <testcase classname="NoteService getNote throws when content fetch fails" name="NoteService getNote throws when content fetch fails" time="0.001">
+    </testcase>
+    <testcase classname="NoteService uploadDocument rejects large files and blocked extensions" name="NoteService uploadDocument rejects large files and blocked extensions" time="0.005">
+    </testcase>
+    <testcase classname="NoteService decryptNoteAtSource throws when note not found" name="NoteService decryptNoteAtSource throws when note not found" time="0.003">
+    </testcase>
+    <testcase classname="NoteService decryptNoteAtSource re-uploads and marks unencrypted when content already plain" name="NoteService decryptNoteAtSource re-uploads and marks unencrypted when content already plain" time="0.001">
+    </testcase>
+    <testcase classname="NoteService decryptNoteAtSource throws when encrypted and key not loaded" name="NoteService decryptNoteAtSource throws when encrypted and key not loaded" time="0.003">
+    </testcase>
+    <testcase classname="NoteService decryptNoteAtSource decrypts and reuploads when key present" name="NoteService decryptNoteAtSource decrypts and reuploads when key present" time="0.001">
+    </testcase>
+    <testcase classname="NoteService fetchStorageContent returns decrypted content when key present" name="NoteService fetchStorageContent returns decrypted content when key present" time="0">
+    </testcase>
+    <testcase classname="NoteService fetchStorageContent returns raw content when decryption fails" name="NoteService fetchStorageContent returns raw content when decryption fails" time="0.001">
+    </testcase>
+    <testcase classname="NoteService fetchStorageContent throws when signed URL creation fails" name="NoteService fetchStorageContent throws when signed URL creation fails" time="0.001">
+    </testcase>
+    <testcase classname="NoteService fetchStorageContent throws when fetch returns non-ok" name="NoteService fetchStorageContent throws when fetch returns non-ok" time="0.001">
+    </testcase>
+    <testcase classname="NoteService getFileBlob returns decrypted blob when encrypted and key present" name="NoteService getFileBlob returns decrypted blob when encrypted and key present" time="0.001">
+    </testcase>
+    <testcase classname="NoteService getFileBlob throws when note not found or content not storage" name="NoteService getFileBlob throws when note not found or content not storage" time="0.001">
+    </testcase>
+    <testcase classname="NoteService getFileObjectUrl returns url and revoke works" name="NoteService getFileObjectUrl returns url and revoke works" time="0">
+    </testcase>
+    <testcase classname="NoteService createNote throws when storage upload fails" name="NoteService createNote throws when storage upload fails" time="0.001">
+    </testcase>
+    <testcase classname="NoteService createNote falls back to plaintext when encryption fails" name="NoteService createNote falls back to plaintext when encryption fails" time="0.002">
+    </testcase>
+    <testcase classname="NoteService verifyUpload rejects when fetch throws" name="NoteService verifyUpload rejects when fetch throws" time="0.001">
+    </testcase>
+    <testcase classname="NoteService updateNote throws when storage upload fails during migration" name="NoteService updateNote throws when storage upload fails during migration" time="0.001">
+    </testcase>
+    <testcase classname="NoteService decryptNoteAtSource throws when signed URL creation fails" name="NoteService decryptNoteAtSource throws when signed URL creation fails" time="0">
+    </testcase>
+    <testcase classname="NoteService decryptNoteAtSource throws when download fails" name="NoteService decryptNoteAtSource throws when download fails" time="0">
+    </testcase>
+    <testcase classname="NoteService decryptNoteAtSource throws when re-upload fails for plain content" name="NoteService decryptNoteAtSource throws when re-upload fails for plain content" time="0.001">
+    </testcase>
+    <testcase classname="NoteService uploadDocument returns updated note on success" name="NoteService uploadDocument returns updated note on success" time="0.003">
+    </testcase>
+    <testcase classname="NoteService deleteNote creates notification when activity exists" name="NoteService deleteNote creates notification when activity exists" time="0.001">
+    </testcase>
+  </testsuite>
+  <testsuite name="PublicNoteComponent" errors="0" failures="0" skipped="0" timestamp="2026-01-12T07:33:49" time="0.231" tests="20">
+    <testcase classname="PublicNoteComponent simpleMarkdownToHtml converts markdown to html" name="PublicNoteComponent simpleMarkdownToHtml converts markdown to html" time="0.001">
+    </testcase>
+    <testcase classname="PublicNoteComponent canEdit/isOwner logic works" name="PublicNoteComponent canEdit/isOwner logic works" time="0">
+    </testcase>
+    <testcase classname="PublicNoteComponent ngOnInit sets error when share not found" name="PublicNoteComponent ngOnInit sets error when share not found" time="0.023">
+    </testcase>
+    <testcase classname="PublicNoteComponent ngOnInit loads share and updates meta/title" name="PublicNoteComponent ngOnInit loads share and updates meta/title" time="0.002">
+    </testcase>
+    <testcase classname="PublicNoteComponent startContentRefresh polls and updates content" name="PublicNoteComponent startContentRefresh polls and updates content" time="0.003">
+    </testcase>
+    <testcase classname="PublicNoteComponent saveContent does not save for non-editors" name="PublicNoteComponent saveContent does not save for non-editors" time="0.001">
+    </testcase>
+    <testcase classname="PublicNoteComponent saveContent updates and navigates for owner" name="PublicNoteComponent saveContent updates and navigates for owner" time="0.025">
+    </testcase>
+    <testcase classname="PublicNoteComponent importToMyNotes navigates to signup if unauthenticated" name="PublicNoteComponent importToMyNotes navigates to signup if unauthenticated" time="0.002">
+    </testcase>
+    <testcase classname="PublicNoteComponent importToMyNotes forks and opens when authenticated and readonly" name="PublicNoteComponent importToMyNotes forks and opens when authenticated and readonly" time="0.002">
+    </testcase>
+    <testcase classname="PublicNoteComponent saveContent shows error when updatePublicContent fails" name="PublicNoteComponent saveContent shows error when updatePublicContent fails" time="0.007">
+    </testcase>
+    <testcase classname="PublicNoteComponent openInDashboard shows toast error when ensurePublicFolder fails" name="PublicNoteComponent openInDashboard shows toast error when ensurePublicFolder fails" time="0.002">
+    </testcase>
+    <testcase classname="PublicNoteComponent importToMyNotes shows error when importPublicShare fails" name="PublicNoteComponent importToMyNotes shows error when importPublicShare fails" time="0.002">
+    </testcase>
+    <testcase classname="PublicNoteComponent handleImportAndOpen returns error for editable shares when user is not owner" name="PublicNoteComponent handleImportAndOpen returns error for editable shares when user is not owner" time="0.003">
+    </testcase>
+    <testcase classname="PublicNoteComponent handleDashboardRedirect navigates for owner/editable shares" name="PublicNoteComponent handleDashboardRedirect navigates for owner/editable shares" time="0.001">
+    </testcase>
+    <testcase classname="PublicNoteComponent handleImportAndOpen calls handleDashboardRedirect when user is owner" name="PublicNoteComponent handleImportAndOpen calls handleDashboardRedirect when user is owner" time="0.003">
+    </testcase>
+    <testcase classname="PublicNoteComponent ngOnDestroy removes visibility listener" name="PublicNoteComponent ngOnDestroy removes visibility listener" time="0.002">
+    </testcase>
+    <testcase classname="PublicNoteComponent startPolling logs errors when refresh fails" name="PublicNoteComponent startPolling logs errors when refresh fails" time="0.002">
+    </testcase>
+    <testcase classname="PublicNoteComponent handleDashboardRedirect shows error on failure and clears processing flag" name="PublicNoteComponent handleDashboardRedirect shows error on failure and clears processing flag" time="0.001">
+    </testcase>
+    <testcase classname="PublicNoteComponent handleImportAndOpen success shows info and success toasts and navigates" name="PublicNoteComponent handleImportAndOpen success shows info and success toasts and navigates" time="0.001">
+    </testcase>
+    <testcase classname="PublicNoteComponent saveContent for non-owner editor shows saved toast and does not navigate" name="PublicNoteComponent saveContent for non-owner editor shows saved toast and does not navigate" time="0.002">
+    </testcase>
+  </testsuite>
+  <testsuite name="ShareService" errors="0" failures="0" skipped="0" timestamp="2026-01-12T07:33:49" time="0.11" tests="38">
+    <testcase classname="ShareService generateShareUrl uses window.origin" name="ShareService generateShareUrl uses window.origin" time="0.003">
+    </testcase>
+    <testcase classname="ShareService createShare throws when unauthenticated" name="ShareService createShare throws when unauthenticated" time="0.007">
+    </testcase>
+    <testcase classname="ShareService createShare throws when note not found" name="ShareService createShare throws when note not found" time="0.001">
+    </testcase>
+    <testcase classname="ShareService createShare throws when decrypt fails" name="ShareService createShare throws when decrypt fails" time="0.003">
+    </testcase>
+    <testcase classname="ShareService createShare success calls insert and logs activity" name="ShareService createShare success calls insert and logs activity" time="0">
+    </testcase>
+    <testcase classname="ShareService getSharesForNote throws if unauthenticated" name="ShareService getSharesForNote throws if unauthenticated" time="0">
+    </testcase>
+    <testcase classname="ShareService getSharesForNote returns data" name="ShareService getSharesForNote returns data" time="0">
+    </testcase>
+    <testcase classname="ShareService updatePublicShare requires auth" name="ShareService updatePublicShare requires auth" time="0.001">
+    </testcase>
+    <testcase classname="ShareService deleteShare requires auth" name="ShareService deleteShare requires auth" time="0.001">
+    </testcase>
+    <testcase classname="ShareService updatePublicContent throws when unauthenticated" name="ShareService updatePublicContent throws when unauthenticated" time="0.001">
+    </testcase>
+    <testcase classname="ShareService updatePublicContent workflow when editable and saved by another user" name="ShareService updatePublicContent workflow when editable and saved by another user" time="0.001">
+    </testcase>
+    <testcase classname="ShareService getShareByToken returns null for expired shares" name="ShareService getShareByToken returns null for expired shares" time="0.001">
+    </testcase>
+    <testcase classname="ShareService getShareByToken returns null when max views reached" name="ShareService getShareByToken returns null when max views reached" time="0.002">
+    </testcase>
+    <testcase classname="ShareService getShareByTokenInternal handles storage fetch errors gracefully" name="ShareService getShareByTokenInternal handles storage fetch errors gracefully" time="0.002">
+    </testcase>
+    <testcase classname="ShareService getShareByTokenInternal marks encrypted content when no key present" name="ShareService getShareByTokenInternal marks encrypted content when no key present" time="0.001">
+    </testcase>
+    <testcase classname="ShareService incrementViewCount falls back to manual update when RPC errors" name="ShareService incrementViewCount falls back to manual update when RPC errors" time="0.001">
+    </testcase>
+    <testcase classname="ShareService getShareByTokenInternal handles decrypt failure when key present" name="ShareService getShareByTokenInternal handles decrypt failure when key present" time="0.001">
+    </testcase>
+    <testcase classname="ShareService incrementViewCount RPC success avoids manual update" name="ShareService incrementViewCount RPC success avoids manual update" time="0.001">
+    </testcase>
+    <testcase classname="ShareService incrementViewCount when no share data does not throw" name="ShareService incrementViewCount when no share data does not throw" time="0.001">
+    </testcase>
+    <testcase classname="ShareService getShareByToken increments view count when share found" name="ShareService getShareByToken increments view count when share found" time="0">
+    </testcase>
+    <testcase classname="ShareService getShareByToken does not increment when no share" name="ShareService getShareByToken does not increment when no share" time="0.001">
+    </testcase>
+    <testcase classname="ShareService createShare throws when insert fails" name="ShareService createShare throws when insert fails" time="0.001">
+    </testcase>
+    <testcase classname="ShareService createShare throws when addToPublicFolder fails" name="ShareService createShare throws when addToPublicFolder fails" time="0.001">
+    </testcase>
+    <testcase classname="ShareService updatePublicContent throws when storage upload fails" name="ShareService updatePublicContent throws when storage upload fails" time="0.001">
+    </testcase>
+    <testcase classname="ShareService updatePublicContent proceeds when note update fails (warns but does not throw) and still notifies" name="ShareService updatePublicContent proceeds when note update fails (warns but does not throw) and still notifies" time="0.001">
+    </testcase>
+    <testcase classname="ShareService getShareByTokenInternal handles RPC error by returning share without content" name="ShareService getShareByTokenInternal handles RPC error by returning share without content" time="0.001">
+    </testcase>
+    <testcase classname="ShareService incrementViewCount fallback update error does not throw" name="ShareService incrementViewCount fallback update error does not throw" time="0.001">
+    </testcase>
+    <testcase classname="ShareService ensurePublicFolder returns linked folder when profile has public_folder_id" name="ShareService ensurePublicFolder returns linked folder when profile has public_folder_id" time="0.002">
+    </testcase>
+    <testcase classname="ShareService ensurePublicFolder links and returns existing Public folder when found" name="ShareService ensurePublicFolder links and returns existing Public folder when found" time="0.001">
+    </testcase>
+    <testcase classname="ShareService ensurePublicFolder creates new Public folder when none exists" name="ShareService ensurePublicFolder creates new Public folder when none exists" time="0.001">
+    </testcase>
+    <testcase classname="ShareService getSharedNotesForUser returns empty array on error" name="ShareService getSharedNotesForUser returns empty array on error" time="0.001">
+    </testcase>
+    <testcase classname="ShareService importPublicShare throws when original share not found" name="ShareService importPublicShare throws when original share not found" time="0.001">
+    </testcase>
+    <testcase classname="ShareService importPublicShare success flow creates note and share" name="ShareService importPublicShare success flow creates note and share" time="0.001">
+    </testcase>
+    <testcase classname="ShareService updatePublicShare succeeds when supabase returns no error" name="ShareService updatePublicShare succeeds when supabase returns no error" time="0">
+    </testcase>
+    <testcase classname="ShareService updatePublicShare throws when supabase returns error" name="ShareService updatePublicShare throws when supabase returns error" time="0.001">
+    </testcase>
+    <testcase classname="ShareService deleteShare removes public folder link when no other shares exist" name="ShareService deleteShare removes public folder link when no other shares exist" time="0.001">
+    </testcase>
+    <testcase classname="ShareService deleteShare throws when share not found" name="ShareService deleteShare throws when share not found" time="0.001">
+    </testcase>
+    <testcase classname="ShareService incrementViewCount throws when fingerprint retrieval fails" name="ShareService incrementViewCount throws when fingerprint retrieval fails" time="0.001">
+    </testcase>
+  </testsuite>
+  <testsuite name="GoogleDriveService" errors="0" failures="0" skipped="0" timestamp="2026-01-12T07:33:49" time="0.104" tests="28">
+    <testcase classname="GoogleDriveService initGoogleAuth sets pickerLoaded when google and gapi present" name="GoogleDriveService initGoogleAuth sets pickerLoaded when google and gapi present" time="0.002">
+    </testcase>
+    <testcase classname="GoogleDriveService handleAuthCode exchanges code and saves integration" name="GoogleDriveService handleAuthCode exchanges code and saves integration" time="0.004">
+    </testcase>
+    <testcase classname="GoogleDriveService checkConnection loads saved files and builds folder tree" name="GoogleDriveService checkConnection loads saved files and builds folder tree" time="0">
+    </testcase>
+    <testcase classname="GoogleDriveService downloadFile uses export endpoint for Google Workspace docs and returns blob" name="GoogleDriveService downloadFile uses export endpoint for Google Workspace docs and returns blob" time="0.001">
+    </testcase>
+    <testcase classname="GoogleDriveService authFetch retries once when server refresh succeeds" name="GoogleDriveService authFetch retries once when server refresh succeeds" time="0.001">
+    </testcase>
+    <testcase classname="GoogleDriveService uploadFile returns null when not connected and succeeds when connected" name="GoogleDriveService uploadFile returns null when not connected and succeeds when connected" time="0.001">
+    </testcase>
+    <testcase classname="GoogleDriveService buildFolderTree creates a root node and nests folders/files" name="GoogleDriveService buildFolderTree creates a root node and nests folders/files" time="0.001">
+    </testcase>
+    <testcase classname="GoogleDriveService saveSelectedFiles updates integration settings and logs activity" name="GoogleDriveService saveSelectedFiles updates integration settings and logs activity" time="0.001">
+    </testcase>
+    <testcase classname="GoogleDriveService disconnect clears state on success and shows toast" name="GoogleDriveService disconnect clears state on success and shows toast" time="0.001">
+    </testcase>
+    <testcase classname="GoogleDriveService disconnect shows error when delete fails" name="GoogleDriveService disconnect shows error when delete fails" time="0.01">
+    </testcase>
+    <testcase classname="GoogleDriveService authFetch throws when no token present" name="GoogleDriveService authFetch throws when no token present" time="0">
+    </testcase>
+    <testcase classname="GoogleDriveService refreshViaServer returns false when no token returned" name="GoogleDriveService refreshViaServer returns false when no token returned" time="0">
+    </testcase>
+    <testcase classname="GoogleDriveService downloadFile returns null and shows toast on non-ok response" name="GoogleDriveService downloadFile returns null and shows toast on non-ok response" time="0.001">
+    </testcase>
+    <testcase classname="GoogleDriveService deleteFile removes file and returns true on success" name="GoogleDriveService deleteFile removes file and returns true on success" time="0.001">
+    </testcase>
+    <testcase classname="GoogleDriveService renameFile returns false and shows toast when API fails" name="GoogleDriveService renameFile returns false and shows toast when API fails" time="0.001">
+    </testcase>
+    <testcase classname="GoogleDriveService createFolder returns folder and shows success" name="GoogleDriveService createFolder returns folder and shows success" time="0.001">
+    </testcase>
+    <testcase classname="GoogleDriveService renameFile returns true and logs activity on success" name="GoogleDriveService renameFile returns true and logs activity on success" time="0.001">
+    </testcase>
+    <testcase classname="GoogleDriveService pickFiles shows not connected when integration missing" name="GoogleDriveService pickFiles shows not connected when integration missing" time="0.001">
+    </testcase>
+    <testcase classname="GoogleDriveService showPicker errors when Google Picker API missing" name="GoogleDriveService showPicker errors when Google Picker API missing" time="0.001">
+    </testcase>
+    <testcase classname="GoogleDriveService pickFiles merges picked files, builds tree and saves selection" name="GoogleDriveService pickFiles merges picked files, builds tree and saves selection" time="0.001">
+    </testcase>
+    <testcase classname="GoogleDriveService authFetch marks disconnected and shows toast when refresh fails on 401" name="GoogleDriveService authFetch marks disconnected and shows toast when refresh fails on 401" time="0.001">
+    </testcase>
+    <testcase classname="GoogleDriveService downloadFile returns null when blob retrieval fails" name="GoogleDriveService downloadFile returns null when blob retrieval fails" time="0.001">
+    </testcase>
+    <testcase classname="GoogleDriveService deleteFile returns false and shows toast on API failure" name="GoogleDriveService deleteFile returns false and shows toast on API failure" time="0.001">
+    </testcase>
+    <testcase classname="GoogleDriveService showPicker handles CANCEL action and shows info toast" name="GoogleDriveService showPicker handles CANCEL action and shows info toast" time="0.001">
+    </testcase>
+    <testcase classname="GoogleDriveService showPicker logs picker errors for unknown action" name="GoogleDriveService showPicker logs picker errors for unknown action" time="0.002">
+    </testcase>
+    <testcase classname="GoogleDriveService saveSelectedFiles handles supabase update errors gracefully" name="GoogleDriveService saveSelectedFiles handles supabase update errors gracefully" time="0">
+    </testcase>
+    <testcase classname="GoogleDriveService refreshViaServer success sets new token and shows success toast" name="GoogleDriveService refreshViaServer success sets new token and shows success toast" time="0.001">
+    </testcase>
+    <testcase classname="GoogleDriveService uploadFile returns null and shows toast when authFetch throws" name="GoogleDriveService uploadFile returns null and shows toast when authFetch throws" time="0.001">
+    </testcase>
+  </testsuite>
+  <testsuite name="OneDriveService" errors="0" failures="0" skipped="0" timestamp="2026-01-12T07:33:49" time="0.115" tests="28">
+    <testcase classname="OneDriveService handleAuthSuccess saves integration and schedules refresh" name="OneDriveService handleAuthSuccess saves integration and schedules refresh" time="0.006">
+    </testcase>
+    <testcase classname="OneDriveService scheduleTokenRefresh does not schedule if delay &lt; 1min" name="OneDriveService scheduleTokenRefresh does not schedule if delay &lt; 1min" time="0.001">
+    </testcase>
+    <testcase classname="OneDriveService loadFiles sets files on successful root children" name="OneDriveService loadFiles sets files on successful root children" time="0.001">
+    </testcase>
+    <testcase classname="OneDriveService loadFiles falls back to drives and uses first drive" name="OneDriveService loadFiles falls back to drives and uses first drive" time="0.008">
+    </testcase>
+    <testcase classname="OneDriveService loadFiles handles itemNotFound and uses Documents fallback" name="OneDriveService loadFiles handles itemNotFound and uses Documents fallback" time="0.001">
+    </testcase>
+    <testcase classname="OneDriveService uploadFile returns null when not connected and uploads when connected" name="OneDriveService uploadFile returns null when not connected and uploads when connected" time="0.001">
+    </testcase>
+    <testcase classname="OneDriveService downloadFile returns null when not connected and returns blob when connected" name="OneDriveService downloadFile returns null when not connected and returns blob when connected" time="0.001">
+    </testcase>
+    <testcase classname="OneDriveService deleteFile returns false when not connected and true when connected" name="OneDriveService deleteFile returns false when not connected and true when connected" time="0.003">
+    </testcase>
+    <testcase classname="OneDriveService revokeMicrosoftSession creates iframe and resolves" name="OneDriveService revokeMicrosoftSession creates iframe and resolves" time="0.004">
+    </testcase>
+    <testcase classname="OneDriveService disconnect revokes session and deletes integration" name="OneDriveService disconnect revokes session and deletes integration" time="0.001">
+    </testcase>
+    <testcase classname="OneDriveService scheduleTokenRefresh sets a timer and triggers refresh" name="OneDriveService scheduleTokenRefresh sets a timer and triggers refresh" time="0">
+    </testcase>
+    <testcase classname="OneDriveService disconnect shows error when delete fails" name="OneDriveService disconnect shows error when delete fails" time="0">
+    </testcase>
+    <testcase classname="OneDriveService loadFiles falls back to items root when special folder fails" name="OneDriveService loadFiles falls back to items root when special folder fails" time="0.002">
+    </testcase>
+    <testcase classname="OneDriveService loadFiles reports error and sets empty root when items fallback fails" name="OneDriveService loadFiles reports error and sets empty root when items fallback fails" time="0.001">
+    </testcase>
+    <testcase classname="OneDriveService disconnect continues when revoke fails but still deletes integration" name="OneDriveService disconnect continues when revoke fails but still deletes integration" time="0.001">
+    </testcase>
+    <testcase classname="OneDriveService scheduleTokenRefresh clears existing timer before setting a new one" name="OneDriveService scheduleTokenRefresh clears existing timer before setting a new one" time="0.001">
+    </testcase>
+    <testcase classname="OneDriveService loadFiles shows error when no drives found" name="OneDriveService loadFiles shows error when no drives found" time="0.001">
+    </testcase>
+    <testcase classname="OneDriveService connect shows popup blocked message when window.open returns null" name="OneDriveService connect shows popup blocked message when window.open returns null" time="0.001">
+    </testcase>
+    <testcase classname="OneDriveService buildAuthUrl includes or omits prompt based on forceAccountSelection" name="OneDriveService buildAuthUrl includes or omits prompt based on forceAccountSelection" time="0.001">
+    </testcase>
+    <testcase classname="OneDriveService handleOAuthCallback ignores messages from other origins and calls handleAuthSuccess on success" name="OneDriveService handleOAuthCallback ignores messages from other origins and calls handleAuthSuccess on success" time="0.003">
+    </testcase>
+    <testcase classname="OneDriveService handleAuthSuccess shows error when saving integration returns no data" name="OneDriveService handleAuthSuccess shows error when saving integration returns no data" time="0.001">
+    </testcase>
+    <testcase classname="OneDriveService connect adds message listener and reacts to message event" name="OneDriveService connect adds message listener and reacts to message event" time="0.003">
+    </testcase>
+    <testcase classname="OneDriveService revokeMicrosoftSession rejects when iframe onerror fires" name="OneDriveService revokeMicrosoftSession rejects when iframe onerror fires" time="0.006">
+    </testcase>
+    <testcase classname="OneDriveService loadFolder returns empty items when http.get fails" name="OneDriveService loadFolder returns empty items when http.get fails" time="0.001">
+    </testcase>
+    <testcase classname="OneDriveService uploadFile returns null and shows error when http.put fails" name="OneDriveService uploadFile returns null and shows error when http.put fails" time="0.001">
+    </testcase>
+    <testcase classname="OneDriveService deleteFile returns false and shows error when http.delete fails" name="OneDriveService deleteFile returns false and shows error when http.delete fails" time="0.001">
+    </testcase>
+    <testcase classname="OneDriveService renameFile returns false and shows error when patch fails" name="OneDriveService renameFile returns false and shows error when patch fails" time="0.001">
+    </testcase>
+    <testcase classname="OneDriveService loadFiles handles InvalidAuthenticationToken by marking disconnected" name="OneDriveService loadFiles handles InvalidAuthenticationToken by marking disconnected" time="0">
+    </testcase>
+  </testsuite>
+  <testsuite name="SettingsPanelComponent" errors="0" failures="0" skipped="0" timestamp="2026-01-12T07:33:50" time="0.39" tests="17">
+    <testcase classname="SettingsPanelComponent loads profile when opened and sets initials" name="SettingsPanelComponent loads profile when opened and sets initials" time="0.072">
+    </testcase>
+    <testcase classname="SettingsPanelComponent sets theme using ThemeService" name="SettingsPanelComponent sets theme using ThemeService" time="0.002">
+    </testcase>
+    <testcase classname="SettingsPanelComponent saveProfile updates profile and handles success and failure" name="SettingsPanelComponent saveProfile updates profile and handles success and failure" time="0.005">
+    </testcase>
+    <testcase classname="SettingsPanelComponent onImageSelected validates file type and size and opens crop dialog for valid image" name="SettingsPanelComponent onImageSelected validates file type and size and opens crop dialog for valid image" time="0.005">
+    </testcase>
+    <testcase classname="SettingsPanelComponent onCroppedImage uploads avatar, saves and shows toast" name="SettingsPanelComponent onCroppedImage uploads avatar, saves and shows toast" time="0.002">
+    </testcase>
+    <testcase classname="SettingsPanelComponent onConfirm2 disables user, clears auth, shows toast and navigates" name="SettingsPanelComponent onConfirm2 disables user, clears auth, shows toast and navigates" time="0.002">
+    </testcase>
+    <testcase classname="SettingsPanelComponent onCroppedImage handles upload failure and shows toast" name="SettingsPanelComponent onCroppedImage handles upload failure and shows toast" time="0.002">
+    </testcase>
+    <testcase classname="SettingsPanelComponent onConfirm2 propagates error when disableUser fails" name="SettingsPanelComponent onConfirm2 propagates error when disableUser fails" time="0.007">
+    </testcase>
+    <testcase classname="SettingsPanelComponent loadProfile returns early when no userId" name="SettingsPanelComponent loadProfile returns early when no userId" time="0.002">
+    </testcase>
+    <testcase classname="SettingsPanelComponent loadProfile shows toast.error when userService throws" name="SettingsPanelComponent loadProfile shows toast.error when userService throws" time="0.003">
+    </testcase>
+    <testcase classname="SettingsPanelComponent closeCropDialog clears event after timeout" name="SettingsPanelComponent closeCropDialog clears event after timeout" time="0.002">
+    </testcase>
+    <testcase classname="SettingsPanelComponent onCroppedImage returns early when no userId" name="SettingsPanelComponent onCroppedImage returns early when no userId" time="0.002">
+    </testcase>
+    <testcase classname="SettingsPanelComponent signOut clears auth, signs out supabase, closes panel and navigates" name="SettingsPanelComponent signOut clears auth, signs out supabase, closes panel and navigates" time="0.002">
+    </testcase>
+    <testcase classname="SettingsPanelComponent confirm/cancel flows toggle confirmations correctly" name="SettingsPanelComponent confirm/cancel flows toggle confirmations correctly" time="0.001">
+    </testcase>
+    <testcase classname="SettingsPanelComponent connect/disconnect google drive and one drive success and failure" name="SettingsPanelComponent connect/disconnect google drive and one drive success and failure" time="0.003">
+    </testcase>
+    <testcase classname="SettingsPanelComponent open/close terms/privacy/change-password/about-me/contact-us behave correctly" name="SettingsPanelComponent open/close terms/privacy/change-password/about-me/contact-us behave correctly" time="0.001">
+    </testcase>
+    <testcase classname="SettingsPanelComponent onImageSelected with no file does nothing" name="SettingsPanelComponent onImageSelected with no file does nothing" time="0.002">
+    </testcase>
+  </testsuite>
+  <testsuite name="NotificationIconComponent" errors="0" failures="0" skipped="0" timestamp="2026-01-12T07:33:50" time="0.14" tests="19">
+    <testcase classname="NotificationIconComponent loads notifications and unread count on init" name="NotificationIconComponent loads notifications and unread count on init" time="0.015">
+    </testcase>
+    <testcase classname="NotificationIconComponent markAsRead updates local notifications" name="NotificationIconComponent markAsRead updates local notifications" time="0.002">
+    </testcase>
+    <testcase classname="NotificationIconComponent markAllAsRead sets unreadCount to 0" name="NotificationIconComponent markAllAsRead sets unreadCount to 0" time="0.002">
+    </testcase>
+    <testcase classname="NotificationIconComponent getNotificationIcon/color mapping" name="NotificationIconComponent getNotificationIcon/color mapping" time="0">
+    </testcase>
+    <testcase classname="NotificationIconComponent getRelativeTime outputs Just now for recent date" name="NotificationIconComponent getRelativeTime outputs Just now for recent date" time="0">
+    </testcase>
+    <testcase classname="NotificationIconComponent getRelativeTime outputs minutes/hours/days/locale for older dates" name="NotificationIconComponent getRelativeTime outputs minutes/hours/days/locale for older dates" time="0">
+    </testcase>
+    <testcase classname="NotificationIconComponent loadNotifications returns early when session has no user" name="NotificationIconComponent loadNotifications returns early when session has no user" time="0.002">
+    </testcase>
+    <testcase classname="NotificationIconComponent loadUnreadCount returns early when session has no user" name="NotificationIconComponent loadUnreadCount returns early when session has no user" time="0.001">
+    </testcase>
+    <testcase classname="NotificationIconComponent subscribeToRealtime does nothing when no user in session" name="NotificationIconComponent subscribeToRealtime does nothing when no user in session" time="0.002">
+    </testcase>
+    <testcase classname="NotificationIconComponent markAsRead does not call service when already read" name="NotificationIconComponent markAsRead does not call service when already read" time="0.001">
+    </testcase>
+    <testcase classname="NotificationIconComponent markAsRead does not update when service returns false" name="NotificationIconComponent markAsRead does not update when service returns false" time="0.002">
+    </testcase>
+    <testcase classname="NotificationIconComponent markAllAsRead does not change state when service fails" name="NotificationIconComponent markAllAsRead does not change state when service fails" time="0.001">
+    </testcase>
+    <testcase classname="NotificationIconComponent deleteNotification does not remove when service fails" name="NotificationIconComponent deleteNotification does not remove when service fails" time="0.002">
+    </testcase>
+    <testcase classname="NotificationIconComponent subscribeToRealtime adds notification via callback and updates unread count" name="NotificationIconComponent subscribeToRealtime adds notification via callback and updates unread count" time="0.001">
+    </testcase>
+    <testcase classname="NotificationIconComponent ngOnDestroy unsubscribes when channel present" name="NotificationIconComponent ngOnDestroy unsubscribes when channel present" time="0.001">
+    </testcase>
+    <testcase classname="NotificationIconComponent deleteNotification removes item and updates count when unread" name="NotificationIconComponent deleteNotification removes item and updates count when unread" time="0.001">
+    </testcase>
+    <testcase classname="NotificationIconComponent viewAllLogs navigates to activity log and closes dropdown" name="NotificationIconComponent viewAllLogs navigates to activity log and closes dropdown" time="0.001">
+    </testcase>
+    <testcase classname="NotificationIconComponent toggle and close dropdown behave correctly" name="NotificationIconComponent toggle and close dropdown behave correctly" time="0.002">
+    </testcase>
+    <testcase classname="NotificationIconComponent getNotificationIcon defaults and color defaults work" name="NotificationIconComponent getNotificationIcon defaults and color defaults work" time="0">
+    </testcase>
+  </testsuite>
+  <testsuite name="UserDevicesComponent" errors="0" failures="0" skipped="0" timestamp="2026-01-12T07:33:50" time="0.132" tests="13">
+    <testcase classname="UserDevicesComponent shows empty state when no devices" name="UserDevicesComponent shows empty state when no devices" time="0.029">
+    </testcase>
+    <testcase classname="UserDevicesComponent startEdit sets editing id and name" name="UserDevicesComponent startEdit sets editing id and name" time="0.001">
+    </testcase>
+    <testcase classname="UserDevicesComponent loadDevices sets devices and shows actions" name="UserDevicesComponent loadDevices sets devices and shows actions" time="0.006">
+    </testcase>
+    <testcase classname="UserDevicesComponent loadDevices handles error and shows toast" name="UserDevicesComponent loadDevices handles error and shows toast" time="0.007">
+    </testcase>
+    <testcase classname="UserDevicesComponent saveDeviceName early-returns on empty name" name="UserDevicesComponent saveDeviceName early-returns on empty name" time="0.002">
+    </testcase>
+    <testcase classname="UserDevicesComponent saveDeviceName success path updates and reloads" name="UserDevicesComponent saveDeviceName success path updates and reloads" time="0.002">
+    </testcase>
+    <testcase classname="UserDevicesComponent saveDeviceName failure shows toast" name="UserDevicesComponent saveDeviceName failure shows toast" time="0.002">
+    </testcase>
+    <testcase classname="UserDevicesComponent saveDeviceName exception shows toast" name="UserDevicesComponent saveDeviceName exception shows toast" time="0.002">
+    </testcase>
+    <testcase classname="UserDevicesComponent trustDevice success shows toast and reloads" name="UserDevicesComponent trustDevice success shows toast and reloads" time="0.002">
+    </testcase>
+    <testcase classname="UserDevicesComponent trustDevice failure shows error toast" name="UserDevicesComponent trustDevice failure shows error toast" time="0.001">
+    </testcase>
+    <testcase classname="UserDevicesComponent trustDevice exception shows error toast" name="UserDevicesComponent trustDevice exception shows error toast" time="0.002">
+    </testcase>
+    <testcase classname="UserDevicesComponent removeDevice sets confirm flags and onRemoveConfirm flows" name="UserDevicesComponent removeDevice sets confirm flags and onRemoveConfirm flows" time="0.003">
+    </testcase>
+    <testcase classname="UserDevicesComponent formatDate handles multiple ranges" name="UserDevicesComponent formatDate handles multiple ranges" time="0.001">
+    </testcase>
+  </testsuite>
+  <testsuite name="ShareNoteModalComponent" errors="0" failures="0" skipped="0" timestamp="2026-01-12T07:33:50" time="0.144" tests="15">
+    <testcase classname="ShareNoteModalComponent ngOnInit returns early when no note" name="ShareNoteModalComponent ngOnInit returns early when no note" time="0.027">
+    </testcase>
+    <testcase classname="ShareNoteModalComponent ngOnInit loads existing share and parses expiry/maxViews" name="ShareNoteModalComponent ngOnInit loads existing share and parses expiry/maxViews" time="0.002">
+    </testcase>
+    <testcase classname="ShareNoteModalComponent createShare calls service and emits shared &amp; shows toast on success" name="ShareNoteModalComponent createShare calls service and emits shared &amp; shows toast on success" time="0.002">
+    </testcase>
+    <testcase classname="ShareNoteModalComponent createShare shows toast on error" name="ShareNoteModalComponent createShare shows toast on error" time="0.008">
+    </testcase>
+    <testcase classname="ShareNoteModalComponent updateShare updates and shows success toast" name="ShareNoteModalComponent updateShare updates and shows success toast" time="0.002">
+    </testcase>
+    <testcase classname="ShareNoteModalComponent updateShare shows toast on error" name="ShareNoteModalComponent updateShare shows toast on error" time="0.002">
+    </testcase>
+    <testcase classname="ShareNoteModalComponent unshare deletes share, emits cancel and shows toast" name="ShareNoteModalComponent unshare deletes share, emits cancel and shows toast" time="0.002">
+    </testcase>
+    <testcase classname="ShareNoteModalComponent unshare shows toast on error" name="ShareNoteModalComponent unshare shows toast on error" time="0.002">
+    </testcase>
+    <testcase classname="ShareNoteModalComponent copyLink writes to clipboard, shows toast and resets copied after timeout" name="ShareNoteModalComponent copyLink writes to clipboard, shows toast and resets copied after timeout" time="0.001">
+    </testcase>
+    <testcase classname="ShareNoteModalComponent shareVia helpers call window.open with expected url fragments" name="ShareNoteModalComponent shareVia helpers call window.open with expected url fragments" time="0.001">
+    </testcase>
+    <testcase classname="ShareNoteModalComponent shareUrl returns generated share url" name="ShareNoteModalComponent shareUrl returns generated share url" time="0.002">
+    </testcase>
+    <testcase classname="ShareNoteModalComponent createShare passes maxViews for once and custom expiry for custom" name="ShareNoteModalComponent createShare passes maxViews for once and custom expiry for custom" time="0.002">
+    </testcase>
+    <testcase classname="ShareNoteModalComponent ngOnInit sets custom expiry date when share has expires_at" name="ShareNoteModalComponent ngOnInit sets custom expiry date when share has expires_at" time="0.001">
+    </testcase>
+    <testcase classname="ShareNoteModalComponent copyForInstagram calls copyLink and shows toast" name="ShareNoteModalComponent copyForInstagram calls copyLink and shows toast" time="0.002">
+    </testcase>
+    <testcase classname="ShareNoteModalComponent onOverlayClick emits cancel only when clicking overlay" name="ShareNoteModalComponent onOverlayClick emits cancel only when clicking overlay" time="0.001">
+    </testcase>
+  </testsuite>
+  <testsuite name="GoogleDriveTreeComponent" errors="0" failures="0" skipped="0" timestamp="2026-01-12T07:33:50" time="0.167" tests="12">
+    <testcase classname="GoogleDriveTreeComponent toggles root and menus and properties" name="GoogleDriveTreeComponent toggles root and menus and properties" time="0.039">
+    </testcase>
+    <testcase classname="GoogleDriveTreeComponent ngOnInit calls checkConnection" name="GoogleDriveTreeComponent ngOnInit calls checkConnection" time="0.001">
+    </testcase>
+    <testcase classname="GoogleDriveTreeComponent handleDownload adds extension for Google Workspace files and shows toast" name="GoogleDriveTreeComponent handleDownload adds extension for Google Workspace files and shows toast" time="0.002">
+    </testcase>
+    <testcase classname="GoogleDriveTreeComponent handleDownload shows error when download fails" name="GoogleDriveTreeComponent handleDownload shows error when download fails" time="0.008">
+    </testcase>
+    <testcase classname="GoogleDriveTreeComponent handleDownload returns early when download returns null" name="GoogleDriveTreeComponent handleDownload returns early when download returns null" time="0.002">
+    </testcase>
+    <testcase classname="GoogleDriveTreeComponent handleDownload uses URL.createObjectURL and revokes it and appends anchor to DOM" name="GoogleDriveTreeComponent handleDownload uses URL.createObjectURL and revokes it and appends anchor to DOM" time="0.004">
+    </testcase>
+    <testcase classname="GoogleDriveTreeComponent handleImportToDevPad creates Imports when missing and uploads" name="GoogleDriveTreeComponent handleImportToDevPad creates Imports when missing and uploads" time="0.002">
+    </testcase>
+    <testcase classname="GoogleDriveTreeComponent handleImportToDevPad returns early when download returns null" name="GoogleDriveTreeComponent handleImportToDevPad returns early when download returns null" time="0.002">
+    </testcase>
+    <testcase classname="GoogleDriveTreeComponent handleRename respects prompt and renames when valid" name="GoogleDriveTreeComponent handleRename respects prompt and renames when valid" time="0.002">
+    </testcase>
+    <testcase classname="GoogleDriveTreeComponent handleDelete confirm and cancel workflows" name="GoogleDriveTreeComponent handleDelete confirm and cancel workflows" time="0.002">
+    </testcase>
+    <testcase classname="GoogleDriveTreeComponent downloadToLocal uploads to local storage and handles errors" name="GoogleDriveTreeComponent downloadToLocal uploads to local storage and handles errors" time="0.001">
+    </testcase>
+    <testcase classname="GoogleDriveTreeComponent onFileClick emits workspace event" name="GoogleDriveTreeComponent onFileClick emits workspace event" time="0.001">
+    </testcase>
+  </testsuite>
+  <testsuite name="NoteEditorComponent" errors="0" failures="0" skipped="0" timestamp="2026-01-12T07:33:51" time="0.134" tests="8">
+    <testcase classname="NoteEditorComponent creates a new note on save and navigates to edit route" name="NoteEditorComponent creates a new note on save and navigates to edit route" time="0.023">
+    </testcase>
+    <testcase classname="NoteEditorComponent shows error when create fails" name="NoteEditorComponent shows error when create fails" time="0.006">
+    </testcase>
+    <testcase classname="NoteEditorComponent updates an existing note on save" name="NoteEditorComponent updates an existing note on save" time="0.005">
+    </testcase>
+    <testcase classname="NoteEditorComponent delete navigates on success" name="NoteEditorComponent delete navigates on success" time="0.004">
+    </testcase>
+    <testcase classname="NoteEditorComponent delete shows error on failure" name="NoteEditorComponent delete shows error on failure" time="0.002">
+    </testcase>
+    <testcase classname="NoteEditorComponent loadNote redirects to signin when unauthenticated" name="NoteEditorComponent loadNote redirects to signin when unauthenticated" time="0.003">
+    </testcase>
+    <testcase classname="NoteEditorComponent loadNote handles not found and errors" name="NoteEditorComponent loadNote handles not found and errors" time="0.01">
+    </testcase>
+    <testcase classname="NoteEditorComponent isDocument detection and title input work" name="NoteEditorComponent isDocument detection and title input work" time="0.002">
+    </testcase>
+  </testsuite>
+  <testsuite name="OneDriveTreeComponent" errors="0" failures="0" skipped="0" timestamp="2026-01-12T07:33:51" time="0.152" tests="12">
+    <testcase classname="OneDriveTreeComponent toggles expanded folders and properties modal" name="OneDriveTreeComponent toggles expanded folders and properties modal" time="0.035">
+    </testcase>
+    <testcase classname="OneDriveTreeComponent handles download flow and toast on success" name="OneDriveTreeComponent handles download flow and toast on success" time="0.004">
+    </testcase>
+    <testcase classname="OneDriveTreeComponent imports file to DevPad" name="OneDriveTreeComponent imports file to DevPad" time="0.002">
+    </testcase>
+    <testcase classname="OneDriveTreeComponent handleDownload shows error when download fails" name="OneDriveTreeComponent handleDownload shows error when download fails" time="0.007">
+    </testcase>
+    <testcase classname="OneDriveTreeComponent handleImportToDevPad shows error when uploadDocument fails" name="OneDriveTreeComponent handleImportToDevPad shows error when uploadDocument fails" time="0.003">
+    </testcase>
+    <testcase classname="OneDriveTreeComponent confirmRename and confirmDelete call OneDrive and reset state" name="OneDriveTreeComponent confirmRename and confirmDelete call OneDrive and reset state" time="0.001">
+    </testcase>
+    <testcase classname="OneDriveTreeComponent connect/disconnect confirm flows and cancel behave correctly" name="OneDriveTreeComponent connect/disconnect confirm flows and cancel behave correctly" time="0.002">
+    </testcase>
+    <testcase classname="OneDriveTreeComponent confirmRename cancels when new name invalid" name="OneDriveTreeComponent confirmRename cancels when new name invalid" time="0.002">
+    </testcase>
+    <testcase classname="OneDriveTreeComponent cancelDelete resets state" name="OneDriveTreeComponent cancelDelete resets state" time="0.002">
+    </testcase>
+    <testcase classname="OneDriveTreeComponent handleProperties uses Unknown for missing size and modified date" name="OneDriveTreeComponent handleProperties uses Unknown for missing size and modified date" time="0.002">
+    </testcase>
+    <testcase classname="OneDriveTreeComponent ngOnInit calls checkConnection and getFileIconName returns a string" name="OneDriveTreeComponent ngOnInit calls checkConnection and getFileIconName returns a string" time="0.002">
+    </testcase>
+    <testcase classname="OneDriveTreeComponent onFileClick emits workspace event" name="OneDriveTreeComponent onFileClick emits workspace event" time="0.003">
+    </testcase>
+  </testsuite>
+  <testsuite name="SidebarComponent" errors="0" failures="0" skipped="0" timestamp="2026-01-12T07:33:51" time="0.202" tests="7">
+    <testcase classname="SidebarComponent shows empty state when no folders" name="SidebarComponent shows empty state when no folders" time="0.092">
+    </testcase>
+    <testcase classname="SidebarComponent loadFolders sets folderTree when folders returned" name="SidebarComponent loadFolders sets folderTree when folders returned" time="0.003">
+    </testcase>
+    <testcase classname="SidebarComponent loadFolders handles errors and resets loading" name="SidebarComponent loadFolders handles errors and resets loading" time="0.005">
+    </testcase>
+    <testcase classname="SidebarComponent loadFolders does nothing when no user" name="SidebarComponent loadFolders does nothing when no user" time="0.003">
+    </testcase>
+    <testcase classname="SidebarComponent onFolderSelected sets selection and notifies workspace" name="SidebarComponent onFolderSelected sets selection and notifies workspace" time="0.002">
+    </testcase>
+    <testcase classname="SidebarComponent onNoteSelected sets folder, emits selection and handles null folder" name="SidebarComponent onNoteSelected sets folder, emits selection and handles null folder" time="0.003">
+    </testcase>
+    <testcase classname="SidebarComponent foldersChanged subscription triggers reload" name="SidebarComponent foldersChanged subscription triggers reload" time="0.005">
+    </testcase>
+  </testsuite>
+  <testsuite name="ContactUsModalComponent" errors="0" failures="0" skipped="0" timestamp="2026-01-12T07:33:51" time="0.127" tests="9">
+    <testcase classname="ContactUsModalComponent validates canSend and rejects when fields missing" name="ContactUsModalComponent validates canSend and rejects when fields missing" time="0.024">
+    </testcase>
+    <testcase classname="ContactUsModalComponent sends message with attachments and emits close on success" name="ContactUsModalComponent sends message with attachments and emits close on success" time="0.006">
+    </testcase>
+    <testcase classname="ContactUsModalComponent shows error toast when supabase returns an error" name="ContactUsModalComponent shows error toast when supabase returns an error" time="0.008">
+    </testcase>
+    <testcase classname="ContactUsModalComponent onBackdropClick emits close only when not sending" name="ContactUsModalComponent onBackdropClick emits close only when not sending" time="0.003">
+    </testcase>
+    <testcase classname="ContactUsModalComponent onFileSelected rejects oversized single file and clears input" name="ContactUsModalComponent onFileSelected rejects oversized single file and clears input" time="0.007">
+    </testcase>
+    <testcase classname="ContactUsModalComponent onFileSelected rejects when total size would exceed limit" name="ContactUsModalComponent onFileSelected rejects when total size would exceed limit" time="0.004">
+    </testcase>
+    <testcase classname="ContactUsModalComponent onFileSelected rejects when exceeding max file count" name="ContactUsModalComponent onFileSelected rejects when exceeding max file count" time="0.003">
+    </testcase>
+    <testcase classname="ContactUsModalComponent removeAttachment removes item and formatFileSize handles zero" name="ContactUsModalComponent removeAttachment removes item and formatFileSize handles zero" time="0.003">
+    </testcase>
+    <testcase classname="ContactUsModalComponent getUserName returns Anonymous when auth has no user" name="ContactUsModalComponent getUserName returns Anonymous when auth has no user" time="0.003">
+    </testcase>
+  </testsuite>
+  <testsuite name="ActivityLogPageComponent" errors="0" failures="0" skipped="0" timestamp="2026-01-12T07:33:51" time="0.155" tests="16">
+    <testcase classname="ActivityLogPageComponent loads logs on init" name="ActivityLogPageComponent loads logs on init" time="0.025">
+    </testcase>
+    <testcase classname="ActivityLogPageComponent returns early from loadLogs when there is no user in session" name="ActivityLogPageComponent returns early from loadLogs when there is no user in session" time="0.002">
+    </testcase>
+    <testcase classname="ActivityLogPageComponent getRelativeTime returns Just now for recent dates" name="ActivityLogPageComponent getRelativeTime returns Just now for recent dates" time="0.002">
+    </testcase>
+    <testcase classname="ActivityLogPageComponent loadLogs applies week and month filters when selectedDateRange is set" name="ActivityLogPageComponent loadLogs applies week and month filters when selectedDateRange is set" time="0.001">
+    </testcase>
+    <testcase classname="ActivityLogPageComponent toggleRawJson toggles expandedLogId" name="ActivityLogPageComponent toggleRawJson toggles expandedLogId" time="0.002">
+    </testcase>
+    <testcase classname="ActivityLogPageComponent onFilterChange resets current page to 1 and calls loadLogs" name="ActivityLogPageComponent onFilterChange resets current page to 1 and calls loadLogs" time="0.002">
+    </testcase>
+    <testcase classname="ActivityLogPageComponent nextPage/previousPage do nothing at bounds" name="ActivityLogPageComponent nextPage/previousPage do nothing at bounds" time="0.002">
+    </testcase>
+    <testcase classname="ActivityLogPageComponent loadLogs handles errors gracefully and leaves loading false" name="ActivityLogPageComponent loadLogs handles errors gracefully and leaves loading false" time="0.004">
+    </testcase>
+    <testcase classname="ActivityLogPageComponent formatJson returns a pretty-printed JSON string" name="ActivityLogPageComponent formatJson returns a pretty-printed JSON string" time="0.002">
+    </testcase>
+    <testcase classname="ActivityLogPageComponent downloadJson throws if URL.createObjectURL fails" name="ActivityLogPageComponent downloadJson throws if URL.createObjectURL fails" time="0.007">
+    </testcase>
+    <testcase classname="ActivityLogPageComponent copyJson writes to clipboard" name="ActivityLogPageComponent copyJson writes to clipboard" time="0.003">
+    </testcase>
+    <testcase classname="ActivityLogPageComponent loadLogs applies date filters when selectedDateRange is set" name="ActivityLogPageComponent loadLogs applies date filters when selectedDateRange is set" time="0.002">
+    </testcase>
+    <testcase classname="ActivityLogPageComponent pagination methods respect bounds and call loadLogs" name="ActivityLogPageComponent pagination methods respect bounds and call loadLogs" time="0.002">
+    </testcase>
+    <testcase classname="ActivityLogPageComponent getActionIcon and getActionColor return expected values" name="ActivityLogPageComponent getActionIcon and getActionColor return expected values" time="0.002">
+    </testcase>
+    <testcase classname="ActivityLogPageComponent getRelativeTime returns days ago for older dates" name="ActivityLogPageComponent getRelativeTime returns days ago for older dates" time="0.002">
+    </testcase>
+    <testcase classname="ActivityLogPageComponent downloadJson creates and clicks an anchor and revokes object URL" name="ActivityLogPageComponent downloadJson creates and clicks an anchor and revokes object URL" time="0.002">
+    </testcase>
+  </testsuite>
+  <testsuite name="ActivityLogService" errors="0" failures="0" skipped="0" timestamp="2026-01-12T07:33:51" time="0.079" tests="14">
+    <testcase classname="ActivityLogService logActivity inserts row and returns data" name="ActivityLogService logActivity inserts row and returns data" time="0.002">
+    </testcase>
+    <testcase classname="ActivityLogService getUserActivityLogs applies filters and returns empty array on error" name="ActivityLogService getUserActivityLogs applies filters and returns empty array on error" time="0.002">
+    </testcase>
+    <testcase classname="ActivityLogService getActivityLogsByResource returns data or empty on error" name="ActivityLogService getActivityLogsByResource returns data or empty on error" time="0">
+    </testcase>
+    <testcase classname="ActivityLogService getActivityLogCount returns count or 0 on error" name="ActivityLogService getActivityLogCount returns count or 0 on error" time="0.003">
+    </testcase>
+    <testcase classname="ActivityLogService logActivity returns null when device info fails" name="ActivityLogService logActivity returns null when device info fails" time="0.003">
+    </testcase>
+    <testcase classname="ActivityLogService logActivity returns null when insert returns error and supports undefined userId (anonymous)" name="ActivityLogService logActivity returns null when insert returns error and supports undefined userId (anonymous)" time="0.001">
+    </testcase>
+    <testcase classname="ActivityLogService logContentAction, logShareAction, logAuthAction call logActivity" name="ActivityLogService logContentAction, logShareAction, logAuthAction call logActivity" time="0.001">
+    </testcase>
+    <testcase classname="ActivityLogService getUserActivityLogs returns data with filters and handles thrown exception" name="ActivityLogService getUserActivityLogs returns data with filters and handles thrown exception" time="0.003">
+    </testcase>
+    <testcase classname="ActivityLogService getActivityLogsByResource handles thrown exception" name="ActivityLogService getActivityLogsByResource handles thrown exception" time="0.001">
+    </testcase>
+    <testcase classname="ActivityLogService getActivityLogCount handles rejected promise" name="ActivityLogService getActivityLogCount handles rejected promise" time="0.001">
+    </testcase>
+    <testcase classname="ActivityLogService logActivity infers categories correctly and logs with inferred category" name="ActivityLogService logActivity infers categories correctly and logs with inferred category" time="0.001">
+    </testcase>
+    <testcase classname="ActivityLogService logActivity marks anonymous when userId undefined" name="ActivityLogService logActivity marks anonymous when userId undefined" time="0">
+    </testcase>
+    <testcase classname="ActivityLogService getUserActivityLogs applies complex filters and pagination" name="ActivityLogService getUserActivityLogs applies complex filters and pagination" time="0">
+    </testcase>
+    <testcase classname="ActivityLogService getActivityLogCount applies filters and returns count" name="ActivityLogService getActivityLogCount applies filters and returns count" time="0.003">
+    </testcase>
+  </testsuite>
+  <testsuite name="DeviceFingerprintService" errors="0" failures="0" skipped="0" timestamp="2026-01-12T07:33:52" time="0.107" tests="11">
+    <testcase classname="DeviceFingerprintService returns visitor id when fingerprinting succeeds" name="DeviceFingerprintService returns visitor id when fingerprinting succeeds" time="0.004">
+    </testcase>
+    <testcase classname="DeviceFingerprintService generates fallback id when fingerprinting fails" name="DeviceFingerprintService generates fallback id when fingerprinting fails" time="0.006">
+    </testcase>
+    <testcase classname="DeviceFingerprintService getDeviceInfo includes expected properties" name="DeviceFingerprintService getDeviceInfo includes expected properties" time="0.003">
+    </testcase>
+    <testcase classname="DeviceFingerprintService registerDevice creates a new device when none exists" name="DeviceFingerprintService registerDevice creates a new device when none exists" time="0.002">
+    </testcase>
+    <testcase classname="DeviceFingerprintService registerDevice updates an existing device" name="DeviceFingerprintService registerDevice updates an existing device" time="0.008">
+    </testcase>
+    <testcase classname="DeviceFingerprintService getUserDevices returns [] on error" name="DeviceFingerprintService getUserDevices returns [] on error" time="0.004">
+    </testcase>
+    <testcase classname="DeviceFingerprintService trustDevice returns true on success and false on error" name="DeviceFingerprintService trustDevice returns true on success and false on error" time="0.003">
+    </testcase>
+    <testcase classname="DeviceFingerprintService getCurrentDevice returns null on PGRST116 and returns data when available" name="DeviceFingerprintService getCurrentDevice returns null on PGRST116 and returns data when available" time="0.002">
+    </testcase>
+    <testcase classname="DeviceFingerprintService isCurrentDeviceTrusted returns correct boolean" name="DeviceFingerprintService isCurrentDeviceTrusted returns correct boolean" time="0.002">
+    </testcase>
+    <testcase classname="DeviceFingerprintService removeDevice and updateDeviceName react to error/success" name="DeviceFingerprintService removeDevice and updateDeviceName react to error/success" time="0.002">
+    </testcase>
+    <testcase classname="DeviceFingerprintService getDeviceFingerprint waits on existing fingerprintPromise" name="DeviceFingerprintService getDeviceFingerprint waits on existing fingerprintPromise" time="0.012">
+    </testcase>
+  </testsuite>
+  <testsuite name="MarkdownEditorComponent" errors="0" failures="0" skipped="0" timestamp="2026-01-12T07:33:52" time="0.102" tests="9">
+    <testcase classname="MarkdownEditorComponent initializes content and toggles preview" name="MarkdownEditorComponent initializes content and toggles preview" time="0.02">
+    </testcase>
+    <testcase classname="MarkdownEditorComponent wraps selection and updates content" name="MarkdownEditorComponent wraps selection and updates content" time="0.003">
+    </testcase>
+    <testcase classname="MarkdownEditorComponent inserts tab as two spaces on handleTab" name="MarkdownEditorComponent inserts tab as two spaces on handleTab" time="0.003">
+    </testcase>
+    <testcase classname="MarkdownEditorComponent toggles preview and renders markdown" name="MarkdownEditorComponent toggles preview and renders markdown" time="0.006">
+    </testcase>
+    <testcase classname="MarkdownEditorComponent prepends line prefix at current line" name="MarkdownEditorComponent prepends line prefix at current line" time="0.002">
+    </testcase>
+    <testcase classname="MarkdownEditorComponent insert helpers add correct markdown wrappers" name="MarkdownEditorComponent insert helpers add correct markdown wrappers" time="0.002">
+    </testcase>
+    <testcase classname="MarkdownEditorComponent syncScroll adjusts preview scroll when preview active" name="MarkdownEditorComponent syncScroll adjusts preview scroll when preview active" time="0.004">
+    </testcase>
+    <testcase classname="MarkdownEditorComponent syncScroll does nothing when preview is false" name="MarkdownEditorComponent syncScroll does nothing when preview is false" time="0.003">
+    </testcase>
+    <testcase classname="MarkdownEditorComponent insert helpers are no-ops when no textarea is present" name="MarkdownEditorComponent insert helpers are no-ops when no textarea is present" time="0.002">
+    </testcase>
+  </testsuite>
+  <testsuite name="FolderService" errors="0" failures="0" skipped="0" timestamp="2026-01-12T07:33:52" time="0.081" tests="15">
+    <testcase classname="FolderService createRootFolder returns existing when user already has root" name="FolderService createRootFolder returns existing when user already has root" time="0.004">
+    </testcase>
+    <testcase classname="FolderService createRootFolder creates and marks when none exists" name="FolderService createRootFolder creates and marks when none exists" time="0.001">
+    </testcase>
+    <testcase classname="FolderService getRootFolder returns folder when found" name="FolderService getRootFolder returns folder when found" time="0.001">
+    </testcase>
+    <testcase classname="FolderService getRootFolder returns null on error" name="FolderService getRootFolder returns null on error" time="0.004">
+    </testcase>
+    <testcase classname="FolderService initializeUserFolders returns existing root if present" name="FolderService initializeUserFolders returns existing root if present" time="0.001">
+    </testcase>
+    <testcase classname="FolderService initializeUserFolders creates root if absent" name="FolderService initializeUserFolders creates root if absent" time="0.001">
+    </testcase>
+    <testcase classname="FolderService createFolder throws on duplicate name" name="FolderService createFolder throws on duplicate name" time="0.003">
+    </testcase>
+    <testcase classname="FolderService createFolder continues when dup check returns error and creates folder" name="FolderService createFolder continues when dup check returns error and creates folder" time="0.005">
+    </testcase>
+    <testcase classname="FolderService getFolders returns array and empty when error" name="FolderService getFolders returns array and empty when error" time="0.001">
+    </testcase>
+    <testcase classname="FolderService getFolder returns folder or null on error" name="FolderService getFolder returns folder or null on error" time="0.001">
+    </testcase>
+    <testcase classname="FolderService updateFolder updates and logs activity" name="FolderService updateFolder updates and logs activity" time="0.001">
+    </testcase>
+    <testcase classname="FolderService deleteFolder prevents deleting root" name="FolderService deleteFolder prevents deleting root" time="0.001">
+    </testcase>
+    <testcase classname="FolderService deleteFolder deletes and logs activity" name="FolderService deleteFolder deletes and logs activity" time="0.001">
+    </testcase>
+    <testcase classname="FolderService getChildFolders returns list or empty on error" name="FolderService getChildFolders returns list or empty on error" time="0.001">
+    </testcase>
+    <testcase classname="FolderService getFolderTree builds hierarchical tree" name="FolderService getFolderTree builds hierarchical tree" time="0.001">
+    </testcase>
+  </testsuite>
+  <testsuite name="NotificationService" errors="0" failures="0" skipped="0" timestamp="2026-01-12T07:33:52" time="0.08" tests="13">
+    <testcase classname="NotificationService getUserNotifications returns data and handles unreadOnly" name="NotificationService getUserNotifications returns data and handles unreadOnly" time="0.002">
+    </testcase>
+    <testcase classname="NotificationService getUnreadCount sets signal and returns count" name="NotificationService getUnreadCount sets signal and returns count" time="0.002">
+    </testcase>
+    <testcase classname="NotificationService markAsRead and markAllAsRead handle success and failure" name="NotificationService markAsRead and markAllAsRead handle success and failure" time="0.001">
+    </testcase>
+    <testcase classname="NotificationService deleteNotification returns true/false" name="NotificationService deleteNotification returns true/false" time="0">
+    </testcase>
+    <testcase classname="NotificationService createNotification returns data or null on error" name="NotificationService createNotification returns data or null on error" time="0.003">
+    </testcase>
+    <testcase classname="NotificationService subscribeToNotifications returns channel and unsubscribe removes it" name="NotificationService subscribeToNotifications returns channel and unsubscribe removes it" time="0.001">
+    </testcase>
+    <testcase classname="NotificationService getUserNotifications catches thrown error and returns []" name="NotificationService getUserNotifications catches thrown error and returns []" time="0.005">
+    </testcase>
+    <testcase classname="NotificationService getUnreadCount handles rejected promise and returns 0" name="NotificationService getUnreadCount handles rejected promise and returns 0" time="0.001">
+    </testcase>
+    <testcase classname="NotificationService markAsRead returns false when update rejects" name="NotificationService markAsRead returns false when update rejects" time="0.002">
+    </testcase>
+    <testcase classname="NotificationService markAllAsRead returns false when update rejects" name="NotificationService markAllAsRead returns false when update rejects" time="0.001">
+    </testcase>
+    <testcase classname="NotificationService deleteNotification returns false when delete rejects" name="NotificationService deleteNotification returns false when delete rejects" time="0.001">
+    </testcase>
+    <testcase classname="NotificationService createNotification returns null on rejected single()" name="NotificationService createNotification returns null on rejected single()" time="0.001">
+    </testcase>
+    <testcase classname="NotificationService subscribeToNotifications invokes callback and triggers getUnreadCount" name="NotificationService subscribeToNotifications invokes callback and triggers getUnreadCount" time="0.003">
+    </testcase>
+  </testsuite>
+  <testsuite name="UserService" errors="0" failures="0" skipped="0" timestamp="2026-01-12T07:33:52" time="0.069" tests="10">
+    <testcase classname="UserService getUserProfile returns profile when found" name="UserService getUserProfile returns profile when found" time="0.002">
+    </testcase>
+    <testcase classname="UserService getUserProfile creates profile when not found (PGRST116)" name="UserService getUserProfile creates profile when not found (PGRST116)" time="0.001">
+    </testcase>
+    <testcase classname="UserService getUserProfile throws on unknown error" name="UserService getUserProfile throws on unknown error" time="0.002">
+    </testcase>
+    <testcase classname="UserService createUserProfile returns created profile or throws on error" name="UserService createUserProfile returns created profile or throws on error" time="0.001">
+    </testcase>
+    <testcase classname="UserService updateUserProfile returns updated profile or throws" name="UserService updateUserProfile returns updated profile or throws" time="0.001">
+    </testcase>
+    <testcase classname="UserService upsertUserProfile works" name="UserService upsertUserProfile works" time="0.001">
+    </testcase>
+    <testcase classname="UserService markRootFolderCreated delegates to updateUserProfile" name="UserService markRootFolderCreated delegates to updateUserProfile" time="0.004">
+    </testcase>
+    <testcase classname="UserService hasRootFolder returns correct boolean and handles errors" name="UserService hasRootFolder returns correct boolean and handles errors" time="0.003">
+    </testcase>
+    <testcase classname="UserService uploadAvatar uploads and returns public url with timestamp or throws" name="UserService uploadAvatar uploads and returns public url with timestamp or throws" time="0.001">
+    </testcase>
+    <testcase classname="UserService disableUser calls updateUserProfile with disabled true" name="UserService disableUser calls updateUserProfile with disabled true" time="0.001">
+    </testcase>
+  </testsuite>
+  <testsuite name="DashboardLayoutComponent" errors="0" failures="0" skipped="0" timestamp="2026-01-12T07:33:52" time="0.338" tests="6">
+    <testcase classname="DashboardLayoutComponent computes initials from profile and toggles mobile sidebar" name="DashboardLayoutComponent computes initials from profile and toggles mobile sidebar" time="0.161">
+    </testcase>
+    <testcase classname="DashboardLayoutComponent reacts to router navigation and sets activity log page flag" name="DashboardLayoutComponent reacts to router navigation and sets activity log page flag" time="0.012">
+    </testcase>
+    <testcase classname="DashboardLayoutComponent openSettings closes mobile sidebar and hides dropdown" name="DashboardLayoutComponent openSettings closes mobile sidebar and hides dropdown" time="0.008">
+    </testcase>
+    <testcase classname="DashboardLayoutComponent onResize hides mobile sidebar when width &gt;= lg" name="DashboardLayoutComponent onResize hides mobile sidebar when width &gt;= lg" time="0.008">
+    </testcase>
+    <testcase classname="DashboardLayoutComponent onDocumentClick closes dropdown when clicking outside and keeps it open when clicking inside" name="DashboardLayoutComponent onDocumentClick closes dropdown when clicking outside and keeps it open when clicking inside" time="0.007">
+    </testcase>
+    <testcase classname="DashboardLayoutComponent signOut logs activity, signs out, clears auth and navigates" name="DashboardLayoutComponent signOut logs activity, signs out, clears auth and navigates" time="0.008">
+    </testcase>
+  </testsuite>
+  <testsuite name="DashboardHomeComponent" errors="0" failures="0" skipped="0" timestamp="2026-01-12T07:33:52" time="0.125" tests="4">
+    <testcase classname="DashboardHomeComponent renders welcome when no files selected and can close previews" name="DashboardHomeComponent renders welcome when no files selected and can close previews" time="0.055">
+    </testcase>
+    <testcase classname="DashboardHomeComponent subscribes to workspace file selections and updates signals" name="DashboardHomeComponent subscribes to workspace file selections and updates signals" time="0.002">
+    </testcase>
+    <testcase classname="DashboardHomeComponent handles google drive actions: rename, delete true/false, imported" name="DashboardHomeComponent handles google drive actions: rename, delete true/false, imported" time="0.006">
+    </testcase>
+    <testcase classname="DashboardHomeComponent handles onedrive actions: rename, delete true/false, imported" name="DashboardHomeComponent handles onedrive actions: rename, delete true/false, imported" time="0.002">
+    </testcase>
+  </testsuite>
+  <testsuite name="DocumentPreviewComponent" errors="0" failures="0" skipped="0" timestamp="2026-01-12T07:33:53" time="0.094" tests="5">
+    <testcase classname="DocumentPreviewComponent renders image preview when note is an image" name="DocumentPreviewComponent renders image preview when note is an image" time="0.018">
+    </testcase>
+    <testcase classname="DocumentPreviewComponent renders PDF iframe for pdf note and uses sanitizer" name="DocumentPreviewComponent renders PDF iframe for pdf note and uses sanitizer" time="0.005">
+    </testcase>
+    <testcase classname="DocumentPreviewComponent openInNewTab calls window.open when previewUrl exists" name="DocumentPreviewComponent openInNewTab calls window.open when previewUrl exists" time="0.006">
+    </testcase>
+    <testcase classname="DocumentPreviewComponent shows toast error when note service throws" name="DocumentPreviewComponent shows toast error when note service throws" time="0.005">
+    </testcase>
+    <testcase classname="DocumentPreviewComponent calls revoke function on destroy if provided" name="DocumentPreviewComponent calls revoke function on destroy if provided" time="0.005">
+    </testcase>
+  </testsuite>
+  <testsuite name="DocumentViewerComponent" errors="0" failures="0" skipped="0" timestamp="2026-01-12T07:33:53" time="0.153" tests="10">
+    <testcase classname="DocumentViewerComponent sanitizes and sets safeUrl for previewable document" name="DocumentViewerComponent sanitizes and sets safeUrl for previewable document" time="0.022">
+    </testcase>
+    <testcase classname="DocumentViewerComponent isImage returns true for image urls and image is rendered" name="DocumentViewerComponent isImage returns true for image urls and image is rendered" time="0.002">
+    </testcase>
+    <testcase classname="DocumentViewerComponent downloadDocument creates a link and clicks it" name="DocumentViewerComponent downloadDocument creates a link and clicks it" time="0.001">
+    </testcase>
+    <testcase classname="DocumentViewerComponent canPreviewInIframe recognizes google drive urls" name="DocumentViewerComponent canPreviewInIframe recognizes google drive urls" time="0.002">
+    </testcase>
+    <testcase classname="DocumentViewerComponent getFileExtension and type/icon helpers work" name="DocumentViewerComponent getFileExtension and type/icon helpers work" time="0.002">
+    </testcase>
+    <testcase classname="DocumentViewerComponent handles sanitizer errors and sets safeUrl to null" name="DocumentViewerComponent handles sanitizer errors and sets safeUrl to null" time="0.054">
+    </testcase>
+    <testcase classname="DocumentViewerComponent downloadDocument does nothing when documentUrl missing" name="DocumentViewerComponent downloadDocument does nothing when documentUrl missing" time="0.002">
+    </testcase>
+    <testcase classname="DocumentViewerComponent downloadDocument handles DOM errors gracefully" name="DocumentViewerComponent downloadDocument handles DOM errors gracefully" time="0.002">
+    </testcase>
+    <testcase classname="DocumentViewerComponent ngOnChanges updates when documentUrl changes" name="DocumentViewerComponent ngOnChanges updates when documentUrl changes" time="0.001">
+    </testcase>
+    <testcase classname="DocumentViewerComponent getFileExtension returns empty for null url" name="DocumentViewerComponent getFileExtension returns empty for null url" time="0.002">
+    </testcase>
+  </testsuite>
+  <testsuite name="SignupComponent" errors="0" failures="0" skipped="0" timestamp="2026-01-12T07:33:53" time="0.232" tests="5">
+    <testcase classname="SignupComponent passwordMatchValidator detects mismatch" name="SignupComponent passwordMatchValidator detects mismatch" time="0.038">
+    </testcase>
+    <testcase classname="SignupComponent onSubmit success registers device and navigates" name="SignupComponent onSubmit success registers device and navigates" time="0.034">
+    </testcase>
+    <testcase classname="SignupComponent onSubmit handles supabase error" name="SignupComponent onSubmit handles supabase error" time="0.007">
+    </testcase>
+    <testcase classname="SignupComponent onSubmit continues when device registration fails" name="SignupComponent onSubmit continues when device registration fails" time="0.056">
+    </testcase>
+    <testcase classname="SignupComponent signUpWithGoogle handles OAuth error" name="SignupComponent signUpWithGoogle handles OAuth error" time="0.007">
+    </testcase>
+  </testsuite>
+  <testsuite name="EncryptionService" errors="0" failures="0" skipped="0" timestamp="2026-01-12T07:33:53" time="0.059" tests="6">
+    <testcase classname="EncryptionService reports no key initially and clearKey resets state" name="EncryptionService reports no key initially and clearKey resets state" time="0">
+    </testcase>
+    <testcase classname="EncryptionService throws when encrypt/decrypt called without a key" name="EncryptionService throws when encrypt/decrypt called without a key" time="0.003">
+    </testcase>
+    <testcase classname="EncryptionService setKeyFromDerivedMaterial enables encryption and decrypts text correctly (roundtrip)" name="EncryptionService setKeyFromDerivedMaterial enables encryption and decrypts text correctly (roundtrip)" time="0.001">
+    </testcase>
+    <testcase classname="EncryptionService encrypts and decrypts blobs correctly (roundtrip)" name="EncryptionService encrypts and decrypts blobs correctly (roundtrip)" time="0">
+    </testcase>
+    <testcase classname="EncryptionService throws for invalid payload format" name="EncryptionService throws for invalid payload format" time="0.001">
+    </testcase>
+    <testcase classname="EncryptionService throws for unsupported encryption version" name="EncryptionService throws for unsupported encryption version" time="0">
+    </testcase>
+  </testsuite>
+  <testsuite name="RelativeTimeDirective" errors="0" failures="0" skipped="0" timestamp="2026-01-12T07:33:53" time="0.079" tests="10">
+    <testcase classname="RelativeTimeDirective shows &quot;Now&quot; for timestamps within the last minute" name="RelativeTimeDirective shows &quot;Now&quot; for timestamps within the last minute" time="0.007">
+    </testcase>
+    <testcase classname="RelativeTimeDirective shows Xm ago for timestamps between 1 and 59 minutes" name="RelativeTimeDirective shows Xm ago for timestamps between 1 and 59 minutes" time="0.002">
+    </testcase>
+    <testcase classname="RelativeTimeDirective shows 59m ago at 59 minutes in the past" name="RelativeTimeDirective shows 59m ago at 59 minutes in the past" time="0.001">
+    </testcase>
+    <testcase classname="RelativeTimeDirective shows Today for times earlier the same day beyond 1 hour" name="RelativeTimeDirective shows Today for times earlier the same day beyond 1 hour" time="0.004">
+    </testcase>
+    <testcase classname="RelativeTimeDirective shows Yesterday for previous calendar day" name="RelativeTimeDirective shows Yesterday for previous calendar day" time="0.001">
+    </testcase>
+    <testcase classname="RelativeTimeDirective shows This week for dates within current week but not today/yesterday" name="RelativeTimeDirective shows This week for dates within current week but not today/yesterday" time="0.002">
+    </testcase>
+    <testcase classname="RelativeTimeDirective shows This month for earlier days in the same month beyond a week" name="RelativeTimeDirective shows This month for earlier days in the same month beyond a week" time="0.001">
+    </testcase>
+    <testcase classname="RelativeTimeDirective shows month name for same year different month" name="RelativeTimeDirective shows month name for same year different month" time="0.002">
+    </testcase>
+    <testcase classname="RelativeTimeDirective shows year for a different year" name="RelativeTimeDirective shows year for a different year" time="0.001">
+    </testcase>
+    <testcase classname="RelativeTimeDirective auto-updates from Now to 1m ago after a minute (via Jest timers)" name="RelativeTimeDirective auto-updates from Now to 1m ago after a minute (via Jest timers)" time="0.002">
+    </testcase>
+  </testsuite>
+  <testsuite name="ThemeService" errors="0" failures="0" skipped="0" timestamp="2026-01-12T07:33:53" time="0.095" tests="8">
+    <testcase classname="ThemeService initializeTheme uses saved theme from localStorage" name="ThemeService initializeTheme uses saved theme from localStorage" time="0.002">
+    </testcase>
+    <testcase classname="ThemeService initializeTheme falls back to system when no saved" name="ThemeService initializeTheme falls back to system when no saved" time="0.001">
+    </testcase>
+    <testcase classname="ThemeService setTheme persists to localStorage and persists to Supabase when authenticated" name="ThemeService setTheme persists to localStorage and persists to Supabase when authenticated" time="0.001">
+    </testcase>
+    <testcase classname="ThemeService toggleTheme switches between light and dark" name="ThemeService toggleTheme switches between light and dark" time="0.001">
+    </testcase>
+    <testcase classname="ThemeService applyTheme adds or removes dark class based on matchMedia (system)" name="ThemeService applyTheme adds or removes dark class based on matchMedia (system)" time="0.004">
+    </testcase>
+    <testcase classname="ThemeService applyTheme auto uses night time to decide dark mode" name="ThemeService applyTheme auto uses night time to decide dark mode" time="0.001">
+    </testcase>
+    <testcase classname="ThemeService constructor effect sets theme to auto when user logs in with no saved theme" name="ThemeService constructor effect sets theme to auto when user logs in with no saved theme" time="0.003">
+    </testcase>
+    <testcase classname="ThemeService setTheme tolerates localStorage.setItem throwing and supabase update failing" name="ThemeService setTheme tolerates localStorage.setItem throwing and supabase update failing" time="0.004">
+    </testcase>
+  </testsuite>
+  <testsuite name="DocumentPreviewModalComponent" errors="0" failures="0" skipped="0" timestamp="2026-01-12T07:33:53" time="0.097" tests="6">
+    <testcase classname="DocumentPreviewModalComponent detects pdf and image correctly" name="DocumentPreviewModalComponent detects pdf and image correctly" time="0.015">
+    </testcase>
+    <testcase classname="DocumentPreviewModalComponent loadPreview sets previewUrl when storage path present" name="DocumentPreviewModalComponent loadPreview sets previewUrl when storage path present" time="0.003">
+    </testcase>
+    <testcase classname="DocumentPreviewModalComponent does not call supabase when content is not a storage path" name="DocumentPreviewModalComponent does not call supabase when content is not a storage path" time="0.002">
+    </testcase>
+    <testcase classname="DocumentPreviewModalComponent shows toast error when supabase createSignedUrl fails" name="DocumentPreviewModalComponent shows toast error when supabase createSignedUrl fails" time="0.008">
+    </testcase>
+    <testcase classname="DocumentPreviewModalComponent getExtension handles missing content and files without extension" name="DocumentPreviewModalComponent getExtension handles missing content and files without extension" time="0.002">
+    </testcase>
+    <testcase classname="DocumentPreviewModalComponent download creates and clicks link when previewUrl present" name="DocumentPreviewModalComponent download creates and clicks link when previewUrl present" time="0.002">
+    </testcase>
+  </testsuite>
+  <testsuite name="DocumentViewerComponent" errors="0" failures="0" skipped="0" timestamp="2026-01-12T07:33:53" time="0.089" tests="7">
+    <testcase classname="DocumentViewerComponent should create" name="DocumentViewerComponent should create" time="0.021">
+    </testcase>
+    <testcase classname="DocumentViewerComponent should handle PDF URLs" name="DocumentViewerComponent should handle PDF URLs" time="0.002">
+    </testcase>
+    <testcase classname="DocumentViewerComponent should handle image URLs" name="DocumentViewerComponent should handle image URLs" time="0.003">
+    </testcase>
+    <testcase classname="DocumentViewerComponent sanitizes and sets safeUrl for iframe preview" name="DocumentViewerComponent sanitizes and sets safeUrl for iframe preview" time="0.003">
+    </testcase>
+    <testcase classname="DocumentViewerComponent handles sanitizer throwing an error gracefully" name="DocumentViewerComponent handles sanitizer throwing an error gracefully" time="0.003">
+    </testcase>
+    <testcase classname="DocumentViewerComponent downloadDocument appends, clicks and removes link" name="DocumentViewerComponent downloadDocument appends, clicks and removes link" time="0.003">
+    </testcase>
+    <testcase classname="DocumentViewerComponent recognizes embeddable sources like google drive and txt" name="DocumentViewerComponent recognizes embeddable sources like google drive and txt" time="0.002">
+    </testcase>
+  </testsuite>
+  <testsuite name="ImageCropDialogComponent" errors="0" failures="0" skipped="0" timestamp="2026-01-12T07:33:53" time="0.096" tests="7">
+    <testcase classname="ImageCropDialogComponent initializes and shows tips text when open" name="ImageCropDialogComponent initializes and shows tips text when open" time="0.014">
+    </testcase>
+    <testcase classname="ImageCropDialogComponent emits cancel on onCancel" name="ImageCropDialogComponent emits cancel on onCancel" time="0.002">
+    </testcase>
+    <testcase classname="ImageCropDialogComponent does not emit save when no cropped blob exists and Save button is disabled" name="ImageCropDialogComponent does not emit save when no cropped blob exists and Save button is disabled" time="0.003">
+    </testcase>
+    <testcase classname="ImageCropDialogComponent sets cropped image/blob and emits save" name="ImageCropDialogComponent sets cropped image/blob and emits save" time="0.001">
+    </testcase>
+    <testcase classname="ImageCropDialogComponent sets loading false and clears error on imageLoaded" name="ImageCropDialogComponent sets loading false and clears error on imageLoaded" time="0.001">
+    </testcase>
+    <testcase classname="ImageCropDialogComponent sets loading false on cropperReady and sets error on loadImageFailed" name="ImageCropDialogComponent sets loading false on cropperReady and sets error on loadImageFailed" time="0.002">
+    </testcase>
+    <testcase classname="ImageCropDialogComponent resetState clears cropped image/blob" name="ImageCropDialogComponent resetState clears cropped image/blob" time="0.001">
+    </testcase>
+  </testsuite>
+  <testsuite name="file-type.util" errors="0" failures="0" skipped="0" timestamp="2026-01-12T07:33:54" time="0.058" tests="11">
+    <testcase classname="file-type.util getExtensionFromPath returns empty for null/undefined" name="file-type.util getExtensionFromPath returns empty for null/undefined" time="0.001">
+    </testcase>
+    <testcase classname="file-type.util getExtensionFromPath parses storage:// prefix and query params" name="file-type.util getExtensionFromPath parses storage:// prefix and query params" time="0.001">
+    </testcase>
+    <testcase classname="file-type.util getExtensionFromPath handles uppercase and multi-dots" name="file-type.util getExtensionFromPath handles uppercase and multi-dots" time="0">
+    </testcase>
+    <testcase classname="file-type.util getExtensionFromPath returns the last segment for plain names and empty for trailing slash" name="file-type.util getExtensionFromPath returns the last segment for plain names and empty for trailing slash" time="0.001">
+    </testcase>
+    <testcase classname="file-type.util getTypeLabelFromExt maps known extensions" name="file-type.util getTypeLabelFromExt maps known extensions" time="0">
+    </testcase>
+    <testcase classname="file-type.util getTypeLabelFromExt returns Document for unknown extensions" name="file-type.util getTypeLabelFromExt returns Document for unknown extensions" time="0.001">
+    </testcase>
+    <testcase classname="file-type.util getIconNameFromExt returns correct icon names" name="file-type.util getIconNameFromExt returns correct icon names" time="0.003">
+    </testcase>
+    <testcase classname="file-type.util getIconNameFromMime maps mimetypes to icons" name="file-type.util getIconNameFromMime maps mimetypes to icons" time="0.001">
+    </testcase>
+    <testcase classname="file-type.util getIconNameFromNameAndMime prefers extension when available" name="file-type.util getIconNameFromNameAndMime prefers extension when available" time="0">
+    </testcase>
+    <testcase classname="file-type.util getIconNameFromNameAndMime falls back to mime when name is empty" name="file-type.util getIconNameFromNameAndMime falls back to mime when name is empty" time="0">
+    </testcase>
+    <testcase classname="file-type.util getIconNameFromNameAndMime returns default when neither present" name="file-type.util getIconNameFromNameAndMime returns default when neither present" time="0.001">
+    </testcase>
+  </testsuite>
+  <testsuite name="AuthStateService" errors="0" failures="0" skipped="0" timestamp="2026-01-12T07:33:54" time="0.082" tests="5">
+    <testcase classname="AuthStateService computed signals reflect user state" name="AuthStateService computed signals reflect user state" time="0.006">
+    </testcase>
+    <testcase classname="AuthStateService autoLoadEncryptionKey handles missing session gracefully" name="AuthStateService autoLoadEncryptionKey handles missing session gracefully" time="0.002">
+    </testcase>
+    <testcase classname="AuthStateService loads encryption key when session and edge function succeed" name="AuthStateService loads encryption key when session and edge function succeed" time="0.002">
+    </testcase>
+    <testcase classname="AuthStateService handles edge function failure gracefully" name="AuthStateService handles edge function failure gracefully" time="0.002">
+    </testcase>
+    <testcase classname="AuthStateService clear() resets state and clears encryption" name="AuthStateService clear() resets state and clears encryption" time="0.002">
+    </testcase>
+  </testsuite>
+  <testsuite name="DiscordCallbackComponent" errors="0" failures="0" skipped="0" timestamp="2026-01-12T07:33:54" time="0.3" tests="3">
+    <testcase classname="DiscordCallbackComponent handles successful callback and navigates" name="DiscordCallbackComponent handles successful callback and navigates" time="0.108">
+    </testcase>
+    <testcase classname="DiscordCallbackComponent sets error and shows toast on failure" name="DiscordCallbackComponent sets error and shows toast on failure" time="0.114">
+    </testcase>
+    <testcase classname="DiscordCallbackComponent goToSignIn navigates to signin route" name="DiscordCallbackComponent goToSignIn navigates to signin route" time="0.004">
+    </testcase>
+  </testsuite>
+  <testsuite name="authGuard" errors="0" failures="0" skipped="0" timestamp="2026-01-12T07:33:54" time="0.083" tests="3">
+    <testcase classname="authGuard allows when session present and initializes folders" name="authGuard allows when session present and initializes folders" time="0.002">
+    </testcase>
+    <testcase classname="authGuard continues even if folder initialization fails" name="authGuard continues even if folder initialization fails" time="0.002">
+    </testcase>
+    <testcase classname="authGuard redirects to signin when no session" name="authGuard redirects to signin when no session" time="0.001">
+    </testcase>
+  </testsuite>
+  <testsuite name="NoteNameModalComponent" errors="0" failures="0" skipped="0" timestamp="2026-01-12T07:33:54" time="0.071" tests="6">
+    <testcase classname="NoteNameModalComponent initializes with input and validate duplicate" name="NoteNameModalComponent initializes with input and validate duplicate" time="0.013">
+    </testcase>
+    <testcase classname="NoteNameModalComponent trySubmit emits when valid" name="NoteNameModalComponent trySubmit emits when valid" time="0.002">
+    </testcase>
+    <testcase classname="NoteNameModalComponent shows error on empty input and canSubmit false" name="NoteNameModalComponent shows error on empty input and canSubmit false" time="0.002">
+    </testcase>
+    <testcase classname="NoteNameModalComponent onCancel emits cancel" name="NoteNameModalComponent onCancel emits cancel" time="0.001">
+    </testcase>
+    <testcase classname="NoteNameModalComponent trySubmit does not emit when invalid" name="NoteNameModalComponent trySubmit does not emit when invalid" time="0.001">
+    </testcase>
+    <testcase classname="NoteNameModalComponent validate clears error on valid name" name="NoteNameModalComponent validate clears error on valid name" time="0.002">
+    </testcase>
+  </testsuite>
+  <testsuite name="AppwriteService" errors="0" failures="0" skipped="0" timestamp="2026-01-12T07:33:54" time="0.061" tests="4">
+    <testcase classname="AppwriteService isConfigured returns false when env missing" name="AppwriteService isConfigured returns false when env missing" time="0.002">
+    </testcase>
+    <testcase classname="AppwriteService listDocuments delegates to databases and throws on error" name="AppwriteService listDocuments delegates to databases and throws on error" time="0.003">
+    </testcase>
+    <testcase classname="AppwriteService getChangelogs paginates and sorts" name="AppwriteService getChangelogs paginates and sorts" time="0.001">
+    </testcase>
+    <testcase classname="AppwriteService getSocialLinks returns active links sorted and returns [] on error" name="AppwriteService getSocialLinks returns active links sorted and returns [] on error" time="0.002">
+    </testcase>
+  </testsuite>
+  <testsuite name="TermsModalComponent" errors="0" failures="0" skipped="0" timestamp="2026-01-12T07:33:54" time="0.072" tests="3">
+    <testcase classname="TermsModalComponent emits close when top close button clicked" name="TermsModalComponent emits close when top close button clicked" time="0.014">
+    </testcase>
+    <testcase classname="TermsModalComponent emits close when overlay is clicked and when footer close clicked" name="TermsModalComponent emits close when overlay is clicked and when footer close clicked" time="0.003">
+    </testcase>
+    <testcase classname="TermsModalComponent renders default and custom title and updates iframe src on termsSrc change" name="TermsModalComponent renders default and custom title and updates iframe src on termsSrc change" time="0.005">
+    </testcase>
+  </testsuite>
+  <testsuite name="SigninComponent" errors="0" failures="0" skipped="0" timestamp="2026-01-12T07:33:54" time="0.176" tests="2">
+    <testcase classname="SigninComponent onSubmit success sets auth and navigates" name="SigninComponent onSubmit success sets auth and navigates" time="0.048">
+    </testcase>
+    <testcase classname="SigninComponent signInWithGoogle handles error paths gracefully" name="SigninComponent signInWithGoogle handles error paths gracefully" time="0.008">
+    </testcase>
+  </testsuite>
+  <testsuite name="AvatarComponent" errors="0" failures="0" skipped="0" timestamp="2026-01-12T07:33:55" time="0.069" tests="6">
+    <testcase classname="AvatarComponent renders initials when no avatarUrl and names provided" name="AvatarComponent renders initials when no avatarUrl and names provided" time="0.01">
+    </testcase>
+    <testcase classname="AvatarComponent shows image when avatarUrl is provided" name="AvatarComponent shows image when avatarUrl is provided" time="0.002">
+    </testcase>
+    <testcase classname="AvatarComponent initials uses first two letters when lastName missing" name="AvatarComponent initials uses first two letters when lastName missing" time="0.001">
+    </testcase>
+    <testcase classname="AvatarComponent initials uses email when no names provided" name="AvatarComponent initials uses email when no names provided" time="0.002">
+    </testcase>
+    <testcase classname="AvatarComponent initials returns ? when no name or email present" name="AvatarComponent initials returns ? when no name or email present" time="0.003">
+    </testcase>
+    <testcase classname="AvatarComponent avatarClasses respects size mapping" name="AvatarComponent avatarClasses respects size mapping" time="0.002">
+    </testcase>
+  </testsuite>
+  <testsuite name="ForgotPasswordComponent" errors="0" failures="0" skipped="0" timestamp="2026-01-12T07:33:55" time="0.099" tests="3">
+    <testcase classname="ForgotPasswordComponent sends reset and shows success" name="ForgotPasswordComponent sends reset and shows success" time="0.011">
+    </testcase>
+    <testcase classname="ForgotPasswordComponent shows error when supabase returns error" name="ForgotPasswordComponent shows error when supabase returns error" time="0.005">
+    </testcase>
+    <testcase classname="ForgotPasswordComponent does nothing when form invalid" name="ForgotPasswordComponent does nothing when form invalid" time="0.004">
+    </testcase>
+  </testsuite>
+  <testsuite name="GoogleCallbackComponent" errors="0" failures="0" skipped="0" timestamp="2026-01-12T07:33:55" time="0.292" tests="2">
+    <testcase classname="GoogleCallbackComponent handles successful Google callback" name="GoogleCallbackComponent handles successful Google callback" time="0.108">
+    </testcase>
+    <testcase classname="GoogleCallbackComponent sets error and toast on callback failure" name="GoogleCallbackComponent sets error and toast on callback failure" time="0.114">
+    </testcase>
+  </testsuite>
+  <testsuite name="OneDrivePreviewComponent" errors="0" failures="0" skipped="0" timestamp="2026-01-12T07:33:55" time="0.087" tests="4">
+    <testcase classname="OneDrivePreviewComponent shows fallback when no webUrl" name="OneDrivePreviewComponent shows fallback when no webUrl" time="0.013">
+    </testcase>
+    <testcase classname="OneDrivePreviewComponent embeds when webUrl provided" name="OneDrivePreviewComponent embeds when webUrl provided" time="0.007">
+    </testcase>
+    <testcase classname="OneDrivePreviewComponent calls sanitizer with embed url when webUrl contains view.aspx" name="OneDrivePreviewComponent calls sanitizer with embed url when webUrl contains view.aspx" time="0.002">
+    </testcase>
+    <testcase classname="OneDrivePreviewComponent emits onClose when close button clicked" name="OneDrivePreviewComponent emits onClose when close button clicked" time="0.003">
+    </testcase>
+  </testsuite>
+  <testsuite name="SupabaseService" errors="0" failures="0" skipped="0" timestamp="2026-01-12T07:33:55" time="0.077" tests="2">
+    <testcase classname="SupabaseService throws when SUPABASE_URL missing" name="SupabaseService throws when SUPABASE_URL missing" time="0.013">
+    </testcase>
+    <testcase classname="SupabaseService creates client and getSession delegates to client.auth.getSession" name="SupabaseService creates client and getSession delegates to client.auth.getSession" time="0.013">
+    </testcase>
+  </testsuite>
+  <testsuite name="GitLabCallbackComponent" errors="0" failures="0" skipped="0" timestamp="2026-01-12T07:33:55" time="0.295" tests="2">
+    <testcase classname="GitLabCallbackComponent handles successful GitLab callback" name="GitLabCallbackComponent handles successful GitLab callback" time="0.108">
+    </testcase>
+    <testcase classname="GitLabCallbackComponent sets error and toast on failure" name="GitLabCallbackComponent sets error and toast on failure" time="0.111">
+    </testcase>
+  </testsuite>
+  <testsuite name="GithubCallbackComponent" errors="0" failures="0" skipped="0" timestamp="2026-01-12T07:33:56" time="0.308" tests="2">
+    <testcase classname="GithubCallbackComponent handles successful GitHub callback" name="GithubCallbackComponent handles successful GitHub callback" time="0.108">
+    </testcase>
+    <testcase classname="GithubCallbackComponent sets error and toast on failure" name="GithubCallbackComponent sets error and toast on failure" time="0.108">
+    </testcase>
+  </testsuite>
+  <testsuite name="IconDirective" errors="0" failures="0" skipped="0" timestamp="2026-01-12T07:33:56" time="0.08" tests="3">
+    <testcase classname="IconDirective does nothing when name is empty" name="IconDirective does nothing when name is empty" time="0.007">
+    </testcase>
+    <testcase classname="IconDirective renders svg and sets svg width/height when size provided" name="IconDirective renders svg and sets svg width/height when size provided" time="0.004">
+    </testcase>
+    <testcase classname="IconDirective falls back to png when svg fetch fails" name="IconDirective falls back to png when svg fetch fails" time="0.003">
+    </testcase>
+  </testsuite>
+  <testsuite name="ChangePasswordModalComponent" errors="0" failures="0" skipped="0" timestamp="2026-01-12T07:33:56" time="0.084" tests="2">
+    <testcase classname="ChangePasswordModalComponent canSubmit validates correctly" name="ChangePasswordModalComponent canSubmit validates correctly" time="0.017">
+    </testcase>
+    <testcase classname="ChangePasswordModalComponent trySubmit success path emits success" name="ChangePasswordModalComponent trySubmit success path emits success" time="0.004">
+    </testcase>
+  </testsuite>
+  <testsuite name="GoogleDrivePreviewComponent" errors="0" failures="0" skipped="0" timestamp="2026-01-12T07:33:56" time="0.079" tests="4">
+    <testcase classname="GoogleDrivePreviewComponent renders name and fallback when no webViewLink" name="GoogleDrivePreviewComponent renders name and fallback when no webViewLink" time="0.015">
+    </testcase>
+    <testcase classname="GoogleDrivePreviewComponent sanitizes webViewLink when present" name="GoogleDrivePreviewComponent sanitizes webViewLink when present" time="0.005">
+    </testcase>
+    <testcase classname="GoogleDrivePreviewComponent emits onClose when close button clicked" name="GoogleDrivePreviewComponent emits onClose when close button clicked" time="0.005">
+    </testcase>
+    <testcase classname="GoogleDrivePreviewComponent returns empty sanitizedUrl when webViewLink is not present" name="GoogleDrivePreviewComponent returns empty sanitizedUrl when webViewLink is not present" time="0.003">
+    </testcase>
+  </testsuite>
+  <testsuite name="ChangelogModalComponent" errors="0" failures="0" skipped="0" timestamp="2026-01-12T07:33:56" time="0.178" tests="3">
+    <testcase classname="ChangelogModalComponent loads changelog and shows date" name="ChangelogModalComponent loads changelog and shows date" time="0.014">
+    </testcase>
+    <testcase classname="ChangelogModalComponent emits close when onClose called" name="ChangelogModalComponent emits close when onClose called" time="0.002">
+    </testcase>
+    <testcase classname="ChangelogModalComponent shows error state when changelog load fails" name="ChangelogModalComponent shows error state when changelog load fails" time="0.057">
+    </testcase>
+  </testsuite>
+  <testsuite name="device.types" errors="0" failures="0" skipped="0" timestamp="2026-01-12T07:33:56" time="0.065" tests="5">
+    <testcase classname="device.types DEVICE_CONSTANTS exposes expected numeric constants and arrays" name="device.types DEVICE_CONSTANTS exposes expected numeric constants and arrays" time="0">
+    </testcase>
+    <testcase classname="device.types isValidDeviceType returns true for valid device types" name="device.types isValidDeviceType returns true for valid device types" time="0.001">
+    </testcase>
+    <testcase classname="device.types isValidDeviceType returns false for invalid types" name="device.types isValidDeviceType returns false for invalid types" time="0">
+    </testcase>
+    <testcase classname="device.types isUserDevice returns true for a valid UserDevice-like object" name="device.types isUserDevice returns true for a valid UserDevice-like object" time="0">
+    </testcase>
+    <testcase classname="device.types isUserDevice returns false for missing or wrong typed properties" name="device.types isUserDevice returns false for missing or wrong typed properties" time="0.001">
+    </testcase>
+  </testsuite>
+  <testsuite name="WorkspaceStateService" errors="0" failures="0" skipped="0" timestamp="2026-01-12T07:33:56" time="0.058" tests="4">
+    <testcase classname="WorkspaceStateService initial signals are null and can be set" name="WorkspaceStateService initial signals are null and can be set" time="0.003">
+    </testcase>
+    <testcase classname="WorkspaceStateService emits noteCreated and foldersChanged" name="WorkspaceStateService emits noteCreated and foldersChanged" time="0.001">
+    </testcase>
+    <testcase classname="WorkspaceStateService emitNoteSelected sets selectedNoteId and emits" name="WorkspaceStateService emitNoteSelected sets selectedNoteId and emits" time="0.001">
+    </testcase>
+    <testcase classname="WorkspaceStateService drive file selection emits" name="WorkspaceStateService drive file selection emits" time="0.001">
+    </testcase>
+  </testsuite>
+  <testsuite name="loadingInterceptor" errors="0" failures="0" skipped="0" timestamp="2026-01-12T07:33:56" time="0.059" tests="2">
+    <testcase classname="loadingInterceptor starts and stops loading on success" name="loadingInterceptor starts and stops loading on success" time="0.002">
+    </testcase>
+    <testcase classname="loadingInterceptor stops loading on error" name="loadingInterceptor stops loading on error" time="0.001">
+    </testcase>
+  </testsuite>
+  <testsuite name="FileSizeDirective" errors="0" failures="0" skipped="0" timestamp="2026-01-12T07:33:56" time="0.064" tests="3">
+    <testcase classname="FileSizeDirective displays Unknown size for undefined" name="FileSizeDirective displays Unknown size for undefined" time="0.007">
+    </testcase>
+    <testcase classname="FileSizeDirective formats bytes -&gt; KB and sets title" name="FileSizeDirective formats bytes -&gt; KB and sets title" time="0.002">
+    </testcase>
+    <testcase classname="FileSizeDirective handles string input and large units" name="FileSizeDirective handles string input and large units" time="0.003">
+    </testcase>
+  </testsuite>
+  <testsuite name="GoogleDriveIconPipe" errors="0" failures="0" skipped="0" timestamp="2026-01-12T07:33:57" time="0.052" tests="5">
+    <testcase classname="GoogleDriveIconPipe returns default for null" name="GoogleDriveIconPipe returns default for null" time="0.001">
+    </testcase>
+    <testcase classname="GoogleDriveIconPipe uses extension when available" name="GoogleDriveIconPipe uses extension when available" time="0">
+    </testcase>
+    <testcase classname="GoogleDriveIconPipe falls back to google mime types when name has no ext" name="GoogleDriveIconPipe falls back to google mime types when name has no ext" time="0">
+    </testcase>
+    <testcase classname="GoogleDriveIconPipe falls back to pdf and image mime checks when name has no ext" name="GoogleDriveIconPipe falls back to pdf and image mime checks when name has no ext" time="0">
+    </testcase>
+    <testcase classname="GoogleDriveIconPipe returns default fallback" name="GoogleDriveIconPipe returns default fallback" time="0">
+    </testcase>
+  </testsuite>
+  <testsuite name="app.routes" errors="0" failures="0" skipped="0" timestamp="2026-01-12T07:33:57" time="0.099" tests="6">
+    <testcase classname="app.routes exports an array of routes" name="app.routes exports an array of routes" time="0.001">
+    </testcase>
+    <testcase classname="app.routes contains a wildcard that redirects to dashboard" name="app.routes contains a wildcard that redirects to dashboard" time="0.003">
+    </testcase>
+    <testcase classname="app.routes contains expected top-level paths" name="app.routes contains expected top-level paths" time="0.001">
+    </testcase>
+    <testcase classname="app.routes dashboard route requires authGuard" name="app.routes dashboard route requires authGuard" time="0">
+    </testcase>
+    <testcase classname="app.routes share route has a title and loadComponent" name="app.routes share route has a title and loadComponent" time="0">
+    </testcase>
+    <testcase classname="app.routes top-level loadComponent functions resolve" name="app.routes top-level loadComponent functions resolve" time="0.029">
+    </testcase>
+  </testsuite>
+  <testsuite name="LogoutComponent" errors="0" failures="0" skipped="0" timestamp="2026-01-12T07:33:57" time="0.065" tests="2">
+    <testcase classname="LogoutComponent posts message to parent and redirects when no parent" name="LogoutComponent posts message to parent and redirects when no parent" time="0.008">
+    </testcase>
+    <testcase classname="LogoutComponent redirects when not in iframe" name="LogoutComponent redirects when not in iframe" time="0.002">
+    </testcase>
+  </testsuite>
+  <testsuite name="SocialLinksComponent" errors="0" failures="0" skipped="0" timestamp="2026-01-12T07:33:57" time="0.111" tests="2">
+    <testcase classname="SocialLinksComponent renders links when present" name="SocialLinksComponent renders links when present" time="0.013">
+    </testcase>
+    <testcase classname="SocialLinksComponent shows error state when fetch fails" name="SocialLinksComponent shows error state when fetch fails" time="0.049">
+    </testcase>
+  </testsuite>
+  <testsuite name="NotePropertiesModalComponent" errors="0" failures="0" skipped="0" timestamp="2026-01-12T07:33:57" time="0.074" tests="2">
+    <testcase classname="NotePropertiesModalComponent formats size and shows active status" name="NotePropertiesModalComponent formats size and shows active status" time="0.018">
+    </testcase>
+    <testcase classname="NotePropertiesModalComponent renders tags and status badges" name="NotePropertiesModalComponent renders tags and status badges" time="0.003">
+    </testcase>
+  </testsuite>
+  <testsuite name="GlobalSpinnerComponent" errors="0" failures="0" skipped="0" timestamp="2026-01-12T07:33:57" time="0.06" tests="2">
+    <testcase classname="GlobalSpinnerComponent shows spinner when loading" name="GlobalSpinnerComponent shows spinner when loading" time="0.01">
+    </testcase>
+    <testcase classname="GlobalSpinnerComponent hides spinner when not loading" name="GlobalSpinnerComponent hides spinner when not loading" time="0.002">
+    </testcase>
+  </testsuite>
+  <testsuite name="PropertiesModalComponent" errors="0" failures="0" skipped="0" timestamp="2026-01-12T07:33:57" time="0.068" tests="2">
+    <testcase classname="PropertiesModalComponent renders title and emits close" name="PropertiesModalComponent renders title and emits close" time="0.014">
+    </testcase>
+    <testcase classname="PropertiesModalComponent shows no properties message when empty" name="PropertiesModalComponent shows no properties message when empty" time="0.004">
+    </testcase>
+  </testsuite>
+  <testsuite name="DropdownComponent" errors="0" failures="0" skipped="0" timestamp="2026-01-12T07:33:57" time="0.091" tests="1">
+    <testcase classname="DropdownComponent toggles open on trigger click and closes on menu item click" name="DropdownComponent toggles open on trigger click and closes on menu item click" time="0.024">
+    </testcase>
+  </testsuite>
+  <testsuite name="ToastService" errors="0" failures="0" skipped="0" timestamp="2026-01-12T07:33:57" time="0.057" tests="3">
+    <testcase classname="ToastService show adds a toast and remove deletes it" name="ToastService show adds a toast and remove deletes it" time="0.003">
+    </testcase>
+    <testcase classname="ToastService auto removes toast after duration" name="ToastService auto removes toast after duration" time="0.001">
+    </testcase>
+    <testcase classname="ToastService helper methods call show with correct type" name="ToastService helper methods call show with correct type" time="0.005">
+    </testcase>
+  </testsuite>
+  <testsuite name="ActivityLogComponent" errors="0" failures="0" skipped="0" timestamp="2026-01-12T07:33:57" time="0.1" tests="1">
+    <testcase classname="ActivityLogComponent loads logs on init" name="ActivityLogComponent loads logs on init" time="0.027">
+    </testcase>
+  </testsuite>
+  <testsuite name="ToastContainerComponent" errors="0" failures="0" skipped="0" timestamp="2026-01-12T07:33:57" time="0.067" tests="1">
+    <testcase classname="ToastContainerComponent renders toasts and dismiss works" name="ToastContainerComponent renders toasts and dismiss works" time="0.016">
+    </testcase>
+  </testsuite>
+  <testsuite name="authInterceptor" errors="0" failures="0" skipped="0" timestamp="2026-01-12T07:33:57" time="0.056" tests="2">
+    <testcase classname="authInterceptor lets Supabase URLs pass through unchanged" name="authInterceptor lets Supabase URLs pass through unchanged" time="0.001">
+    </testcase>
+    <testcase classname="authInterceptor passes through non-Supabase requests" name="authInterceptor passes through non-Supabase requests" time="0.002">
+    </testcase>
+  </testsuite>
+  <testsuite name="App" errors="0" failures="0" skipped="0" timestamp="2026-01-12T07:33:57" time="0.068" tests="2">
+    <testcase classname="App should create the app" name="App should create the app" time="0.004">
+    </testcase>
+    <testcase classname="App renders router outlet" name="App renders router outlet" time="0.001">
+    </testcase>
+  </testsuite>
+  <testsuite name="OneDriveCallbackComponent" errors="0" failures="0" skipped="0" timestamp="2026-01-12T07:33:58" time="0.062" tests="1">
+    <testcase classname="OneDriveCallbackComponent posts message to opener with access token and closes window" name="OneDriveCallbackComponent posts message to opener with access token and closes window" time="0.009">
+    </testcase>
+  </testsuite>
+  <testsuite name="LogoComponent" errors="0" failures="0" skipped="0" timestamp="2026-01-12T07:33:58" time="0.068" tests="2">
+    <testcase classname="LogoComponent renders label and non-clickable by default" name="LogoComponent renders label and non-clickable by default" time="0.008">
+    </testcase>
+    <testcase classname="LogoComponent renders anchor when isClickable is true" name="LogoComponent renders anchor when isClickable is true" time="0.002">
+    </testcase>
+  </testsuite>
+  <testsuite name="FolderNameModalComponent" errors="0" failures="0" skipped="0" timestamp="2026-01-12T07:33:58" time="0.065" tests="2">
+    <testcase classname="FolderNameModalComponent emits cancel" name="FolderNameModalComponent emits cancel" time="0.012">
+    </testcase>
+    <testcase classname="FolderNameModalComponent validate and submit" name="FolderNameModalComponent validate and submit" time="0.002">
+    </testcase>
+  </testsuite>
+  <testsuite name="LoadingService" errors="0" failures="0" skipped="0" timestamp="2026-01-12T07:33:58" time="0.053" tests="3">
+    <testcase classname="LoadingService start and stop toggle isLoading correctly" name="LoadingService start and stop toggle isLoading correctly" time="0.002">
+    </testcase>
+    <testcase classname="LoadingService stop does not go below zero" name="LoadingService stop does not go below zero" time="0.001">
+    </testcase>
+    <testcase classname="LoadingService withLoading wraps promise and toggles loading" name="LoadingService withLoading wraps promise and toggles loading" time="0.001">
+    </testcase>
+  </testsuite>
+  <testsuite name="ChangelogPageComponent" errors="0" failures="0" skipped="0" timestamp="2026-01-12T07:33:58" time="0.079" tests="1">
+    <testcase classname="ChangelogPageComponent loads and renders changelogs" name="ChangelogPageComponent loads and renders changelogs" time="0.017">
+    </testcase>
+  </testsuite>
+  <testsuite name="dashboard.routes" errors="0" failures="0" skipped="0" timestamp="2026-01-12T07:33:58" time="0.142" tests="3">
+    <testcase classname="dashboard.routes exports default routes" name="dashboard.routes exports default routes" time="0.001">
+    </testcase>
+    <testcase classname="dashboard.routes contains activity-log child route" name="dashboard.routes contains activity-log child route" time="0.001">
+    </testcase>
+    <testcase classname="dashboard.routes loadComponent functions resolve for dashboard routes and children" name="dashboard.routes loadComponent functions resolve for dashboard routes and children" time="0.085">
+    </testcase>
+  </testsuite>
+  <testsuite name="IconComponent" errors="0" failures="0" skipped="0" timestamp="2026-01-12T07:33:58" time="0.066" tests="2">
+    <testcase classname="IconComponent renders default icon text when unknown" name="IconComponent renders default icon text when unknown" time="0.011">
+    </testcase>
+    <testcase classname="IconComponent applies size attribute and renders svg for google-drive" name="IconComponent applies size attribute and renders svg for google-drive" time="0.002">
+    </testcase>
+  </testsuite>
+  <testsuite name="ConfirmModalComponent" errors="0" failures="0" skipped="0" timestamp="2026-01-12T07:33:58" time="0.074" tests="1">
+    <testcase classname="ConfirmModalComponent renders title/message and emits events" name="ConfirmModalComponent renders title/message and emits events" time="0.012">
+    </testcase>
+  </testsuite>
+  <testsuite name="AboutMeModalComponent" errors="0" failures="0" skipped="0" timestamp="2026-01-12T07:33:58" time="0.067" tests="1">
+    <testcase classname="AboutMeModalComponent renders About Us header and emits close" name="AboutMeModalComponent renders About Us header and emits close" time="0.017">
+    </testcase>
+  </testsuite>
+  <testsuite name="auth.routes" errors="0" failures="0" skipped="0" timestamp="2026-01-12T07:33:58" time="0.092" tests="3">
+    <testcase classname="auth.routes exports an array of routes" name="auth.routes exports an array of routes" time="0.001">
+    </testcase>
+    <testcase classname="auth.routes contains a signin route" name="auth.routes contains a signin route" time="0.001">
+    </testcase>
+    <testcase classname="auth.routes loadComponent functions resolve to components" name="auth.routes loadComponent functions resolve to components" time="0.035">
+    </testcase>
+  </testsuite>
+  <testsuite name="ConfirmEmailComponent" errors="0" failures="0" skipped="0" timestamp="2026-01-12T07:33:58" time="0.065" tests="1">
+    <testcase classname="ConfirmEmailComponent displays provided email" name="ConfirmEmailComponent displays provided email" time="0.01">
+    </testcase>
+  </testsuite>
+  <testsuite name="folders.routes" errors="0" failures="0" skipped="0" timestamp="2026-01-12T07:33:58" time="0.059" tests="3">
+    <testcase classname="folders.routes exports routes for folders" name="folders.routes exports routes for folders" time="0.001">
+    </testcase>
+    <testcase classname="folders.routes contains both index and :id routes" name="folders.routes contains both index and :id routes" time="0.001">
+    </testcase>
+    <testcase classname="folders.routes loadComponent functions resolve for folder routes" name="folders.routes loadComponent functions resolve for folder routes" time="0.004">
+    </testcase>
+  </testsuite>
+  <testsuite name="changelogRoutes" errors="0" failures="0" skipped="0" timestamp="2026-01-12T07:33:59" time="0.06" tests="1">
+    <testcase classname="changelogRoutes exports an array with a route that loads ChangelogPageComponent" name="changelogRoutes exports an array with a route that loads ChangelogPageComponent" time="0.009">
+    </testcase>
+  </testsuite>
+  <testsuite name="notes.routes" errors="0" failures="0" skipped="0" timestamp="2026-01-12T07:33:59" time="0.09" tests="3">
+    <testcase classname="notes.routes exports notes routes" name="notes.routes exports notes routes" time="0.001">
+    </testcase>
+    <testcase classname="notes.routes contains new and :id routes" name="notes.routes contains new and :id routes" time="0.002">
+    </testcase>
+    <testcase classname="notes.routes loadComponent functions resolve for notes routes" name="notes.routes loadComponent functions resolve for notes routes" time="0.02">
+    </testcase>
+  </testsuite>
+  <testsuite name="ResetPasswordComponent" errors="0" failures="0" skipped="0" timestamp="2026-01-12T07:33:59" time="0.065" tests="1">
+    <testcase classname="ResetPasswordComponent shows a heading and link" name="ResetPasswordComponent shows a heading and link" time="0.01">
+    </testcase>
+  </testsuite>
+  <testsuite name="NoteIconPipe" errors="0" failures="0" skipped="0" timestamp="2026-01-12T07:33:59" time="0.052" tests="3">
+    <testcase classname="NoteIconPipe returns default for null" name="NoteIconPipe returns default for null" time="0.001">
+    </testcase>
+    <testcase classname="NoteIconPipe returns file icon for storage paths" name="NoteIconPipe returns file icon for storage paths" time="0">
+    </testcase>
+    <testcase classname="NoteIconPipe returns markdown icon for plain notes" name="NoteIconPipe returns markdown icon for plain notes" time="0">
+    </testcase>
+  </testsuite>
+  <testsuite name="NoteListComponent" errors="0" failures="0" skipped="0" timestamp="2026-01-12T07:33:59" time="0.063" tests="1">
+    <testcase classname="NoteListComponent renders header and create link" name="NoteListComponent renders header and create link" time="0.009">
+    </testcase>
+  </testsuite>
+  <testsuite name="appConfig" errors="0" failures="0" skipped="0" timestamp="2026-01-12T07:33:59" time="0.104" tests="2">
+    <testcase classname="appConfig exports a providers array" name="appConfig exports a providers array" time="0.001">
+    </testcase>
+    <testcase classname="appConfig contains provider-like entries (router/http/animations)" name="appConfig contains provider-like entries (router/http/animations)" time="0.003">
+    </testcase>
+  </testsuite>
+  <testsuite name="HomeComponent" errors="0" failures="0" skipped="0" timestamp="2026-01-12T07:33:59" time="0.089" tests="1">
+    <testcase classname="HomeComponent renders and includes router link" name="HomeComponent renders and includes router link" time="0.032">
+    </testcase>
+  </testsuite>
+  <testsuite name="home.routes" errors="0" failures="0" skipped="0" timestamp="2026-01-12T07:33:59" time="0.064" tests="2">
+    <testcase classname="home.routes exports homeRoutes" name="home.routes exports homeRoutes" time="0.001">
+    </testcase>
+    <testcase classname="home.routes loadComponent functions resolve for home routes" name="home.routes loadComponent functions resolve for home routes" time="0.01">
+    </testcase>
+  </testsuite>
+  <testsuite name="PrivacyComponent" errors="0" failures="0" skipped="0" timestamp="2026-01-12T07:33:59" time="0.093" tests="1">
+    <testcase classname="PrivacyComponent renders" name="PrivacyComponent renders" time="0.036">
+    </testcase>
+  </testsuite>
+  <testsuite name="TermsComponent" errors="0" failures="0" skipped="0" timestamp="2026-01-12T07:33:59" time="0.081" tests="1">
+    <testcase classname="TermsComponent renders" name="TermsComponent renders" time="0.026">
+    </testcase>
+  </testsuite>
+  <testsuite name="FolderListComponent" errors="0" failures="0" skipped="0" timestamp="2026-01-12T07:33:59" time="0.056" tests="1">
+    <testcase classname="FolderListComponent renders title" name="FolderListComponent renders title" time="0.007">
+    </testcase>
+  </testsuite>
+  <testsuite name="NoteDetailComponent" errors="0" failures="0" skipped="0" timestamp="2026-01-12T07:33:59" time="0.057" tests="1">
+    <testcase classname="NoteDetailComponent renders heading" name="NoteDetailComponent renders heading" time="0.008">
+    </testcase>
+  </testsuite>
+</testsuites>
