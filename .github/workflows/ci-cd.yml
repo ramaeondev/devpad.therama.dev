@@ -8,19 +8,143 @@ on:
   push:
     branches:
       - master
+  pull_request:
+    branches:
+      - master
   workflow_dispatch: 
 
 jobs:
+  unit-tests:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      checks: write
+      pull-requests: write
+    steps:
+      - uses: actions/checkout@v4
+      - name: Use Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+      - name: Install dependencies
+        run: npm ci
+      - name: Run unit tests (coverage + JUnit)
+        env:
+          JEST_JUNIT_OUTPUT_DIR: test-results
+          JEST_JUNIT_OUTPUT_NAME: junit.xml
+        run: |
+          mkdir -p test-results
+          npm run test:coverage -- --runInBand --reporters=default --reporters=jest-junit
+
+      - name: Publish test report (Checks summary)
+        if: always()
+        uses: dorny/test-reporter@v1
+        with:
+          name: "Unit Tests"
+          path: test-results/junit.xml
+          reporter: jest-junit
+          fail-on-error: false
+
+      - name: Upload test result artifact (junit)
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: unit-test-junit
+          path: test-results/junit.xml
+
+      - name: Upload coverage HTML
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: unit-test-coverage
+          path: coverage/lcov-report
+          retention-days: 7
+
+      - name: Generate HTML JUnit report
+        if: always()
+        run: |
+          if [ -f test-results/junit.xml ]; then
+            python -m pip install --upgrade junit2html
+            junit2html test-results/junit.xml test-results/junit-report.html
+          else
+            echo "No junit xml found, skipping HTML report generation"
+          fi
+
+      - name: Upload JUnit HTML report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: unit-test-junit-html
+          path: test-results/junit-report.html
+          retention-days: 7
+
+      - name: Parse JUnit XML to outputs
+        id: parse_junit
+        if: always()
+        run: |
+          python3 <<'EOF'
+          import xml.etree.ElementTree as ET
+          import os
+          import sys
+          
+          if not os.path.exists('test-results/junit.xml'):
+              with open(os.environ['GITHUB_OUTPUT'], 'a') as fh:
+                  fh.write("tests=0\n")
+                  fh.write("failures=0\n")
+                  fh.write("errors=0\n")
+                  fh.write("skipped=0\n")
+                  fh.write("time=0\n")
+              sys.exit(0)
+          
+          root = ET.parse('test-results/junit.xml').getroot()
+          if root.tag == 'testsuite':
+              testsuites = [root]
+          else:
+              testsuites = list(root.findall('testsuite'))
+          
+          tests = sum(int(ts.attrib.get('tests', 0)) for ts in testsuites)
+          failures = sum(int(ts.attrib.get('failures', 0)) for ts in testsuites)
+          errors = sum(int(ts.attrib.get('errors', 0)) for ts in testsuites)
+          skipped = sum(int(ts.attrib.get('skipped', ts.attrib.get('skips', 0))) for ts in testsuites)
+          time = sum(float(ts.attrib.get('time', 0)) for ts in testsuites)
+          
+          with open(os.environ['GITHUB_OUTPUT'], 'a') as fh:
+              fh.write(f"tests={tests}\n")
+              fh.write(f"failures={failures}\n")
+              fh.write(f"errors={errors}\n")
+              fh.write(f"skipped={skipped}\n")
+              fh.write(f"time={time}\n")
+          EOF
+
+      - name: Post unit test summary as PR comment
+        if: "always() && github.event_name == 'pull_request'"
+        uses: peter-evans/create-or-update-comment@71345be0265236311c031f5c7866368bd1eff043 # v4.0.0
+        with:
+          issue-number: ${{ github.event.pull_request.number }}
+          body: |
+            **Unit Test Report**
+
+            - **Tests:** ${{ steps.parse_junit.outputs.tests }}
+            - **Failures:** ${{ steps.parse_junit.outputs.failures }}
+            - **Errors:** ${{ steps.parse_junit.outputs.errors }}
+            - **Skipped:** ${{ steps.parse_junit.outputs.skipped }}
+            - **Total time (s):** ${{ steps.parse_junit.outputs.time }}
+
+            Artifacts:
+            - JUnit XML: `unit-test-junit`
+            - JUnit HTML: `unit-test-junit-html`
+            - Coverage HTML: `unit-test-coverage`
+
   Deploy-Production:
+    needs: unit-tests
+    if: github.event_name == 'push' && github.ref == 'refs/heads/master'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      
       - name: Install Vercel CLI
         run: npm install --global vercel@latest
-        
       - name: Pull Vercel Environment Information
         run: vercel pull --yes --environment=production --token=${{ secrets.VERCEL_TOKEN }}
-        
       - name: Deploy to Vercel
         run: vercel --prod --token=${{ secrets.VERCEL_TOKEN }}

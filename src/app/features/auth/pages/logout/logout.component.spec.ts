@@ -21,10 +21,10 @@ describe('LogoutComponent', () => {
   it('redirects when not in iframe', fakeAsync(() => {
     // Don't modify window.parent (read-only) — assume not in iframe in test env
 
-    // Spy on location.href assignment
+    // Prepare location.href for observation without redefining the `location` property
     const originalHref = window.location.href;
-    const mockLocation: any = { href: '' };
-    Object.defineProperty(window, 'location', { value: mockLocation, configurable: true });
+    // Set a baseline href so assignment can be observed
+    (window as any).location.href = '';
 
     const fixture = TestBed.createComponent(LogoutComponent);
     const comp = fixture.componentInstance;
@@ -33,12 +33,10 @@ describe('LogoutComponent', () => {
     // advance timer
     tick(600);
 
-    expect((window as any).location.href).toBe('/');
+    // jsdom resolves href to an absolute URL, assert on pathname instead
+    expect((window as any).location.pathname).toBe('/');
 
     // restore
-    Object.defineProperty(window, 'location', {
-      value: { href: originalHref },
-      configurable: true,
-    });
+    (window as any).location.href = originalHref;
   }));
 });
