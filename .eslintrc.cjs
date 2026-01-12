@@ -16,7 +16,7 @@ module.exports = {
   ],
   rules: {
     // Add repository specific overrides here
-    '@typescript-eslint/no-unused-vars': ['error', { 'argsIgnorePattern': '^_' }]
+    '@typescript-eslint/no-unused-vars': ['error', { argsIgnorePattern: '^_' }]
   },
   overrides: [
     {
@@ -30,4 +30,4 @@ module.exports = {
       env: { jest: true }
     }
   ]
-};
+}
