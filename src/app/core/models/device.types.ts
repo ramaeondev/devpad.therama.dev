@@ -212,12 +212,12 @@ export const isValidDeviceType = (type: string): type is 'mobile' | 'tablet' | '
 };
 
 export const isUserDevice = (obj: any): obj is UserDevice => {
-    return !!(
-        obj &&
-        typeof obj.id === 'string' &&
-        typeof obj.user_id === 'string' &&
-        typeof obj.fingerprint_id === 'string' &&
-        typeof obj.is_trusted === 'boolean' &&
-        typeof obj.is_current === 'boolean'
-    );
+  return !!(
+    obj &&
+    typeof obj.id === 'string' &&
+    typeof obj.user_id === 'string' &&
+    typeof obj.fingerprint_id === 'string' &&
+    typeof obj.is_trusted === 'boolean' &&
+    typeof obj.is_current === 'boolean'
+  );
 };
