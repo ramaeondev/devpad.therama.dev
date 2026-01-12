@@ -161,8 +161,24 @@ jobs:
           cache: 'npm'
       - name: Install dependencies
         run: npm ci
-      - name: Run ESLint
-        run: npm run lint
+      - name: Run ESLint (changed files on PRs, full lint on push)
+        run: |
+          set -euo pipefail
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            echo "Fetching base branch ${GITHUB_BASE_REF}"
+            git fetch origin "${GITHUB_BASE_REF}" || true
+            CHANGED_FILES=$(git diff --name-only origin/${GITHUB_BASE_REF}...HEAD | grep -E '\.(ts|html)$' || true)
+            if [ -z "${CHANGED_FILES}" ]; then
+              echo "No TS/HTML changes detected, skipping ESLint"
+              exit 0
+            fi
+            echo "Linting changed files:"
+            echo "${CHANGED_FILES}"
+            echo "${CHANGED_FILES}" | xargs npx eslint --max-warnings=0 --ext .ts,.html
+          else
+            echo "Running full ESLint"
+            npx eslint "src/**/*.{ts,html}" --ext .ts,.html --max-warnings=0
+          fi
 
   Deploy-Production:
     needs: [unit-tests, build, lint]
