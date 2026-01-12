@@ -20,5 +20,9 @@
   ],
   "[typescript]": {
     "editor.defaultFormatter": "denoland.vscode-deno"
+  },
+  "sonarlint.connectedMode.project": {
+    "connectionId": "ramaeondev",
+    "projectKey": "ramaeondev_devpad.therama.dev"
   }
 }
