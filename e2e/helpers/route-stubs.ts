@@ -34,6 +34,8 @@ export async function stubAuthSession(page: Page, user = { id: 'u1', email: 'e2e
     user: user,
   };
   await page.addInitScript((s) => {
+    // Persist supabase token and also expose test user object for auth bypass
     localStorage.setItem('sb-auth-token', s);
+    (window as any).__E2E_USER = JSON.parse(s).user;
   }, JSON.stringify(sessionObject));
 }

@@ -1,4 +1,5 @@
 import { test, expect } from '@playwright/test';
+import { PublicNotePO } from '../page-objects/public-note.po';
 
 test('public shared note loads and displays content', async ({ page }) => {
   // Log requests and errors for debugging
@@ -10,26 +11,26 @@ test('public shared note loads and displays content', async ({ page }) => {
 
   // Stub public_shares query
   await page.route('**/rest/v1/public_shares*', async (route) => {
-    console.log('[E2E STUB] public_shares matched for', route.request().url());
     await route.fulfill({
       status: 200,
       contentType: 'application/json',
-      body: JSON.stringify({
-        id: 'share-1',
-        user_id: 'u1',
-        note_id: 'note-1',
-        share_token: 'token123',
-        permission: 'readonly',
-        view_count: 1,
-        unique_view_count: 1,
-        note_title: 'Public Note Title'
-      }),
+      body: JSON.stringify([
+        {
+          id: 'share-1',
+          user_id: 'u1',
+          note_id: 'note-1',
+          share_token: 'token123',
+          permission: 'readonly',
+          view_count: 1,
+          unique_view_count: 1,
+          note_title: 'Public Note Title'
+        }
+      ]),
     });
   });
 
   // Stub RPC get_shared_note
   await page.route('**/rpc/get_shared_note*', async (route) => {
-    console.log('[E2E STUB] rpc get_shared_note matched for', route.request().url());
     await route.fulfill({
       status: 200,
       contentType: 'application/json',
@@ -39,12 +40,10 @@ test('public shared note loads and displays content', async ({ page }) => {
     });
   });
 
-  await page.goto('/share/token123');
+  const publicNote = new PublicNotePO(page);
+  await publicNote.goto('token123');
 
-  // Debug: dump body text for visibility
-  const bodyText = await page.textContent('body');
-  console.log('[E2E BODY]', bodyText?.substring(0, 1000));
-
-  await expect(page.locator('text=Public Note Title')).toBeVisible();
-  await expect(page.locator('text=Hello public')).toBeVisible();
+  await expect(publicNote.title()).toBeVisible({ timeout: 10000 });
+  await expect(publicNote.title()).toHaveText('Public Note Title', { timeout: 10000 });
+  await expect(publicNote.content()).toContainText('Hello public', { timeout: 10000 });
 });

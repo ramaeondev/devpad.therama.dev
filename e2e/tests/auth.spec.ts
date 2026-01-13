@@ -1,14 +1,15 @@
 import { test, expect } from '@playwright/test';
 import { stubAuthSession } from '../helpers/route-stubs';
+import { DashboardPO } from '../page-objects/dashboard.po';
 
-test.skip('dashboard accessible when session present and shows sign out', async ({ page }) => {
+test('dashboard accessible when session present and shows sign out', async ({ page }) => {
   await stubAuthSession(page);
+  const dash = new DashboardPO(page);
 
-  await page.goto('/dashboard');
-
-  // Wait for dashboard home to be visible, then open profile dropdown to reveal the Sign out button
-  await expect(page.locator('text=Welcome to DevPad')).toBeVisible({ timeout: 10000 });
-  await page.click('#user-menu-button');
-  const signOut = page.locator('text=Sign out');
-  await expect(signOut).toBeVisible();
+  await dash.goto();
+  // Wait for the URL and user menu to be present, then open profile dropdown to reveal the Sign out button
+  await page.waitForURL('**/dashboard**', { timeout: 10000 });
+  await expect(page.locator('[data-ats-id="user-menu-button"]')).toBeVisible({ timeout: 10000 });
+  await dash.openUserMenu();
+  await expect(dash.signOutLocator()).toBeVisible({ timeout: 10000 });
 });

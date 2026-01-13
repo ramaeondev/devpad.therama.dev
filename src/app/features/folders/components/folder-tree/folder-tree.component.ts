@@ -185,6 +185,7 @@ import { NoteIconPipe } from '../../../../shared/pipes/note-icon.pipe';
               @for (note of folder.notes; track note.id) {
                 <li
                   class="note-row flex items-center gap-2 px-2 py-1 rounded cursor-default text-xs hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+                  [attr.data-ats-id]="'folder-note-' + note.id"
                   [class.bg-gray-200]="workspaceState.selectedNoteId() === note.id"
                   [class.dark:bg-gray-600]="workspaceState.selectedNoteId() === note.id"
                   [class.opacity-50]="draggedNoteId() === note.id"

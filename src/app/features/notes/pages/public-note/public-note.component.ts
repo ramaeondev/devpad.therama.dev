@@ -84,7 +84,7 @@ import { LogoComponent } from '../../../../shared/components/ui/logo/logo.compon
             <div class="flex items-center gap-3">
               <i class="fa-solid" [class.fa-file-edit]="canEdit()" [class.fa-file-alt]="!canEdit()" class="text-2xl text-primary-500"></i>
               <div>
-                <h1 class="text-xl font-semibold text-gray-900 dark:text-white">
+                <h1 data-ats-id="public-note-title" class="text-xl font-semibold text-gray-900 dark:text-white">
                   {{ noteTitle() }}
                 </h1>
                 <p class="text-sm text-gray-500 dark:text-gray-400">
@@ -164,7 +164,7 @@ import { LogoComponent } from '../../../../shared/components/ui/logo/logo.compon
           @if (canEdit()) {
             <!-- Editor Mode -->
             <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700">
-              <textarea
+              <textarea data-ats-id="public-note-editor-textarea"
                 [(ngModel)]="content"
                 (input)="onContentChange()"
                 class="w-full min-h-[600px] p-8 bg-transparent text-gray-900 dark:text-white focus:outline-none resize-none font-mono text-sm hidden-scrollbar"
@@ -182,7 +182,7 @@ import { LogoComponent } from '../../../../shared/components/ui/logo/logo.compon
             <!-- Viewer Mode (Rendered) -->
             <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-8">
               @if (content) {
-                <div class="prose dark:prose-invert max-w-none" [innerHTML]="renderedContent()"></div>
+                <div data-ats-id="public-note-content" class="prose dark:prose-invert max-w-none" [innerHTML]="renderedContent()"></div>
               } @else {
                 <p class="text-gray-500 dark:text-gray-400 italic">No content available</p>
               }
@@ -262,7 +262,12 @@ export class PublicNoteComponent implements OnInit, OnDestroy {
 
     // Initialize Supabase client to detect current session
     // This ensures isAuthenticated signal is updated before we check permissions
-    await this.supabase.getSession();
+    // Protect against Navigator Lock or other storage errors in test environments
+    try {
+      await this.supabase.getSession();
+    } catch (err) {
+      console.warn('supabase.getSession() failed (ignored in public share view):', err);
+    }
 
     try {
       const shareData = await this.shareService.getShareByToken(shareToken);

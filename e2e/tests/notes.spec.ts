@@ -1,5 +1,6 @@
 import { test, expect } from '@playwright/test';
 import { stubNotesWithList, stubAuthSession } from '../helpers/route-stubs';
+import { NotesPO } from '../page-objects/notes.po';
 
 const notesFixture = [
   {
@@ -11,15 +12,14 @@ const notesFixture = [
   },
 ];
 
-test.skip('notes list shows My Notes and items from API', async ({ page }) => {
+test('notes list shows My Notes and items from API', async ({ page }) => {
   await stubAuthSession(page);
   await stubNotesWithList(page, notesFixture as any);
 
-  // First ensure dashboard is accessible (session honored), then navigate to notes
-  await page.goto('/dashboard');
-  await expect(page.locator('text=Welcome to DevPad')).toBeVisible({ timeout: 10000 });
+  const notes = new NotesPO(page);
 
-  await page.goto('/notes');
-  await expect(page.locator('text=My Notes')).toBeVisible();
-  await expect(page.locator('text=E2E Test Note')).toBeVisible();
+  await notes.goto();
+  await page.waitForURL('**/notes**', { timeout: 10000 });
+  await expect(notes.title()).toBeVisible({ timeout: 10000 });
+  await expect(notes.noteByTitle('E2E Test Note')).toBeVisible({ timeout: 10000 });
 });

@@ -24,7 +24,7 @@
           <div>
             <button type="button" (click)="toggleDropdown()"
               class="flex max-w-xs items-center rounded-full bg-white dark:bg-gray-800 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 dark:focus:ring-offset-2 dark:focus:ring-offset-gray-800"
-              id="user-menu-button" aria-expanded="false" aria-haspopup="true" data-dropdown-trigger="true">
+              id="user-menu-button" data-ats-id="user-menu-button" aria-expanded="false" aria-haspopup="true" data-dropdown-trigger="true">
               <span class="sr-only">Open user menu</span>
               <app-avatar [avatarUrl]="avatarUrl()" [firstName]="firstName()" [lastName]="lastName()"
                 [email]="auth.userEmail()" [alt]="firstName() + ' ' + lastName()" size="sm"></app-avatar>
