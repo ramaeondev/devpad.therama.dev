@@ -14,6 +14,7 @@ When disconnecting OneDrive, the application only removed the token from the dat
 Updated the `disconnect()` method to perform a complete cleanup:
 
 **Before**:
+
 ```typescript
 async disconnect() {
   // Only deleted token from database
@@ -24,14 +25,15 @@ async disconnect() {
 ```
 
 **After**:
+
 ```typescript
 async disconnect() {
   // Step 1: Revoke Microsoft session (NEW!)
   await this.revokeMicrosoftSession();
-  
+
   // Step 2: Delete integration from database
   await this.supabase.from('integrations').delete().eq('id', integration.id);
-  
+
   // Step 3: Clear local state
   this.integration.set(null);
   this.isConnected.set(false);
@@ -51,14 +53,15 @@ Added new `revokeMicrosoftSession()` method that:
 5. **Cleanup**: Removes iframe after logout completes
 
 **Implementation**:
+
 ```typescript
 private async revokeMicrosoftSession(): Promise<void> {
   const logoutUrl = `${this.AUTHORITY}/oauth2/v2.0/logout?post_logout_redirect_uri=${encodeURIComponent(window.location.origin)}`;
-  
+
   const iframe = document.createElement('iframe');
   iframe.style.display = 'none';
   iframe.src = logoutUrl;
-  
+
   // Wait for logout to complete
   iframe.onload = () => {
     setTimeout(() => {
@@ -66,7 +69,7 @@ private async revokeMicrosoftSession(): Promise<void> {
       resolve();
     }, 1000);
   };
-  
+
   document.body.appendChild(iframe);
 }
 ```
@@ -76,6 +79,7 @@ private async revokeMicrosoftSession(): Promise<void> {
 Updated the `connect()` method to always show the account picker:
 
 **Added `prompt=select_account` parameter**:
+
 ```typescript
 async connect(forceAccountSelection: boolean = true) {
   const authUrl = this.buildAuthUrl(forceAccountSelection);
@@ -90,12 +94,12 @@ private buildAuthUrl(forceAccountSelection: boolean = true) {
     scope: this.SCOPES,
     response_mode: 'fragment',
   });
-  
+
   // Force account selection
   if (forceAccountSelection) {
     params.append('prompt', 'select_account');
   }
-  
+
   return `${this.AUTHORITY}/oauth2/v2.0/authorize?${params.toString()}`;
 }
 ```
@@ -154,14 +158,15 @@ Save to database and load files
 
 The `prompt` parameter controls the authentication experience:
 
-| Value | Behavior |
-|-------|----------|
-| `none` | No interaction, silent auth (fails if not logged in) |
-| `login` | Always show login screen |
-| `select_account` | Show account picker (our choice) |
-| `consent` | Show consent screen again |
+| Value            | Behavior                                             |
+| ---------------- | ---------------------------------------------------- |
+| `none`           | No interaction, silent auth (fails if not logged in) |
+| `login`          | Always show login screen                             |
+| `select_account` | Show account picker (our choice)                     |
+| `consent`        | Show consent screen again                            |
 
 We use `select_account` because it:
+
 - ✅ Shows all available accounts
 - ✅ Allows switching between accounts
 - ✅ Allows adding new accounts
@@ -171,25 +176,30 @@ We use `select_account` because it:
 ## Benefits
 
 ### 1. Account Switching
+
 Users can now:
+
 - Disconnect from one OneDrive account
 - Connect to a different OneDrive account
 - Switch between personal and business accounts
 - Use multiple accounts (one at a time)
 
 ### 2. Clean Session Management
+
 - No stale sessions in browser
 - No cached credentials
 - Fresh authentication each time
 - Better security
 
 ### 3. Better User Experience
+
 - Clear feedback on disconnect
 - Account picker always shown
 - No confusion about which account is connected
 - Easy to switch accounts
 
 ### 4. Improved Security
+
 - Sessions are properly revoked
 - No lingering access tokens
 - Clean logout process
@@ -198,6 +208,7 @@ Users can now:
 ## Testing
 
 ### Test Case 1: Basic Disconnect
+
 1. Connect OneDrive with Account A
 2. Verify files load
 3. Click "Disconnect OneDrive"
@@ -206,6 +217,7 @@ Users can now:
 6. Verify UI shows "not connected" state
 
 ### Test Case 2: Account Switching
+
 1. Connect OneDrive with Account A (e.g., personal@outlook.com)
 2. Verify files load correctly
 3. Click "Disconnect OneDrive"
@@ -216,6 +228,7 @@ Users can now:
 8. Verify files from Account B load
 
 ### Test Case 3: Same Account Reconnection
+
 1. Connect OneDrive with Account A
 2. Disconnect
 3. Reconnect
@@ -224,6 +237,7 @@ Users can now:
 6. Verify reconnection works smoothly
 
 ### Test Case 4: Session Revocation
+
 1. Connect OneDrive
 2. Open browser DevTools → Network tab
 3. Click "Disconnect OneDrive"
@@ -232,6 +246,7 @@ Users can now:
 6. Verify no errors in console
 
 ### Test Case 5: Multiple Accounts
+
 1. Have 2+ Microsoft accounts logged in to browser
 2. Connect OneDrive with Account A
 3. Disconnect
@@ -245,11 +260,13 @@ Users can now:
 ### Issue: Account picker doesn't show
 
 **Possible Causes**:
+
 - Browser is blocking the popup
 - `prompt` parameter not being added
 - Microsoft session still cached
 
 **Solutions**:
+
 1. Check browser console for popup blocker warnings
 2. Verify `forceAccountSelection` is true
 3. Clear browser cookies for `login.microsoftonline.com`
@@ -258,11 +275,13 @@ Users can now:
 ### Issue: Logout iframe fails
 
 **Possible Causes**:
+
 - Network issues
 - CORS restrictions
 - Ad blockers
 
 **Solutions**:
+
 1. Check browser console for errors
 2. Verify network connectivity
 3. Disable ad blockers temporarily
@@ -271,11 +290,13 @@ Users can now:
 ### Issue: Same account auto-selects
 
 **Possible Causes**:
+
 - Browser remembering last account
 - Microsoft "stay signed in" option
 - Cached credentials
 
 **Solutions**:
+
 1. User can still select different account from picker
 2. Clear browser cookies
 3. Use different browser/incognito mode
@@ -284,20 +305,24 @@ Users can now:
 ## Microsoft Logout Endpoint
 
 ### Endpoint
+
 ```
 https://login.microsoftonline.com/common/oauth2/v2.0/logout
 ```
 
 ### Parameters
+
 - `post_logout_redirect_uri`: Where to redirect after logout (our app origin)
 
 ### Behavior
+
 - Clears Microsoft session cookies
 - Revokes active sessions
 - Redirects to specified URI
 - Works across all Microsoft services
 
 ### Documentation
+
 [Microsoft Identity Platform Logout](https://learn.microsoft.com/en-us/azure/active-directory/develop/v2-protocols-oidc#send-a-sign-out-request)
 
 ## Code Changes Summary
@@ -355,6 +380,7 @@ https://login.microsoftonline.com/common/oauth2/v2.0/logout
 ## Conclusion
 
 The OneDrive disconnect functionality now properly:
+
 - ✅ Revokes Microsoft browser session
 - ✅ Clears all local state
 - ✅ Allows account switching

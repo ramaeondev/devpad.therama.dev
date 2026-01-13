@@ -12,27 +12,20 @@ import { UserService } from '../../../../core/services/user.service';
   standalone: true,
   imports: [CommonModule],
   template: `
-    <div
-      class="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900"
-    >
+    <div class="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900">
       <div class="text-center">
         @if (loading()) {
-          <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600 mx-auto"></div>
-          <p class="mt-4 text-gray-600 dark:text-gray-400">
-            Completing GitLab sign in...
-          </p>
+          <div
+            class="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600 mx-auto"
+          ></div>
+          <p class="mt-4 text-gray-600 dark:text-gray-400">Completing GitLab sign in...</p>
         }
         @if (error()) {
           <div class="max-w-md mx-auto p-6">
             <div class="rounded-md bg-red-50 dark:bg-red-900/20 p-4">
               <p class="text-sm text-red-800 dark:text-red-200">{{ error() }}</p>
             </div>
-            <button
-              (click)="goToSignIn()"
-              class="mt-4 btn btn-primary"
-            >
-              Return to Sign In
-            </button>
+            <button (click)="goToSignIn()" class="mt-4 btn btn-primary">Return to Sign In</button>
           </div>
         }
       </div>
@@ -56,17 +49,18 @@ export class GitLabCallbackComponent implements OnInit {
       // Check for error in URL first
       const searchParams = new URLSearchParams(window.location.search);
       const hashParams = new URLSearchParams(window.location.hash.substring(1));
-      
+
       const errorParam = searchParams.get('error') || hashParams.get('error');
-      const errorDescription = searchParams.get('error_description') || hashParams.get('error_description');
-      
+      const errorDescription =
+        searchParams.get('error_description') || hashParams.get('error_description');
+
       if (errorParam) {
         throw new Error(errorDescription || 'Authentication failed');
       }
 
       // Supabase automatically detects and processes the session from the URL hash
       // We just need to wait a moment for it to process, then get the session
-      await new Promise(resolve => setTimeout(resolve, 100));
+      await new Promise((resolve) => setTimeout(resolve, 100));
 
       // Use authDirect to get session after OAuth callback
       const { data, error } = await this.supabase.authDirect.getSession();
@@ -91,10 +85,10 @@ export class GitLabCallbackComponent implements OnInit {
           if (metadata) {
             const fullName = metadata['full_name'] || metadata['name'] || '';
             const avatarUrl = metadata['avatar_url'] || metadata['picture'] || '';
-            
+
             let firstName = '';
             let lastName = '';
-            
+
             if (fullName) {
               const parts = fullName.split(' ');
               firstName = parts[0];
@@ -104,7 +98,7 @@ export class GitLabCallbackComponent implements OnInit {
             await this.userService.upsertUserProfile(data.session.user.id, {
               first_name: firstName,
               last_name: lastName,
-              avatar_url: avatarUrl
+              avatar_url: avatarUrl,
             });
           }
         } catch (profileError) {
@@ -113,7 +107,7 @@ export class GitLabCallbackComponent implements OnInit {
         }
 
         this.toast.success('Successfully signed in with GitLab!');
-        
+
         // Retrieve returnUrl from localStorage
         const returnUrl = localStorage.getItem('auth_return_url');
         if (returnUrl) {

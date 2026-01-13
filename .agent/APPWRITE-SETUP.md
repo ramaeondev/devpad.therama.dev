@@ -1,11 +1,13 @@
 # Appwrite Integration Setup
 
 ## Overview
+
 DevPad now supports Appwrite as an additional backend service alongside Supabase. This integration provides access to Appwrite's database, storage, and authentication features.
 
 ## Installation
 
 Appwrite SDK is already installed:
+
 ```bash
 npm install appwrite
 ```
@@ -13,6 +15,7 @@ npm install appwrite
 ## Configuration
 
 ### 1. Set up Appwrite Project
+
 1. Go to [Appwrite Console](https://cloud.appwrite.io/)
 2. Create a new project or use an existing one
 3. Note your:
@@ -22,6 +25,7 @@ npm install appwrite
 ### 2. Configure Environment Variables
 
 Add to `.env`:
+
 ```env
 APPWRITE_ENDPOINT=https://cloud.appwrite.io/v1
 APPWRITE_PROJECT_ID=your-project-id
@@ -29,6 +33,7 @@ APPWRITE_API_KEY=your-api-key-or-jwt-token
 ```
 
 **Note about API Key:**
+
 - The API key is **optional** for client-side operations
 - Required only if you need server-side authentication or specific API operations
 - For user authentication, use `account.createEmailSession()` instead
@@ -56,6 +61,7 @@ To keep client usage secure and predictable:
   - `APPWRITE_MASTER_API_KEY`
 
 Example env for client retrievals:
+
 ```env
 APPWRITE_API=https://api-v2.therama.dev/v1
 APPWRITE_PROJECT_ID=your-project-id
@@ -63,6 +69,7 @@ APPWRITE_DB_READ_ONLY_API_KEY=your-read-only-key
 ```
 
 Server-side/setup script only:
+
 ```env
 APPWRITE_ENDPOINT=https://cloud.appwrite.io/v1
 APPWRITE_MASTER_API_KEY=your-master-key
@@ -83,6 +90,7 @@ export class MyComponent {
 ### Available Methods
 
 #### Authentication
+
 ```typescript
 // Get current session
 const user = await this.appwrite.getCurrentSession();
@@ -95,6 +103,7 @@ await this.appwrite.deleteSession();
 ```
 
 #### Database Operations
+
 ```typescript
 // List documents
 const docs = await this.appwrite.listDocuments('databaseId', 'collectionId');
@@ -105,12 +114,12 @@ const doc = await this.appwrite.getDocument('databaseId', 'collectionId', 'docum
 // Create document
 await this.appwrite.createDocument('databaseId', 'collectionId', 'unique()', {
   title: 'My Document',
-  content: 'Hello World'
+  content: 'Hello World',
 });
 
 // Update document
 await this.appwrite.updateDocument('databaseId', 'collectionId', 'documentId', {
-  title: 'Updated Title'
+  title: 'Updated Title',
 });
 
 // Delete document
@@ -118,6 +127,7 @@ await this.appwrite.deleteDocument('databaseId', 'collectionId', 'documentId');
 ```
 
 #### Storage Operations
+
 ```typescript
 // Upload file
 const file = new File(['content'], 'file.txt');
@@ -157,30 +167,30 @@ const client = this.appwrite.getClient();
    - Set permissions appropriately
 
 2. **In Your Code:**
+
 ```typescript
 // Create a note
 await this.appwrite.createDocument(
-  'main',           // databaseId
-  'notes',          // collectionId
-  'unique()',       // documentId (auto-generated)
+  'main', // databaseId
+  'notes', // collectionId
+  'unique()', // documentId (auto-generated)
   {
     title: 'My Note',
     content: 'Note content',
-    userId: currentUserId
-  }
+    userId: currentUserId,
+  },
 );
 
 // List user's notes
-const notes = await this.appwrite.listDocuments(
-  'main',
-  'notes',
-  [Query.equal('userId', currentUserId)]
-);
+const notes = await this.appwrite.listDocuments('main', 'notes', [
+  Query.equal('userId', currentUserId),
+]);
 ```
 
 ## Testing
 
 Check if Appwrite is configured:
+
 ```typescript
 if (this.appwrite.isConfigured()) {
   // Appwrite is ready to use

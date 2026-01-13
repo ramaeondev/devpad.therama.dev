@@ -9,6 +9,7 @@
 5. Run the query
 
 This will:
+
 - Create the `user_profiles` table
 - Add `is_root` column to existing `folders` table
 - Set up Row Level Security (RLS) policies
@@ -18,6 +19,7 @@ This will:
 ## Step 2: Verify Tables Exist
 
 Check that you have these tables:
+
 - `auth.users` (provided by Supabase)
 - `folders` (should already exist)
 - `user_profiles` (newly created)
@@ -25,6 +27,7 @@ Check that you have these tables:
 ## Step 3: Verify Folders Table Structure
 
 Your `folders` table should have:
+
 ```sql
 CREATE TABLE folders (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -70,6 +73,7 @@ CREATE POLICY "Users can delete their own folders"
 ## Step 5: Set Up Notes Table (if needed)
 
 Your `notes` table should reference folders:
+
 ```sql
 CREATE TABLE IF NOT EXISTS notes (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -108,36 +112,40 @@ CREATE POLICY "Users can delete their own notes"
 ## Step 6: Verify Environment Variables
 
 Update your `src/environments/environment.ts`:
+
 ```typescript
 export const environment = {
   production: false,
   supabase: {
     url: 'YOUR_SUPABASE_URL',
-    anonKey: 'YOUR_SUPABASE_ANON_KEY'
-  }
+    anonKey: 'YOUR_SUPABASE_ANON_KEY',
+  },
 };
 ```
 
 And `src/environments/environment.prod.ts`:
+
 ```typescript
 export const environment = {
   production: true,
   supabase: {
     url: 'YOUR_SUPABASE_URL',
-    anonKey: 'YOUR_SUPABASE_ANON_KEY'
-  }
+    anonKey: 'YOUR_SUPABASE_ANON_KEY',
+  },
 };
 ```
 
 ## Step 7: Test the Setup
 
 1. Clear any existing data (optional, for testing):
+
 ```sql
 DELETE FROM folders WHERE user_id = 'YOUR_TEST_USER_ID';
 DELETE FROM user_profiles WHERE user_id = 'YOUR_TEST_USER_ID';
 ```
 
 2. Start your Angular app:
+
 ```bash
 npm start
 ```
@@ -152,32 +160,33 @@ npm start
 ## Step 8: Verify Folder Tree Query
 
 Test folder tree retrieval:
+
 ```sql
 -- Get all folders for a user in hierarchical order
 WITH RECURSIVE folder_tree AS (
   -- Root folders
-  SELECT 
-    id, 
-    name, 
-    parent_id, 
-    user_id, 
+  SELECT
+    id,
+    name,
+    parent_id,
+    user_id,
     is_root,
     icon,
     color,
     0 as depth,
     ARRAY[name] as path
   FROM folders
-  WHERE user_id = 'YOUR_USER_ID' 
+  WHERE user_id = 'YOUR_USER_ID'
     AND parent_id IS NULL
-  
+
   UNION ALL
-  
+
   -- Child folders
-  SELECT 
-    f.id, 
-    f.name, 
-    f.parent_id, 
-    f.user_id, 
+  SELECT
+    f.id,
+    f.name,
+    f.parent_id,
+    f.user_id,
     f.is_root,
     f.icon,
     f.color,
@@ -193,36 +202,42 @@ ORDER BY path;
 ## Troubleshooting
 
 ### Issue: "permission denied for table folders"
+
 **Solution**: Check RLS policies are correctly set up
 
 ### Issue: "null value in column user_id violates not-null constraint"
+
 **Solution**: Ensure user is authenticated before creating folders
 
 ### Issue: Root folder created multiple times
-**Solution**: 
+
+**Solution**:
+
 1. Check `user_profiles.is_root_folder_created` flag
 2. Verify `getUserProfile()` in UserService works correctly
 3. Clear duplicate folders:
+
 ```sql
 -- Find duplicates
-SELECT user_id, COUNT(*) 
-FROM folders 
-WHERE is_root = true 
-GROUP BY user_id 
+SELECT user_id, COUNT(*)
+FROM folders
+WHERE is_root = true
+GROUP BY user_id
 HAVING COUNT(*) > 1;
 
 -- Keep only the oldest root folder per user
 DELETE FROM folders f1
 WHERE is_root = true
   AND EXISTS (
-    SELECT 1 FROM folders f2 
-    WHERE f2.user_id = f1.user_id 
-      AND f2.is_root = true 
+    SELECT 1 FROM folders f2
+    WHERE f2.user_id = f1.user_id
+      AND f2.is_root = true
       AND f2.created_at < f1.created_at
   );
 ```
 
 ### Issue: Cannot delete folder
+
 **Solution**: Check if it's a root folder - root folders cannot be deleted
 
 ## Additional Indexes (Optional for Performance)

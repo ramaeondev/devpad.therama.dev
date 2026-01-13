@@ -1,6 +1,7 @@
 # GitHub Secrets Setup for Appwrite
 
 ## ✅ Updated Files
+
 - `.github/workflows/ci-cd.yml` - Added Appwrite environment variables
 
 ## 📋 Required GitHub Secrets
@@ -8,12 +9,14 @@
 You need to add these secrets to your GitHub repository:
 
 ### Appwrite Secrets (Missing)
+
 1. `APPWRITE_API` - Your Appwrite endpoint URL
 2. `APPWRITE_PROJECT_ID` - Your Appwrite project ID
 3. `APPWRITE_DB_READ_ONLY_API_KEY` - Read-only API key for database access
 4. `APPWRITE_DATABASE_ID` - Your database ID (e.g., `devpad_main`)
 
 ### Existing Secrets (Should already be set)
+
 - `VERCEL_ORG_ID`
 - `VERCEL_PROJECT_ID`
 - `VERCEL_TOKEN`
@@ -46,21 +49,25 @@ You need to add these secrets to your GitHub repository:
 5. Add each secret:
 
 #### Add APPWRITE_API
+
 - **Name**: `APPWRITE_API`
 - **Secret**: Your Appwrite endpoint (e.g., `https://cloud.appwrite.io/v1`)
 - Click **Add secret**
 
 #### Add APPWRITE_PROJECT_ID
+
 - **Name**: `APPWRITE_PROJECT_ID`
 - **Secret**: Your project ID
 - Click **Add secret**
 
 #### Add APPWRITE_DB_READ_ONLY_API_KEY
+
 - **Name**: `APPWRITE_DB_READ_ONLY_API_KEY`
 - **Secret**: Your read-only API key
 - Click **Add secret**
 
 #### Add APPWRITE_DATABASE_ID
+
 - **Name**: `APPWRITE_DATABASE_ID`
 - **Secret**: Your database ID (e.g., `devpad_main`)
 - Click **Add secret**
@@ -68,6 +75,7 @@ You need to add these secrets to your GitHub repository:
 ### Step 3: Verify Secrets
 
 After adding, you should see all these secrets listed:
+
 - ✅ APPWRITE_API
 - ✅ APPWRITE_DATABASE_ID
 - ✅ APPWRITE_DB_READ_ONLY_API_KEY
@@ -99,6 +107,7 @@ This will trigger a new deployment with the Appwrite variables properly configur
 ## 🔍 Verify Deployment
 
 After the deployment completes:
+
 1. Go to your production site
 2. Open DevTools Console (F12)
 3. Check for Appwrite errors - they should be gone!
@@ -106,12 +115,12 @@ After the deployment completes:
 
 ## 📝 Quick Reference: Where to Find Values
 
-| Secret | Where to Find |
-|--------|---------------|
-| `APPWRITE_API` | Appwrite Console → Settings → API Endpoint |
-| `APPWRITE_PROJECT_ID` | Appwrite Console → Settings → Project ID |
-| `APPWRITE_DATABASE_ID` | Appwrite Console → Databases → Database ID |
-| `APPWRITE_DB_READ_ONLY_API_KEY` | Appwrite Console → Overview → API Keys |
+| Secret                          | Where to Find                              |
+| ------------------------------- | ------------------------------------------ |
+| `APPWRITE_API`                  | Appwrite Console → Settings → API Endpoint |
+| `APPWRITE_PROJECT_ID`           | Appwrite Console → Settings → Project ID   |
+| `APPWRITE_DATABASE_ID`          | Appwrite Console → Databases → Database ID |
+| `APPWRITE_DB_READ_ONLY_API_KEY` | Appwrite Console → Overview → API Keys     |
 
 ## 🛠️ Creating a Read-Only API Key (if needed)
 
@@ -119,7 +128,7 @@ After the deployment completes:
 2. Click **Overview** → **API Keys**
 3. Click **Create API Key**
 4. **Name**: `DevPad Read-Only`
-5. **Scopes**: 
+5. **Scopes**:
    - ✅ `databases.read`
    - ✅ `collections.read`
    - ✅ `documents.read`

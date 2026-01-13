@@ -49,12 +49,12 @@ import { FolderTree } from './core/models/folder.model';
         </div>
       }
     </div>
-  `
+  `,
 })
 export class MySidebarComponent implements OnInit {
   private folderService = inject(FolderService);
   private authState = inject(AuthStateService);
-  
+
   folders = signal<FolderTree[]>([]);
 
   async ngOnInit() {
@@ -78,9 +78,7 @@ import { AuthStateService } from './core/services/auth-state.service';
 
 @Component({
   selector: 'app-create-folder',
-  template: `
-    <button (click)="createFolder()">Create Folder</button>
-  `
+  template: ` <button (click)="createFolder()">Create Folder</button> `,
 })
 export class CreateFolderComponent {
   private folderService = inject(FolderService);
@@ -88,15 +86,15 @@ export class CreateFolderComponent {
 
   async createFolder() {
     const userId = this.authState.userId();
-    
+
     try {
       const newFolder = await this.folderService.createFolder(userId, {
         name: 'Work Projects',
         parent_id: null, // or a specific parent folder ID
         icon: '💼',
-        color: '#3B82F6'
+        color: '#3B82F6',
       });
-      
+
       console.log('Created folder:', newFolder);
     } catch (error) {
       console.error('Failed to create folder:', error);
@@ -110,7 +108,7 @@ export class CreateFolderComponent {
 ```typescript
 async createSubfolder(parentFolderId: string) {
   const userId = this.authState.userId();
-  
+
   try {
     const subfolder = await this.folderService.createFolder(userId, {
       name: 'Important',
@@ -118,7 +116,7 @@ async createSubfolder(parentFolderId: string) {
       icon: '⭐',
       color: '#F59E0B'
     });
-    
+
     console.log('Created subfolder:', subfolder);
   } catch (error) {
     console.error('Failed to create subfolder:', error);
@@ -131,14 +129,14 @@ async createSubfolder(parentFolderId: string) {
 ```typescript
 async renameFolder(folderId: string, newName: string) {
   const userId = this.authState.userId();
-  
+
   try {
     const updated = await this.folderService.updateFolder(folderId, userId, {
       name: newName,
       icon: '📝', // Optional: update icon
       color: '#10B981' // Optional: update color
     });
-    
+
     console.log('Updated folder:', updated);
   } catch (error) {
     console.error('Failed to update folder:', error);
@@ -151,12 +149,12 @@ async renameFolder(folderId: string, newName: string) {
 ```typescript
 async moveFolder(folderId: string, newParentId: string | null) {
   const userId = this.authState.userId();
-  
+
   try {
     const moved = await this.folderService.updateFolder(folderId, userId, {
       parent_id: newParentId
     });
-    
+
     console.log('Moved folder:', moved);
   } catch (error) {
     console.error('Failed to move folder:', error);
@@ -169,7 +167,7 @@ async moveFolder(folderId: string, newParentId: string | null) {
 ```typescript
 async deleteFolder(folderId: string) {
   const userId = this.authState.userId();
-  
+
   try {
     await this.folderService.deleteFolder(folderId, userId);
     console.log('Folder deleted successfully');
@@ -188,7 +186,7 @@ async deleteFolder(folderId: string) {
 ```typescript
 async getAllFolders() {
   const userId = this.authState.userId();
-  
+
   try {
     const folders = await this.folderService.getFolders(userId);
     console.log('All folders:', folders);
@@ -205,7 +203,7 @@ async getAllFolders() {
 ```typescript
 async getRootFolder() {
   const userId = this.authState.userId();
-  
+
   try {
     const root = await this.folderService.getRootFolder(userId);
     if (root) {
@@ -226,7 +224,7 @@ async getRootFolder() {
 ```typescript
 async getSubfolders(parentId: string) {
   const userId = this.authState.userId();
-  
+
   try {
     const children = await this.folderService.getChildFolders(parentId, userId);
     console.log('Subfolders:', children);
@@ -258,7 +256,7 @@ import { ToastService } from './core/services/toast.service';
   template: `
     <div class="folder-manager">
       <h2>Manage Folders</h2>
-      
+
       <!-- Create Folder Form -->
       <form [formGroup]="folderForm" (ngSubmit)="onSubmit()">
         <input formControlName="name" placeholder="Folder name" />
@@ -287,7 +285,7 @@ import { ToastService } from './core/services/toast.service';
         }
       </div>
     </div>
-  `
+  `,
 })
 export class FolderManagerComponent implements OnInit {
   private fb = inject(FormBuilder);
@@ -303,7 +301,7 @@ export class FolderManagerComponent implements OnInit {
   folderForm = this.fb.nonNullable.group({
     name: ['', Validators.required],
     icon: ['📁'],
-    parent_id: [null as string | null]
+    parent_id: [null as string | null],
   });
 
   async ngOnInit() {
@@ -312,11 +310,11 @@ export class FolderManagerComponent implements OnInit {
 
   async loadFolders() {
     const userId = this.authState.userId();
-    
+
     try {
       const tree = await this.folderService.getFolderTree(userId);
       this.folderTree.set(tree);
-      
+
       const all = await this.folderService.getFolders(userId);
       this.allFolders.set(all);
     } catch (error) {
@@ -334,13 +332,13 @@ export class FolderManagerComponent implements OnInit {
 
     try {
       const editing = this.editingFolder();
-      
+
       if (editing) {
         // Update existing folder
         await this.folderService.updateFolder(editing.id, userId, {
           name: formValue.name,
           icon: formValue.icon,
-          parent_id: formValue.parent_id
+          parent_id: formValue.parent_id,
         });
         this.toast.success('Folder updated');
       } else {
@@ -348,7 +346,7 @@ export class FolderManagerComponent implements OnInit {
         await this.folderService.createFolder(userId, {
           name: formValue.name,
           icon: formValue.icon,
-          parent_id: formValue.parent_id
+          parent_id: formValue.parent_id,
         });
         this.toast.success('Folder created');
       }
@@ -369,7 +367,7 @@ export class FolderManagerComponent implements OnInit {
     this.folderForm.patchValue({
       name: folder.name,
       icon: folder.icon || '📁',
-      parent_id: folder.parent_id
+      parent_id: folder.parent_id,
     });
   }
 
@@ -416,23 +414,20 @@ import { Note } from './core/models/note.model';
         <div>{{ note.title }}</div>
       }
     </div>
-  `
+  `,
 })
 export class NoteListComponent implements OnInit {
   private supabase = inject(SupabaseService);
   private authState = inject(AuthStateService);
-  
+
   notes = signal<Note[]>([]);
   selectedFolderName = signal<string>('All Notes');
 
   async loadNotesByFolder(folderId: string | null) {
     const userId = this.authState.userId();
-    
+
     try {
-      let query = this.supabase
-        .from('notes')
-        .select('*')
-        .eq('user_id', userId);
+      let query = this.supabase.from('notes').select('*').eq('user_id', userId);
 
       if (folderId) {
         query = query.eq('folder_id', folderId);
@@ -466,7 +461,7 @@ export class SomeComponent {
   async checkRootFolder() {
     const userId = this.authState.userId();
     const hasRoot = await this.userService.hasRootFolder(userId);
-    
+
     if (!hasRoot) {
       console.log('User needs root folder initialization');
     }
@@ -479,7 +474,7 @@ export class SomeComponent {
 ```typescript
 async getUserProfile() {
   const userId = this.authState.userId();
-  
+
   try {
     const profile = await this.userService.getUserProfile(userId);
     console.log('User profile:', profile);
@@ -497,7 +492,7 @@ import { ToastService } from './core/services/toast.service';
 
 async safeCreateFolder(name: string) {
   const userId = this.authState.userId();
-  
+
   if (!userId) {
     this.toast.error('Please sign in to create folders');
     return null;
@@ -508,12 +503,12 @@ async safeCreateFolder(name: string) {
       name,
       icon: '📁'
     });
-    
+
     this.toast.success(`Folder "${name}" created`);
     return folder;
   } catch (error: any) {
     console.error('Create folder error:', error);
-    
+
     if (error.code === '23505') {
       this.toast.error('A folder with this name already exists');
     } else if (error.code === '23503') {
@@ -521,7 +516,7 @@ async safeCreateFolder(name: string) {
     } else {
       this.toast.error('Failed to create folder');
     }
-    
+
     return null;
   }
 }

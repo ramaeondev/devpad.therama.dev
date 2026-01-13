@@ -80,23 +80,23 @@ export class NoteService {
       }
       // Use File which works well in browsers and keeps metadata
       const file = new File([contentStr], `${note.id}.md`, { type: 'text/markdown' });
-      console.log('[createNote] Uploading to storage:', { 
-        path, 
-        bucket: this.BUCKET, 
+      console.log('[createNote] Uploading to storage:', {
+        path,
+        bucket: this.BUCKET,
         size: file.size,
         isEncrypted,
-        userId 
+        userId,
       });
-      
+
       const { error: uploadErr } = await this.supabase.storage
         .from(this.BUCKET)
         .upload(path, file, { upsert: true, contentType: 'text/markdown' });
-      
+
       if (uploadErr) {
         console.error('[createNote] Storage upload failed:', uploadErr);
         throw uploadErr;
       }
-      
+
       console.log('[createNote] Upload successful, verifying...');
 
       // Verify upload succeeded and file is retrievable (helps catch permission/multipart issues)
@@ -104,7 +104,7 @@ export class NoteService {
       if (contentStr && contentStr.length > 0) {
         await this.verifyUpload(path);
       }
-      
+
       console.log('[createNote] Verification complete');
 
       // Step 3: update row to reference storage path (use storage:// scheme in content field)
@@ -123,7 +123,7 @@ export class NoteService {
         .select()
         .single();
       if (updateErr) throw updateErr;
-      
+
       // Log activity
       await this.activityLog.logActivity(userId, {
         action_type: ActivityAction.Create,
@@ -131,7 +131,7 @@ export class NoteService {
         resource_id: note.id,
         resource_name: dto.title,
       });
-      
+
       // Return the note with fetched content instead of storage path
       // This ensures the note editor has the actual content ready to display
       const finalNote = updated as Note;
@@ -172,7 +172,8 @@ export class NoteService {
 
       if (!cur.content || !cur.content.startsWith('storage://')) {
         // Previous rows stored raw content in DB; migrate that content (or dto.content if provided)
-        let migrateContent = dto.content !== undefined ? (dto.content as string) : (cur.content || '');
+        let migrateContent =
+          dto.content !== undefined ? (dto.content as string) : cur.content || '';
         let isEncrypted = false;
         // Only encrypt if note is not already marked as unencrypted (e.g., shared and decrypted)
         const shouldEncryptThisNote = cur.is_encrypted !== false && this.shouldEncrypt();
@@ -234,8 +235,6 @@ export class NoteService {
         }
       }
 
-      
-
       // Only include fields that are explicitly provided
       if (dto.title !== undefined) updatePayload.title = dto.title;
       if (dto.content !== undefined || !cur.content || !cur.content.startsWith('storage://')) {
@@ -254,7 +253,7 @@ export class NoteService {
         .select()
         .single();
       if (error) throw error;
-      
+
       // Log activity
       await this.activityLog.logActivity(userId, {
         action_type: ActivityAction.Update,
@@ -265,7 +264,7 @@ export class NoteService {
 
       // SINGLE SOURCE OF TRUTH: No longer syncing shares
       // All shares fetch note.content directly via RPC, so no separate sync needed
-      
+
       return data as Note;
     });
   }
@@ -279,14 +278,14 @@ export class NoteService {
         .eq('id', noteId)
         .eq('user_id', userId)
         .single();
-      
+
       const { error } = await this.supabase
         .from('notes')
         .delete()
         .eq('id', noteId)
         .eq('user_id', userId);
       if (error) throw error;
-      
+
       // Log activity
       const activity = await this.activityLog.logActivity(userId, {
         action_type: ActivityAction.Delete,
@@ -428,7 +427,10 @@ export class NoteService {
       }
       const { error: uploadErr } = await this.supabase.storage
         .from(this.BUCKET)
-        .upload(path, toUpload, { upsert: true, contentType: file.type || 'application/octet-stream' });
+        .upload(path, toUpload, {
+          upsert: true,
+          contentType: file.type || 'application/octet-stream',
+        });
       if (uploadErr) throw uploadErr;
 
       // Verify upload
@@ -450,7 +452,7 @@ export class NoteService {
         .select()
         .single();
       if (updateErr) throw updateErr;
-      
+
       // Log activity
       await this.activityLog.logActivity(userId, {
         action_type: ActivityAction.Upload,
@@ -462,7 +464,7 @@ export class NoteService {
           file_type: file.type,
         },
       });
-      
+
       return updated as Note;
     });
   }
@@ -491,7 +493,10 @@ export class NoteService {
     return blob;
   }
 
-  async getFileObjectUrl(noteId: string, userId: string): Promise<{ url: string; revoke: () => void }> {
+  async getFileObjectUrl(
+    noteId: string,
+    userId: string,
+  ): Promise<{ url: string; revoke: () => void }> {
     const blob = await this.getFileBlob(noteId, userId);
     const url = URL.createObjectURL(blob);
     return { url, revoke: () => URL.revokeObjectURL(url) };
@@ -505,26 +510,26 @@ export class NoteService {
     try {
       // Parse storage path: storage://bucket/userId/noteId.md
       const path = storagePath.replace(`storage://${this.BUCKET}/`, '');
-      
+
       // Create signed URL (works with anon key for public access)
       const { data: urlData, error: urlErr } = await this.supabase.storage
         .from(this.BUCKET)
         .createSignedUrl(path, 60);
-      
+
       if (urlErr || !urlData?.signedUrl) {
         throw urlErr || new Error('Failed to create signed URL');
       }
-      
+
       const signedUrl = urlData.signedUrl;
-      
+
       // Fetch content via signed URL
       const response = await fetch(signedUrl);
       if (!response.ok) {
         throw new Error(`Failed to fetch content: ${response.status} ${response.statusText}`);
       }
-      
+
       const textContent = await response.text();
-      
+
       // Try to decrypt if we have a key (owner viewing their own share)
       if (textContent && this.encryption.hasKey()) {
         try {
@@ -535,7 +540,7 @@ export class NoteService {
           return textContent;
         }
       }
-      
+
       return textContent;
     } catch (err) {
       console.error('Error fetching storage content:', err);
@@ -550,7 +555,7 @@ export class NoteService {
    */
   async decryptNoteAtSource(noteId: string, userId: string): Promise<void> {
     console.log('[decryptNoteAtSource] Starting decryption for note:', noteId);
-    
+
     // 1. Get current note from DB
     const { data: note, error: fetchErr } = await this.supabase
       .from('notes')
@@ -558,7 +563,7 @@ export class NoteService {
       .eq('id', noteId)
       .eq('user_id', userId)
       .single();
-    
+
     if (fetchErr || !note) {
       throw new Error('Note not found or access denied');
     }
@@ -571,14 +576,14 @@ export class NoteService {
 
     // 3. Get RAW encrypted content from storage (without auto-decryption)
     let encryptedContent = note.content;
-    
+
     if (encryptedContent?.startsWith('storage://')) {
       // Fetch RAW content from storage without decryption
       const path = encryptedContent.replace(`storage://${this.BUCKET}/`, '');
       const { data: urlData, error: urlErr } = await this.supabase.storage
         .from(this.BUCKET)
         .createSignedUrl(path, 60);
-      
+
       if (urlErr || !urlData?.signedUrl) {
         throw new Error('Failed to fetch encrypted content from storage');
       }
@@ -589,13 +594,19 @@ export class NoteService {
       if (!response.ok) {
         throw new Error('Failed to download encrypted content');
       }
-      
+
       // Get RAW text without any decryption
       encryptedContent = await response.text();
-      console.log('[decryptNoteAtSource] Fetched encrypted content from storage, length:', encryptedContent.length);
+      console.log(
+        '[decryptNoteAtSource] Fetched encrypted content from storage, length:',
+        encryptedContent.length,
+      );
     } else {
       // Content is in DB directly
-      console.log('[decryptNoteAtSource] Content is in database, length:', encryptedContent?.length);
+      console.log(
+        '[decryptNoteAtSource] Content is in database, length:',
+        encryptedContent?.length,
+      );
     }
 
     // 4. Check if content looks encrypted
@@ -604,22 +615,25 @@ export class NoteService {
     }
 
     // If content doesn't look encrypted (no encryption markers), it might already be decrypted
-    const looksEncrypted = encryptedContent.startsWith('enc:v1:') || // Our encryption format
-                          encryptedContent.startsWith('U2FsdGVk'); // "Salted" in base64 (legacy)
-    
+    const looksEncrypted =
+      encryptedContent.startsWith('enc:v1:') || // Our encryption format
+      encryptedContent.startsWith('U2FsdGVk'); // "Salted" in base64 (legacy)
+
     if (!looksEncrypted) {
-      console.log('[decryptNoteAtSource] Content does not appear to be encrypted, might already be plain text');
+      console.log(
+        '[decryptNoteAtSource] Content does not appear to be encrypted, might already be plain text',
+      );
       // Content might already be decrypted - just re-upload as is
       const decryptedContent = encryptedContent;
-      
+
       // Skip to re-upload step
       const path = `${userId}/${noteId}.md`;
       const file = new File([decryptedContent], `${noteId}.md`, { type: 'text/markdown' });
-      
+
       const { error: uploadErr } = await this.supabase.storage
         .from(this.BUCKET)
         .upload(path, file, { upsert: true, contentType: 'text/markdown' });
-      
+
       if (uploadErr) {
         throw new Error('Failed to re-upload content');
       }
@@ -627,13 +641,13 @@ export class NoteService {
       // Update DB to mark as unencrypted
       const { error: updateErr } = await this.supabase
         .from('notes')
-        .update({ 
+        .update({
           is_encrypted: false,
-          updated_at: new Date().toISOString()
+          updated_at: new Date().toISOString(),
         })
         .eq('id', noteId)
         .eq('user_id', userId);
-      
+
       if (updateErr) {
         throw new Error('Failed to update note encryption status');
       }
@@ -654,17 +668,19 @@ export class NoteService {
     } catch (decryptErr) {
       console.error('[decryptNoteAtSource] Decryption failed:', decryptErr);
       console.error('[decryptNoteAtSource] Content preview:', encryptedContent.substring(0, 100));
-      throw new Error('Failed to decrypt content. The content might be corrupted or use a different encryption key.');
+      throw new Error(
+        'Failed to decrypt content. The content might be corrupted or use a different encryption key.',
+      );
     }
 
     // 5. Re-upload unencrypted content to storage
     const path = `${userId}/${noteId}.md`;
     const file = new File([decryptedContent], `${noteId}.md`, { type: 'text/markdown' });
-    
+
     const { error: uploadErr } = await this.supabase.storage
       .from(this.BUCKET)
       .upload(path, file, { upsert: true, contentType: 'text/markdown' });
-    
+
     if (uploadErr) {
       console.error('[decryptNoteAtSource] Re-upload failed:', uploadErr);
       throw new Error('Failed to re-upload decrypted content');
@@ -675,13 +691,13 @@ export class NoteService {
     // 6. Update DB to mark as unencrypted
     const { error: updateErr } = await this.supabase
       .from('notes')
-      .update({ 
+      .update({
         is_encrypted: false,
-        updated_at: new Date().toISOString()
+        updated_at: new Date().toISOString(),
       })
       .eq('id', noteId)
       .eq('user_id', userId);
-    
+
     if (updateErr) {
       console.error('[decryptNoteAtSource] DB update failed:', updateErr);
       throw new Error('Failed to update note encryption status');

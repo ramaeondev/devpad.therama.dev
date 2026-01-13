@@ -7,9 +7,15 @@ describe('App', () => {
       imports: [App],
       providers: [
         // Provide minimal mocks to avoid instantiating real clients during unit tests
-        { provide: (await import('./core/services/supabase.service')).SupabaseService, useValue: {} },
-        { provide: (await import('./core/services/theme.service')).ThemeService, useValue: { initializeTheme: () => {}, setTheme: () => {} } }
-      ]
+        {
+          provide: (await import('./core/services/supabase.service')).SupabaseService,
+          useValue: {},
+        },
+        {
+          provide: (await import('./core/services/theme.service')).ThemeService,
+          useValue: { initializeTheme: () => {}, setTheme: () => {} },
+        },
+      ],
     }).compileComponents();
     // Ensure external templates and styles are resolved for JIT tests
     await (TestBed as any).resolveComponentResources?.();

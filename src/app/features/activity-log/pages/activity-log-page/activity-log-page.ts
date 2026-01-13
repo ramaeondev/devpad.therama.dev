@@ -4,7 +4,11 @@ import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { ActivityLogService } from '../../../../core/services/activity-log.service';
 import { SupabaseService } from '../../../../core/services/supabase.service';
-import { ActivityLog, ActivityAction, ActivityResource } from '../../../../core/models/activity-log.model';
+import {
+  ActivityLog,
+  ActivityAction,
+  ActivityResource,
+} from '../../../../core/models/activity-log.model';
 
 @Component({
   selector: 'app-activity-log-page',
@@ -22,24 +26,24 @@ export class ActivityLogPageComponent implements OnInit {
   loading = signal(false);
   totalCount = signal(0);
   expandedLogId = signal<string | null>(null);
-  
+
   // Expose Math to template
   Math = Math;
-  
+
   // Filters
   selectedActionType = signal<ActivityAction | 'all'>('all');
   selectedResourceType = signal<ActivityResource | 'all'>('all');
   selectedDateRange = signal<'today' | 'week' | 'month' | 'all'>('all');
-  
+
   // Pagination
   currentPage = signal(1);
   pageSize = 20;
-  
+
   totalPages = computed(() => Math.ceil(this.totalCount() / this.pageSize));
 
   // Use Object.values for dynamic population
   actionTypes: (ActivityAction | 'all')[] = ['all', ...Object.values(ActivityAction)];
-  
+
   resourceTypes: (ActivityResource | 'all')[] = ['all', ...Object.values(ActivityResource)];
 
   async ngOnInit() {
@@ -69,7 +73,7 @@ export class ActivityLogPageComponent implements OnInit {
       if (this.selectedDateRange() !== 'all') {
         const now = new Date();
         let startDate: Date;
-        
+
         switch (this.selectedDateRange()) {
           case 'today':
             startDate = new Date(now.getFullYear(), now.getMonth(), now.getDate());
@@ -83,7 +87,7 @@ export class ActivityLogPageComponent implements OnInit {
           default:
             startDate = new Date(0);
         }
-        
+
         filters.start_date = startDate.toISOString();
       }
 

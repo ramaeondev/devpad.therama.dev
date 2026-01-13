@@ -2,8 +2,6 @@
 
 Modern, standalone-component based note-taking application built with Angular 20, Signals, Tailwind CSS, and Supabase.
 
-
-
 ## 🚀 Features & Functionality
 
 - **Notes & Markdown**: Create, edit, and organize notes with full Markdown support, including code blocks, tables, images, and checklists.
@@ -31,7 +29,6 @@ npm install
 # Start development server
 npm start
 ```
-
 
 ## 🖼️ Icon System
 

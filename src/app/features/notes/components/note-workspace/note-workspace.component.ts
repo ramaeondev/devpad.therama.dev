@@ -17,7 +17,13 @@ import { GoogleDriveFile, OneDriveFile } from '../../../../core/models/integrati
 @Component({
   selector: 'app-note-workspace',
   standalone: true,
-  imports: [CommonModule, MarkdownEditorComponent, DocumentPreviewComponent, GoogleDrivePreviewComponent, OneDrivePreviewComponent],
+  imports: [
+    CommonModule,
+    MarkdownEditorComponent,
+    DocumentPreviewComponent,
+    GoogleDrivePreviewComponent,
+    OneDrivePreviewComponent,
+  ],
   template: `
     <div class="h-full flex flex-col">
       <!-- Google Drive Preview -->
@@ -49,57 +55,57 @@ import { GoogleDriveFile, OneDriveFile } from '../../../../core/models/integrati
             }
           </div>
 
-        <!-- Title input -->
-        @if (currentMode() !== 'empty') {
-          <input
-            class="text-lg sm:text-xl font-semibold bg-transparent border-b border-gray-300 dark:border-gray-700 focus:outline-none focus:border-primary-500 text-gray-900 dark:text-gray-100 py-2 px-1 touch-manipulation"
-            [value]="title()"
-            (input)="onTitleInput($event)"
-            placeholder="Note title"
-          />
-        }
-
-        <!-- Content Area -->
-        @if (currentMode() !== 'empty') {
-          @if (isDocument()) {
-            <app-document-preview [note]="currentNote()!" />
-          } @else {
-            <app-markdown-editor
-              [initialContent]="content()"
-              (contentChange)="content.set($event)"
+          <!-- Title input -->
+          @if (currentMode() !== 'empty') {
+            <input
+              class="text-lg sm:text-xl font-semibold bg-transparent border-b border-gray-300 dark:border-gray-700 focus:outline-none focus:border-primary-500 text-gray-900 dark:text-gray-100 py-2 px-1 touch-manipulation"
+              [value]="title()"
+              (input)="onTitleInput($event)"
+              placeholder="Note title"
             />
           }
-        }
 
-        <!-- Empty state -->
-        @if (currentMode() === 'empty') {
-          <div class="text-center py-24 text-gray-500 dark:text-gray-400">
-            Select a folder and create a note to begin.
-          </div>
-        }
-
-        <!-- Actions -->
-        @if (currentMode() === 'editing') {
-          <div class="flex gap-2 sm:gap-3 flex-wrap">
-            <button
-              class="px-4 sm:px-6 py-2.5 rounded bg-primary-600 text-white text-sm font-medium disabled:opacity-40 touch-manipulation min-w-[100px]"
-              [disabled]="saving()"
-              (click)="saveNote()"
-            >
-              {{ saving() ? 'Saving…' : selectedNoteId() ? 'Save' : 'Create' }}
-            </button>
-            @if (selectedNoteId()) {
-              <button
-                class="px-4 sm:px-6 py-2.5 rounded border border-red-600 text-red-600 text-sm font-medium hover:bg-red-50 dark:hover:bg-red-900/30 touch-manipulation"
-                (click)="deleteNote()"
-              >
-                Delete
-              </button>
+          <!-- Content Area -->
+          @if (currentMode() !== 'empty') {
+            @if (isDocument()) {
+              <app-document-preview [note]="currentNote()!" />
+            } @else {
+              <app-markdown-editor
+                [initialContent]="content()"
+                (contentChange)="content.set($event)"
+              />
             }
-          </div>
-        }
+          }
 
-        <!-- Notes list removed; rely on folder tree for navigation -->
+          <!-- Empty state -->
+          @if (currentMode() === 'empty') {
+            <div class="text-center py-24 text-gray-500 dark:text-gray-400">
+              Select a folder and create a note to begin.
+            </div>
+          }
+
+          <!-- Actions -->
+          @if (currentMode() === 'editing') {
+            <div class="flex gap-2 sm:gap-3 flex-wrap">
+              <button
+                class="px-4 sm:px-6 py-2.5 rounded bg-primary-600 text-white text-sm font-medium disabled:opacity-40 touch-manipulation min-w-[100px]"
+                [disabled]="saving()"
+                (click)="saveNote()"
+              >
+                {{ saving() ? 'Saving…' : selectedNoteId() ? 'Save' : 'Create' }}
+              </button>
+              @if (selectedNoteId()) {
+                <button
+                  class="px-4 sm:px-6 py-2.5 rounded border border-red-600 text-red-600 text-sm font-medium hover:bg-red-50 dark:hover:bg-red-900/30 touch-manipulation"
+                  (click)="deleteNote()"
+                >
+                  Delete
+                </button>
+              }
+            </div>
+          }
+
+          <!-- Notes list removed; rely on folder tree for navigation -->
         </div>
       }
     </div>
@@ -258,7 +264,7 @@ export class NoteWorkspaceComponent {
         // Clear cloud file selections when switching to DevPad note
         this.selectedGoogleDriveFile.set(null);
         this.selectedOneDriveFile.set(null);
-        
+
         // Ensure correct folder is active
         if (noteRef.folder_id && noteRef.folder_id !== this.selectedFolderId()) {
           this.workspaceState.setSelectedFolder(noteRef.folder_id);

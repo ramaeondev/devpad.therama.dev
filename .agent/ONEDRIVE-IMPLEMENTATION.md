@@ -1,22 +1,27 @@
 # OneDrive Integration - Implementation Summary
 
 ## Overview
+
 Complete OneDrive OAuth integration with bidirectional file sync capability for DevPad, using Microsoft Identity Platform and Graph API.
 
 ## Branch
+
 `google-oauth` (includes both Google Drive and OneDrive integrations)
 
 ## What Was Implemented
 
 ### 1. Data Models (Extended `src/app/core/models/integration.model.ts`)
+
 - **OneDriveFile**: File metadata from Microsoft Graph API
 - **OneDriveFolder**: Hierarchical folder structure
 - Reuses existing **Integration** and **SyncOperation** interfaces
 
 ### 2. OneDrive Service (`src/app/core/services/onedrive.service.ts`)
+
 Complete service with the following features:
 
 #### Authentication (OAuth 2.0 Implicit Flow)
+
 - `connect()`: Opens popup window for Microsoft OAuth
 - `buildAuthUrl()`: Constructs OAuth authorization URL with proper params
 - `handleOAuthCallback()`: Receives access token via postMessage from callback page
@@ -25,6 +30,7 @@ Complete service with the following features:
 - `disconnect()`: Removes integration from database
 
 #### File Operations (Microsoft Graph API v1.0)
+
 - `loadFiles()`: Fetches files from OneDrive root
 - `loadFolder()`: Recursively loads folder contents
 - `uploadFile()`: Uploads local files to OneDrive
@@ -33,13 +39,16 @@ Complete service with the following features:
 - `createFolder()`: Creates folders in OneDrive
 
 #### Helper Functions
+
 - `buildFolderTree()`: Converts flat file list to hierarchical structure with recursive folder loading
 - `getUserInfo()`: Fetches user email from Microsoft Graph API
 
 ### 3. OneDrive Tree Component (`src/app/features/integrations/components/onedrive-tree`)
+
 UI component for displaying and interacting with OneDrive files:
 
 #### Features
+
 - Connection status display
 - Connect button when disconnected
 - Folder tree with expand/collapse functionality
@@ -51,9 +60,11 @@ UI component for displaying and interacting with OneDrive files:
 - Dark mode support
 
 ### 4. OneDrive OAuth Callback (`src/app/features/auth/pages/onedrive-callback`)
+
 Dedicated callback page for OAuth redirect:
 
 #### Features
+
 - Extracts access token from URL fragment (#access_token=...)
 - Posts token back to parent window using postMessage
 - Auto-closes popup after sending token
@@ -61,7 +72,9 @@ Dedicated callback page for OAuth redirect:
 - Error handling for failed authentication
 
 ### 5. Settings Panel Integration
+
 Updated settings panel with OneDrive:
+
 - OneDrive card with connection status (matching Google Drive style)
 - Connect/Disconnect buttons with proper state management
 - Integration with OneDriveService
@@ -69,17 +82,21 @@ Updated settings panel with OneDrive:
 - Removed "Coming soon" status - fully functional
 
 ### 6. Routing Configuration
+
 - Added `/auth/callback/onedrive` route in auth.routes.ts
 - Lazy-loaded OneDriveCallbackComponent
 - Proper route configuration for OAuth redirect handling
 
 ### 7. Environment Configuration
+
 - Added `microsoft.clientId` to both dev and prod environments
 - Added `microsoft.redirectUri` for OAuth callback
 - Different redirect URIs for dev (localhost:4200) and prod (devpad.therama.dev)
 
 ### 8. Documentation (`ONEDRIVE-SETUP.md`)
+
 Comprehensive setup guide covering:
+
 - Azure AD app registration
 - API permissions configuration (Microsoft Graph)
 - Authentication settings (implicit flow)
@@ -94,6 +111,7 @@ Comprehensive setup guide covering:
 ## Technical Architecture
 
 ### Authentication Flow
+
 1. User clicks "Connect" in Settings
 2. Popup window opens with Microsoft OAuth URL
 3. User signs in with Microsoft account
@@ -105,18 +123,22 @@ Comprehensive setup guide covering:
 9. Popup closes automatically
 
 ### OAuth Method: Implicit Flow vs Token Client
+
 - **Google Drive**: Uses Google Identity Services with token client (JavaScript SDK)
 - **OneDrive**: Uses OAuth 2.0 implicit flow with popup + postMessage
 - Both store tokens in Supabase with same schema
 
 ### State Management
+
 Using Angular Signals for reactive state:
+
 - `isConnected`: Connection status
 - `integration`: Current integration data with token
 - `files`: Flat array of all OneDrive files (root level)
 - `rootFolder`: Hierarchical folder tree structure (recursively loaded)
 
 ### Security
+
 - OAuth tokens stored in Supabase with Row Level Security
 - Each user can only access their own tokens
 - Minimal permissions requested (Files.ReadWrite.All, offline_access, User.Read)
@@ -125,6 +147,7 @@ Using Angular Signals for reactive state:
 - postMessage uses origin validation
 
 ### API Integration
+
 - Microsoft Identity Platform for OAuth 2.0
 - Microsoft Graph API v1.0 for file operations
 - HttpClient with Bearer token authentication
@@ -132,12 +155,14 @@ Using Angular Signals for reactive state:
 - Recursive folder loading to build complete tree
 
 ## Files Created
+
 1. `src/app/core/services/onedrive.service.ts` (505 lines)
 2. `src/app/features/integrations/components/onedrive-tree/onedrive-tree.component.ts` (172 lines)
 3. `src/app/features/auth/pages/onedrive-callback/onedrive-callback.component.ts` (27 lines)
 4. `ONEDRIVE-SETUP.md` (287 lines)
 
 ## Files Modified
+
 1. `src/app/core/models/integration.model.ts`
    - Added OneDriveFile interface (14 properties)
    - Added OneDriveFolder interface
@@ -160,37 +185,38 @@ Using Angular Signals for reactive state:
 
 ## Key Differences from Google Drive
 
-| Aspect | Google Drive | OneDrive |
-|--------|--------------|----------|
-| **OAuth Method** | Google Identity Services (JS SDK) | OAuth 2.0 Implicit Flow (popup) |
-| **Token Handling** | Callback function in same page | Separate callback page + postMessage |
-| **API** | Google Drive API v3 | Microsoft Graph API v1.0 |
-| **Folder Loading** | Single API call for all files | Recursive API calls per folder |
-| **File Structure** | Flat list with parents array | Hierarchical with children endpoints |
-| **MIME Type** | Standard MIME types | file.mimeType property |
-| **File Size** | String (optional) | Number (bytes) |
-| **Authentication UI** | Inline Google consent screen | Popup window |
+| Aspect                | Google Drive                      | OneDrive                             |
+| --------------------- | --------------------------------- | ------------------------------------ |
+| **OAuth Method**      | Google Identity Services (JS SDK) | OAuth 2.0 Implicit Flow (popup)      |
+| **Token Handling**    | Callback function in same page    | Separate callback page + postMessage |
+| **API**               | Google Drive API v3               | Microsoft Graph API v1.0             |
+| **Folder Loading**    | Single API call for all files     | Recursive API calls per folder       |
+| **File Structure**    | Flat list with parents array      | Hierarchical with children endpoints |
+| **MIME Type**         | Standard MIME types               | file.mimeType property               |
+| **File Size**         | String (optional)                 | Number (bytes)                       |
+| **Authentication UI** | Inline Google consent screen      | Popup window                         |
 
 ## Features Comparison
 
-| Feature | Google Drive | OneDrive |
-|---------|--------------|----------|
-| OAuth Authentication | ✅ | ✅ |
-| Connect/Disconnect | ✅ | ✅ |
-| Load Files | ✅ | ✅ |
-| Folder Tree | ✅ | ✅ (Recursive) |
-| Expand/Collapse Folders | ✅ | ✅ |
-| File Icons | ✅ (Emoji) | ✅ (Emoji) |
-| File Size Display | ❌ | ✅ (Formatted) |
-| Download to Local | ✅ | ✅ |
-| Upload from Local | ✅ | ✅ |
-| Delete Files | ✅ | ✅ |
-| Create Folders | ✅ | ✅ |
-| Dark Mode | ✅ | ✅ |
+| Feature                 | Google Drive | OneDrive       |
+| ----------------------- | ------------ | -------------- |
+| OAuth Authentication    | ✅           | ✅             |
+| Connect/Disconnect      | ✅           | ✅             |
+| Load Files              | ✅           | ✅             |
+| Folder Tree             | ✅           | ✅ (Recursive) |
+| Expand/Collapse Folders | ✅           | ✅             |
+| File Icons              | ✅ (Emoji)   | ✅ (Emoji)     |
+| File Size Display       | ❌           | ✅ (Formatted) |
+| Download to Local       | ✅           | ✅             |
+| Upload from Local       | ✅           | ✅             |
+| Delete Files            | ✅           | ✅             |
+| Create Folders          | ✅           | ✅             |
+| Dark Mode               | ✅           | ✅             |
 
 ## Next Steps (Not Implemented)
 
 ### Immediate
+
 1. **Obtain Microsoft Client ID**
    - Follow ONEDRIVE-SETUP.md instructions
    - Replace placeholder in environment files
@@ -202,6 +228,7 @@ Using Angular Signals for reactive state:
    - Verify authentication and file loading
 
 ### Future Enhancements
+
 1. **Token Refresh**
    - Implement refresh token logic for expired access tokens
    - OneDrive provides refresh_token (unlike Google's implicit flow)
@@ -246,6 +273,7 @@ Using Angular Signals for reactive state:
 ## Testing Checklist
 
 ### Manual Testing
+
 - [ ] OneDrive connection from Settings works
 - [ ] Popup opens for Microsoft OAuth
 - [ ] Access token saves to Supabase
@@ -260,6 +288,7 @@ Using Angular Signals for reactive state:
 - [ ] Popup closes automatically after auth
 
 ### Edge Cases
+
 - [ ] Handle OAuth cancellation (user closes popup)
 - [ ] Handle network errors during file loading
 - [ ] Handle expired access tokens
@@ -273,6 +302,7 @@ Using Angular Signals for reactive state:
 ## Security Considerations
 
 ### Implemented
+
 ✅ Row Level Security on integrations table
 ✅ User-scoped access to OAuth tokens
 ✅ Minimal OAuth permissions (Files.ReadWrite.All, offline_access)
@@ -282,6 +312,7 @@ Using Angular Signals for reactive state:
 ✅ Proper error handling without exposing tokens
 
 ### Recommended
+
 ⚠️ Encrypt tokens at rest in database
 ⚠️ Implement token rotation policy
 ⚠️ Add API rate limiting
@@ -292,12 +323,14 @@ Using Angular Signals for reactive state:
 ## Performance Optimization
 
 ### Current Implementation
+
 - Recursive folder loading (one API call per folder)
 - Loads all folders on initial connection
 - No pagination (100 files limit)
 - Signal-based reactive updates
 
 ### Potential Improvements
+
 - Lazy loading of folders (load on expand)
 - Implement pagination for large file lists
 - Cache folder structures
@@ -305,6 +338,7 @@ Using Angular Signals for reactive state:
 - Implement delta sync for incremental updates
 
 ## Browser Compatibility
+
 - Requires modern browser with JavaScript enabled
 - postMessage API supported on all modern browsers
 - OAuth 2.0 implicit flow supported
@@ -312,6 +346,7 @@ Using Angular Signals for reactive state:
 - No Internet Explorer support
 
 ## Known Limitations
+
 1. Recursive folder loading can be slow for many folders
 2. Access tokens expire after 1 hour (no refresh implementation yet)
 3. Only loads first 100 files at root level
@@ -321,16 +356,20 @@ Using Angular Signals for reactive state:
 7. No offline support
 
 ## API Rate Limits
+
 Microsoft Graph API limits:
+
 - Per-app: 10,000 requests per 10 seconds
 - Per-user: 120 requests per 60 seconds
 
 Mitigation:
+
 - Cache file listings
 - Implement exponential backoff
 - Use batch requests where possible
 
 ## Commit Message
+
 ```
 feat(integrations): add OneDrive OAuth integration
 
@@ -361,6 +400,7 @@ Features:
 ```
 
 ## References
+
 - [Microsoft Identity Platform Documentation](https://docs.microsoft.com/en-us/azure/active-directory/develop/)
 - [Microsoft Graph API v1.0](https://docs.microsoft.com/en-us/graph/api/overview)
 - [OneDrive API Reference](https://docs.microsoft.com/en-us/graph/api/resources/onedrive)
