@@ -4,15 +4,24 @@ import { ToastContainerComponent } from './toast-container.component';
 
 class MockToastService {
   private _toasts = signal([{ id: '1', type: 'info', message: 'Hello' }]);
-  toastList() { return this._toasts(); }
-  remove(id: string) { this._toasts.set(this._toasts().filter(t => t.id !== id)); }
+  toastList() {
+    return this._toasts();
+  }
+  remove(id: string) {
+    this._toasts.set(this._toasts().filter((t) => t.id !== id));
+  }
 }
 
 describe('ToastContainerComponent', () => {
   it('renders toasts and dismiss works', async () => {
     await TestBed.configureTestingModule({
       imports: [ToastContainerComponent],
-      providers: [{ provide: (await import('../../../../core/services/toast.service')).ToastService, useClass: MockToastService }]
+      providers: [
+        {
+          provide: (await import('../../../../core/services/toast.service')).ToastService,
+          useClass: MockToastService,
+        },
+      ],
     }).compileComponents();
 
     const fixture = TestBed.createComponent(ToastContainerComponent);

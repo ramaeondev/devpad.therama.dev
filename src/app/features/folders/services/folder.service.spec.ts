@@ -4,17 +4,39 @@ import { FolderService } from './folder.service';
 function makeBuilder(result: any) {
   const builder: any = {
     _result: result,
-    select() { return this; },
-    eq() { return this; },
-    is() { return this; },
-    order() { return Promise.resolve(this._result); },
-    insert() { return this; },
-    update() { return this; },
-    delete() { return this; },
-    single() { return Promise.resolve(this._result); },
-    maybeSingle() { return Promise.resolve(this._result); },
-    then(resolve: any) { return Promise.resolve(this._result).then(resolve); },
-    catch() { return Promise.resolve(this._result); },
+    select() {
+      return this;
+    },
+    eq() {
+      return this;
+    },
+    is() {
+      return this;
+    },
+    order() {
+      return Promise.resolve(this._result);
+    },
+    insert() {
+      return this;
+    },
+    update() {
+      return this;
+    },
+    delete() {
+      return this;
+    },
+    single() {
+      return Promise.resolve(this._result);
+    },
+    maybeSingle() {
+      return Promise.resolve(this._result);
+    },
+    then(resolve: any) {
+      return Promise.resolve(this._result).then(resolve);
+    },
+    catch() {
+      return Promise.resolve(this._result);
+    },
   };
   return builder;
 }
@@ -35,10 +57,22 @@ describe('FolderService', () => {
     await TestBed.configureTestingModule({
       providers: [
         FolderService,
-        { provide: (await import('../../../core/services/supabase.service')).SupabaseService, useValue: mockSupabase },
-        { provide: (await import('../../../core/services/user.service')).UserService, useValue: mockUserService },
-        { provide: (await import('../../../core/services/loading.service')).LoadingService, useValue: mockLoading },
-        { provide: (await import('../../../core/services/activity-log.service')).ActivityLogService, useValue: mockActivity },
+        {
+          provide: (await import('../../../core/services/supabase.service')).SupabaseService,
+          useValue: mockSupabase,
+        },
+        {
+          provide: (await import('../../../core/services/user.service')).UserService,
+          useValue: mockUserService,
+        },
+        {
+          provide: (await import('../../../core/services/loading.service')).LoadingService,
+          useValue: mockLoading,
+        },
+        {
+          provide: (await import('../../../core/services/activity-log.service')).ActivityLogService,
+          useValue: mockActivity,
+        },
       ],
     }).compileComponents();
 
@@ -101,7 +135,9 @@ describe('FolderService', () => {
     // dupCheck returns non-empty
     mockSupabase.from.mockReturnValue(makeBuilder({ data: [{ id: 'f1' }], error: null }));
 
-    await expect(service.createFolder('u1', dto)).rejects.toThrow('A folder with this name already exists here');
+    await expect(service.createFolder('u1', dto)).rejects.toThrow(
+      'A folder with this name already exists here',
+    );
   });
 
   it('createFolder continues when dup check returns error and creates folder', async () => {
@@ -114,7 +150,10 @@ describe('FolderService', () => {
 
     const res = await service.createFolder('u1', dto);
     expect(res).toEqual(created);
-    expect(mockActivity.logActivity).toHaveBeenCalledWith('u1', expect.objectContaining({ action_type: expect.anything() }));
+    expect(mockActivity.logActivity).toHaveBeenCalledWith(
+      'u1',
+      expect.objectContaining({ action_type: expect.anything() }),
+    );
   });
 
   it('getFolders returns array and empty when error', async () => {
@@ -141,7 +180,10 @@ describe('FolderService', () => {
 
     const res = await service.updateFolder('u1', 'user1', { name: 'Updated' } as any);
     expect(res).toEqual(updated);
-    expect(mockActivity.logActivity).toHaveBeenCalledWith('user1', expect.objectContaining({ action_type: expect.anything() }));
+    expect(mockActivity.logActivity).toHaveBeenCalledWith(
+      'user1',
+      expect.objectContaining({ action_type: expect.anything() }),
+    );
   });
 
   it('deleteFolder prevents deleting root', async () => {
@@ -150,11 +192,16 @@ describe('FolderService', () => {
   });
 
   it('deleteFolder deletes and logs activity', async () => {
-    jest.spyOn(service, 'getFolder').mockResolvedValue({ id: 'f3', is_root: false, name: 'N' } as any);
+    jest
+      .spyOn(service, 'getFolder')
+      .mockResolvedValue({ id: 'f3', is_root: false, name: 'N' } as any);
     mockSupabase.from.mockReturnValue(makeBuilder({ data: null, error: null }));
 
     await expect(service.deleteFolder('f3', 'u1')).resolves.toBeUndefined();
-    expect(mockActivity.logActivity).toHaveBeenCalledWith('u1', expect.objectContaining({ action_type: expect.anything() }));
+    expect(mockActivity.logActivity).toHaveBeenCalledWith(
+      'u1',
+      expect.objectContaining({ action_type: expect.anything() }),
+    );
   });
 
   it('getChildFolders returns list or empty on error', async () => {

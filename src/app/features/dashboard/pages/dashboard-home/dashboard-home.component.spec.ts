@@ -4,21 +4,49 @@ import { DashboardHomeComponent } from './dashboard-home.component';
 class MockWorkspace {
   public googleCb: any = null;
   public oneCb: any = null;
-  public googleDriveFileSelected$ = { subscribe: (cb: any) => { this.googleCb = cb; return { unsubscribe: () => {} }; } };
-  public oneDriveFileSelected$ = { subscribe: (cb: any) => { this.oneCb = cb; return { unsubscribe: () => {} }; } };
-  triggerGoogle(file: any) { if (this.googleCb) this.googleCb(file); }
-  triggerOne(file: any) { if (this.oneCb) this.oneCb(file); }
+  public googleDriveFileSelected$ = {
+    subscribe: (cb: any) => {
+      this.googleCb = cb;
+      return { unsubscribe: () => {} };
+    },
+  };
+  public oneDriveFileSelected$ = {
+    subscribe: (cb: any) => {
+      this.oneCb = cb;
+      return { unsubscribe: () => {} };
+    },
+  };
+  triggerGoogle(file: any) {
+    if (this.googleCb) this.googleCb(file);
+  }
+  triggerOne(file: any) {
+    if (this.oneCb) this.oneCb(file);
+  }
 }
 
 describe('DashboardHomeComponent', () => {
   it('renders welcome when no files selected and can close previews', async () => {
     const ws = new MockWorkspace();
 
-    await TestBed.configureTestingModule({ imports: [DashboardHomeComponent], providers: [
-      { provide: (await import('../../../../core/services/workspace-state.service')).WorkspaceStateService, useValue: ws },
-      { provide: (await import('../../../../core/services/google-drive.service')).GoogleDriveService, useValue: {} },
-      { provide: (await import('../../../../core/services/onedrive.service')).OneDriveService, useValue: {} },
-    ] }).compileComponents();
+    await TestBed.configureTestingModule({
+      imports: [DashboardHomeComponent],
+      providers: [
+        {
+          provide: (await import('../../../../core/services/workspace-state.service'))
+            .WorkspaceStateService,
+          useValue: ws,
+        },
+        {
+          provide: (await import('../../../../core/services/google-drive.service'))
+            .GoogleDriveService,
+          useValue: {},
+        },
+        {
+          provide: (await import('../../../../core/services/onedrive.service')).OneDriveService,
+          useValue: {},
+        },
+      ],
+    }).compileComponents();
 
     const fixture = TestBed.createComponent(DashboardHomeComponent);
     fixture.detectChanges();
@@ -34,11 +62,25 @@ describe('DashboardHomeComponent', () => {
   it('subscribes to workspace file selections and updates signals', async () => {
     const ws = new MockWorkspace();
 
-    await TestBed.configureTestingModule({ imports: [DashboardHomeComponent], providers: [
-      { provide: (await import('../../../../core/services/workspace-state.service')).WorkspaceStateService, useValue: ws },
-      { provide: (await import('../../../../core/services/google-drive.service')).GoogleDriveService, useValue: {} },
-      { provide: (await import('../../../../core/services/onedrive.service')).OneDriveService, useValue: {} },
-    ] }).compileComponents();
+    await TestBed.configureTestingModule({
+      imports: [DashboardHomeComponent],
+      providers: [
+        {
+          provide: (await import('../../../../core/services/workspace-state.service'))
+            .WorkspaceStateService,
+          useValue: ws,
+        },
+        {
+          provide: (await import('../../../../core/services/google-drive.service'))
+            .GoogleDriveService,
+          useValue: {},
+        },
+        {
+          provide: (await import('../../../../core/services/onedrive.service')).OneDriveService,
+          useValue: {},
+        },
+      ],
+    }).compileComponents();
 
     const fixture = TestBed.createComponent(DashboardHomeComponent);
     fixture.detectChanges();
@@ -57,18 +99,35 @@ describe('DashboardHomeComponent', () => {
     const ws = new MockWorkspace();
     const googleSvc: any = { renameFile: jest.fn().mockResolvedValue(true), deleteFile: jest.fn() };
 
-    await TestBed.configureTestingModule({ imports: [DashboardHomeComponent], providers: [
-      { provide: (await import('../../../../core/services/workspace-state.service')).WorkspaceStateService, useValue: ws },
-      { provide: (await import('../../../../core/services/google-drive.service')).GoogleDriveService, useValue: googleSvc },
-      { provide: (await import('../../../../core/services/onedrive.service')).OneDriveService, useValue: {} },
-    ] }).compileComponents();
+    await TestBed.configureTestingModule({
+      imports: [DashboardHomeComponent],
+      providers: [
+        {
+          provide: (await import('../../../../core/services/workspace-state.service'))
+            .WorkspaceStateService,
+          useValue: ws,
+        },
+        {
+          provide: (await import('../../../../core/services/google-drive.service'))
+            .GoogleDriveService,
+          useValue: googleSvc,
+        },
+        {
+          provide: (await import('../../../../core/services/onedrive.service')).OneDriveService,
+          useValue: {},
+        },
+      ],
+    }).compileComponents();
 
     const fixture = TestBed.createComponent(DashboardHomeComponent);
     fixture.detectChanges();
     const comp = fixture.componentInstance;
 
     // rename
-    await comp.handleGoogleDriveFileAction({ action: 'rename', file: { id: 'g1', name: 'new' } as any });
+    await comp.handleGoogleDriveFileAction({
+      action: 'rename',
+      file: { id: 'g1', name: 'new' } as any,
+    });
     expect(googleSvc.renameFile).toHaveBeenCalledWith('g1', 'new');
 
     // delete returns false -> preview remains
@@ -85,25 +144,44 @@ describe('DashboardHomeComponent', () => {
 
     // imported: should not throw
     comp.selectedGoogleDriveFile.set({ id: 'i1', name: 'imp' } as any);
-    await expect(comp.handleGoogleDriveFileAction({ action: 'imported', file: { id: 'i1' } as any })).resolves.not.toThrow();
+    await expect(
+      comp.handleGoogleDriveFileAction({ action: 'imported', file: { id: 'i1' } as any }),
+    ).resolves.not.toThrow();
   });
 
   it('handles onedrive actions: rename, delete true/false, imported', async () => {
     const ws = new MockWorkspace();
     const oneSvc: any = { renameFile: jest.fn().mockResolvedValue(true), deleteFile: jest.fn() };
 
-    await TestBed.configureTestingModule({ imports: [DashboardHomeComponent], providers: [
-      { provide: (await import('../../../../core/services/workspace-state.service')).WorkspaceStateService, useValue: ws },
-      { provide: (await import('../../../../core/services/google-drive.service')).GoogleDriveService, useValue: {} },
-      { provide: (await import('../../../../core/services/onedrive.service')).OneDriveService, useValue: oneSvc },
-    ] }).compileComponents();
+    await TestBed.configureTestingModule({
+      imports: [DashboardHomeComponent],
+      providers: [
+        {
+          provide: (await import('../../../../core/services/workspace-state.service'))
+            .WorkspaceStateService,
+          useValue: ws,
+        },
+        {
+          provide: (await import('../../../../core/services/google-drive.service'))
+            .GoogleDriveService,
+          useValue: {},
+        },
+        {
+          provide: (await import('../../../../core/services/onedrive.service')).OneDriveService,
+          useValue: oneSvc,
+        },
+      ],
+    }).compileComponents();
 
     const fixture = TestBed.createComponent(DashboardHomeComponent);
     fixture.detectChanges();
     const comp = fixture.componentInstance;
 
     // rename
-    await comp.handleOneDriveFileAction({ action: 'rename', file: { id: 'o1', name: 'new' } as any });
+    await comp.handleOneDriveFileAction({
+      action: 'rename',
+      file: { id: 'o1', name: 'new' } as any,
+    });
     expect(oneSvc.renameFile).toHaveBeenCalledWith('o1', 'new');
 
     // delete returns false -> preview remains
@@ -120,6 +198,8 @@ describe('DashboardHomeComponent', () => {
 
     // imported: should not throw
     comp.selectedOneDriveFile.set({ id: 'i1', name: 'imp' } as any);
-    await expect(comp.handleOneDriveFileAction({ action: 'imported', file: { id: 'i1' } as any })).resolves.not.toThrow();
+    await expect(
+      comp.handleOneDriveFileAction({ action: 'imported', file: { id: 'i1' } as any }),
+    ).resolves.not.toThrow();
   });
 });

@@ -4,7 +4,9 @@ import { DomSanitizer } from '@angular/platform-browser';
 
 describe('GoogleDrivePreviewComponent', () => {
   it('renders name and fallback when no webViewLink', async () => {
-    await TestBed.configureTestingModule({ imports: [GoogleDrivePreviewComponent] }).compileComponents();
+    await TestBed.configureTestingModule({
+      imports: [GoogleDrivePreviewComponent],
+    }).compileComponents();
     const fixture = TestBed.createComponent(GoogleDrivePreviewComponent);
     const comp = fixture.componentInstance;
     comp.file = { name: 'doc.txt', size: 123, mimeType: 'text/plain' } as any;
@@ -15,10 +17,17 @@ describe('GoogleDrivePreviewComponent', () => {
   });
 
   it('sanitizes webViewLink when present', async () => {
-    await TestBed.configureTestingModule({ imports: [GoogleDrivePreviewComponent] }).compileComponents();
+    await TestBed.configureTestingModule({
+      imports: [GoogleDrivePreviewComponent],
+    }).compileComponents();
     const fixture = TestBed.createComponent(GoogleDrivePreviewComponent);
     const comp = fixture.componentInstance;
-    comp.file = { name: 'file.pdf', size: 1000, mimeType: 'application/pdf', webViewLink: 'https://example.com' } as any;
+    comp.file = {
+      name: 'file.pdf',
+      size: 1000,
+      mimeType: 'application/pdf',
+      webViewLink: 'https://example.com',
+    } as any;
     fixture.detectChanges();
 
     const iframe = fixture.nativeElement.querySelector('iframe');
@@ -26,7 +35,9 @@ describe('GoogleDrivePreviewComponent', () => {
   });
 
   it('emits onClose when close button clicked', async () => {
-    await TestBed.configureTestingModule({ imports: [GoogleDrivePreviewComponent] }).compileComponents();
+    await TestBed.configureTestingModule({
+      imports: [GoogleDrivePreviewComponent],
+    }).compileComponents();
     const fixture = TestBed.createComponent(GoogleDrivePreviewComponent);
     const comp = fixture.componentInstance;
     comp.file = { name: 'doc', size: 1 } as any;
@@ -40,7 +51,9 @@ describe('GoogleDrivePreviewComponent', () => {
   });
 
   it('returns empty sanitizedUrl when webViewLink is not present', async () => {
-    await TestBed.configureTestingModule({ imports: [GoogleDrivePreviewComponent] }).compileComponents();
+    await TestBed.configureTestingModule({
+      imports: [GoogleDrivePreviewComponent],
+    }).compileComponents();
     const fixture = TestBed.createComponent(GoogleDrivePreviewComponent);
     const comp = fixture.componentInstance;
     comp.file = { name: 'no-link', size: 0 } as any;

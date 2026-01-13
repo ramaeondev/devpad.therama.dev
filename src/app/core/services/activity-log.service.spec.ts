@@ -27,8 +27,8 @@ const makeDeviceMock = () => ({
     browser_name: 'Chrome',
     browser_version: 'v',
     os_name: 'macOS',
-    os_version: '13'
-  })
+    os_version: '13',
+  }),
 });
 
 describe('ActivityLogService', () => {
@@ -40,14 +40,25 @@ describe('ActivityLogService', () => {
     mockSupabase = makeSupabaseMock();
     mockDevice = makeDeviceMock();
 
-    TestBed.configureTestingModule({ providers: [ActivityLogService, { provide: SupabaseService, useValue: mockSupabase }, { provide: DeviceFingerprintService, useValue: mockDevice }] });
+    TestBed.configureTestingModule({
+      providers: [
+        ActivityLogService,
+        { provide: SupabaseService, useValue: mockSupabase },
+        { provide: DeviceFingerprintService, useValue: mockDevice },
+      ],
+    });
     service = TestBed.inject(ActivityLogService);
   });
 
   afterEach(() => jest.restoreAllMocks());
 
   it('logActivity inserts row and returns data', async () => {
-    const res = await service.logActivity('u1', { action_type: ActivityAction.Create, resource_type: ActivityResource.Note, resource_id: 'n1', resource_name: 'N' } as any);
+    const res = await service.logActivity('u1', {
+      action_type: ActivityAction.Create,
+      resource_type: ActivityResource.Note,
+      resource_id: 'n1',
+      resource_name: 'N',
+    } as any);
     expect(mockDevice.getDeviceInfo).toHaveBeenCalled();
     expect(mockSupabase.insert).toHaveBeenCalled();
     expect(res).toBeTruthy();
@@ -56,7 +67,9 @@ describe('ActivityLogService', () => {
   it('getUserActivityLogs applies filters and returns empty array on error', async () => {
     // when query promise resolves to { data: null, error: { code: 'E' } }
     mockSupabase.order.mockReturnValue(Promise.resolve({ data: null, error: { code: 'E' } }));
-    const res = await service.getUserActivityLogs('u1', { action_type: ActivityAction.Create as any });
+    const res = await service.getUserActivityLogs('u1', {
+      action_type: ActivityAction.Create as any,
+    });
     expect(res).toEqual([]);
   });
 
@@ -83,13 +96,19 @@ describe('ActivityLogService', () => {
 
   it('logActivity returns null when device info fails', async () => {
     mockDevice.getDeviceInfo.mockRejectedValue(new Error('fp fail'));
-    const res = await service.logActivity('u1', { action_type: ActivityAction.Create, resource_type: ActivityResource.Note } as any);
+    const res = await service.logActivity('u1', {
+      action_type: ActivityAction.Create,
+      resource_type: ActivityResource.Note,
+    } as any);
     expect(res).toBeNull();
   });
 
   it('logActivity returns null when insert returns error and supports undefined userId (anonymous)', async () => {
     mockSupabase.single.mockResolvedValueOnce({ data: null, error: { code: 'E' } });
-    const res = await service.logActivity(undefined as any, { action_type: ActivityAction.Create, resource_type: ActivityResource.Note } as any);
+    const res = await service.logActivity(
+      undefined as any,
+      { action_type: ActivityAction.Create, resource_type: ActivityResource.Note } as any,
+    );
     expect(res).toBeNull();
   });
 
@@ -107,18 +126,26 @@ describe('ActivityLogService', () => {
 
   it('getUserActivityLogs returns data with filters and handles thrown exception', async () => {
     mockSupabase.order.mockReturnValue(Promise.resolve({ data: [{ id: 'a2' }], error: null }));
-    const res = await service.getUserActivityLogs('u1', { action_type: [ActivityAction.Create], resource_type: ActivityResource.Note as any, category: undefined });
+    const res = await service.getUserActivityLogs('u1', {
+      action_type: [ActivityAction.Create],
+      resource_type: ActivityResource.Note as any,
+      category: undefined,
+    });
     expect(res.length).toBe(1);
     expect(mockSupabase.in).toHaveBeenCalled();
 
     // thrown exception returns []
-    mockSupabase.from = jest.fn().mockImplementation(() => { throw new Error('boom'); });
+    mockSupabase.from = jest.fn().mockImplementation(() => {
+      throw new Error('boom');
+    });
     const res2 = await service.getUserActivityLogs('u1');
     expect(res2).toEqual([]);
   });
 
   it('getActivityLogsByResource handles thrown exception', async () => {
-    mockSupabase.from = jest.fn().mockImplementation(() => { throw new Error('boom'); });
+    mockSupabase.from = jest.fn().mockImplementation(() => {
+      throw new Error('boom');
+    });
     const res = await service.getActivityLogsByResource(ActivityResource.Note, 'n1');
     expect(res).toEqual([]);
   });
@@ -131,40 +158,65 @@ describe('ActivityLogService', () => {
 
   it('logActivity infers categories correctly and logs with inferred category', async () => {
     jest.clearAllMocks();
-    await service.logActivity('u1', { action_type: ActivityAction.Login, resource_type: ActivityResource.Auth } as any);
-    expect(mockSupabase.insert).toHaveBeenCalledWith(expect.objectContaining({ category: expect.any(String) }));
+    await service.logActivity('u1', {
+      action_type: ActivityAction.Login,
+      resource_type: ActivityResource.Auth,
+    } as any);
+    expect(mockSupabase.insert).toHaveBeenCalledWith(
+      expect.objectContaining({ category: expect.any(String) }),
+    );
     expect(mockSupabase.insert.mock.calls[0][0].category).toBeDefined();
 
     jest.clearAllMocks();
-    await service.logActivity('u1', { action_type: ActivityAction.Create, resource_type: ActivityResource.Note } as any);
-    expect(mockSupabase.insert).toHaveBeenCalledWith(expect.objectContaining({ category: expect.any(String) }));
+    await service.logActivity('u1', {
+      action_type: ActivityAction.Create,
+      resource_type: ActivityResource.Note,
+    } as any);
+    expect(mockSupabase.insert).toHaveBeenCalledWith(
+      expect.objectContaining({ category: expect.any(String) }),
+    );
     expect(mockSupabase.insert.mock.calls[0][0].category).toBe('content');
 
     jest.clearAllMocks();
-    await service.logActivity('u1', { action_type: ActivityAction.ShareCreate, resource_type: ActivityResource.PublicShare } as any);
-    expect(mockSupabase.insert).toHaveBeenCalledWith(expect.objectContaining({ category: 'access' }));
+    await service.logActivity('u1', {
+      action_type: ActivityAction.ShareCreate,
+      resource_type: ActivityResource.PublicShare,
+    } as any);
+    expect(mockSupabase.insert).toHaveBeenCalledWith(
+      expect.objectContaining({ category: 'access' }),
+    );
 
     jest.clearAllMocks();
     // Unknown action should fallback to system
-    await service.logActivity('u1', { action_type: 'unknown' as any, resource_type: ActivityResource.Note } as any);
-    expect(mockSupabase.insert).toHaveBeenCalledWith(expect.objectContaining({ category: 'system' }));
+    await service.logActivity('u1', {
+      action_type: 'unknown' as any,
+      resource_type: ActivityResource.Note,
+    } as any);
+    expect(mockSupabase.insert).toHaveBeenCalledWith(
+      expect.objectContaining({ category: 'system' }),
+    );
   });
 
   it('logActivity marks anonymous when userId undefined', async () => {
     jest.clearAllMocks();
-    await service.logActivity(undefined as any, { action_type: ActivityAction.Create, resource_type: ActivityResource.Note } as any);
-    expect(mockSupabase.insert).toHaveBeenCalledWith(expect.objectContaining({ is_anonymous: true, user_id: null }));
+    await service.logActivity(
+      undefined as any,
+      { action_type: ActivityAction.Create, resource_type: ActivityResource.Note } as any,
+    );
+    expect(mockSupabase.insert).toHaveBeenCalledWith(
+      expect.objectContaining({ is_anonymous: true, user_id: null }),
+    );
   });
 
   it('getUserActivityLogs applies complex filters and pagination', async () => {
     const filters = {
       resource_type: [ActivityResource.Note],
-      category: ["content" as any],
+      category: ['content' as any],
       start_date: '2020-01-01',
       end_date: '2020-12-31',
       device_fingerprint: 'fp-1',
       limit: 5,
-      offset: 10
+      offset: 10,
     } as any;
 
     mockSupabase.order.mockReturnValue(Promise.resolve({ data: [{ id: 'a5' }], error: null }));
@@ -180,14 +232,19 @@ describe('ActivityLogService', () => {
   });
 
   it('getActivityLogCount applies filters and returns count', async () => {
-    const filters = { action_type: [ActivityAction.Create], resource_type: ActivityResource.Note, start_date: '2021-01-01', end_date: '2021-02-01' } as any;
+    const filters = {
+      action_type: [ActivityAction.Create],
+      resource_type: ActivityResource.Note,
+      start_date: '2021-01-01',
+      end_date: '2021-02-01',
+    } as any;
     // construct a chain object that supports further chaining and is awaited to the result
     const chain: any = {
       in: jest.fn().mockReturnThis(),
       gte: jest.fn().mockReturnThis(),
       lte: jest.fn().mockReturnThis(),
       eq: jest.fn().mockReturnThis(),
-      then: (resolve: any) => resolve({ count: 7, error: null })
+      then: (resolve: any) => resolve({ count: 7, error: null }),
     };
     // first in call returns the chain
     mockSupabase.in.mockReturnValue(chain);
@@ -201,5 +258,4 @@ describe('ActivityLogService', () => {
     expect(chain.gte).toHaveBeenCalledWith('created_at', '2021-01-01');
     expect(chain.lte).toHaveBeenCalledWith('created_at', '2021-02-01');
   });
-
 });

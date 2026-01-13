@@ -1,12 +1,33 @@
 import { TestBed } from '@angular/core/testing';
 import { GoogleDriveTreeComponent } from './google-drive-tree.component';
 
-class MockGoogleDrive { async checkConnection(){} async downloadFile(){ return new Blob(['a']); } }
-class MockToast { success = jest.fn(); error = jest.fn(); }
+class MockGoogleDrive {
+  async checkConnection() {}
+  async downloadFile() {
+    return new Blob(['a']);
+  }
+}
+class MockToast {
+  success = jest.fn();
+  error = jest.fn();
+}
 
 describe('GoogleDriveTreeComponent', () => {
   it('toggles root and menus and properties', async () => {
-    await TestBed.configureTestingModule({ imports: [GoogleDriveTreeComponent], providers: [ { provide: (await import('../../../../core/services/google-drive.service')).GoogleDriveService, useClass: MockGoogleDrive }, { provide: (await import('../../../../core/services/toast.service')).ToastService, useClass: MockToast } ] }).compileComponents();
+    await TestBed.configureTestingModule({
+      imports: [GoogleDriveTreeComponent],
+      providers: [
+        {
+          provide: (await import('../../../../core/services/google-drive.service'))
+            .GoogleDriveService,
+          useClass: MockGoogleDrive,
+        },
+        {
+          provide: (await import('../../../../core/services/toast.service')).ToastService,
+          useClass: MockToast,
+        },
+      ],
+    }).compileComponents();
     const fixture = TestBed.createComponent(GoogleDriveTreeComponent);
     const comp = fixture.componentInstance;
 
@@ -27,9 +48,22 @@ describe('GoogleDriveTreeComponent', () => {
 
   it('ngOnInit calls checkConnection', async () => {
     const checkSpy = jest.fn().mockResolvedValue(undefined);
-    class InitGoogle { async checkConnection(){ return checkSpy(); } }
+    class InitGoogle {
+      async checkConnection() {
+        return checkSpy();
+      }
+    }
 
-    await TestBed.configureTestingModule({ imports: [GoogleDriveTreeComponent], providers: [ { provide: (await import('../../../../core/services/google-drive.service')).GoogleDriveService, useClass: InitGoogle } ] }).compileComponents();
+    await TestBed.configureTestingModule({
+      imports: [GoogleDriveTreeComponent],
+      providers: [
+        {
+          provide: (await import('../../../../core/services/google-drive.service'))
+            .GoogleDriveService,
+          useClass: InitGoogle,
+        },
+      ],
+    }).compileComponents();
     const fixture = TestBed.createComponent(GoogleDriveTreeComponent);
     const comp = fixture.componentInstance;
 
@@ -38,10 +72,27 @@ describe('GoogleDriveTreeComponent', () => {
   });
 
   it('handleDownload adds extension for Google Workspace files and shows toast', async () => {
-    class DocOneDrive { async downloadFile(){ return new Blob(['doc']); } }
+    class DocOneDrive {
+      async downloadFile() {
+        return new Blob(['doc']);
+      }
+    }
     const mockToast = new MockToast();
 
-    await TestBed.configureTestingModule({ imports: [GoogleDriveTreeComponent], providers: [ { provide: (await import('../../../../core/services/google-drive.service')).GoogleDriveService, useClass: DocOneDrive }, { provide: (await import('../../../../core/services/toast.service')).ToastService, useValue: mockToast } ] }).compileComponents();
+    await TestBed.configureTestingModule({
+      imports: [GoogleDriveTreeComponent],
+      providers: [
+        {
+          provide: (await import('../../../../core/services/google-drive.service'))
+            .GoogleDriveService,
+          useClass: DocOneDrive,
+        },
+        {
+          provide: (await import('../../../../core/services/toast.service')).ToastService,
+          useValue: mockToast,
+        },
+      ],
+    }).compileComponents();
     const fixture = TestBed.createComponent(GoogleDriveTreeComponent);
     const comp = fixture.componentInstance;
 
@@ -53,10 +104,27 @@ describe('GoogleDriveTreeComponent', () => {
   });
 
   it('handleDownload shows error when download fails', async () => {
-    class FailGoogle { async downloadFile(){ throw new Error('dl fail'); } }
+    class FailGoogle {
+      async downloadFile() {
+        throw new Error('dl fail');
+      }
+    }
     const mockToast = new MockToast();
 
-    await TestBed.configureTestingModule({ imports: [GoogleDriveTreeComponent], providers: [ { provide: (await import('../../../../core/services/google-drive.service')).GoogleDriveService, useClass: FailGoogle }, { provide: (await import('../../../../core/services/toast.service')).ToastService, useValue: mockToast } ] }).compileComponents();
+    await TestBed.configureTestingModule({
+      imports: [GoogleDriveTreeComponent],
+      providers: [
+        {
+          provide: (await import('../../../../core/services/google-drive.service'))
+            .GoogleDriveService,
+          useClass: FailGoogle,
+        },
+        {
+          provide: (await import('../../../../core/services/toast.service')).ToastService,
+          useValue: mockToast,
+        },
+      ],
+    }).compileComponents();
     const fixture = TestBed.createComponent(GoogleDriveTreeComponent);
     const comp = fixture.componentInstance;
 
@@ -66,10 +134,27 @@ describe('GoogleDriveTreeComponent', () => {
   });
 
   it('handleDownload returns early when download returns null', async () => {
-    class NullGD { async downloadFile(){ return null; } }
+    class NullGD {
+      async downloadFile() {
+        return null;
+      }
+    }
     const mockToast = new MockToast();
 
-    await TestBed.configureTestingModule({ imports: [GoogleDriveTreeComponent], providers: [ { provide: (await import('../../../../core/services/google-drive.service')).GoogleDriveService, useClass: NullGD }, { provide: (await import('../../../../core/services/toast.service')).ToastService, useValue: mockToast } ] }).compileComponents();
+    await TestBed.configureTestingModule({
+      imports: [GoogleDriveTreeComponent],
+      providers: [
+        {
+          provide: (await import('../../../../core/services/google-drive.service'))
+            .GoogleDriveService,
+          useClass: NullGD,
+        },
+        {
+          provide: (await import('../../../../core/services/toast.service')).ToastService,
+          useValue: mockToast,
+        },
+      ],
+    }).compileComponents();
     const fixture = TestBed.createComponent(GoogleDriveTreeComponent);
     const comp = fixture.componentInstance;
 
@@ -81,7 +166,11 @@ describe('GoogleDriveTreeComponent', () => {
 
   it('handleDownload uses URL.createObjectURL and revokes it and appends anchor to DOM', async () => {
     const blob = new Blob(['x']);
-    class BlobGD { async downloadFile(){ return blob; } }
+    class BlobGD {
+      async downloadFile() {
+        return blob;
+      }
+    }
     const mockToast = new MockToast();
 
     const createSpy = jest.spyOn(URL, 'createObjectURL').mockReturnValue('blob:url' as any);
@@ -94,7 +183,20 @@ describe('GoogleDriveTreeComponent', () => {
     const appendSpy = jest.spyOn(document.body, 'appendChild');
     const removeSpy = jest.spyOn(document.body, 'removeChild');
 
-    await TestBed.configureTestingModule({ imports: [GoogleDriveTreeComponent], providers: [ { provide: (await import('../../../../core/services/google-drive.service')).GoogleDriveService, useClass: BlobGD }, { provide: (await import('../../../../core/services/toast.service')).ToastService, useValue: mockToast } ] }).compileComponents();
+    await TestBed.configureTestingModule({
+      imports: [GoogleDriveTreeComponent],
+      providers: [
+        {
+          provide: (await import('../../../../core/services/google-drive.service'))
+            .GoogleDriveService,
+          useClass: BlobGD,
+        },
+        {
+          provide: (await import('../../../../core/services/toast.service')).ToastService,
+          useValue: mockToast,
+        },
+      ],
+    }).compileComponents();
     const fixture = TestBed.createComponent(GoogleDriveTreeComponent);
     const comp = fixture.componentInstance;
 
@@ -118,19 +220,60 @@ describe('GoogleDriveTreeComponent', () => {
   });
 
   it('handleImportToDevPad creates Imports when missing and uploads', async () => {
-    const mockFolderSvc: any = { getFolders: jest.fn().mockResolvedValue([]), createFolder: jest.fn().mockResolvedValue({ id: 'imp' }) };
+    const mockFolderSvc: any = {
+      getFolders: jest.fn().mockResolvedValue([]),
+      createFolder: jest.fn().mockResolvedValue({ id: 'imp' }),
+    };
     const mockNote: any = { uploadDocument: jest.fn().mockResolvedValue({}) };
-    class GD { async downloadFile(){ return new Blob(['x']); } }
+    class GD {
+      async downloadFile() {
+        return new Blob(['x']);
+      }
+    }
     const mockToast = new MockToast();
     const mockWS: any = { emitFoldersChanged: jest.fn() };
     const mockAuth: any = { userId: () => 'u1' };
 
-    await TestBed.configureTestingModule({ imports: [GoogleDriveTreeComponent], providers: [ { provide: (await import('../../../../core/services/google-drive.service')).GoogleDriveService, useClass: GD }, { provide: (await import('../../../folders/services/folder.service')).FolderService, useValue: mockFolderSvc }, { provide: (await import('../../../../core/services/note.service')).NoteService, useValue: mockNote }, { provide: (await import('../../../../core/services/toast.service')).ToastService, useValue: mockToast }, { provide: (await import('../../../../core/services/workspace-state.service')).WorkspaceStateService, useValue: mockWS }, { provide: (await import('../../../../core/services/auth-state.service')).AuthStateService, useValue: mockAuth } ] }).compileComponents();
+    await TestBed.configureTestingModule({
+      imports: [GoogleDriveTreeComponent],
+      providers: [
+        {
+          provide: (await import('../../../../core/services/google-drive.service'))
+            .GoogleDriveService,
+          useClass: GD,
+        },
+        {
+          provide: (await import('../../../folders/services/folder.service')).FolderService,
+          useValue: mockFolderSvc,
+        },
+        {
+          provide: (await import('../../../../core/services/note.service')).NoteService,
+          useValue: mockNote,
+        },
+        {
+          provide: (await import('../../../../core/services/toast.service')).ToastService,
+          useValue: mockToast,
+        },
+        {
+          provide: (await import('../../../../core/services/workspace-state.service'))
+            .WorkspaceStateService,
+          useValue: mockWS,
+        },
+        {
+          provide: (await import('../../../../core/services/auth-state.service')).AuthStateService,
+          useValue: mockAuth,
+        },
+      ],
+    }).compileComponents();
 
     const fixture = TestBed.createComponent(GoogleDriveTreeComponent);
     const comp = fixture.componentInstance;
 
-    const file = { id: 'f1', name: 'file', mimeType: 'application/vnd.google-apps.document' } as any;
+    const file = {
+      id: 'f1',
+      name: 'file',
+      mimeType: 'application/vnd.google-apps.document',
+    } as any;
     await comp.handleImportToDevPad(file);
 
     expect(mockFolderSvc.createFolder).toHaveBeenCalled();
@@ -140,12 +283,40 @@ describe('GoogleDriveTreeComponent', () => {
   });
 
   it('handleImportToDevPad returns early when download returns null', async () => {
-    class NullGD { async downloadFile(){ return null; } }
-    const mockFolderSvc: any = { getFolders: jest.fn().mockResolvedValue([]), createFolder: jest.fn().mockResolvedValue({ id: 'imp' }) };
+    class NullGD {
+      async downloadFile() {
+        return null;
+      }
+    }
+    const mockFolderSvc: any = {
+      getFolders: jest.fn().mockResolvedValue([]),
+      createFolder: jest.fn().mockResolvedValue({ id: 'imp' }),
+    };
     const mockToast = new MockToast();
     const mockAuth: any = { userId: () => 'u1' };
 
-    await TestBed.configureTestingModule({ imports: [GoogleDriveTreeComponent], providers: [ { provide: (await import('../../../../core/services/google-drive.service')).GoogleDriveService, useClass: NullGD }, { provide: (await import('../../../folders/services/folder.service')).FolderService, useValue: mockFolderSvc }, { provide: (await import('../../../../core/services/toast.service')).ToastService, useValue: mockToast }, { provide: (await import('../../../../core/services/auth-state.service')).AuthStateService, useValue: mockAuth } ] }).compileComponents();
+    await TestBed.configureTestingModule({
+      imports: [GoogleDriveTreeComponent],
+      providers: [
+        {
+          provide: (await import('../../../../core/services/google-drive.service'))
+            .GoogleDriveService,
+          useClass: NullGD,
+        },
+        {
+          provide: (await import('../../../folders/services/folder.service')).FolderService,
+          useValue: mockFolderSvc,
+        },
+        {
+          provide: (await import('../../../../core/services/toast.service')).ToastService,
+          useValue: mockToast,
+        },
+        {
+          provide: (await import('../../../../core/services/auth-state.service')).AuthStateService,
+          useValue: mockAuth,
+        },
+      ],
+    }).compileComponents();
 
     const fixture = TestBed.createComponent(GoogleDriveTreeComponent);
     const comp = fixture.componentInstance;
@@ -157,9 +328,22 @@ describe('GoogleDriveTreeComponent', () => {
 
   it('handleRename respects prompt and renames when valid', async () => {
     const renameSpy = jest.fn().mockResolvedValue(undefined);
-    class OpsGD { async renameFile(id: string, name: string){ return renameSpy(id, name); } }
+    class OpsGD {
+      async renameFile(id: string, name: string) {
+        return renameSpy(id, name);
+      }
+    }
 
-    await TestBed.configureTestingModule({ imports: [GoogleDriveTreeComponent], providers: [ { provide: (await import('../../../../core/services/google-drive.service')).GoogleDriveService, useClass: OpsGD } ] }).compileComponents();
+    await TestBed.configureTestingModule({
+      imports: [GoogleDriveTreeComponent],
+      providers: [
+        {
+          provide: (await import('../../../../core/services/google-drive.service'))
+            .GoogleDriveService,
+          useClass: OpsGD,
+        },
+      ],
+    }).compileComponents();
     const fixture = TestBed.createComponent(GoogleDriveTreeComponent);
     const comp = fixture.componentInstance;
 
@@ -181,9 +365,22 @@ describe('GoogleDriveTreeComponent', () => {
 
   it('handleDelete confirm and cancel workflows', async () => {
     const deleteSpy = jest.fn().mockResolvedValue(undefined);
-    class DelGD { async deleteFile(id: string){ return deleteSpy(id); } }
+    class DelGD {
+      async deleteFile(id: string) {
+        return deleteSpy(id);
+      }
+    }
 
-    await TestBed.configureTestingModule({ imports: [GoogleDriveTreeComponent], providers: [ { provide: (await import('../../../../core/services/google-drive.service')).GoogleDriveService, useClass: DelGD } ] }).compileComponents();
+    await TestBed.configureTestingModule({
+      imports: [GoogleDriveTreeComponent],
+      providers: [
+        {
+          provide: (await import('../../../../core/services/google-drive.service'))
+            .GoogleDriveService,
+          useClass: DelGD,
+        },
+      ],
+    }).compileComponents();
     const fixture = TestBed.createComponent(GoogleDriveTreeComponent);
     const comp = fixture.componentInstance;
 
@@ -203,12 +400,37 @@ describe('GoogleDriveTreeComponent', () => {
   });
 
   it('downloadToLocal uploads to local storage and handles errors', async () => {
-    class DLGD { async downloadFile(){ return new Blob(['x']); } }
+    class DLGD {
+      async downloadFile() {
+        return new Blob(['x']);
+      }
+    }
     const mockNote: any = { uploadDocument: jest.fn().mockResolvedValue({}) };
     const mockToast = new MockToast();
     const mockAuth: any = { userId: () => 'u1' };
 
-    await TestBed.configureTestingModule({ imports: [GoogleDriveTreeComponent], providers: [ { provide: (await import('../../../../core/services/google-drive.service')).GoogleDriveService, useClass: DLGD }, { provide: (await import('../../../../core/services/note.service')).NoteService, useValue: mockNote }, { provide: (await import('../../../../core/services/toast.service')).ToastService, useValue: mockToast }, { provide: (await import('../../../../core/services/auth-state.service')).AuthStateService, useValue: mockAuth } ] }).compileComponents();
+    await TestBed.configureTestingModule({
+      imports: [GoogleDriveTreeComponent],
+      providers: [
+        {
+          provide: (await import('../../../../core/services/google-drive.service'))
+            .GoogleDriveService,
+          useClass: DLGD,
+        },
+        {
+          provide: (await import('../../../../core/services/note.service')).NoteService,
+          useValue: mockNote,
+        },
+        {
+          provide: (await import('../../../../core/services/toast.service')).ToastService,
+          useValue: mockToast,
+        },
+        {
+          provide: (await import('../../../../core/services/auth-state.service')).AuthStateService,
+          useValue: mockAuth,
+        },
+      ],
+    }).compileComponents();
     const fixture = TestBed.createComponent(GoogleDriveTreeComponent);
     const comp = fixture.componentInstance;
 
@@ -224,7 +446,21 @@ describe('GoogleDriveTreeComponent', () => {
 
   it('onFileClick emits workspace event', async () => {
     const mockWS: any = { emitGoogleDriveFileSelected: jest.fn() };
-    await TestBed.configureTestingModule({ imports: [GoogleDriveTreeComponent], providers: [{ provide: (await import('../../../../core/services/workspace-state.service')).WorkspaceStateService, useValue: mockWS }, { provide: (await import('../../../../core/services/google-drive.service')).GoogleDriveService, useClass: MockGoogleDrive }] }).compileComponents();
+    await TestBed.configureTestingModule({
+      imports: [GoogleDriveTreeComponent],
+      providers: [
+        {
+          provide: (await import('../../../../core/services/workspace-state.service'))
+            .WorkspaceStateService,
+          useValue: mockWS,
+        },
+        {
+          provide: (await import('../../../../core/services/google-drive.service'))
+            .GoogleDriveService,
+          useClass: MockGoogleDrive,
+        },
+      ],
+    }).compileComponents();
     const fixture = TestBed.createComponent(GoogleDriveTreeComponent);
     const comp = fixture.componentInstance;
 

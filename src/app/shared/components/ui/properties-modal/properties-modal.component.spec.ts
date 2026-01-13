@@ -3,7 +3,9 @@ import { PropertiesModalComponent } from './properties-modal.component';
 
 describe('PropertiesModalComponent', () => {
   it('renders title and emits close', async () => {
-    await TestBed.configureTestingModule({ imports: [PropertiesModalComponent] }).compileComponents();
+    await TestBed.configureTestingModule({
+      imports: [PropertiesModalComponent],
+    }).compileComponents();
     const fixture = TestBed.createComponent(PropertiesModalComponent);
     const comp = fixture.componentInstance;
     comp.isOpen = true;
@@ -21,7 +23,9 @@ describe('PropertiesModalComponent', () => {
   });
 
   it('shows no properties message when empty', async () => {
-    await TestBed.configureTestingModule({ imports: [PropertiesModalComponent] }).compileComponents();
+    await TestBed.configureTestingModule({
+      imports: [PropertiesModalComponent],
+    }).compileComponents();
     const fixture = TestBed.createComponent(PropertiesModalComponent);
     const comp = fixture.componentInstance;
     comp.isOpen = true;

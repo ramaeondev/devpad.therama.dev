@@ -1,16 +1,65 @@
 import { TestBed } from '@angular/core/testing';
 import { OneDriveTreeComponent } from './onedrive-tree.component';
 
-class MockOneDriveService { async checkConnection(){} async downloadFile(){ return new Blob(['ok']); } async renameFile(){} async deleteFile(){} }
-class MockNoteService { uploadDocument = jest.fn().mockResolvedValue({}); }
-class MockAuth { userId = jest.fn().mockReturnValue('u1'); }
-class MockToast { success = jest.fn(); error = jest.fn(); }
-class MockWorkspace { emitOneDriveFileSelected = jest.fn(); emitFoldersChanged = jest.fn(); }
-class MockFolderService { getFolders = jest.fn().mockResolvedValue([]); createFolder = jest.fn().mockResolvedValue({ id: 'imports' }); }
+class MockOneDriveService {
+  async checkConnection() {}
+  async downloadFile() {
+    return new Blob(['ok']);
+  }
+  async renameFile() {}
+  async deleteFile() {}
+}
+class MockNoteService {
+  uploadDocument = jest.fn().mockResolvedValue({});
+}
+class MockAuth {
+  userId = jest.fn().mockReturnValue('u1');
+}
+class MockToast {
+  success = jest.fn();
+  error = jest.fn();
+}
+class MockWorkspace {
+  emitOneDriveFileSelected = jest.fn();
+  emitFoldersChanged = jest.fn();
+}
+class MockFolderService {
+  getFolders = jest.fn().mockResolvedValue([]);
+  createFolder = jest.fn().mockResolvedValue({ id: 'imports' });
+}
 
 describe('OneDriveTreeComponent', () => {
   it('toggles expanded folders and properties modal', async () => {
-    await TestBed.configureTestingModule({ imports: [OneDriveTreeComponent], providers: [ { provide: (await import('../../../../core/services/onedrive.service')).OneDriveService, useClass: MockOneDriveService }, { provide: (await import('../../../../core/services/note.service')).NoteService, useClass: MockNoteService }, { provide: (await import('../../../../core/services/auth-state.service')).AuthStateService, useClass: MockAuth }, { provide: (await import('../../../../core/services/toast.service')).ToastService, useClass: MockToast }, { provide: (await import('../../../../core/services/workspace-state.service')).WorkspaceStateService, useClass: MockWorkspace }, { provide: (await import('../../../folders/services/folder.service')).FolderService, useClass: MockFolderService } ] }).compileComponents();
+    await TestBed.configureTestingModule({
+      imports: [OneDriveTreeComponent],
+      providers: [
+        {
+          provide: (await import('../../../../core/services/onedrive.service')).OneDriveService,
+          useClass: MockOneDriveService,
+        },
+        {
+          provide: (await import('../../../../core/services/note.service')).NoteService,
+          useClass: MockNoteService,
+        },
+        {
+          provide: (await import('../../../../core/services/auth-state.service')).AuthStateService,
+          useClass: MockAuth,
+        },
+        {
+          provide: (await import('../../../../core/services/toast.service')).ToastService,
+          useClass: MockToast,
+        },
+        {
+          provide: (await import('../../../../core/services/workspace-state.service'))
+            .WorkspaceStateService,
+          useClass: MockWorkspace,
+        },
+        {
+          provide: (await import('../../../folders/services/folder.service')).FolderService,
+          useClass: MockFolderService,
+        },
+      ],
+    }).compileComponents();
 
     const fixture = TestBed.createComponent(OneDriveTreeComponent);
     const comp = fixture.componentInstance;
@@ -26,14 +75,28 @@ describe('OneDriveTreeComponent', () => {
   });
 
   it('handles download flow and toast on success', async () => {
-    await TestBed.configureTestingModule({ imports: [OneDriveTreeComponent], providers: [ { provide: (await import('../../../../core/services/onedrive.service')).OneDriveService, useClass: MockOneDriveService }, { provide: (await import('../../../../core/services/toast.service')).ToastService, useClass: MockToast } ] }).compileComponents();
+    await TestBed.configureTestingModule({
+      imports: [OneDriveTreeComponent],
+      providers: [
+        {
+          provide: (await import('../../../../core/services/onedrive.service')).OneDriveService,
+          useClass: MockOneDriveService,
+        },
+        {
+          provide: (await import('../../../../core/services/toast.service')).ToastService,
+          useClass: MockToast,
+        },
+      ],
+    }).compileComponents();
 
     const fixture = TestBed.createComponent(OneDriveTreeComponent);
     const comp = fixture.componentInstance;
 
     // Ensure URL.createObjectURL is available in test env
     const file = { id: 'f1', name: 'file.txt', mimeType: 'text/plain' } as any;
-    const toast = TestBed.inject((await import('../../../../core/services/toast.service')).ToastService as any);
+    const toast = TestBed.inject(
+      (await import('../../../../core/services/toast.service')).ToastService as any,
+    );
 
     await comp.handleDownload(file);
 
@@ -41,7 +104,36 @@ describe('OneDriveTreeComponent', () => {
   });
 
   it('imports file to DevPad', async () => {
-    await TestBed.configureTestingModule({ imports: [OneDriveTreeComponent], providers: [ { provide: (await import('../../../../core/services/onedrive.service')).OneDriveService, useClass: MockOneDriveService }, { provide: (await import('../../../../core/services/note.service')).NoteService, useClass: MockNoteService }, { provide: (await import('../../../folders/services/folder.service')).FolderService, useClass: MockFolderService }, { provide: (await import('../../../../core/services/auth-state.service')).AuthStateService, useClass: MockAuth }, { provide: (await import('../../../../core/services/toast.service')).ToastService, useClass: MockToast }, { provide: (await import('../../../../core/services/workspace-state.service')).WorkspaceStateService, useClass: MockWorkspace } ] }).compileComponents();
+    await TestBed.configureTestingModule({
+      imports: [OneDriveTreeComponent],
+      providers: [
+        {
+          provide: (await import('../../../../core/services/onedrive.service')).OneDriveService,
+          useClass: MockOneDriveService,
+        },
+        {
+          provide: (await import('../../../../core/services/note.service')).NoteService,
+          useClass: MockNoteService,
+        },
+        {
+          provide: (await import('../../../folders/services/folder.service')).FolderService,
+          useClass: MockFolderService,
+        },
+        {
+          provide: (await import('../../../../core/services/auth-state.service')).AuthStateService,
+          useClass: MockAuth,
+        },
+        {
+          provide: (await import('../../../../core/services/toast.service')).ToastService,
+          useClass: MockToast,
+        },
+        {
+          provide: (await import('../../../../core/services/workspace-state.service'))
+            .WorkspaceStateService,
+          useClass: MockWorkspace,
+        },
+      ],
+    }).compileComponents();
 
     const fixture = TestBed.createComponent(OneDriveTreeComponent);
     const comp = fixture.componentInstance;
@@ -50,14 +142,32 @@ describe('OneDriveTreeComponent', () => {
 
     await comp.handleImportToDevPad(file);
 
-    const toast = TestBed.inject((await import('../../../../core/services/toast.service')).ToastService as any);
+    const toast = TestBed.inject(
+      (await import('../../../../core/services/toast.service')).ToastService as any,
+    );
     expect(toast.success).toHaveBeenCalled();
   });
 
   it('handleDownload shows error when download fails', async () => {
-    class FailOneDrive { async downloadFile(){ throw new Error('dl fail'); } }
+    class FailOneDrive {
+      async downloadFile() {
+        throw new Error('dl fail');
+      }
+    }
     const mockToast = new MockToast();
-    await TestBed.configureTestingModule({ imports: [OneDriveTreeComponent], providers: [{ provide: (await import('../../../../core/services/onedrive.service')).OneDriveService, useClass: FailOneDrive }, { provide: (await import('../../../../core/services/toast.service')).ToastService, useValue: mockToast }] }).compileComponents();
+    await TestBed.configureTestingModule({
+      imports: [OneDriveTreeComponent],
+      providers: [
+        {
+          provide: (await import('../../../../core/services/onedrive.service')).OneDriveService,
+          useClass: FailOneDrive,
+        },
+        {
+          provide: (await import('../../../../core/services/toast.service')).ToastService,
+          useValue: mockToast,
+        },
+      ],
+    }).compileComponents();
 
     const fixture = TestBed.createComponent(OneDriveTreeComponent);
     const comp = fixture.componentInstance;
@@ -68,11 +178,39 @@ describe('OneDriveTreeComponent', () => {
   });
 
   it('handleImportToDevPad shows error when uploadDocument fails', async () => {
-    class OKOneDrive { async downloadFile(){ return new Blob(['ok']); } }
+    class OKOneDrive {
+      async downloadFile() {
+        return new Blob(['ok']);
+      }
+    }
     const mockNote: any = { uploadDocument: jest.fn().mockRejectedValue(new Error('upload fail')) };
     const mockToast = new MockToast();
 
-    await TestBed.configureTestingModule({ imports: [OneDriveTreeComponent], providers: [ { provide: (await import('../../../../core/services/onedrive.service')).OneDriveService, useClass: OKOneDrive }, { provide: (await import('../../../../core/services/note.service')).NoteService, useValue: mockNote }, { provide: (await import('../../../../core/services/toast.service')).ToastService, useValue: mockToast }, { provide: (await import('../../../folders/services/folder.service')).FolderService, useClass: MockFolderService }, { provide: (await import('../../../../core/services/auth-state.service')).AuthStateService, useClass: MockAuth } ] }).compileComponents();
+    await TestBed.configureTestingModule({
+      imports: [OneDriveTreeComponent],
+      providers: [
+        {
+          provide: (await import('../../../../core/services/onedrive.service')).OneDriveService,
+          useClass: OKOneDrive,
+        },
+        {
+          provide: (await import('../../../../core/services/note.service')).NoteService,
+          useValue: mockNote,
+        },
+        {
+          provide: (await import('../../../../core/services/toast.service')).ToastService,
+          useValue: mockToast,
+        },
+        {
+          provide: (await import('../../../folders/services/folder.service')).FolderService,
+          useClass: MockFolderService,
+        },
+        {
+          provide: (await import('../../../../core/services/auth-state.service')).AuthStateService,
+          useClass: MockAuth,
+        },
+      ],
+    }).compileComponents();
 
     const fixture = TestBed.createComponent(OneDriveTreeComponent);
     const comp = fixture.componentInstance;
@@ -85,9 +223,24 @@ describe('OneDriveTreeComponent', () => {
   it('confirmRename and confirmDelete call OneDrive and reset state', async () => {
     const renameSpy = jest.fn().mockResolvedValue(undefined);
     const deleteSpy = jest.fn().mockResolvedValue(undefined);
-    class OpsOneDrive { async renameFile(id: string, name: string){ return renameSpy(id, name); } async deleteFile(id: string){ return deleteSpy(id); } }
+    class OpsOneDrive {
+      async renameFile(id: string, name: string) {
+        return renameSpy(id, name);
+      }
+      async deleteFile(id: string) {
+        return deleteSpy(id);
+      }
+    }
 
-    await TestBed.configureTestingModule({ imports: [OneDriveTreeComponent], providers: [ { provide: (await import('../../../../core/services/onedrive.service')).OneDriveService, useClass: OpsOneDrive } ] }).compileComponents();
+    await TestBed.configureTestingModule({
+      imports: [OneDriveTreeComponent],
+      providers: [
+        {
+          provide: (await import('../../../../core/services/onedrive.service')).OneDriveService,
+          useClass: OpsOneDrive,
+        },
+      ],
+    }).compileComponents();
     const fixture = TestBed.createComponent(OneDriveTreeComponent);
     const comp = fixture.componentInstance;
 
@@ -108,9 +261,25 @@ describe('OneDriveTreeComponent', () => {
   it('connect/disconnect confirm flows and cancel behave correctly', async () => {
     const connectSpy = jest.fn().mockResolvedValue(undefined);
     const disconnectSpy = jest.fn().mockResolvedValue(undefined);
-    class ConnOneDrive { async connect(){ return connectSpy(); } async disconnect(){ return disconnectSpy(); } async checkConnection(){} }
+    class ConnOneDrive {
+      async connect() {
+        return connectSpy();
+      }
+      async disconnect() {
+        return disconnectSpy();
+      }
+      async checkConnection() {}
+    }
 
-    await TestBed.configureTestingModule({ imports: [OneDriveTreeComponent], providers: [{ provide: (await import('../../../../core/services/onedrive.service')).OneDriveService, useClass: ConnOneDrive }] }).compileComponents();
+    await TestBed.configureTestingModule({
+      imports: [OneDriveTreeComponent],
+      providers: [
+        {
+          provide: (await import('../../../../core/services/onedrive.service')).OneDriveService,
+          useClass: ConnOneDrive,
+        },
+      ],
+    }).compileComponents();
     const fixture = TestBed.createComponent(OneDriveTreeComponent);
     const comp = fixture.componentInstance;
 
@@ -130,7 +299,15 @@ describe('OneDriveTreeComponent', () => {
   });
 
   it('confirmRename cancels when new name invalid', async () => {
-    await TestBed.configureTestingModule({ imports: [OneDriveTreeComponent], providers: [{ provide: (await import('../../../../core/services/onedrive.service')).OneDriveService, useClass: MockOneDriveService }] }).compileComponents();
+    await TestBed.configureTestingModule({
+      imports: [OneDriveTreeComponent],
+      providers: [
+        {
+          provide: (await import('../../../../core/services/onedrive.service')).OneDriveService,
+          useClass: MockOneDriveService,
+        },
+      ],
+    }).compileComponents();
     const fixture = TestBed.createComponent(OneDriveTreeComponent);
     const comp = fixture.componentInstance;
 
@@ -151,7 +328,15 @@ describe('OneDriveTreeComponent', () => {
   });
 
   it('cancelDelete resets state', async () => {
-    await TestBed.configureTestingModule({ imports: [OneDriveTreeComponent], providers: [{ provide: (await import('../../../../core/services/onedrive.service')).OneDriveService, useClass: MockOneDriveService }] }).compileComponents();
+    await TestBed.configureTestingModule({
+      imports: [OneDriveTreeComponent],
+      providers: [
+        {
+          provide: (await import('../../../../core/services/onedrive.service')).OneDriveService,
+          useClass: MockOneDriveService,
+        },
+      ],
+    }).compileComponents();
     const fixture = TestBed.createComponent(OneDriveTreeComponent);
     const comp = fixture.componentInstance;
 
@@ -165,7 +350,15 @@ describe('OneDriveTreeComponent', () => {
   });
 
   it('handleProperties uses Unknown for missing size and modified date', async () => {
-    await TestBed.configureTestingModule({ imports: [OneDriveTreeComponent], providers: [{ provide: (await import('../../../../core/services/onedrive.service')).OneDriveService, useClass: MockOneDriveService }] }).compileComponents();
+    await TestBed.configureTestingModule({
+      imports: [OneDriveTreeComponent],
+      providers: [
+        {
+          provide: (await import('../../../../core/services/onedrive.service')).OneDriveService,
+          useClass: MockOneDriveService,
+        },
+      ],
+    }).compileComponents();
     const fixture = TestBed.createComponent(OneDriveTreeComponent);
     const comp = fixture.componentInstance;
 
@@ -174,17 +367,29 @@ describe('OneDriveTreeComponent', () => {
 
     expect(comp.showPropertiesModal()).toBe(true);
     const props = comp.propertiesModalData();
-    const sizeProp = props.find(p => p.label === 'Size');
-    const modProp = props.find(p => p.label === 'Modified');
+    const sizeProp = props.find((p) => p.label === 'Size');
+    const modProp = props.find((p) => p.label === 'Modified');
     expect(sizeProp?.value).toContain('Unknown');
     expect(modProp?.value).toContain('Unknown');
   });
 
   it('ngOnInit calls checkConnection and getFileIconName returns a string', async () => {
     const checkSpy = jest.fn().mockResolvedValue(undefined);
-    class InitOneDrive { async checkConnection(){ return checkSpy(); } }
+    class InitOneDrive {
+      async checkConnection() {
+        return checkSpy();
+      }
+    }
 
-    await TestBed.configureTestingModule({ imports: [OneDriveTreeComponent], providers: [{ provide: (await import('../../../../core/services/onedrive.service')).OneDriveService, useClass: InitOneDrive }] }).compileComponents();
+    await TestBed.configureTestingModule({
+      imports: [OneDriveTreeComponent],
+      providers: [
+        {
+          provide: (await import('../../../../core/services/onedrive.service')).OneDriveService,
+          useClass: InitOneDrive,
+        },
+      ],
+    }).compileComponents();
     const fixture = TestBed.createComponent(OneDriveTreeComponent);
     const comp = fixture.componentInstance;
 
@@ -198,10 +403,26 @@ describe('OneDriveTreeComponent', () => {
   });
 
   it('onFileClick emits workspace event', async () => {
-    await TestBed.configureTestingModule({ imports: [OneDriveTreeComponent], providers: [{ provide: (await import('../../../../core/services/workspace-state.service')).WorkspaceStateService, useClass: MockWorkspace }, { provide: (await import('../../../../core/services/onedrive.service')).OneDriveService, useClass: MockOneDriveService }] }).compileComponents();
+    await TestBed.configureTestingModule({
+      imports: [OneDriveTreeComponent],
+      providers: [
+        {
+          provide: (await import('../../../../core/services/workspace-state.service'))
+            .WorkspaceStateService,
+          useClass: MockWorkspace,
+        },
+        {
+          provide: (await import('../../../../core/services/onedrive.service')).OneDriveService,
+          useClass: MockOneDriveService,
+        },
+      ],
+    }).compileComponents();
     const fixture = TestBed.createComponent(OneDriveTreeComponent);
     const comp = fixture.componentInstance;
-    const ws = TestBed.inject((await import('../../../../core/services/workspace-state.service')).WorkspaceStateService as any);
+    const ws = TestBed.inject(
+      (await import('../../../../core/services/workspace-state.service'))
+        .WorkspaceStateService as any,
+    );
 
     const file = { id: 'f1', name: 'file.txt' } as any;
     comp.onFileClick(file);

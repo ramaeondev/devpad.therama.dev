@@ -1,13 +1,38 @@
 import { TestBed, fakeAsync, tick } from '@angular/core/testing';
 import { NotificationIconComponent } from './notification-icon';
 
-class MockNotificationService { getUserNotifications = jest.fn().mockResolvedValue([]); getUnreadCount = jest.fn().mockResolvedValue(2); markAsRead = jest.fn().mockResolvedValue(true); markAllAsRead = jest.fn().mockResolvedValue(true); deleteNotification = jest.fn().mockResolvedValue(true); subscribeToNotifications = jest.fn().mockReturnValue({ unsubscribe: jest.fn() }); unsubscribeFromNotifications = jest.fn(); }
-class MockSupabase { getSession = jest.fn().mockResolvedValue({ session: { user: { id: 'u1' } } }); }
-class MockRouter { navigate = jest.fn(); }
+class MockNotificationService {
+  getUserNotifications = jest.fn().mockResolvedValue([]);
+  getUnreadCount = jest.fn().mockResolvedValue(2);
+  markAsRead = jest.fn().mockResolvedValue(true);
+  markAllAsRead = jest.fn().mockResolvedValue(true);
+  deleteNotification = jest.fn().mockResolvedValue(true);
+  subscribeToNotifications = jest.fn().mockReturnValue({ unsubscribe: jest.fn() });
+  unsubscribeFromNotifications = jest.fn();
+}
+class MockSupabase {
+  getSession = jest.fn().mockResolvedValue({ session: { user: { id: 'u1' } } });
+}
+class MockRouter {
+  navigate = jest.fn();
+}
 
 describe('NotificationIconComponent', () => {
   it('loads notifications and unread count on init', async () => {
-    await TestBed.configureTestingModule({ imports: [NotificationIconComponent], providers: [ { provide: (await import('../../../core/services/notification.service')).NotificationService, useClass: MockNotificationService }, { provide: (await import('../../../core/services/supabase.service')).SupabaseService, useClass: MockSupabase } ] }).compileComponents();
+    await TestBed.configureTestingModule({
+      imports: [NotificationIconComponent],
+      providers: [
+        {
+          provide: (await import('../../../core/services/notification.service'))
+            .NotificationService,
+          useClass: MockNotificationService,
+        },
+        {
+          provide: (await import('../../../core/services/supabase.service')).SupabaseService,
+          useClass: MockSupabase,
+        },
+      ],
+    }).compileComponents();
 
     const fixture = TestBed.createComponent(NotificationIconComponent);
     const comp = fixture.componentInstance;
@@ -18,7 +43,20 @@ describe('NotificationIconComponent', () => {
   });
 
   it('markAsRead updates local notifications', async () => {
-    await TestBed.configureTestingModule({ imports: [NotificationIconComponent], providers: [ { provide: (await import('../../../core/services/notification.service')).NotificationService, useClass: MockNotificationService }, { provide: (await import('../../../core/services/supabase.service')).SupabaseService, useClass: MockSupabase } ] }).compileComponents();
+    await TestBed.configureTestingModule({
+      imports: [NotificationIconComponent],
+      providers: [
+        {
+          provide: (await import('../../../core/services/notification.service'))
+            .NotificationService,
+          useClass: MockNotificationService,
+        },
+        {
+          provide: (await import('../../../core/services/supabase.service')).SupabaseService,
+          useClass: MockSupabase,
+        },
+      ],
+    }).compileComponents();
 
     const fixture = TestBed.createComponent(NotificationIconComponent);
     const comp = fixture.componentInstance;
@@ -33,7 +71,20 @@ describe('NotificationIconComponent', () => {
   });
 
   it('markAllAsRead sets unreadCount to 0', async () => {
-    await TestBed.configureTestingModule({ imports: [NotificationIconComponent], providers: [ { provide: (await import('../../../core/services/notification.service')).NotificationService, useClass: MockNotificationService }, { provide: (await import('../../../core/services/supabase.service')).SupabaseService, useClass: MockSupabase } ] }).compileComponents();
+    await TestBed.configureTestingModule({
+      imports: [NotificationIconComponent],
+      providers: [
+        {
+          provide: (await import('../../../core/services/notification.service'))
+            .NotificationService,
+          useClass: MockNotificationService,
+        },
+        {
+          provide: (await import('../../../core/services/supabase.service')).SupabaseService,
+          useClass: MockSupabase,
+        },
+      ],
+    }).compileComponents();
 
     const fixture = TestBed.createComponent(NotificationIconComponent);
     const comp = fixture.componentInstance;
@@ -66,14 +117,29 @@ describe('NotificationIconComponent', () => {
     expect(NotificationIconComponent.prototype.getRelativeTime(twoDays)).toBe('2d ago');
 
     const oldDate = new Date(Date.now() - 20 * 24 * 3600 * 1000).toISOString();
-    expect(NotificationIconComponent.prototype.getRelativeTime(oldDate)).toBe(new Date(oldDate).toLocaleDateString());
+    expect(NotificationIconComponent.prototype.getRelativeTime(oldDate)).toBe(
+      new Date(oldDate).toLocaleDateString(),
+    );
   });
 
   it('loadNotifications returns early when session has no user', async () => {
     const mockSupabase = { getSession: jest.fn().mockResolvedValue({ session: {} }) } as any;
     const mockNotif = new MockNotificationService();
 
-    await TestBed.configureTestingModule({ imports: [NotificationIconComponent], providers: [ { provide: (await import('../../../core/services/notification.service')).NotificationService, useValue: mockNotif }, { provide: (await import('../../../core/services/supabase.service')).SupabaseService, useValue: mockSupabase } ] }).compileComponents();
+    await TestBed.configureTestingModule({
+      imports: [NotificationIconComponent],
+      providers: [
+        {
+          provide: (await import('../../../core/services/notification.service'))
+            .NotificationService,
+          useValue: mockNotif,
+        },
+        {
+          provide: (await import('../../../core/services/supabase.service')).SupabaseService,
+          useValue: mockSupabase,
+        },
+      ],
+    }).compileComponents();
 
     const fixture = TestBed.createComponent(NotificationIconComponent);
     const comp = fixture.componentInstance;
@@ -86,7 +152,20 @@ describe('NotificationIconComponent', () => {
     const mockSupabase = { getSession: jest.fn().mockResolvedValue({ session: {} }) } as any;
     const mockNotif = new MockNotificationService();
 
-    await TestBed.configureTestingModule({ imports: [NotificationIconComponent], providers: [ { provide: (await import('../../../core/services/notification.service')).NotificationService, useValue: mockNotif }, { provide: (await import('../../../core/services/supabase.service')).SupabaseService, useValue: mockSupabase } ] }).compileComponents();
+    await TestBed.configureTestingModule({
+      imports: [NotificationIconComponent],
+      providers: [
+        {
+          provide: (await import('../../../core/services/notification.service'))
+            .NotificationService,
+          useValue: mockNotif,
+        },
+        {
+          provide: (await import('../../../core/services/supabase.service')).SupabaseService,
+          useValue: mockSupabase,
+        },
+      ],
+    }).compileComponents();
 
     const fixture = TestBed.createComponent(NotificationIconComponent);
     const comp = fixture.componentInstance;
@@ -100,7 +179,20 @@ describe('NotificationIconComponent', () => {
     const mockNotif = new MockNotificationService();
     jest.spyOn(mockNotif, 'subscribeToNotifications');
 
-    await TestBed.configureTestingModule({ imports: [NotificationIconComponent], providers: [ { provide: (await import('../../../core/services/notification.service')).NotificationService, useValue: mockNotif }, { provide: (await import('../../../core/services/supabase.service')).SupabaseService, useValue: mockSupabase } ] }).compileComponents();
+    await TestBed.configureTestingModule({
+      imports: [NotificationIconComponent],
+      providers: [
+        {
+          provide: (await import('../../../core/services/notification.service'))
+            .NotificationService,
+          useValue: mockNotif,
+        },
+        {
+          provide: (await import('../../../core/services/supabase.service')).SupabaseService,
+          useValue: mockSupabase,
+        },
+      ],
+    }).compileComponents();
 
     const fixture = TestBed.createComponent(NotificationIconComponent);
     const comp = fixture.componentInstance;
@@ -114,7 +206,20 @@ describe('NotificationIconComponent', () => {
   it('markAsRead does not call service when already read', async () => {
     const mockNotif = new MockNotificationService();
 
-    await TestBed.configureTestingModule({ imports: [NotificationIconComponent], providers: [ { provide: (await import('../../../core/services/notification.service')).NotificationService, useValue: mockNotif }, { provide: (await import('../../../core/services/supabase.service')).SupabaseService, useClass: MockSupabase } ] }).compileComponents();
+    await TestBed.configureTestingModule({
+      imports: [NotificationIconComponent],
+      providers: [
+        {
+          provide: (await import('../../../core/services/notification.service'))
+            .NotificationService,
+          useValue: mockNotif,
+        },
+        {
+          provide: (await import('../../../core/services/supabase.service')).SupabaseService,
+          useClass: MockSupabase,
+        },
+      ],
+    }).compileComponents();
 
     const fixture = TestBed.createComponent(NotificationIconComponent);
     const comp = fixture.componentInstance;
@@ -130,7 +235,20 @@ describe('NotificationIconComponent', () => {
     const mockNotif = new MockNotificationService();
     mockNotif.markAsRead = jest.fn().mockResolvedValue(false);
 
-    await TestBed.configureTestingModule({ imports: [NotificationIconComponent], providers: [ { provide: (await import('../../../core/services/notification.service')).NotificationService, useValue: mockNotif }, { provide: (await import('../../../core/services/supabase.service')).SupabaseService, useClass: MockSupabase } ] }).compileComponents();
+    await TestBed.configureTestingModule({
+      imports: [NotificationIconComponent],
+      providers: [
+        {
+          provide: (await import('../../../core/services/notification.service'))
+            .NotificationService,
+          useValue: mockNotif,
+        },
+        {
+          provide: (await import('../../../core/services/supabase.service')).SupabaseService,
+          useClass: MockSupabase,
+        },
+      ],
+    }).compileComponents();
 
     const fixture = TestBed.createComponent(NotificationIconComponent);
     const comp = fixture.componentInstance;
@@ -147,7 +265,20 @@ describe('NotificationIconComponent', () => {
     const mockNotif = new MockNotificationService();
     mockNotif.markAllAsRead = jest.fn().mockResolvedValue(false);
 
-    await TestBed.configureTestingModule({ imports: [NotificationIconComponent], providers: [ { provide: (await import('../../../core/services/notification.service')).NotificationService, useValue: mockNotif }, { provide: (await import('../../../core/services/supabase.service')).SupabaseService, useClass: MockSupabase } ] }).compileComponents();
+    await TestBed.configureTestingModule({
+      imports: [NotificationIconComponent],
+      providers: [
+        {
+          provide: (await import('../../../core/services/notification.service'))
+            .NotificationService,
+          useValue: mockNotif,
+        },
+        {
+          provide: (await import('../../../core/services/supabase.service')).SupabaseService,
+          useClass: MockSupabase,
+        },
+      ],
+    }).compileComponents();
 
     const fixture = TestBed.createComponent(NotificationIconComponent);
     const comp = fixture.componentInstance;
@@ -162,7 +293,20 @@ describe('NotificationIconComponent', () => {
     const mockNotif = new MockNotificationService();
     mockNotif.deleteNotification = jest.fn().mockResolvedValue(false);
 
-    await TestBed.configureTestingModule({ imports: [NotificationIconComponent], providers: [ { provide: (await import('../../../core/services/notification.service')).NotificationService, useValue: mockNotif }, { provide: (await import('../../../core/services/supabase.service')).SupabaseService, useClass: MockSupabase } ] }).compileComponents();
+    await TestBed.configureTestingModule({
+      imports: [NotificationIconComponent],
+      providers: [
+        {
+          provide: (await import('../../../core/services/notification.service'))
+            .NotificationService,
+          useValue: mockNotif,
+        },
+        {
+          provide: (await import('../../../core/services/supabase.service')).SupabaseService,
+          useClass: MockSupabase,
+        },
+      ],
+    }).compileComponents();
 
     const fixture = TestBed.createComponent(NotificationIconComponent);
     const comp = fixture.componentInstance;
@@ -182,7 +326,20 @@ describe('NotificationIconComponent', () => {
       return 'channel1';
     });
 
-    await TestBed.configureTestingModule({ imports: [NotificationIconComponent], providers: [ { provide: (await import('../../../core/services/notification.service')).NotificationService, useValue: mockNotif }, { provide: (await import('../../../core/services/supabase.service')).SupabaseService, useClass: MockSupabase } ] }).compileComponents();
+    await TestBed.configureTestingModule({
+      imports: [NotificationIconComponent],
+      providers: [
+        {
+          provide: (await import('../../../core/services/notification.service'))
+            .NotificationService,
+          useValue: mockNotif,
+        },
+        {
+          provide: (await import('../../../core/services/supabase.service')).SupabaseService,
+          useClass: MockSupabase,
+        },
+      ],
+    }).compileComponents();
 
     const fixture = TestBed.createComponent(NotificationIconComponent);
     const comp = fixture.componentInstance;
@@ -197,7 +354,20 @@ describe('NotificationIconComponent', () => {
     const mockNotif = new MockNotificationService();
     jest.spyOn(mockNotif, 'unsubscribeFromNotifications');
 
-    await TestBed.configureTestingModule({ imports: [NotificationIconComponent], providers: [ { provide: (await import('../../../core/services/notification.service')).NotificationService, useValue: mockNotif }, { provide: (await import('../../../core/services/supabase.service')).SupabaseService, useClass: MockSupabase } ] }).compileComponents();
+    await TestBed.configureTestingModule({
+      imports: [NotificationIconComponent],
+      providers: [
+        {
+          provide: (await import('../../../core/services/notification.service'))
+            .NotificationService,
+          useValue: mockNotif,
+        },
+        {
+          provide: (await import('../../../core/services/supabase.service')).SupabaseService,
+          useClass: MockSupabase,
+        },
+      ],
+    }).compileComponents();
 
     const fixture = TestBed.createComponent(NotificationIconComponent);
     const comp = fixture.componentInstance;
@@ -213,7 +383,20 @@ describe('NotificationIconComponent', () => {
     mockNotif.deleteNotification = jest.fn().mockResolvedValue(true);
     mockNotif.getUnreadCount = jest.fn().mockResolvedValue(0);
 
-    await TestBed.configureTestingModule({ imports: [NotificationIconComponent], providers: [ { provide: (await import('../../../core/services/notification.service')).NotificationService, useValue: mockNotif }, { provide: (await import('../../../core/services/supabase.service')).SupabaseService, useClass: MockSupabase } ] }).compileComponents();
+    await TestBed.configureTestingModule({
+      imports: [NotificationIconComponent],
+      providers: [
+        {
+          provide: (await import('../../../core/services/notification.service'))
+            .NotificationService,
+          useValue: mockNotif,
+        },
+        {
+          provide: (await import('../../../core/services/supabase.service')).SupabaseService,
+          useClass: MockSupabase,
+        },
+      ],
+    }).compileComponents();
 
     const fixture = TestBed.createComponent(NotificationIconComponent);
     const comp = fixture.componentInstance;
@@ -230,7 +413,21 @@ describe('NotificationIconComponent', () => {
     const mockNotif = new MockNotificationService();
     const mockRouter = new MockRouter();
 
-    await TestBed.configureTestingModule({ imports: [NotificationIconComponent], providers: [ { provide: (await import('../../../core/services/notification.service')).NotificationService, useValue: mockNotif }, { provide: (await import('../../../core/services/supabase.service')).SupabaseService, useClass: MockSupabase }, { provide: (await import('@angular/router')).Router, useValue: mockRouter } ] }).compileComponents();
+    await TestBed.configureTestingModule({
+      imports: [NotificationIconComponent],
+      providers: [
+        {
+          provide: (await import('../../../core/services/notification.service'))
+            .NotificationService,
+          useValue: mockNotif,
+        },
+        {
+          provide: (await import('../../../core/services/supabase.service')).SupabaseService,
+          useClass: MockSupabase,
+        },
+        { provide: (await import('@angular/router')).Router, useValue: mockRouter },
+      ],
+    }).compileComponents();
 
     const fixture = TestBed.createComponent(NotificationIconComponent);
     const comp = fixture.componentInstance;
@@ -243,7 +440,20 @@ describe('NotificationIconComponent', () => {
   });
 
   it('toggle and close dropdown behave correctly', async () => {
-    await TestBed.configureTestingModule({ imports: [NotificationIconComponent], providers: [ { provide: (await import('../../../core/services/notification.service')).NotificationService, useClass: MockNotificationService }, { provide: (await import('../../../core/services/supabase.service')).SupabaseService, useClass: MockSupabase } ] }).compileComponents();
+    await TestBed.configureTestingModule({
+      imports: [NotificationIconComponent],
+      providers: [
+        {
+          provide: (await import('../../../core/services/notification.service'))
+            .NotificationService,
+          useClass: MockNotificationService,
+        },
+        {
+          provide: (await import('../../../core/services/supabase.service')).SupabaseService,
+          useClass: MockSupabase,
+        },
+      ],
+    }).compileComponents();
 
     const fixture = TestBed.createComponent(NotificationIconComponent);
     const comp = fixture.componentInstance;

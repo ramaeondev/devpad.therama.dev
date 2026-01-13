@@ -17,7 +17,8 @@ describe('DeviceFingerprintService', () => {
 
     // Default navigator / screen values for deterministic tests
     (global as any).navigator = Object.assign({}, global.navigator, {
-      userAgent: 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/96.0.0.0 Safari/537.36',
+      userAgent:
+        'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/96.0.0.0 Safari/537.36',
       language: 'en-US',
       platform: 'MacIntel',
     });
@@ -71,12 +72,29 @@ describe('DeviceFingerprintService', () => {
     const chain: any = {
       _op: null,
       _insertData: null,
-      select() { this._op = 'select'; return this; },
-      eq() { return this; },
-      order() { return this; },
-      single: jest.fn().mockResolvedValueOnce({ data: null, error: { code: 'PGRST116' } }).mockResolvedValue({ data: { id: 'new' }, error: null }),
-      update() { this._op = 'update'; return this; },
-      insert(data: any) { this._op = 'insert'; this._insertData = { ...data, id: 'new' }; return this; },
+      select() {
+        this._op = 'select';
+        return this;
+      },
+      eq() {
+        return this;
+      },
+      order() {
+        return this;
+      },
+      single: jest
+        .fn()
+        .mockResolvedValueOnce({ data: null, error: { code: 'PGRST116' } })
+        .mockResolvedValue({ data: { id: 'new' }, error: null }),
+      update() {
+        this._op = 'update';
+        return this;
+      },
+      insert(data: any) {
+        this._op = 'insert';
+        this._insertData = { ...data, id: 'new' };
+        return this;
+      },
     };
 
     const supabase = { from: jest.fn(() => chain) } as any;
@@ -95,10 +113,19 @@ describe('DeviceFingerprintService', () => {
   it('registerDevice updates an existing device', async () => {
     const existing = { id: 'exists', fingerprint_id: 'F2' };
     const chain: any = {
-      select() { return this; },
-      eq() { return this; },
-      single: jest.fn().mockResolvedValueOnce({ data: existing, error: null }).mockResolvedValue({ data: { id: 'exists', updated: true }, error: null }),
-      update() { return this; },
+      select() {
+        return this;
+      },
+      eq() {
+        return this;
+      },
+      single: jest
+        .fn()
+        .mockResolvedValueOnce({ data: existing, error: null })
+        .mockResolvedValue({ data: { id: 'exists', updated: true }, error: null }),
+      update() {
+        return this;
+      },
     };
     const supabase = { from: jest.fn(() => chain) } as any;
     (service as any).supabase = supabase;
@@ -112,11 +139,29 @@ describe('DeviceFingerprintService', () => {
 
   it('getUserDevices returns [] on error', async () => {
     const chain: any = {
-      select() { return this; },
-      eq() { return this; },
-      order() { return this; },
+      select() {
+        return this;
+      },
+      eq() {
+        return this;
+      },
+      order() {
+        return this;
+      },
     };
-    const supabase = { from: jest.fn(() => ({ select: () => ({ eq: () => ({ order: () => ({ then: () => { throw new Error('fail') } }) }) }) })) } as any;
+    const supabase = {
+      from: jest.fn(() => ({
+        select: () => ({
+          eq: () => ({
+            order: () => ({
+              then: () => {
+                throw new Error('fail');
+              },
+            }),
+          }),
+        }),
+      })),
+    } as any;
     (service as any).supabase = supabase;
 
     const devices = await service.getUserDevices('u1');
@@ -130,7 +175,9 @@ describe('DeviceFingerprintService', () => {
     const ok = await service.trustDevice('d1');
     expect(ok).toBe(true);
 
-    const chainFail: any = { update: () => ({ eq: () => Promise.resolve({ error: { msg: 'err' } }) }) };
+    const chainFail: any = {
+      update: () => ({ eq: () => Promise.resolve({ error: { msg: 'err' } }) }),
+    };
     const supabaseFail = { from: jest.fn(() => chainFail) } as any;
     (service as any).supabase = supabaseFail;
     const notOk = await service.trustDevice('d1');
@@ -138,7 +185,15 @@ describe('DeviceFingerprintService', () => {
   });
 
   it('getCurrentDevice returns null on PGRST116 and returns data when available', async () => {
-    const chainNone: any = { select() { return this; }, eq() { return this; }, single: jest.fn().mockResolvedValue({ data: null, error: { code: 'PGRST116' } }) };
+    const chainNone: any = {
+      select() {
+        return this;
+      },
+      eq() {
+        return this;
+      },
+      single: jest.fn().mockResolvedValue({ data: null, error: { code: 'PGRST116' } }),
+    };
     (service as any).supabase = { from: jest.fn(() => chainNone) } as any;
 
     // Ensure fingerprint is deterministic
@@ -149,7 +204,15 @@ describe('DeviceFingerprintService', () => {
     expect(none).toBeNull();
 
     // When data exists
-    const chainData: any = { select() { return this; }, eq() { return this; }, single: jest.fn().mockResolvedValue({ data: { id: 'cd1' }, error: null }) };
+    const chainData: any = {
+      select() {
+        return this;
+      },
+      eq() {
+        return this;
+      },
+      single: jest.fn().mockResolvedValue({ data: { id: 'cd1' }, error: null }),
+    };
     (service as any).supabase = { from: jest.fn(() => chainData) } as any;
     const data = await service.getCurrentDevice('u1');
     expect(data).toEqual({ id: 'cd1' });
@@ -170,7 +233,9 @@ describe('DeviceFingerprintService', () => {
     (service as any).supabase = { from: jest.fn(() => chainDel) } as any;
     expect(await service.removeDevice('d1')).toBe(true);
 
-    const chainDelFail: any = { delete: () => ({ eq: () => Promise.resolve({ error: { msg: 'err' } }) }) };
+    const chainDelFail: any = {
+      delete: () => ({ eq: () => Promise.resolve({ error: { msg: 'err' } }) }),
+    };
     (service as any).supabase = { from: jest.fn(() => chainDelFail) } as any;
     expect(await service.removeDevice('d1')).toBe(false);
 
@@ -178,7 +243,9 @@ describe('DeviceFingerprintService', () => {
     (service as any).supabase = { from: jest.fn(() => chainUpd) } as any;
     expect(await service.updateDeviceName('d1', 'Name')).toBe(true);
 
-    const chainUpdFail: any = { update: () => ({ eq: () => Promise.resolve({ error: { msg: 'err' } }) }) };
+    const chainUpdFail: any = {
+      update: () => ({ eq: () => Promise.resolve({ error: { msg: 'err' } }) }),
+    };
     (service as any).supabase = { from: jest.fn(() => chainUpdFail) } as any;
     expect(await service.updateDeviceName('d1', 'Name')).toBe(false);
   });
@@ -193,5 +260,4 @@ describe('DeviceFingerprintService', () => {
     // fingerprintPromise is left as-is by the implementation when already set
     expect((service as any).fingerprintPromise).toBeDefined();
   });
-
 });

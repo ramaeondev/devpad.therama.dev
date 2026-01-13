@@ -1,21 +1,74 @@
 import { TestBed } from '@angular/core/testing';
 import { SidebarComponent } from './sidebar.component';
 
-class MockFolderService { async getFolderTree() { return []; } }
-class MockAuth { userId() { return 'u1'; } }
-class MockWorkspace { foldersChanged$ = { subscribe: () => {} }; setSelectedFolder() {} emitNoteSelected() {} }
+class MockFolderService {
+  async getFolderTree() {
+    return [];
+  }
+}
+class MockAuth {
+  userId() {
+    return 'u1';
+  }
+}
+class MockWorkspace {
+  foldersChanged$ = { subscribe: () => {} };
+  setSelectedFolder() {}
+  emitNoteSelected() {}
+}
 
-const DRIVE_MOCK = { isConnected: () => false, checkConnection: async () => true, connect: async () => {}, disconnect: async () => {}, renameFile: async () => {}, deleteFile: async () => {} };
+const DRIVE_MOCK = {
+  isConnected: () => false,
+  checkConnection: async () => true,
+  connect: async () => {},
+  disconnect: async () => {},
+  renameFile: async () => {},
+  deleteFile: async () => {},
+};
 
 describe('SidebarComponent', () => {
   it('shows empty state when no folders', async () => {
-    await TestBed.configureTestingModule({ imports: [SidebarComponent], providers: [
-      { provide: (await import('../../../folders/services/folder.service')).FolderService, useClass: MockFolderService },
-      { provide: (await import('../../../../core/services/auth-state.service')).AuthStateService, useClass: MockAuth },
-      { provide: (await import('../../../../core/services/workspace-state.service')).WorkspaceStateService, useClass: MockWorkspace },
-      { provide: (await import('../../../../core/services/google-drive.service')).GoogleDriveService, useValue: { isConnected: () => false, checkConnection: async () => true, connect: async () => {}, disconnect: async () => {}, renameFile: async () => {}, deleteFile: async () => {} } },
-      { provide: (await import('../../../../core/services/onedrive.service')).OneDriveService, useValue: { isConnected: () => false, checkConnection: async () => true, connect: async () => {}, disconnect: async () => {}, renameFile: async () => {}, deleteFile: async () => {} } },
-    ] }).compileComponents();
+    await TestBed.configureTestingModule({
+      imports: [SidebarComponent],
+      providers: [
+        {
+          provide: (await import('../../../folders/services/folder.service')).FolderService,
+          useClass: MockFolderService,
+        },
+        {
+          provide: (await import('../../../../core/services/auth-state.service')).AuthStateService,
+          useClass: MockAuth,
+        },
+        {
+          provide: (await import('../../../../core/services/workspace-state.service'))
+            .WorkspaceStateService,
+          useClass: MockWorkspace,
+        },
+        {
+          provide: (await import('../../../../core/services/google-drive.service'))
+            .GoogleDriveService,
+          useValue: {
+            isConnected: () => false,
+            checkConnection: async () => true,
+            connect: async () => {},
+            disconnect: async () => {},
+            renameFile: async () => {},
+            deleteFile: async () => {},
+          },
+        },
+        {
+          provide: (await import('../../../../core/services/onedrive.service')).OneDriveService,
+          useValue: {
+            isConnected: () => false,
+            checkConnection: async () => true,
+            connect: async () => {},
+            disconnect: async () => {},
+            renameFile: async () => {},
+            deleteFile: async () => {},
+          },
+        },
+      ],
+    }).compileComponents();
 
     const fixture = TestBed.createComponent(SidebarComponent);
     fixture.detectChanges();
@@ -24,15 +77,55 @@ describe('SidebarComponent', () => {
 
   it('loadFolders sets folderTree when folders returned', async () => {
     TestBed.resetTestingModule();
-    const mockFolderSvc: any = { getFolderTree: jest.fn().mockResolvedValue([{ id: 'f1', name: 'Root', is_root: true }]) };
-    const mockWS: any = { foldersChanged$: { subscribe: () => {} }, setSelectedFolder: jest.fn(), emitNoteSelected: jest.fn() };
-    await TestBed.configureTestingModule({ imports: [SidebarComponent], providers: [
-      { provide: (await import('../../../folders/services/folder.service')).FolderService, useValue: mockFolderSvc },
-      { provide: (await import('../../../../core/services/auth-state.service')).AuthStateService, useClass: MockAuth },
-      { provide: (await import('../../../../core/services/workspace-state.service')).WorkspaceStateService, useValue: mockWS },
-      { provide: (await import('../../../../core/services/google-drive.service')).GoogleDriveService, useValue: { isConnected: () => false, checkConnection: async () => true, connect: async () => {}, disconnect: async () => {}, renameFile: async () => {}, deleteFile: async () => {} } },
-      { provide: (await import('../../../../core/services/onedrive.service')).OneDriveService, useValue: { isConnected: () => false, checkConnection: async () => true, connect: async () => {}, disconnect: async () => {}, renameFile: async () => {}, deleteFile: async () => {} } },
-    ] }).compileComponents();
+    const mockFolderSvc: any = {
+      getFolderTree: jest.fn().mockResolvedValue([{ id: 'f1', name: 'Root', is_root: true }]),
+    };
+    const mockWS: any = {
+      foldersChanged$: { subscribe: () => {} },
+      setSelectedFolder: jest.fn(),
+      emitNoteSelected: jest.fn(),
+    };
+    await TestBed.configureTestingModule({
+      imports: [SidebarComponent],
+      providers: [
+        {
+          provide: (await import('../../../folders/services/folder.service')).FolderService,
+          useValue: mockFolderSvc,
+        },
+        {
+          provide: (await import('../../../../core/services/auth-state.service')).AuthStateService,
+          useClass: MockAuth,
+        },
+        {
+          provide: (await import('../../../../core/services/workspace-state.service'))
+            .WorkspaceStateService,
+          useValue: mockWS,
+        },
+        {
+          provide: (await import('../../../../core/services/google-drive.service'))
+            .GoogleDriveService,
+          useValue: {
+            isConnected: () => false,
+            checkConnection: async () => true,
+            connect: async () => {},
+            disconnect: async () => {},
+            renameFile: async () => {},
+            deleteFile: async () => {},
+          },
+        },
+        {
+          provide: (await import('../../../../core/services/onedrive.service')).OneDriveService,
+          useValue: {
+            isConnected: () => false,
+            checkConnection: async () => true,
+            connect: async () => {},
+            disconnect: async () => {},
+            renameFile: async () => {},
+            deleteFile: async () => {},
+          },
+        },
+      ],
+    }).compileComponents();
 
     const fixture = TestBed.createComponent(SidebarComponent);
     const comp = fixture.componentInstance;
@@ -49,13 +142,33 @@ describe('SidebarComponent', () => {
     const mockFolderSvc: any = { getFolderTree: jest.fn().mockRejectedValue(new Error('boom')) };
     const mockWS: any = { foldersChanged$: { subscribe: () => {} } };
 
-    await TestBed.configureTestingModule({ imports: [SidebarComponent], providers: [
-      { provide: (await import('../../../folders/services/folder.service')).FolderService, useValue: mockFolderSvc },
-      { provide: (await import('../../../../core/services/auth-state.service')).AuthStateService, useClass: MockAuth },
-      { provide: (await import('../../../../core/services/workspace-state.service')).WorkspaceStateService, useValue: mockWS },
-      { provide: (await import('../../../../core/services/google-drive.service')).GoogleDriveService, useValue: DRIVE_MOCK },
-      { provide: (await import('../../../../core/services/onedrive.service')).OneDriveService, useValue: DRIVE_MOCK },
-    ] }).compileComponents();
+    await TestBed.configureTestingModule({
+      imports: [SidebarComponent],
+      providers: [
+        {
+          provide: (await import('../../../folders/services/folder.service')).FolderService,
+          useValue: mockFolderSvc,
+        },
+        {
+          provide: (await import('../../../../core/services/auth-state.service')).AuthStateService,
+          useClass: MockAuth,
+        },
+        {
+          provide: (await import('../../../../core/services/workspace-state.service'))
+            .WorkspaceStateService,
+          useValue: mockWS,
+        },
+        {
+          provide: (await import('../../../../core/services/google-drive.service'))
+            .GoogleDriveService,
+          useValue: DRIVE_MOCK,
+        },
+        {
+          provide: (await import('../../../../core/services/onedrive.service')).OneDriveService,
+          useValue: DRIVE_MOCK,
+        },
+      ],
+    }).compileComponents();
 
     const spy = jest.spyOn(console, 'error').mockImplementation(() => {});
     const fixture = TestBed.createComponent(SidebarComponent);
@@ -63,7 +176,10 @@ describe('SidebarComponent', () => {
     // call loadFolders directly and await it to ensure rejection is handled here
     await comp.loadFolders();
 
-    expect(spy).toHaveBeenCalledWith(expect.stringContaining('Error loading folders:'), expect.any(Error));
+    expect(spy).toHaveBeenCalledWith(
+      expect.stringContaining('Error loading folders:'),
+      expect.any(Error),
+    );
     expect(comp.loading()).toBe(false);
     spy.mockRestore();
   });
@@ -73,13 +189,47 @@ describe('SidebarComponent', () => {
     const mockFolderSvc: any = { getFolderTree: jest.fn() };
     const mockAuth: any = { userId: () => null };
 
-    await TestBed.configureTestingModule({ imports: [SidebarComponent], providers: [
-      { provide: (await import('../../../folders/services/folder.service')).FolderService, useValue: mockFolderSvc },
-      { provide: (await import('../../../../core/services/auth-state.service')).AuthStateService, useValue: mockAuth },
-      { provide: (await import('../../../../core/services/workspace-state.service')).WorkspaceStateService, useValue: { foldersChanged$: { subscribe: () => {} } } },
-      { provide: (await import('../../../../core/services/google-drive.service')).GoogleDriveService, useValue: { isConnected: () => false, checkConnection: async () => true, connect: async () => {}, disconnect: async () => {}, renameFile: async () => {}, deleteFile: async () => {} } },
-      { provide: (await import('../../../../core/services/onedrive.service')).OneDriveService, useValue: { isConnected: () => false, checkConnection: async () => true, connect: async () => {}, disconnect: async () => {}, renameFile: async () => {}, deleteFile: async () => {} } },
-    ] }).compileComponents();
+    await TestBed.configureTestingModule({
+      imports: [SidebarComponent],
+      providers: [
+        {
+          provide: (await import('../../../folders/services/folder.service')).FolderService,
+          useValue: mockFolderSvc,
+        },
+        {
+          provide: (await import('../../../../core/services/auth-state.service')).AuthStateService,
+          useValue: mockAuth,
+        },
+        {
+          provide: (await import('../../../../core/services/workspace-state.service'))
+            .WorkspaceStateService,
+          useValue: { foldersChanged$: { subscribe: () => {} } },
+        },
+        {
+          provide: (await import('../../../../core/services/google-drive.service'))
+            .GoogleDriveService,
+          useValue: {
+            isConnected: () => false,
+            checkConnection: async () => true,
+            connect: async () => {},
+            disconnect: async () => {},
+            renameFile: async () => {},
+            deleteFile: async () => {},
+          },
+        },
+        {
+          provide: (await import('../../../../core/services/onedrive.service')).OneDriveService,
+          useValue: {
+            isConnected: () => false,
+            checkConnection: async () => true,
+            connect: async () => {},
+            disconnect: async () => {},
+            renameFile: async () => {},
+            deleteFile: async () => {},
+          },
+        },
+      ],
+    }).compileComponents();
 
     const fixture = TestBed.createComponent(SidebarComponent);
     const comp = fixture.componentInstance;
@@ -91,13 +241,47 @@ describe('SidebarComponent', () => {
     TestBed.resetTestingModule();
     const mockWS: any = { foldersChanged$: { subscribe: () => {} }, setSelectedFolder: jest.fn() };
 
-    await TestBed.configureTestingModule({ imports: [SidebarComponent], providers: [
-      { provide: (await import('../../../folders/services/folder.service')).FolderService, useClass: MockFolderService },
-      { provide: (await import('../../../../core/services/auth-state.service')).AuthStateService, useClass: MockAuth },
-      { provide: (await import('../../../../core/services/workspace-state.service')).WorkspaceStateService, useValue: mockWS },
-      { provide: (await import('../../../../core/services/google-drive.service')).GoogleDriveService, useValue: { isConnected: () => false, checkConnection: async () => true, connect: async () => {}, disconnect: async () => {}, renameFile: async () => {}, deleteFile: async () => {} } },
-      { provide: (await import('../../../../core/services/onedrive.service')).OneDriveService, useValue: { isConnected: () => false, checkConnection: async () => true, connect: async () => {}, disconnect: async () => {}, renameFile: async () => {}, deleteFile: async () => {} } },
-    ] }).compileComponents();
+    await TestBed.configureTestingModule({
+      imports: [SidebarComponent],
+      providers: [
+        {
+          provide: (await import('../../../folders/services/folder.service')).FolderService,
+          useClass: MockFolderService,
+        },
+        {
+          provide: (await import('../../../../core/services/auth-state.service')).AuthStateService,
+          useClass: MockAuth,
+        },
+        {
+          provide: (await import('../../../../core/services/workspace-state.service'))
+            .WorkspaceStateService,
+          useValue: mockWS,
+        },
+        {
+          provide: (await import('../../../../core/services/google-drive.service'))
+            .GoogleDriveService,
+          useValue: {
+            isConnected: () => false,
+            checkConnection: async () => true,
+            connect: async () => {},
+            disconnect: async () => {},
+            renameFile: async () => {},
+            deleteFile: async () => {},
+          },
+        },
+        {
+          provide: (await import('../../../../core/services/onedrive.service')).OneDriveService,
+          useValue: {
+            isConnected: () => false,
+            checkConnection: async () => true,
+            connect: async () => {},
+            disconnect: async () => {},
+            renameFile: async () => {},
+            deleteFile: async () => {},
+          },
+        },
+      ],
+    }).compileComponents();
 
     const fixture = TestBed.createComponent(SidebarComponent);
     const comp = fixture.componentInstance;
@@ -110,15 +294,53 @@ describe('SidebarComponent', () => {
 
   it('onNoteSelected sets folder, emits selection and handles null folder', async () => {
     TestBed.resetTestingModule();
-    const mockWS: any = { foldersChanged$: { subscribe: () => {} }, setSelectedFolder: jest.fn(), emitNoteSelected: jest.fn() };
+    const mockWS: any = {
+      foldersChanged$: { subscribe: () => {} },
+      setSelectedFolder: jest.fn(),
+      emitNoteSelected: jest.fn(),
+    };
 
-    await TestBed.configureTestingModule({ imports: [SidebarComponent], providers: [
-      { provide: (await import('../../../folders/services/folder.service')).FolderService, useClass: MockFolderService },
-      { provide: (await import('../../../../core/services/auth-state.service')).AuthStateService, useClass: MockAuth },
-      { provide: (await import('../../../../core/services/workspace-state.service')).WorkspaceStateService, useValue: mockWS },
-      { provide: (await import('../../../../core/services/google-drive.service')).GoogleDriveService, useValue: { isConnected: () => false, checkConnection: async () => true, connect: async () => {}, disconnect: async () => {}, renameFile: async () => {}, deleteFile: async () => {} } },
-      { provide: (await import('../../../../core/services/onedrive.service')).OneDriveService, useValue: { isConnected: () => false, checkConnection: async () => true, connect: async () => {}, disconnect: async () => {}, renameFile: async () => {}, deleteFile: async () => {} } },
-    ] }).compileComponents();
+    await TestBed.configureTestingModule({
+      imports: [SidebarComponent],
+      providers: [
+        {
+          provide: (await import('../../../folders/services/folder.service')).FolderService,
+          useClass: MockFolderService,
+        },
+        {
+          provide: (await import('../../../../core/services/auth-state.service')).AuthStateService,
+          useClass: MockAuth,
+        },
+        {
+          provide: (await import('../../../../core/services/workspace-state.service'))
+            .WorkspaceStateService,
+          useValue: mockWS,
+        },
+        {
+          provide: (await import('../../../../core/services/google-drive.service'))
+            .GoogleDriveService,
+          useValue: {
+            isConnected: () => false,
+            checkConnection: async () => true,
+            connect: async () => {},
+            disconnect: async () => {},
+            renameFile: async () => {},
+            deleteFile: async () => {},
+          },
+        },
+        {
+          provide: (await import('../../../../core/services/onedrive.service')).OneDriveService,
+          useValue: {
+            isConnected: () => false,
+            checkConnection: async () => true,
+            connect: async () => {},
+            disconnect: async () => {},
+            renameFile: async () => {},
+            deleteFile: async () => {},
+          },
+        },
+      ],
+    }).compileComponents();
 
     const fixture = TestBed.createComponent(SidebarComponent);
     const comp = fixture.componentInstance;
@@ -140,19 +362,44 @@ describe('SidebarComponent', () => {
     const mockWS: any = {
       foldersChanged$: {
         _subs: [] as any[],
-        subscribe(fn: any) { this._subs.push(fn); return { unsubscribe: () => {} }; },
-        emit() { this._subs.forEach((s: any) => s()); }
+        subscribe(fn: any) {
+          this._subs.push(fn);
+          return { unsubscribe: () => {} };
+        },
+        emit() {
+          this._subs.forEach((s: any) => s());
+        },
       },
-      setSelectedFolder: jest.fn()
+      setSelectedFolder: jest.fn(),
     };
 
-    await TestBed.configureTestingModule({ imports: [SidebarComponent], providers: [
-      { provide: (await import('../../../folders/services/folder.service')).FolderService, useValue: mockFolderSvc },
-      { provide: (await import('../../../../core/services/auth-state.service')).AuthStateService, useClass: MockAuth },
-      { provide: (await import('../../../../core/services/workspace-state.service')).WorkspaceStateService, useValue: mockWS },
-      { provide: (await import('../../../../core/services/google-drive.service')).GoogleDriveService, useValue: DRIVE_MOCK },
-      { provide: (await import('../../../../core/services/onedrive.service')).OneDriveService, useValue: DRIVE_MOCK },
-    ] }).compileComponents();
+    await TestBed.configureTestingModule({
+      imports: [SidebarComponent],
+      providers: [
+        {
+          provide: (await import('../../../folders/services/folder.service')).FolderService,
+          useValue: mockFolderSvc,
+        },
+        {
+          provide: (await import('../../../../core/services/auth-state.service')).AuthStateService,
+          useClass: MockAuth,
+        },
+        {
+          provide: (await import('../../../../core/services/workspace-state.service'))
+            .WorkspaceStateService,
+          useValue: mockWS,
+        },
+        {
+          provide: (await import('../../../../core/services/google-drive.service'))
+            .GoogleDriveService,
+          useValue: DRIVE_MOCK,
+        },
+        {
+          provide: (await import('../../../../core/services/onedrive.service')).OneDriveService,
+          useValue: DRIVE_MOCK,
+        },
+      ],
+    }).compileComponents();
 
     const fixture = TestBed.createComponent(SidebarComponent);
     const comp = fixture.componentInstance;

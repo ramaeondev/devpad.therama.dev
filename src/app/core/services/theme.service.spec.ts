@@ -23,14 +23,21 @@ describe('ThemeService', () => {
     localStorage.removeItem('theme');
     document.documentElement.classList.remove('dark');
 
-    await TestBed.configureTestingModule({ providers: [ { provide: (await import('./auth-state.service')).AuthStateService, useValue: mockAuth }, { provide: (await import('./supabase.service')).SupabaseService, useValue: mockSupabase } ] }).compileComponents();
+    await TestBed.configureTestingModule({
+      providers: [
+        { provide: (await import('./auth-state.service')).AuthStateService, useValue: mockAuth },
+        { provide: (await import('./supabase.service')).SupabaseService, useValue: mockSupabase },
+      ],
+    }).compileComponents();
 
     svc = TestBed.inject(ThemeService);
   });
 
   afterEach(() => {
     jest.restoreAllMocks();
-    try { localStorage.removeItem('theme'); } catch {}
+    try {
+      localStorage.removeItem('theme');
+    } catch {}
     document.documentElement.classList.remove('dark');
   });
 
@@ -107,7 +114,12 @@ describe('ThemeService', () => {
     mockAuth.user = jest.fn().mockReturnValue({ id: 'u2', user_metadata: {} });
     // Recreate TestBed to get new service with updated auth stub
     TestBed.resetTestingModule();
-    await TestBed.configureTestingModule({ providers: [ { provide: (await import('./auth-state.service')).AuthStateService, useValue: mockAuth }, { provide: (await import('./supabase.service')).SupabaseService, useValue: mockSupabase } ] }).compileComponents();
+    await TestBed.configureTestingModule({
+      providers: [
+        { provide: (await import('./auth-state.service')).AuthStateService, useValue: mockAuth },
+        { provide: (await import('./supabase.service')).SupabaseService, useValue: mockSupabase },
+      ],
+    }).compileComponents();
     const svc2 = TestBed.inject(ThemeService);
 
     // allow microtask loop for effect to set theme
@@ -118,7 +130,9 @@ describe('ThemeService', () => {
   it('setTheme tolerates localStorage.setItem throwing and supabase update failing', async () => {
     // throw on setItem
     const orig = localStorage.setItem;
-    (localStorage as any).setItem = jest.fn(() => { throw new Error('no storage'); });
+    (localStorage as any).setItem = jest.fn(() => {
+      throw new Error('no storage');
+    });
 
     mockAuth.userId = jest.fn().mockReturnValue('uX');
     mockSupabase.auth.updateUser = jest.fn().mockRejectedValue(new Error('fail'));
