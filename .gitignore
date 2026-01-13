@@ -50,3 +50,12 @@ Thumbs.db
 
 src/config.dev.ts
 src/config.prod.ts
+
+# E2E / Playwright artifacts
+test-results/
+e2e-results/
+playwright-report/
+# Optional: browser videos/screenshots produced by Playwright when running locally
+**/test-results/**/*.png
+**/test-results/**/*.webm
+**/e2e-results/**
