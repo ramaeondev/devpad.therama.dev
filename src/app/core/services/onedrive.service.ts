@@ -47,7 +47,7 @@ export class OneDriveService {
       const popup = window.open(
         authUrl,
         'OneDrive Login',
-        `width=${width},height=${height},left=${left},top=${top}`
+        `width=${width},height=${height},left=${left},top=${top}`,
       );
 
       if (!popup) {
@@ -146,19 +146,17 @@ export class OneDriveService {
       };
 
       const headers = new HttpHeaders({
-        'apikey': environment.supabase.anonKey,
-        'Authorization': `Bearer ${sbAccessToken}`,
+        apikey: environment.supabase.anonKey,
+        Authorization: `Bearer ${sbAccessToken}`,
         'Content-Type': 'application/json',
-        'Prefer': 'resolution=merge-duplicates, return=representation'
+        Prefer: 'resolution=merge-duplicates, return=representation',
       });
 
       const params = new HttpParams().set('on_conflict', 'user_id,provider');
 
-      const response = await this.http.post<any[]>(
-        `${environment.supabase.url}/rest/v1/integrations`,
-        body,
-        { headers, params }
-      ).toPromise();
+      const response = await this.http
+        .post<any[]>(`${environment.supabase.url}/rest/v1/integrations`, body, { headers, params })
+        .toPromise();
 
       const data = response?.[0];
 
@@ -273,14 +271,13 @@ export class OneDriveService {
         .set('limit', '1');
 
       const headers = new HttpHeaders({
-        'apikey': environment.supabase.anonKey,
-        'Authorization': `Bearer ${sbAccessToken}`
+        apikey: environment.supabase.anonKey,
+        Authorization: `Bearer ${sbAccessToken}`,
       });
 
-      const response = await this.http.get<Integration[]>(
-        `${environment.supabase.url}/rest/v1/integrations`,
-        { headers, params }
-      ).toPromise();
+      const response = await this.http
+        .get<Integration[]>(`${environment.supabase.url}/rest/v1/integrations`, { headers, params })
+        .toPromise();
 
       const data = response?.[0];
 
@@ -323,10 +320,7 @@ export class OneDriveService {
       }
 
       // Step 2: Delete integration from database
-      const { error } = await this.supabase
-        .from('integrations')
-        .delete()
-        .eq('id', integration.id);
+      const { error } = await this.supabase.from('integrations').delete().eq('id', integration.id);
 
       if (error) throw error;
 
@@ -335,8 +329,10 @@ export class OneDriveService {
       this.isConnected.set(false);
       this.files.set([]);
       this.rootFolder.set(null);
-      
-      this.toast.success('OneDrive disconnected successfully. You can now connect with a different account.');
+
+      this.toast.success(
+        'OneDrive disconnected successfully. You can now connect with a different account.',
+      );
     } catch (error: any) {
       console.error('Failed to disconnect OneDrive:', error);
       this.toast.error('Failed to disconnect OneDrive');
@@ -353,12 +349,12 @@ export class OneDriveService {
         // Microsoft logout endpoint
         // This will clear the user's Microsoft session in the browser
         const logoutUrl = `${this.AUTHORITY}/oauth2/v2.0/logout?post_logout_redirect_uri=${encodeURIComponent(window.location.origin)}`;
-        
+
         // Option 1: Open in hidden iframe (silent logout)
         const iframe = document.createElement('iframe');
         iframe.style.display = 'none';
         iframe.src = logoutUrl;
-        
+
         // Clean up iframe after logout completes
         const cleanup = () => {
           if (iframe.parentNode) {
@@ -405,7 +401,7 @@ export class OneDriveService {
 
       // First, check if the drive exists and get drive info
       let driveEndpoint = '/me/drive';
-      
+
       try {
         const driveInfo = await this.http
           .get<any>(`${this.GRAPH_API}${driveEndpoint}`, {
@@ -418,7 +414,7 @@ export class OneDriveService {
         console.log('OneDrive info:', driveInfo);
       } catch (driveError: any) {
         console.error('Drive check error:', driveError);
-        
+
         // If /me/drive fails, try /me/drives to list all available drives
         try {
           const drivesResponse = await this.http
@@ -446,7 +442,7 @@ export class OneDriveService {
       }
 
       // Now try to load root children
-      let filesEndpoint = `${driveEndpoint}/root/children?$top=100`;
+      const filesEndpoint = `${driveEndpoint}/root/children?$top=100`;
       let response: any;
 
       try {
@@ -459,11 +455,11 @@ export class OneDriveService {
           .toPromise();
       } catch (rootError: any) {
         console.error('Root children error:', rootError);
-        
+
         // If root/children fails, try to get special folders instead
         if (rootError.error?.error?.code === 'itemNotFound') {
           console.log('Root not found, trying special folders...');
-          
+
           try {
             // Try to access the Documents folder as fallback
             response = await this.http
@@ -473,11 +469,11 @@ export class OneDriveService {
                 }),
               })
               .toPromise();
-            
+
             this.toast.info('Showing Documents folder (root not accessible)');
           } catch (specialError) {
             console.error('Special folder error:', specialError);
-            
+
             // Last resort: try to list items from the drive root directly
             try {
               response = await this.http
@@ -489,8 +485,10 @@ export class OneDriveService {
                 .toPromise();
             } catch (itemsError) {
               console.error('Items root error:', itemsError);
-              this.toast.error('Unable to access OneDrive files. The drive may be empty or inaccessible.');
-              
+              this.toast.error(
+                'Unable to access OneDrive files. The drive may be empty or inaccessible.',
+              );
+
               // Set empty root folder
               this.rootFolder.set({
                 id: 'root',
@@ -536,7 +534,7 @@ export class OneDriveService {
       await this.buildFolderTree(files, accessToken);
     } catch (error: any) {
       console.error('Failed to load files:', error);
-      
+
       // Provide more specific error messages
       if (error.error?.error?.code === 'InvalidAuthenticationToken') {
         this.toast.error('OneDrive session expired. Please reconnect.');
@@ -552,10 +550,7 @@ export class OneDriveService {
   /**
    * Build folder tree structure
    */
-  private async buildFolderTree(
-    rootFiles: OneDriveFile[],
-    accessToken: string
-  ): Promise<void> {
+  private async buildFolderTree(rootFiles: OneDriveFile[], accessToken: string): Promise<void> {
     const root: OneDriveFolder = {
       id: 'root',
       name: 'OneDrive',
@@ -576,10 +571,7 @@ export class OneDriveService {
   /**
    * Load a folder recursively
    */
-  private async loadFolder(
-    folder: OneDriveFile,
-    accessToken: string
-  ): Promise<OneDriveFolder> {
+  private async loadFolder(folder: OneDriveFile, accessToken: string): Promise<OneDriveFolder> {
     try {
       const response = await this.http
         .get<any>(`${this.GRAPH_API}/me/drive/items/${folder.id}/children`, {
@@ -679,7 +671,7 @@ export class OneDriveService {
           resource_type: ActivityResource.Integration,
           resource_name: uploadedFile.name,
           resource_id: uploadedFile.id,
-          metadata: { provider: 'onedrive', mime_type: uploadedFile.mimeType }
+          metadata: { provider: 'onedrive', mime_type: uploadedFile.mimeType },
         });
       }
 
@@ -755,7 +747,7 @@ export class OneDriveService {
           resource_type: ActivityResource.Integration,
           resource_name: 'OneDrive File',
           resource_id: fileId,
-          metadata: { provider: 'onedrive' }
+          metadata: { provider: 'onedrive' },
         });
       }
 
@@ -781,9 +773,7 @@ export class OneDriveService {
         return null;
       }
 
-      const path = parentId
-        ? `/me/drive/items/${parentId}/children`
-        : '/me/drive/root/children';
+      const path = parentId ? `/me/drive/items/${parentId}/children` : '/me/drive/root/children';
 
       const response = await this.http
         .post<any>(
@@ -798,7 +788,7 @@ export class OneDriveService {
               Authorization: `Bearer ${accessToken}`,
               'Content-Type': 'application/json',
             }),
-          }
+          },
         )
         .toPromise();
 
@@ -824,7 +814,7 @@ export class OneDriveService {
           resource_type: ActivityResource.Integration,
           resource_name: folder.name,
           resource_id: folder.id,
-          metadata: { provider: 'onedrive', is_folder: true }
+          metadata: { provider: 'onedrive', is_folder: true },
         });
       }
 
@@ -858,7 +848,7 @@ export class OneDriveService {
               Authorization: `Bearer ${accessToken}`,
               'Content-Type': 'application/json',
             }),
-          }
+          },
         )
         .toPromise();
 
@@ -873,7 +863,7 @@ export class OneDriveService {
           resource_type: ActivityResource.Integration,
           resource_name: newName,
           resource_id: fileId,
-          metadata: { provider: 'onedrive', action: 'rename' }
+          metadata: { provider: 'onedrive', action: 'rename' },
         });
       }
 

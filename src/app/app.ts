@@ -8,7 +8,7 @@ import { ThemeService } from './core/services/theme.service';
   templateUrl: './app.html',
   styleUrl: './app.scss',
 })
-export class App implements OnInit {
+export class AppComponent implements OnInit {
   private themeService = inject(ThemeService);
 
   ngOnInit() {

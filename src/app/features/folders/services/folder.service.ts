@@ -94,7 +94,7 @@ export class FolderService {
       try {
         // Check if user already has a root folder
         const rootFolder = await this.getRootFolder(userId);
-        
+
         if (rootFolder) {
           return rootFolder;
         }
@@ -122,7 +122,6 @@ export class FolderService {
           .eq('name', dto.name.trim());
         if (dto.parent_id == null) {
           // need IS NULL instead of eq for null
-          // @ts-ignore postgrest types
           dupQuery = dupQuery.is('parent_id', null) as any;
         } else {
           dupQuery = dupQuery.eq('parent_id', dto.parent_id);
