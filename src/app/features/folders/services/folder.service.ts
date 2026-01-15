@@ -94,7 +94,7 @@ export class FolderService {
       try {
         // Check if user already has a root folder
         const rootFolder = await this.getRootFolder(userId);
-        
+
         if (rootFolder) {
           return rootFolder;
         }
