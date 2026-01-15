@@ -1,5 +1,6 @@
 import { test, expect } from '@playwright/test';
 import { PublicNotePO } from '../page-objects/public-note.po';
+import { stubRpcEndpoints, stubAnalytics } from '../helpers/route-stubs';
 
 test('public shared note loads and displays content', async ({ page }) => {
   // Log requests and errors for debugging
@@ -8,6 +9,10 @@ test('public shared note loads and displays content', async ({ page }) => {
   });
   page.on('console', (msg) => console.log('[PAGE LOG]', msg.text()));
   page.on('pageerror', (err) => console.log('[PAGE ERROR]', err.message));
+
+  // Ensure RPCs/analytics are stubbed early
+  await stubRpcEndpoints(page);
+  await stubAnalytics(page);
 
   // Stub public_shares query
   await page.route('**/rest/v1/public_shares*', async (route) => {
@@ -41,7 +46,12 @@ test('public shared note loads and displays content', async ({ page }) => {
   });
 
   const publicNote = new PublicNotePO(page);
-  await publicNote.goto('token123');
+
+  // Wait for rpc to return as part of navigation
+  await Promise.all([
+    page.waitForResponse((r) => r.url().includes('/rpc/get_shared_note') && r.status() === 200, { timeout: 10000 }),
+    publicNote.goto('token123'),
+  ]);
 
   await expect(publicNote.title()).toBeVisible({ timeout: 10000 });
   await expect(publicNote.title()).toHaveText('Public Note Title', { timeout: 10000 });

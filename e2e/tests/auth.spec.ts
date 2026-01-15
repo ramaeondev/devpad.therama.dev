@@ -1,8 +1,12 @@
 import { test, expect } from '@playwright/test';
-import { stubAuthSession } from '../helpers/route-stubs';
+import { stubAuthSession, stubRpcEndpoints, stubAnalytics } from '../helpers/route-stubs';
 import { DashboardPO } from '../page-objects/dashboard.po';
 
 test('dashboard accessible when session present and shows sign out', async ({ page }) => {
+  // Ensure RPCs/analytics are stubbed to avoid external calls during app init
+  await stubRpcEndpoints(page);
+  await stubAnalytics(page);
+
   await stubAuthSession(page);
   const dash = new DashboardPO(page);
 

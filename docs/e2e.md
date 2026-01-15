@@ -15,6 +15,10 @@ This project uses Playwright for end-to-end tests with network stubs to make run
 ## CI
 A GitHub Actions workflow is added at `.github/workflows/e2e.yml` which builds and serves the site and runs `npm run test:e2e:ci`.
 
+## Artifacts
+- Local runs produce Playwright outputs in `test-results/` (screenshots, videos) and `e2e-results/` (Junit XML and HTML report). These folders are ignored by git via `.gitignore` and should not be committed.
+- In CI the workflow uploads the `e2e-results/` artifact; download it from the GitHub Actions run page (Artifacts → `e2e-results`) or with the GitHub CLI: `gh run download --repo <owner>/<repo> --run-id <run-id> --name e2e-results`.
+
 ## Auth & Backends
 - Tests are stubbed by default via `e2e/helpers/route-stubs.ts`.
 - For full end-to-end (real backend) runs, set `E2E_BASE_URL` to a deployed preview and supply Supabase secrets via CI secrets; consider running a small smoke job against the real test project separately.
