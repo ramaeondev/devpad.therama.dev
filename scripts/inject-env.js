@@ -22,6 +22,7 @@ const envVariables = {
   APPWRITE_PROJECT_ID: process.env.APPWRITE_PROJECT_ID || '',
   APPWRITE_DB_READ_ONLY_API_KEY: process.env.APPWRITE_DB_READ_ONLY_API_KEY || '',
   APPWRITE_DATABASE_ID: process.env.APPWRITE_DATABASE_ID || '',
+  HONEYBADGER_API_KEY: process.env.HONEYBADGER_API_KEY || '',
 };
 
 // Validate required env vars early: fail the build if missing
@@ -58,6 +59,7 @@ const generateConfigFile = (filePath) => {
     apiKey: '${envVariables.APPWRITE_DB_READ_ONLY_API_KEY}',
     databaseId: '${envVariables.APPWRITE_DATABASE_ID}',
   },
+  HONEYBADGER_API_KEY: '${envVariables.HONEYBADGER_API_KEY}',
 };
 `;
 
