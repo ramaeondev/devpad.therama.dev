@@ -1,8 +1,8 @@
 import { of } from 'rxjs';
 import { authInterceptor } from './auth.interceptor';
+import { environment as env } from '../../../environments/environment';
 
 describe('authInterceptor', () => {
-  const env = require('../../../environments/environment').environment;
 
   afterEach(() => {
     // reset to default to avoid cross-test contamination

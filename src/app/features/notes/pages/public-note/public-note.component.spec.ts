@@ -37,12 +37,26 @@ describe('PublicNoteComponent', () => {
   });
 
   it('ngOnInit loads share and updates meta/title', async () => {
-    await TestBed.configureTestingModule({ providers: [PublicNoteComponent, { provide: (await import('../../../../core/services/share.service')).ShareService, useClass: MockShare }, { provide: (await import('../../../../core/services/auth-state.service')).AuthStateService, useClass: MockAuthState }, { provide: (await import('../../../../core/services/supabase.service')).SupabaseService, useClass: MockSupabase }, { provide: (await import('@angular/router')).ActivatedRoute, useValue: { snapshot: { paramMap: { get: (k: string) => 'token123' }, queryParamMap: { get: (_: string) => null } } }, { provide: (await import('@angular/platform-browser')).Title, useValue: { setTitle: jest.fn() } }, { provide: (await import('@angular/platform-browser')).Meta, useValue: { updateTag: jest.fn() } } ] }).compileComponents();
+    const { ShareService } = await import('../../../../core/services/share.service');
+    const { AuthStateService } = await import('../../../../core/services/auth-state.service');
+    const { SupabaseService } = await import('../../../../core/services/supabase.service');
+    const { ActivatedRoute } = await import('@angular/router');
+    const { Title, Meta } = await import('@angular/platform-browser');
+
+    await TestBed.configureTestingModule({ providers: [
+      PublicNoteComponent,
+      { provide: ShareService, useClass: MockShare },
+      { provide: AuthStateService, useClass: MockAuthState },
+      { provide: SupabaseService, useClass: MockSupabase },
+      { provide: ActivatedRoute, useValue: { snapshot: { paramMap: { get: (k: string) => 'token123' }, queryParamMap: { get: (_: string) => null } } } },
+      { provide: Title, useValue: { setTitle: jest.fn() } },
+      { provide: Meta, useValue: { updateTag: jest.fn() } },
+    ] }).compileComponents();
 
     const fixture = TestBed.createComponent(PublicNoteComponent);
     const comp = fixture.componentInstance;
-    const share = TestBed.inject((await import('../../../../core/services/share.service')).ShareService as any);
-    const title = TestBed.inject((await import('@angular/platform-browser')).Title as any);
+    const share = TestBed.inject(ShareService as any);
+    const title = TestBed.inject(Title as any);
     share.getShareByToken.mockResolvedValue({ share_token: 't', note_title: 'T', content: '# A', isEncrypted: false, requiresEncryptionKey: false });
 
     const spy = jest.spyOn<any, any>(comp as any, 'startContentRefresh').mockImplementation(() => {});
@@ -57,11 +71,20 @@ describe('PublicNoteComponent', () => {
 
   it('startContentRefresh polls and updates content', async () => {
     jest.useFakeTimers();
-    await TestBed.configureTestingModule({ providers: [PublicNoteComponent, { provide: (await import('../../../../core/services/share.service')).ShareService, useClass: MockShare }, { provide: (await import('../../../../core/services/auth-state.service')).AuthStateService, useClass: MockAuthState }, { provide: (await import('@angular/router')).ActivatedRoute, useValue: { snapshot: { paramMap: { get: (k: string) => 'token123' }, queryParamMap: { get: (_: string) => null } } } } ] }).compileComponents();
+    const { ShareService } = await import('../../../../core/services/share.service');
+    const { AuthStateService } = await import('../../../../core/services/auth-state.service');
+    const { ActivatedRoute } = await import('@angular/router');
+
+    await TestBed.configureTestingModule({ providers: [
+      PublicNoteComponent,
+      { provide: ShareService, useClass: MockShare },
+      { provide: AuthStateService, useClass: MockAuthState },
+      { provide: ActivatedRoute, useValue: { snapshot: { paramMap: { get: (k: string) => 'token123' }, queryParamMap: { get: (_: string) => null } } } },
+    ] }).compileComponents();
 
     const fixture = TestBed.createComponent(PublicNoteComponent);
     const comp = fixture.componentInstance;
-    const share = TestBed.inject((await import('../../../../core/services/share.service')).ShareService as any);
+    const share = TestBed.inject(ShareService as any);
 
     comp.content = 'o';
     share.getShareContentForRefresh.mockResolvedValueOnce({ content: 'o' }).mockResolvedValueOnce({ content: 'n' });
@@ -80,7 +103,16 @@ describe('PublicNoteComponent', () => {
   });
 
   it('saveContent does not save for non-editors', async () => {
-    await TestBed.configureTestingModule({ providers: [PublicNoteComponent, { provide: (await import('../../../../core/services/share.service')).ShareService, useClass: MockShare }, { provide: (await import('../../../../core/services/auth-state.service')).AuthStateService, useClass: MockAuthState }, { provide: (await import('@angular/router')).ActivatedRoute, useValue: { snapshot: { paramMap: { get: (k: string) => 'token123' }, queryParamMap: { get: (_: string) => null } } } }, { provide: (await import('@angular/router')).ActivatedRoute, useValue: { snapshot: { paramMap: { get: (k: string) => 'token123' }, queryParamMap: { get: (_: string) => null } } } } ] }).compileComponents();
+    const { ShareService } = await import('../../../../core/services/share.service');
+    const { AuthStateService } = await import('../../../../core/services/auth-state.service');
+    const { ActivatedRoute } = await import('@angular/router');
+
+    await TestBed.configureTestingModule({ providers: [
+      PublicNoteComponent,
+      { provide: ShareService, useClass: MockShare },
+      { provide: AuthStateService, useClass: MockAuthState },
+      { provide: ActivatedRoute, useValue: { snapshot: { paramMap: { get: (k: string) => 'token123' }, queryParamMap: { get: (_: string) => null } } } },
+    ] }).compileComponents();
 
     const fixture = TestBed.createComponent(PublicNoteComponent);
     const comp = fixture.componentInstance;
@@ -89,22 +121,35 @@ describe('PublicNoteComponent', () => {
     (comp as any).content = 'x';
 
     await comp.saveContent();
-    const shareSvc = TestBed.inject((await import('../../../../core/services/share.service')).ShareService as any);
+    const shareSvc = TestBed.inject(ShareService as any);
     expect(shareSvc.updatePublicContent).not.toHaveBeenCalled();
   });
 
   it('saveContent updates and navigates for owner', async () => {
-    await TestBed.configureTestingModule({ providers: [PublicNoteComponent, { provide: (await import('../../../../core/services/share.service')).ShareService, useClass: MockShare }, { provide: (await import('../../../../core/services/auth-state.service')).AuthStateService, useClass: MockAuthState }, { provide: (await import('@angular/router')).Router, useValue: { navigate: jest.fn() } }, { provide: (await import('../../../../core/services/toast.service')).ToastService, useClass: MockToast }, { provide: (await import('@angular/router')).ActivatedRoute, useValue: { snapshot: { paramMap: { get: (k: string) => 'token123' }, queryParamMap: { get: (_: string) => null } } } } ] }).compileComponents();
+    const { ShareService } = await import('../../../../core/services/share.service');
+    const { AuthStateService } = await import('../../../../core/services/auth-state.service');
+    const { Router } = await import('@angular/router');
+    const { ToastService } = await import('../../../../core/services/toast.service');
+    const { ActivatedRoute } = await import('@angular/router');
+
+    await TestBed.configureTestingModule({ providers: [
+      PublicNoteComponent,
+      { provide: ShareService, useClass: MockShare },
+      { provide: AuthStateService, useClass: MockAuthState },
+      { provide: Router, useValue: { navigate: jest.fn() } },
+      { provide: ToastService, useClass: MockToast },
+      { provide: ActivatedRoute, useValue: { snapshot: { paramMap: { get: (k: string) => 'token123' }, queryParamMap: { get: (_: string) => null } } } },
+    ] }).compileComponents();
 
     const fixture = TestBed.createComponent(PublicNoteComponent);
     const comp = fixture.componentInstance;
 
     comp.share.set({ share_token: 't', permission: 'editable', user_id: 'owner1', note_id: 'note1' } as any);
     (comp as any).content = 'c';
-    (TestBed.inject((await import('../../../../core/services/auth-state.service')).AuthStateService) as any).isAuthenticated.mockReturnValue(true);
-    (TestBed.inject((await import('../../../../core/services/auth-state.service')).AuthStateService) as any).userId.mockReturnValue('owner1');
+    (TestBed.inject(AuthStateService) as any).isAuthenticated.mockReturnValue(true);
+    (TestBed.inject(AuthStateService) as any).userId.mockReturnValue('owner1');
 
-    const shareSvc = TestBed.inject((await import('../../../../core/services/share.service')).ShareService as any);
+    const shareSvc = TestBed.inject(ShareService as any);
     shareSvc.updatePublicContent.mockResolvedValue({});
     shareSvc.ensurePublicFolder.mockResolvedValue({ id: 'pub1' });
 

@@ -122,7 +122,7 @@ export class FolderService {
           .eq('name', dto.name.trim());
         if (dto.parent_id == null) {
           // need IS NULL instead of eq for null
-          // @ts-ignore postgrest types
+          // @ts-expect-error postgrest types
           dupQuery = dupQuery.is('parent_id', null) as any;
         } else {
           dupQuery = dupQuery.eq('parent_id', dto.parent_id);

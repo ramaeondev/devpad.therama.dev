@@ -4,7 +4,6 @@ import { authGuard } from './auth.guard';
 import { SupabaseService } from '../services/supabase.service';
 import { AuthStateService } from '../services/auth-state.service';
 import { FolderService } from '../../features/folders/services/folder.service';
-import { runInInjectionContext } from '@angular/core';
 
 describe('authGuard', () => {
   it('allows when session present and initializes folders', async () => {

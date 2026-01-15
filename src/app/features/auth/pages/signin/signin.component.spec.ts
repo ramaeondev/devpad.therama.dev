@@ -4,7 +4,7 @@ import { SigninComponent } from './signin.component';
 class MockSupabase { auth = { signInWithPassword: jest.fn().mockResolvedValue({ data: { session: { user: { id: 'u1'} } } }) }; authDirect = { signInWithOAuth: jest.fn().mockResolvedValue({}) }; }
 class MockToast { success = jest.fn(); error = jest.fn(); }
 class MockAuthState { setUser = jest.fn(); }
-class MockRouter { parseUrl = jest.fn().mockReturnValue({ queryParamMap: new Map() }), navigateByUrl = jest.fn(); }
+class MockRouter { parseUrl = jest.fn().mockReturnValue({ queryParamMap: new Map() }); navigateByUrl = jest.fn(); }
 class MockDevice { registerDevice = jest.fn().mockResolvedValue(true); }
 class MockActivity { logActivity = jest.fn().mockResolvedValue(true); }
 

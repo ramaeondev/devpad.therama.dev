@@ -1,10 +1,10 @@
 import { TestBed } from '@angular/core/testing';
-import { App } from './app';
+import { AppComponent } from './app';
 
-describe('App', () => {
+describe('AppComponent', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [App],
+      imports: [AppComponent],
       providers: [
         // Provide minimal mocks to avoid instantiating real clients during unit tests
         { provide: (await import('./core/services/supabase.service')).SupabaseService, useValue: {} },
@@ -12,17 +12,18 @@ describe('App', () => {
       ]
     }).compileComponents();
     // Ensure external templates and styles are resolved for JIT tests
-    await (TestBed as any).resolveComponentResources?.();
+    const resolver = (TestBed as unknown as { resolveComponentResources?: () => Promise<void> }).resolveComponentResources;
+    await resolver?.();
   });
 
   it('should create the app', () => {
-    const fixture = TestBed.createComponent(App);
+    const fixture = TestBed.createComponent(AppComponent);
     const app = fixture.componentInstance;
     expect(app).toBeTruthy();
   });
 
   it('renders router outlet', () => {
-    const fixture = TestBed.createComponent(App);
+    const fixture = TestBed.createComponent(AppComponent);
     fixture.detectChanges();
     const compiled = fixture.nativeElement as HTMLElement;
     expect(compiled.querySelector('router-outlet')).not.toBeNull();

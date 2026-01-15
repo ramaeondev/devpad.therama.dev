@@ -330,7 +330,7 @@ describe('SettingsPanelComponent', () => {
     await comp.connectGoogleDrive();
     expect(toastError).toHaveBeenCalled();
 
-    root: one.disconnect.mockRejectedValueOnce(new Error('ofail'));
+    one.disconnect.mockRejectedValueOnce(new Error('ofail'));
     await comp.disconnectOneDrive();
     expect(toastError).toHaveBeenCalled();
   });

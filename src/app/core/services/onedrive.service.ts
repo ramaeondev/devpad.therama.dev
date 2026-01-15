@@ -446,7 +446,7 @@ export class OneDriveService {
       }
 
       // Now try to load root children
-      let filesEndpoint = `${driveEndpoint}/root/children?$top=100`;
+      const filesEndpoint = `${driveEndpoint}/root/children?$top=100`;
       let response: any;
 
       try {
