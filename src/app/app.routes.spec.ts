@@ -14,12 +14,24 @@ describe('app.routes', () => {
   });
 
   it('contains expected top-level paths', () => {
-    const paths = routes.map(r => r.path);
-    expect(paths).toEqual(expect.arrayContaining(['', 'changelog', 'auth', 'dashboard', 'notes', 'folders', 'share/:shareToken', 'policy', 'terms']));
+    const paths = routes.map((r) => r.path);
+    expect(paths).toEqual(
+      expect.arrayContaining([
+        '',
+        'changelog',
+        'auth',
+        'dashboard',
+        'notes',
+        'folders',
+        'share/:shareToken',
+        'policy',
+        'terms',
+      ]),
+    );
   });
 
   it('dashboard route requires authGuard', () => {
-    const dash = routes.find(r => r.path === 'dashboard');
+    const dash = routes.find((r) => r.path === 'dashboard');
     expect(dash).toBeDefined();
     expect(dash?.canActivate).toBeDefined();
     expect((dash?.canActivate?.length ?? 0) > 0).toBe(true);

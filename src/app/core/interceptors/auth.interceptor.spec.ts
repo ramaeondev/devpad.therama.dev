@@ -3,7 +3,6 @@ import { authInterceptor } from './auth.interceptor';
 import { environment as env } from '../../../environments/environment';
 
 describe('authInterceptor', () => {
-
   afterEach(() => {
     // reset to default to avoid cross-test contamination
     env.supabase = env.supabase || { url: '' };
