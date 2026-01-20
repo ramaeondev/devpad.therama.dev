@@ -13,6 +13,7 @@ import { authInterceptor } from './core/interceptors/auth.interceptor';
 import { loadingInterceptor } from './core/interceptors/loading.interceptor';
 import { HoneybadgerErrorHandler } from './honeybadger-error.handler';
 import { provideHoneybadger } from './honeybadger.provider';
+import { provideBetterstack } from './betterstack.provider';
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -22,6 +23,7 @@ export const appConfig: ApplicationConfig = {
     provideHttpClient(withInterceptors([loadingInterceptor, authInterceptor]), withFetch()),
     provideAnimations(),
     provideHoneybadger(),
+    provideBetterstack(),
     { provide: ErrorHandler, useClass: HoneybadgerErrorHandler },
   ],
 };

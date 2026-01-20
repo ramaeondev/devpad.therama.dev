@@ -46,6 +46,26 @@ npm start
 - Supabase
 - TypeScript 5.9
 
+## Monitoring / Logging (BetterStack) 🔧
+
+DevPad supports forwarding logs and client RUM to BetterStack. Add the following environment variables in your deployment platform (Vercel, Supabase functions, etc.):
+
+- `BETTERSTACK_LOGS_INGEST_KEY` — *server-only* ingest key for forwarding logs (keep secret).
+- `BETTERSTACK_LOGS_INGEST_URL` — ingest endpoint URL (e.g., from BetterStack). Required for server-side forwarding.
+- `BETTERSTACK_CLIENT_FORWARD_URL` — optional: a server-side endpoint (e.g., Supabase function) that clients can call to forward logs. Example: `https://<project>.functions.supabase.co/betterstack-ingest`.
+- `BETTERSTACK_RUM_KEY` — optional RUM key for client-side Real User Monitoring (only included in production builds).
+- `BETTERSTACK_SERVICE_NAME` — optional identifier for the service (defaults to `devpad`).
+
+What the integration does:
+- Adds a Supabase function `betterstack-ingest` that forwards logs to BetterStack using the server-side ingest key.
+- Adds a client-side `BetterstackService` to send structured logs/errors to the configured `BETTERSTACK_CLIENT_FORWARD_URL` (recommended) or directly to the ingest URL (not recommended).
+- Global errors are forwarded from `HoneybadgerErrorHandler` to BetterStack as an additional target.
+- If `BETTERSTACK_RUM_KEY` is set and the app runs in production, a small RUM script is injected automatically. Please verify the script URL and replace it with the official snippet if desired.
+
+Deployment notes:
+- Do not expose `BETTERSTACK_LOGS_INGEST_KEY` in client builds. Use `BETTERSTACK_CLIENT_FORWARD_URL` so the client forwards to a server-side function.
+- After setting env vars, run `npm run build:prod` (or let your hosting platform inject the vars during build) and deploy.
+
 ## 📝 License
 
 MIT - Ramaeon © 2025
