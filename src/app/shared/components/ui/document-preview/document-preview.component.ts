@@ -1,7 +1,11 @@
 import { Component, Input, signal, inject, OnInit, OnDestroy, computed } from '@angular/core';
 
 import { DomSanitizer } from '@angular/platform-browser';
-import { getExtensionFromPath, getIconNameFromExt, getTypeLabelFromExt } from '../../../utils/file-type.util';
+import {
+  getExtensionFromPath,
+  getIconNameFromExt,
+  getTypeLabelFromExt,
+} from '../../../utils/file-type.util';
 import { NoteService } from '../../../../core/services/note.service';
 import { AuthStateService } from '../../../../core/services/auth-state.service';
 import { ToastService } from '../../../../core/services/toast.service';
@@ -76,7 +80,12 @@ import { ToastService } from '../../../../core/services/toast.service';
           } @else {
             <div class="h-full flex items-center justify-center bg-gray-50 dark:bg-gray-900 p-8">
               <div class="text-center max-w-md">
-                <i class="fa-solid {{ getFileIconName() }} w-16 h-16 mx-auto mb-4 text-gray-400 flex-shrink-0" style="font-size:64px;"></i>
+                <i
+                  class="fa-solid {{
+                    getFileIconName()
+                  }} w-16 h-16 mx-auto mb-4 text-gray-400 flex-shrink-0"
+                  style="font-size:64px;"
+                ></i>
                 <h3 class="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-2">
                   {{ note?.title }}
                 </h3>
@@ -89,7 +98,12 @@ import { ToastService } from '../../../../core/services/toast.service';
         } @else {
           <div class="h-full flex items-center justify-center bg-gray-50 dark:bg-gray-900">
             <div class="text-center">
-              <i class="fa-solid {{ getFileIconName() }} w-16 h-16 mx-auto mb-4 text-gray-400 flex-shrink-0" style="font-size:64px;"></i>
+              <i
+                class="fa-solid {{
+                  getFileIconName()
+                }} w-16 h-16 mx-auto mb-4 text-gray-400 flex-shrink-0"
+                style="font-size:64px;"
+              ></i>
               <h3 class="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-2">
                 Preview Unavailable
               </h3>
