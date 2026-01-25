@@ -1,0 +1,574 @@
+// Retro Terminal Colors
+$retro-bg: #0a0e27;
+$retro-bg-light: #151933;
+$retro-bg-lighter: #1f2540;
+$retro-text: #00ff41;
+$retro-text-amber: #ffb000;
+$retro-text-cyan: #00ffff;
+$retro-text-dim: #4a9c5a;
+$retro-border: #00ff41;
+$retro-glow: rgba(0, 255, 65, 0.5);
+
+// Screen Reader Only Class
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}
+
+// Container
+.retro-chat-container {
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background: $retro-bg;
+  color: $retro-text;
+  font-family: 'Courier New', monospace;
+  overflow: hidden;
+}
+
+// Header
+.retro-header {
+  padding: 1rem;
+  background: $retro-bg-light;
+  border-bottom: 2px solid $retro-border;
+  box-shadow: 0 0 10px $retro-glow;
+  text-align: center;
+}
+
+.retro-title {
+  font-size: 1.5rem;
+  font-weight: bold;
+  letter-spacing: 0.2rem;
+  margin: 0;
+  text-shadow: 0 0 10px $retro-glow;
+}
+
+.retro-subtitle {
+  font-size: 0.75rem;
+  color: $retro-text-amber;
+  letter-spacing: 0.1rem;
+  margin-top: 0.25rem;
+}
+
+// Blinking cursor effect
+@keyframes blink {
+  0%,
+  50% {
+    opacity: 1;
+  }
+  51%,
+  100% {
+    opacity: 0;
+  }
+}
+
+.retro-blink {
+  animation: blink 1s infinite;
+}
+
+// Main Content Area
+.retro-chat-content {
+  flex: 1;
+  display: flex;
+  overflow: hidden;
+  min-height: 0;
+}
+
+// Sidebar
+.retro-sidebar {
+  width: 300px;
+  background: $retro-bg-light;
+  border-right: 2px solid $retro-border;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+
+  @media (max-width: 768px) {
+    width: 100%;
+    max-width: 300px;
+  }
+}
+
+.retro-sidebar-header {
+  padding: 1rem;
+  background: $retro-bg-lighter;
+  border-bottom: 1px solid $retro-border;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-weight: bold;
+  letter-spacing: 0.1rem;
+}
+
+.retro-text-green {
+  color: $retro-text;
+}
+
+.retro-refresh-btn {
+  background: transparent;
+  border: 1px solid $retro-border;
+  color: $retro-text;
+  padding: 0.25rem 0.5rem;
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 1.2rem;
+  transition: all 0.2s;
+
+  &:hover:not(:disabled) {
+    background: $retro-border;
+    color: $retro-bg;
+    box-shadow: 0 0 10px $retro-glow;
+  }
+
+  &:focus {
+    outline: 2px solid $retro-text-amber;
+    outline-offset: 2px;
+  }
+}
+
+// Loading State
+.retro-loading {
+  padding: 2rem;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+}
+
+.retro-spinner {
+  width: 40px;
+  height: 40px;
+  border: 3px solid $retro-bg-lighter;
+  border-top: 3px solid $retro-text;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+// Empty State
+.retro-empty {
+  padding: 2rem;
+  text-align: center;
+}
+
+.retro-text-dim {
+  color: $retro-text-dim;
+  font-size: 0.85rem;
+}
+
+// User List
+.retro-user-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  overflow-y: auto;
+  flex: 1;
+}
+
+.retro-user-item {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem 1rem;
+  background: transparent;
+  border: none;
+  border-bottom: 1px solid $retro-bg-lighter;
+  color: $retro-text;
+  cursor: pointer;
+  width: 100%;
+  text-align: left;
+  font-family: inherit;
+  transition: all 0.2s;
+
+  &:hover:not(:disabled) {
+    background: $retro-bg-lighter;
+    border-left: 3px solid $retro-text-amber;
+    padding-left: calc(1rem - 3px);
+  }
+
+  &.active {
+    background: $retro-bg-lighter;
+    border-left: 3px solid $retro-text;
+    padding-left: calc(1rem - 3px);
+    box-shadow: inset 0 0 10px $retro-glow;
+  }
+
+  &:focus {
+    outline: 2px solid $retro-text-amber;
+    outline-offset: -2px;
+  }
+}
+
+.retro-user-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 4px;
+  background: $retro-bg;
+  border: 2px solid $retro-text;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  font-size: 0.875rem;
+  flex-shrink: 0;
+}
+
+.retro-user-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.retro-user-name {
+  font-weight: bold;
+  font-size: 0.875rem;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+.retro-user-email {
+  font-size: 0.75rem;
+  color: $retro-text-dim;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+.retro-arrow {
+  color: $retro-text-amber;
+  font-size: 1.2rem;
+  flex-shrink: 0;
+}
+
+// Messages Panel
+.retro-messages-panel {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+// Welcome Screen
+.retro-welcome {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+  text-align: center;
+}
+
+.retro-ascii-art {
+  margin-bottom: 2rem;
+
+  pre {
+    color: $retro-text;
+    font-size: 0.6rem;
+    line-height: 1.2;
+    text-shadow: 0 0 10px $retro-glow;
+  }
+}
+
+.retro-text-amber {
+  color: $retro-text-amber;
+  font-weight: bold;
+  font-size: 1rem;
+  letter-spacing: 0.1rem;
+  margin-bottom: 1.5rem;
+}
+
+.retro-instructions {
+  color: $retro-text-cyan;
+  font-size: 0.875rem;
+  line-height: 2;
+
+  p {
+    margin: 0.5rem 0;
+  }
+}
+
+// Chat Header
+.retro-chat-header {
+  padding: 1rem;
+  background: $retro-bg-light;
+  border-bottom: 2px solid $retro-border;
+}
+
+.retro-chat-user-info {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.retro-user-avatar-large {
+  width: 50px;
+  height: 50px;
+  border-radius: 4px;
+  background: $retro-bg;
+  border: 2px solid $retro-text;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  font-size: 1rem;
+}
+
+.retro-chat-user-name {
+  font-weight: bold;
+  font-size: 1rem;
+  color: $retro-text;
+}
+
+.retro-chat-user-status {
+  font-size: 0.75rem;
+  color: $retro-text-dim;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.retro-status-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: $retro-text;
+  box-shadow: 0 0 5px $retro-glow;
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+// Messages Container
+.messages-container {
+  flex: 1;
+  overflow-y: auto;
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.retro-no-messages {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  color: $retro-text-dim;
+}
+
+.retro-message-wrapper {
+  display: flex;
+  max-width: 70%;
+
+  &.sent {
+    margin-left: auto;
+
+    .retro-message {
+      background: $retro-bg-lighter;
+      border-color: $retro-text-amber;
+      box-shadow: 0 0 10px rgba(255, 176, 0, 0.3);
+    }
+
+    .retro-message-sender {
+      color: $retro-text-amber;
+    }
+  }
+
+  &.received {
+    margin-right: auto;
+
+    .retro-message {
+      background: $retro-bg-light;
+      border-color: $retro-text-cyan;
+      box-shadow: 0 0 10px rgba(0, 255, 255, 0.2);
+    }
+
+    .retro-message-sender {
+      color: $retro-text-cyan;
+    }
+  }
+}
+
+.retro-message {
+  padding: 0.75rem;
+  border: 1px solid;
+  border-radius: 4px;
+  flex: 1;
+}
+
+.retro-message-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.5rem;
+  font-size: 0.75rem;
+}
+
+.retro-message-sender {
+  font-weight: bold;
+  letter-spacing: 0.05rem;
+}
+
+.retro-message-time {
+  color: $retro-text-dim;
+}
+
+.retro-message-text {
+  color: $retro-text;
+  line-height: 1.5;
+  word-wrap: break-word;
+}
+
+// Input Panel
+.retro-input-panel {
+  padding: 1rem;
+  background: $retro-bg-light;
+  border-top: 2px solid $retro-border;
+}
+
+.retro-input-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.retro-prompt {
+  color: $retro-text;
+  font-weight: bold;
+  font-size: 1.2rem;
+}
+
+.retro-input {
+  flex: 1;
+  background: $retro-bg;
+  border: 1px solid $retro-border;
+  color: $retro-text;
+  padding: 0.75rem;
+  font-family: inherit;
+  font-size: 0.875rem;
+  outline: none;
+  transition: all 0.2s;
+
+  &::placeholder {
+    color: $retro-text-dim;
+  }
+
+  &:focus {
+    border-color: $retro-text-amber;
+    box-shadow: 0 0 10px rgba(255, 176, 0, 0.3);
+  }
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+}
+
+.retro-send-btn {
+  background: $retro-bg;
+  border: 2px solid $retro-border;
+  color: $retro-text;
+  padding: 0.75rem 1.5rem;
+  font-family: inherit;
+  font-weight: bold;
+  font-size: 0.875rem;
+  letter-spacing: 0.1rem;
+  cursor: pointer;
+  transition: all 0.2s;
+
+  &:hover:not(:disabled) {
+    background: $retro-border;
+    color: $retro-bg;
+    box-shadow: 0 0 15px $retro-glow;
+  }
+
+  &:focus {
+    outline: 2px solid $retro-text-amber;
+    outline-offset: 2px;
+  }
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    border-color: $retro-text-dim;
+  }
+}
+
+// Footer
+.retro-footer {
+  padding: 0.5rem 1rem;
+  background: $retro-bg-light;
+  border-top: 2px solid $retro-border;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  font-size: 0.75rem;
+  color: $retro-text-dim;
+}
+
+.retro-separator {
+  color: $retro-text-dim;
+}
+
+// Responsive Design
+@media (max-width: 768px) {
+  .retro-chat-content {
+    flex-direction: column;
+  }
+
+  .retro-sidebar {
+    width: 100%;
+    max-height: 40vh;
+    border-right: none;
+    border-bottom: 2px solid $retro-border;
+  }
+
+  .retro-message-wrapper {
+    max-width: 85%;
+  }
+}
+
+// Scrollbar Styling
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background: $retro-bg;
+}
+
+::-webkit-scrollbar-thumb {
+  background: $retro-text-dim;
+  border: 1px solid $retro-bg;
+
+  &:hover {
+    background: $retro-text;
+  }
+}
