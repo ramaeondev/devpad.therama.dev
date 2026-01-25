@@ -1,5 +1,5 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { Router } from '@angular/router';
 import { SupabaseService } from '../../../../core/services/supabase.service';
 import { AuthStateService } from '../../../../core/services/auth-state.service';
@@ -10,7 +10,7 @@ import { UserService } from '../../../../core/services/user.service';
 @Component({
   selector: 'app-github-callback',
   standalone: true,
-  imports: [CommonModule],
+  imports: [],
   template: `
     <div
       class="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900"

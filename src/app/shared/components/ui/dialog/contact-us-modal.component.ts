@@ -1,5 +1,5 @@
 import { Component, EventEmitter, Output, signal, inject } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { FormsModule } from '@angular/forms';
 import { ToastService } from '../../../../core/services/toast.service';
 import { AuthStateService } from '../../../../core/services/auth-state.service';
@@ -17,7 +17,7 @@ interface AttachmentFile {
 @Component({
   selector: 'app-contact-us-modal',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [FormsModule],
   template: `
     <div class="fixed inset-0 z-[70] flex items-end sm:items-center justify-center p-0 sm:p-4 bg-black/50 backdrop-blur-sm" (click)="onBackdropClick()">
       <div class="relative bg-white dark:bg-gray-900 rounded-t-2xl sm:rounded-xl shadow-2xl w-full max-w-lg border-t sm:border border-gray-200 dark:border-gray-800 flex flex-col max-h-[95vh] sm:max-h-[90vh] animate-in fade-in slide-in-from-bottom sm:zoom-in-95 duration-200"

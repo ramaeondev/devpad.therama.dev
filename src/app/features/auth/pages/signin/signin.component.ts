@@ -1,6 +1,6 @@
 import { Component, inject, signal } from '@angular/core';
 import { AuthStateService } from '../../../../core/services/auth-state.service';
-import { CommonModule } from '@angular/common';
+
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { SupabaseService } from '../../../../core/services/supabase.service';
@@ -13,7 +13,7 @@ import { ActivityAction, ActivityResource } from '../../../../core/models/activi
 @Component({
   selector: 'app-signin',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, RouterLink, LogoComponent],
+  imports: [ReactiveFormsModule, RouterLink, LogoComponent],
   template: `
     <div class="min-h-screen grid lg:grid-cols-2">
       <!-- Left Side - Bento Grid Visuals (Desktop Only) -->

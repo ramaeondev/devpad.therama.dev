@@ -1,12 +1,12 @@
 import { Component } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { RouterLink } from '@angular/router';
 import { LogoComponent } from '../../../../shared/components/ui/logo/logo.component';
 
 @Component({
   selector: 'app-privacy',
   standalone: true,
-  imports: [CommonModule, RouterLink, LogoComponent],
+  imports: [RouterLink, LogoComponent],
   templateUrl: './privacy.component.html',
   styles: [],
 })

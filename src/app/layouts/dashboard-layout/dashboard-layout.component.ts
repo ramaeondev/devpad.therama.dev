@@ -1,5 +1,5 @@
 import { Component, inject, signal, computed, effect, HostListener } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { RouterModule } from '@angular/router';
 import { SidebarComponent } from '../../features/dashboard/components/sidebar/sidebar.component';
 import { ToastContainerComponent } from '../../shared/components/ui/toast/toast-container.component';
@@ -22,7 +22,6 @@ import { ActivityAction, ActivityResource } from '../../core/models/activity-log
   selector: 'app-dashboard-layout',
   standalone: true,
   imports: [
-    CommonModule,
     RouterModule,
     SidebarComponent,
     ToastContainerComponent,
@@ -30,8 +29,8 @@ import { ActivityAction, ActivityResource } from '../../core/models/activity-log
     LogoComponent,
     SettingsPanelComponent,
     AvatarComponent,
-    NotificationIconComponent,
-  ],
+    NotificationIconComponent
+],
   templateUrl: './dashboard-layout.component.html',
   styles: [],
 })

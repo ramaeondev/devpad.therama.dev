@@ -1,5 +1,5 @@
 import { Component, inject, signal } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { MarkdownEditorComponent } from '../../components/markdown-editor/markdown-editor.component';
 import { DocumentPreviewComponent } from '../../../../shared/components/ui/document-preview/document-preview.component';
@@ -11,7 +11,7 @@ import { WorkspaceStateService } from '../../../../core/services/workspace-state
 @Component({
   selector: 'app-note-editor',
   standalone: true,
-  imports: [CommonModule, RouterLink, MarkdownEditorComponent, DocumentPreviewComponent],
+  imports: [RouterLink, MarkdownEditorComponent, DocumentPreviewComponent],
   template: `
     <div class="h-full w-full p-4 md:p-6">
       <div class="max-w-6xl mx-auto flex flex-col gap-4">

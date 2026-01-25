@@ -1,5 +1,5 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { RouterModule } from '@angular/router';
 import { FolderTreeComponent } from '../../../folders/components/folder-tree/folder-tree.component';
 import { GoogleDriveTreeComponent } from '../../../integrations/components/google-drive-tree/google-drive-tree.component';
@@ -13,7 +13,7 @@ import { OneDriveTreeComponent } from "../../../integrations/components/onedrive
 @Component({
   selector: 'app-sidebar',
   standalone: true,
-  imports: [CommonModule, RouterModule, FolderTreeComponent, GoogleDriveTreeComponent, OneDriveTreeComponent],
+  imports: [RouterModule, FolderTreeComponent, GoogleDriveTreeComponent, OneDriveTreeComponent],
   template: `
     <aside
       class="sidebar w-64 sm:w-72 md:w-80 lg:w-64 bg-white dark:bg-gray-900 border-r border-gray-200 dark:border-gray-800 h-full overflow-y-auto touch-pan-y"

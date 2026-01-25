@@ -1,5 +1,5 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { GoogleDrivePreviewComponent } from '../../../integrations/components/google-drive-preview/google-drive-preview.component';
 import { OneDrivePreviewComponent } from '../../../integrations/components/onedrive-preview/onedrive-preview.component';
 import { WorkspaceStateService } from '../../../../core/services/workspace-state.service';
@@ -10,7 +10,7 @@ import { GoogleDriveFile, OneDriveFile } from '../../../../core/models/integrati
 @Component({
   selector: 'app-dashboard-home',
   standalone: true,
-  imports: [CommonModule, GoogleDrivePreviewComponent, OneDrivePreviewComponent],
+  imports: [GoogleDrivePreviewComponent, OneDrivePreviewComponent],
   template: `
     <div class="h-full">
       @if (selectedGoogleDriveFile()) {

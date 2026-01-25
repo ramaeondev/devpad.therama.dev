@@ -1,5 +1,5 @@
 import { Component, OnInit, inject } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { AppwriteService } from '../../../core/services/appwrite.service';
 import { SocialLink } from '../../../core/models/social-link.model';
 
@@ -11,7 +11,7 @@ import { SocialLink } from '../../../core/models/social-link.model';
 @Component({
   selector: 'app-social-links',
   standalone: true,
-  imports: [CommonModule],
+  imports: [],
   template: `
     <div class="social-links-container">
       @if (loading) {

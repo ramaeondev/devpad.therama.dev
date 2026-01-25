@@ -1,5 +1,5 @@
 import { Component, OnInit, OnDestroy, inject, signal } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { Router, RouterModule } from '@angular/router';
 import { NotificationService } from '../../../core/services/notification.service';
 import { SupabaseService } from '../../../core/services/supabase.service';
@@ -8,7 +8,7 @@ import { Notification } from '../../../core/models/notification.model';
 @Component({
   selector: 'app-notification-icon',
   standalone: true,
-  imports: [CommonModule, RouterModule],
+  imports: [RouterModule],
   templateUrl: './notification-icon.html',
   styleUrls: ['./notification-icon.scss'],
 })

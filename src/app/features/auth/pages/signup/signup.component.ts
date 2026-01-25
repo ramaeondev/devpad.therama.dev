@@ -1,5 +1,5 @@
 import { Component, inject, signal } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { SupabaseService } from '../../../../core/services/supabase.service';
@@ -10,7 +10,7 @@ import { DeviceFingerprintService } from '../../../../core/services/device-finge
 @Component({
   selector: 'app-signup',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, RouterLink, LogoComponent],
+  imports: [ReactiveFormsModule, RouterLink, LogoComponent],
   template: `
     <div class="min-h-screen grid lg:grid-cols-2">
       <!-- Left Side - Bento Grid Visuals (Desktop Only) -->

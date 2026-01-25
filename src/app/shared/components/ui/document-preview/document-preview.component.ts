@@ -1,5 +1,5 @@
 import { Component, Input, signal, inject, OnInit, OnDestroy, computed } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { DomSanitizer } from '@angular/platform-browser';
 import { getExtensionFromPath, getIconNameFromExt, getTypeLabelFromExt } from '../../../utils/file-type.util';
 import { NoteService } from '../../../../core/services/note.service';
@@ -9,7 +9,7 @@ import { ToastService } from '../../../../core/services/toast.service';
 @Component({
   selector: 'app-document-preview',
   standalone: true,
-  imports: [CommonModule],
+  imports: [],
   template: `
     <div class="h-screen flex flex-col bg-white dark:bg-gray-800 relative">
       <!-- Content -->
