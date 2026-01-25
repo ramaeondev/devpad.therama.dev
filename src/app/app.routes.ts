@@ -30,6 +30,11 @@ export const routes: Routes = [
     loadChildren: () => import('./features/folders/folders.routes'),
   },
   {
+    path: 'd-chat',
+    canActivate: [authGuard],
+    loadChildren: () => import('./features/d-chat/d-chat.routes').then(m => m.dChatRoutes),
+  },
+  {
     path: 'share/:shareToken',
     loadComponent: () => import('./features/notes/pages/public-note/public-note.component').then(m => m.PublicNoteComponent),
     title: 'Shared Note - DevPad',

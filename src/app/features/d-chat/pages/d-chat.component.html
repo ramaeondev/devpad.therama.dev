@@ -1,0 +1,180 @@
+<div class="retro-chat-container" role="main" aria-label="D-Chat Retro Chat Application">
+  <!-- Header -->
+  <div class="retro-header">
+    <h1 class="retro-title">
+      <span class="retro-blink">▸</span> D-CHAT v1.0
+    </h1>
+    <div class="retro-subtitle">ONE-TO-ONE SECURE CHAT SYSTEM</div>
+  </div>
+
+  <!-- Main Chat Area -->
+  <div class="retro-chat-content">
+    <!-- User List Sidebar -->
+    <aside class="retro-sidebar" role="complementary" aria-label="User list">
+      <div class="retro-sidebar-header">
+        <span class="retro-text-green">ONLINE USERS</span>
+        <button
+          class="retro-refresh-btn"
+          (click)="loadUsers()"
+          aria-label="Refresh user list"
+          title="Refresh user list"
+        >
+          ↻
+        </button>
+      </div>
+
+      @if (loading()) {
+        <div class="retro-loading" role="status" aria-live="polite">
+          <div class="retro-spinner"></div>
+          <span>LOADING...</span>
+        </div>
+      }
+
+      @if (!loading() && users().length === 0) {
+        <div class="retro-empty" role="status" aria-live="polite">
+          <p>NO USERS FOUND</p>
+          <p class="retro-text-dim">TRY REFRESHING</p>
+        </div>
+      }
+
+      <ul class="retro-user-list" role="list">
+        @for (user of users(); track user.id) {
+          <li role="listitem">
+            <button
+              class="retro-user-item"
+              [class.active]="selectedUser()?.id === user.id"
+              (click)="selectUser(user)"
+              [attr.aria-label]="'Chat with ' + getUserDisplayName(user)"
+              [attr.aria-pressed]="selectedUser()?.id === user.id"
+            >
+              <div class="retro-user-avatar">{{ getInitials(user) }}</div>
+              <div class="retro-user-info">
+                <div class="retro-user-name">{{ getUserDisplayName(user) }}</div>
+                <div class="retro-user-email">{{ user.email }}</div>
+              </div>
+              <span class="retro-arrow" aria-hidden="true">▸</span>
+            </button>
+          </li>
+        }
+      </ul>
+    </aside>
+
+    <!-- Chat Messages Area -->
+    <main class="retro-messages-panel" role="region" aria-label="Chat messages">
+      @if (!selectedUser()) {
+        <div class="retro-welcome">
+          <div class="retro-ascii-art">
+            <pre aria-hidden="true">
+   ___       ____ _   _    _  _____ 
+  |   \     / ___| | | |  / \|_   _|
+  | |) |___| |   | |_| | / _ \ | |  
+  |___/    | |___|  _  |/ ___ \| |  
+  |_|       \____|_| |_/_/   \_\_|  
+            </pre>
+          </div>
+          <p class="retro-text-amber">SELECT A USER TO START CHATTING</p>
+          <div class="retro-instructions">
+            <p>• CHOOSE A USER FROM THE LEFT PANEL</p>
+            <p>• TYPE YOUR MESSAGE IN THE INPUT BOX</p>
+            <p>• PRESS ENTER TO SEND</p>
+          </div>
+        </div>
+      }
+
+      @if (selectedUser()) {
+        <!-- Chat Header -->
+        <div class="retro-chat-header">
+          <div class="retro-chat-user-info">
+            <div class="retro-user-avatar-large">{{ getInitials(selectedUser()!) }}</div>
+            <div>
+              <div class="retro-chat-user-name">{{ getUserDisplayName(selectedUser()) }}</div>
+              <div class="retro-chat-user-status">
+                <span class="retro-status-dot"></span>
+                ONLINE
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Messages Container -->
+        <div
+          class="messages-container"
+          role="log"
+          aria-live="polite"
+          aria-label="Chat conversation"
+          aria-atomic="false"
+        >
+          @if (messages().length === 0) {
+            <div class="retro-no-messages" role="status">
+              <p>NO MESSAGES YET</p>
+              <p class="retro-text-dim">START THE CONVERSATION!</p>
+            </div>
+          }
+
+          @for (message of messages(); track message.id) {
+            <div
+              class="retro-message-wrapper"
+              [class.sent]="isMessageFromCurrentUser(message)"
+              [class.received]="!isMessageFromCurrentUser(message)"
+              role="article"
+              [attr.aria-label]="
+                (isMessageFromCurrentUser(message) ? 'You' : getUserDisplayName(selectedUser())) +
+                ' said: ' +
+                message.message
+              "
+            >
+              <div class="retro-message">
+                <div class="retro-message-header">
+                  <span class="retro-message-sender">
+                    {{ isMessageFromCurrentUser(message) ? 'YOU' : getUserDisplayName(selectedUser()) }}
+                  </span>
+                  <span class="retro-message-time">{{ formatTime(message.created_at) }}</span>
+                </div>
+                <div class="retro-message-text">{{ message.message }}</div>
+              </div>
+            </div>
+          }
+        </div>
+
+        <!-- Message Input -->
+        <form class="retro-input-panel" (submit)="$event.preventDefault(); sendMessage()">
+          <label for="message-input" class="sr-only">Type your message</label>
+          <div class="retro-input-wrapper">
+            <span class="retro-prompt" aria-hidden="true">▸</span>
+            <input
+              id="message-input"
+              type="text"
+              class="retro-input"
+              placeholder="TYPE YOUR MESSAGE..."
+              [(ngModel)]="newMessage"
+              [ngModelOptions]="{ standalone: true }"
+              (keypress)="handleKeyPress($event)"
+              [disabled]="loading()"
+              aria-label="Message input"
+              aria-describedby="send-hint"
+            />
+            <button
+              type="submit"
+              class="retro-send-btn"
+              [disabled]="!newMessage().trim() || loading()"
+              aria-label="Send message"
+            >
+              SEND ▸
+            </button>
+          </div>
+          <div id="send-hint" class="sr-only">Press Enter to send message</div>
+        </form>
+      }
+    </main>
+  </div>
+
+  <!-- Footer -->
+  <div class="retro-footer" role="contentinfo">
+    <span>D-CHAT v1.0</span>
+    <span class="retro-separator">|</span>
+    <span>SYSTEM READY</span>
+    <span class="retro-separator">|</span>
+    <span class="retro-blink">●</span>
+    <span>CONNECTED</span>
+  </div>
+</div>

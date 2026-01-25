@@ -19,6 +19,26 @@ import { OneDriveTreeComponent } from '../../../integrations/components/onedrive
       class="sidebar w-64 sm:w-72 md:w-80 lg:w-64 bg-white dark:bg-gray-900 border-r border-gray-200 dark:border-gray-800 h-full overflow-y-auto touch-pan-y"
     >
       <div class="p-3 sm:p-4">
+        <!-- D-Chat Button (Retro Style) -->
+        <div class="mb-4">
+          <a
+            routerLink="/d-chat"
+            routerLinkActive="active"
+            class="retro-chat-btn flex items-center gap-3 px-4 py-3 rounded-lg transition-all hover:shadow-lg"
+            role="button"
+            aria-label="Open D-Chat retro chat application"
+          >
+            <div class="retro-icon">
+              <i class="fa-solid fa-comments text-xl" aria-hidden="true"></i>
+            </div>
+            <div class="flex-1">
+              <div class="font-bold text-sm retro-title">D-CHAT</div>
+              <div class="text-xs retro-subtitle">Retro Chat</div>
+            </div>
+            <i class="fa-solid fa-chevron-right retro-arrow" aria-hidden="true"></i>
+          </a>
+        </div>
+
         <!-- Header -->
         <div class="flex items-center justify-between mb-3 sm:mb-4">
           <h2 class="text-base sm:text-lg font-semibold text-gray-900 dark:text-white">Folders</h2>
@@ -78,6 +98,77 @@ import { OneDriveTreeComponent } from '../../../integrations/components/onedrive
     `
       .sidebar {
         @apply flex flex-col;
+      }
+
+      .retro-chat-btn {
+        background: linear-gradient(135deg, #0a0e27 0%, #151933 100%);
+        border: 2px solid #00ff41;
+        color: #00ff41;
+        position: relative;
+        overflow: hidden;
+        text-decoration: none;
+        display: flex;
+
+        &::before {
+          content: '';
+          position: absolute;
+          top: 0;
+          left: -100%;
+          width: 100%;
+          height: 100%;
+          background: linear-gradient(90deg, transparent, rgba(0, 255, 65, 0.2), transparent);
+          transition: left 0.5s;
+        }
+
+        &:hover::before {
+          left: 100%;
+        }
+
+        &:hover {
+          border-color: #ffb000;
+          box-shadow: 0 0 20px rgba(0, 255, 65, 0.5);
+        }
+
+        &.active {
+          border-color: #ffb000;
+          box-shadow: 0 0 20px rgba(255, 176, 0, 0.5);
+
+          .retro-title {
+            color: #ffb000;
+          }
+        }
+      }
+
+      .retro-icon {
+        width: 40px;
+        height: 40px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: rgba(0, 255, 65, 0.1);
+        border: 1px solid #00ff41;
+        border-radius: 4px;
+      }
+
+      .retro-title {
+        font-family: 'Courier New', monospace;
+        letter-spacing: 0.15rem;
+        text-shadow: 0 0 10px rgba(0, 255, 65, 0.5);
+      }
+
+      .retro-subtitle {
+        font-family: 'Courier New', monospace;
+        color: #4a9c5a;
+        letter-spacing: 0.05rem;
+      }
+
+      .retro-arrow {
+        color: #ffb000;
+        transition: transform 0.3s;
+      }
+
+      .retro-chat-btn:hover .retro-arrow {
+        transform: translateX(4px);
       }
     `,
   ],
