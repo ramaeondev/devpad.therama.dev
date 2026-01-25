@@ -34,6 +34,8 @@ export class DChatService {
   private usersSubject = new BehaviorSubject<ChatUser[]>([]);
   public users$ = this.usersSubject.asObservable();
 
+  private chatChannel: any = null;
+
   constructor() {
     // Subscribe to real-time updates
     this.subscribeToMessages();
@@ -142,7 +144,7 @@ export class DChatService {
     const currentUserId = this.authState.userId();
     if (!currentUserId) return;
 
-    this.supabase.client
+    this.chatChannel = this.supabase.client
       .channel('chat_messages')
       .on(
         'postgres_changes',
@@ -153,8 +155,7 @@ export class DChatService {
           filter: `or(sender_id=eq.${currentUserId},receiver_id=eq.${currentUserId})`,
         },
         (payload) => {
-          console.log('Real-time message update:', payload);
-          // Refresh messages
+          // Handle real-time message updates
           const currentMessages = this.messagesSubject.value;
           if (payload.eventType === 'INSERT') {
             this.messagesSubject.next([...currentMessages, payload.new as ChatMessage]);
@@ -176,6 +177,9 @@ export class DChatService {
    * Clean up subscriptions
    */
   unsubscribe(): void {
-    this.supabase.client.removeAllChannels();
+    if (this.chatChannel) {
+      this.supabase.client.removeChannel(this.chatChannel);
+      this.chatChannel = null;
+    }
   }
 }

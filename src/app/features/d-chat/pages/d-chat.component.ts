@@ -1,8 +1,9 @@
-import { Component, OnInit, OnDestroy, inject, signal, effect } from '@angular/core';
+import { Component, OnInit, OnDestroy, inject, signal, ViewChild, ElementRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { DChatService, ChatMessage, ChatUser } from '../services/d-chat.service';
 import { AuthStateService } from '../../../core/services/auth-state.service';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 @Component({
   selector: 'app-d-chat',
@@ -15,6 +16,8 @@ export class DChatComponent implements OnInit, OnDestroy {
   private chatService = inject(DChatService);
   private authState = inject(AuthStateService);
 
+  @ViewChild('messagesContainer') messagesContainer?: ElementRef<HTMLDivElement>;
+
   users = signal<ChatUser[]>([]);
   messages = signal<ChatMessage[]>([]);
   selectedUser = signal<ChatUser | null>(null);
@@ -23,18 +26,13 @@ export class DChatComponent implements OnInit, OnDestroy {
   currentUserId = this.authState.userId();
 
   constructor() {
-    // Subscribe to messages
-    effect(() => {
-      this.chatService.messages$.subscribe((messages) => {
-        this.messages.set(messages);
-      });
+    // Subscribe to messages and users using takeUntilDestroyed
+    this.chatService.messages$.pipe(takeUntilDestroyed()).subscribe((messages) => {
+      this.messages.set(messages);
     });
 
-    // Subscribe to users
-    effect(() => {
-      this.chatService.users$.subscribe((users) => {
-        this.users.set(users);
-      });
+    this.chatService.users$.pipe(takeUntilDestroyed()).subscribe((users) => {
+      this.users.set(users);
     });
   }
 
@@ -85,9 +83,9 @@ export class DChatComponent implements OnInit, OnDestroy {
   }
 
   private scrollToBottom() {
-    const messagesContainer = document.querySelector('.messages-container');
-    if (messagesContainer) {
-      messagesContainer.scrollTop = messagesContainer.scrollHeight;
+    if (this.messagesContainer) {
+      this.messagesContainer.nativeElement.scrollTop =
+        this.messagesContainer.nativeElement.scrollHeight;
     }
   }
 
