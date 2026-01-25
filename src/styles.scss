@@ -55,8 +55,85 @@
     @apply hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-700 dark:text-gray-300;
   }
 
-  .input {
+  /* Retro theme variables */
+  :root {
+    --retro-bg: #0f172a;
+    --retro-panel: #f3f0e6;
+    --retro-accent: #00ff79;
+    --retro-ink: #2b2b2b;
+  }
+
+  /* Retro button style */
+  .btn-retro {
+    @apply bg-white dark:bg-gray-800 border border-black/10 dark:border-gray-700 text-sm px-3 py-2 rounded shadow-sm hover:shadow-md active:translate-y-[1px] select-none-touch font-mono;
+    letter-spacing: 0.02em;
+    text-transform: none;
+    border-width: 2px;
+    background-image: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(0,0,0,0.02));
+    box-shadow: 0 4px 0 rgba(0,0,0,0.06), inset 0 -2px 0 rgba(0,0,0,0.04);
+  }
+
+  .retro-panel {
+    background: linear-gradient(180deg, var(--retro-panel), #efe9d8);
+    border: 3px solid rgba(0,0,0,0.15);
+    box-shadow: 0 8px 0 rgba(0,0,0,0.06);
+    color: var(--retro-ink);
+  }
+
+  .retro-header {
+    @apply text-sm font-semibold flex items-center gap-2;
+    color: var(--retro-ink);
+    border-bottom: 2px dashed rgba(0,0,0,0.06);
+    padding-bottom: 0.5rem;
+  }
+
+  .retro-chat {
+    background: #071018;
+    color: var(--retro-accent);
+    font-family: 'Courier New', monospace;
+    padding: 0.5rem;
+    border-radius: 6px;
+    box-shadow: inset 0 0 30px rgba(0,0,0,0.4);
+  }
+
+  .retro-message {
+    border: 1px solid rgba(0,0,0,0.12);
+    background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(0,0,0,0.02));
+    padding: 0.5rem;
+    border-radius: 4px;
+  }
+
+  .retro-message.sent {
+    background: linear-gradient(180deg, rgba(0,255,121,0.06), rgba(0,255,121,0.03));
+    color: #003214;
+  }
+
+  .retro-message.received {
+    background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(0,0,0,0.02));
+    color: var(--retro-ink);
+  }
+
+  .retro-input {
     @apply w-full rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-3 py-2 text-sm placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-primary-600 focus:border-transparent disabled:cursor-not-allowed disabled:opacity-50;
+    background: linear-gradient(180deg, #fff, #f4f1e6);
+    border: 2px solid rgba(0,0,0,0.12);
+    font-family: 'Courier New', monospace;
+  }
+
+  .input {
+    @apply w-full rounded-md border-2 border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-4 py-2 text-base text-gray-900 dark:text-gray-100 placeholder:text-gray-500 dark:placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-primary-600 focus:border-transparent disabled:cursor-not-allowed disabled:opacity-50;
+  }
+
+  /* scanlines effect can be toggled via .retro-scanlines */
+  .retro-scanlines::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-image: linear-gradient(rgba(0,0,0,0.02) 50%, transparent 50%);
+    background-size: 100% 4px;
+    pointer-events: none;
+    opacity: 0.4;
+    mix-blend-mode: multiply;
   }
 }
 

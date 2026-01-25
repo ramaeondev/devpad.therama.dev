@@ -1,0 +1,124 @@
+:host {
+  display: block;
+  height: 100%;
+  width: 100%;
+}
+
+.d-chat-container {
+  --retro-green: #00ff00;
+  --retro-black: #000000;
+  --retro-dark-gray: #1a1a1a;
+
+  background: linear-gradient(135deg, #000000 0%, #0d0d0d 100%);
+  font-family: 'Courier New', monospace;
+
+  /* Scrollbar styling for retro look */
+  ::-webkit-scrollbar {
+    width: 8px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: rgba(0, 255, 0, 0.05);
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: rgba(0, 255, 0, 0.3);
+    border-radius: 4px;
+
+    &:hover {
+      background: rgba(0, 255, 0, 0.5);
+    }
+  }
+}
+
+.sidebar {
+  box-shadow: inset 2px 0 8px rgba(0, 255, 0, 0.1);
+
+  h1 {
+    letter-spacing: 2px;
+    text-shadow: 0 0 10px rgba(0, 255, 0, 0.5);
+  }
+}
+
+.header {
+  box-shadow: 0 2px 8px rgba(0, 255, 0, 0.1);
+}
+
+.messages-container {
+  background: linear-gradient(180deg, #000000 0%, #0a0a0a 100%);
+
+  &.message-scroll {
+    scroll-behavior: smooth;
+  }
+}
+
+.input-area {
+  box-shadow: 0 -2px 8px rgba(0, 255, 0, 0.1);
+
+  textarea {
+    transition: all 0.3s ease;
+
+    &:focus {
+      box-shadow: 0 0 12px rgba(0, 255, 0, 0.3);
+    }
+  }
+
+  button {
+    box-shadow: 0 0 8px rgba(0, 255, 0, 0.2);
+    transition: all 0.3s ease;
+
+    &:not(:disabled):hover {
+      box-shadow: 0 0 16px rgba(0, 255, 0, 0.5);
+      transform: scale(1.05);
+    }
+  }
+}
+
+/* Text glitch effect for headers */
+@keyframes glitch {
+  0% {
+    text-shadow: 0 0 10px rgba(0, 255, 0, 0.5);
+  }
+  50% {
+    text-shadow: 0 0 20px rgba(0, 255, 0, 0.8);
+  }
+  100% {
+    text-shadow: 0 0 10px rgba(0, 255, 0, 0.5);
+  }
+}
+
+/* Neon glow effect */
+@keyframes neon-glow {
+  0%,
+  100% {
+    box-shadow: 0 0 10px rgba(0, 255, 0, 0.5), inset 0 0 10px rgba(0, 255, 0, 0.1);
+  }
+  50% {
+    box-shadow: 0 0 20px rgba(0, 255, 0, 0.8), inset 0 0 20px rgba(0, 255, 0, 0.2);
+  }
+}
+
+/* Fade in animation */
+@keyframes fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .d-chat-container {
+    height: 100vh;
+    width: 100vw;
+  }
+
+  .sidebar {
+    width: 100%;
+    max-width: 100%;
+  }
+}

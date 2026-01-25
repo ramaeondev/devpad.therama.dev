@@ -32,7 +32,9 @@ module.exports = {
           800: '#1e293b',
           900: '#0f172a',
           950: '#020617',
-        }
+        },
+        'retro-green': '#00ff00',
+        'retro-black': '#000000',
       },
       fontFamily: {
         sans: ['Inter', 'system-ui', 'sans-serif'],

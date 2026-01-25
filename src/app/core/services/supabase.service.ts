@@ -27,6 +27,7 @@ export class SupabaseService {
     }
 
     // Main client for API calls
+    // Configure realtime with explicit WebSocket URL
     this.supabase = createClient(supabaseUrl, supabaseAnonKey, {
       auth: {
         storageKey: 'sb-auth-token',
@@ -34,6 +35,16 @@ export class SupabaseService {
         persistSession: true,
         detectSessionInUrl: !isOneDriveCallback, // Only disable for OneDrive
         storage: window.localStorage,
+      },
+      realtime: {
+        params: {
+          eventsPerSecond: 10,
+        },
+      },
+      global: {
+        headers: {
+          'X-Supabase-RLS': 'true',
+        },
       },
     });
   }
