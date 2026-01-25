@@ -45,6 +45,11 @@ export const routes: Routes = [
     title: 'Terms of Service - DevPad',
   },
   {
+    path: 'd-chat',
+    canActivate: [authGuard],
+    loadChildren: () => import('./features/d-chat/d-chat.routes'),
+  },
+  {
     path: '**',
     redirectTo: 'dashboard',
   },

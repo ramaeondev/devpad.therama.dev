@@ -1,0 +1,192 @@
+<div class="d-chat-container h-screen w-screen overflow-hidden bg-gray-900 text-gray-100 flex flex-col">
+  <!-- Loading State -->
+  @if (loading()) {
+  <div class="absolute inset-0 flex items-center justify-center bg-black/50 z-50">
+    <div class="flex flex-col items-center gap-4">
+      <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-retro-green"></div>
+      <span class="text-retro-green font-mono">INITIALIZING D-CHAT...</span>
+    </div>
+  </div>
+  }
+
+  <!-- Main Chat Container -->
+  <div class="flex flex-1 min-h-0 relative">
+    <!-- Mobile overlay -->
+    @if (isMobileOpen()) {
+    <div
+      class="fixed inset-0 bg-black/80 z-30 md:hidden"
+      (click)="closeMobileSidebar()"
+      role="presentation"
+      aria-hidden="true"
+    ></div>
+    }
+
+    <!-- Sidebar - Conversations List -->
+    <div
+      class="sidebar fixed md:static inset-y-0 left-0 z-40 w-72 bg-black border-r-2 border-retro-green transform transition-transform duration-300 ease-in-out md:translate-x-0 flex flex-col"
+      [class.-translate-x-full]="!isMobileOpen()"
+      [class.translate-x-0]="isMobileOpen()"
+    >
+      <!-- Header -->
+      <div class="p-4 border-b-2 border-retro-green flex items-center justify-between">
+        <h1 class="text-xl font-mono font-bold text-retro-green">D-CHAT</h1>
+        <button
+          (click)="closeMobileSidebar()"
+          class="md:hidden p-2 text-retro-green hover:text-retro-green/80 transition-colors"
+          aria-label="Close sidebar"
+        >
+          <i class="fa-solid fa-xmark text-xl"></i>
+        </button>
+      </div>
+
+      <!-- New Chat Button -->
+      <div class="p-3 border-b border-retro-green/30">
+        <button
+          (click)="toggleUserSearch()"
+          class="w-full py-2 px-3 bg-retro-green/20 hover:bg-retro-green/30 border border-retro-green text-retro-green font-mono text-sm transition-colors flex items-center justify-center gap-2"
+        >
+          <i class="fa-solid fa-plus"></i>
+          NEW CHAT
+        </button>
+      </div>
+
+      <!-- Conversations List -->
+      <div class="flex-1 overflow-y-auto">
+        @if (conversations().length === 0) {
+        <div class="p-4 text-center text-gray-400">
+          <p class="font-mono text-sm">NO CONVERSATIONS</p>
+          <p class="text-xs mt-2 text-gray-500">START A NEW CHAT TO BEGIN</p>
+        </div>
+        }
+
+        @for (conversation of conversations(); track conversation.id) {
+        <app-conversation-item
+          [conversation]="conversation"
+          [isSelected]="selectedConversationId() === conversation.id"
+          [userStatuses]="userStatuses()"
+          [currentUserId]="currentUserId()"
+          (selectConversation)="selectConversation(conversation)"
+        ></app-conversation-item>
+        }
+      </div>
+    </div>
+
+    <!-- Chat Area -->
+    <div class="main-content flex-1 flex flex-col bg-gray-900">
+      <!-- Header with Mobile Toggle -->
+      <div
+        class="header px-4 py-3 border-b-2 border-retro-green bg-black flex items-center justify-between sticky top-0 z-10"
+      >
+        <div class="flex items-center gap-3">
+          <button
+            (click)="toggleMobileSidebar()"
+            class="md:hidden p-2 text-retro-green hover:text-retro-green/80"
+            aria-label="Toggle sidebar"
+          >
+            <i class="fa-solid fa-bars"></i>
+          </button>
+
+          @if (selectedUser()) {
+          <div class="flex items-center gap-2">
+            <div class="relative">
+              <div class="w-10 h-10 rounded bg-retro-green/20 border border-retro-green flex items-center justify-center">
+                @if (selectedUser()!.avatar_url) {
+                <img
+                  [src]="selectedUser()!.avatar_url"
+                  alt="{{ selectedUser()!.first_name }}"
+                  class="w-full h-full rounded object-cover"
+                />
+                } @else {
+                <span class="text-retro-green font-mono text-sm font-bold">
+                  {{ (selectedUser()!.first_name || 'U')[0] | uppercase }}
+                </span>
+                }
+              </div>
+              @if (isUserOnline(selectedUser()!.id)) {
+              <div class="absolute bottom-0 right-0 w-3 h-3 bg-retro-green rounded-full border border-black"></div>
+              }
+            </div>
+
+            <div>
+              <h2 class="font-mono font-bold text-retro-green">
+                {{ selectedUser()!.first_name }} {{ selectedUser()!.last_name }}
+              </h2>
+              <p class="text-xs text-gray-400">
+                @if (isUserOnline(selectedUser()!.id)) {
+                <span class="text-retro-green">● ONLINE</span>
+                } @else {
+                <span>OFFLINE</span>
+                }
+              </p>
+            </div>
+          </div>
+          }
+        </div>
+      </div>
+
+      <!-- Messages Area -->
+      @if (selectedConversationId()) {
+      <div class="messages-container flex-1 overflow-y-auto p-4 space-y-2 bg-gray-900 message-scroll">
+        @for (message of messages(); track message.id) {
+        <app-chat-message
+          [message]="message"
+          [isOwn]="message.sender_id === currentUserId()"
+          [otherUserOnline]="isUserOnline(otherUserId() || '')"
+        ></app-chat-message>
+        }
+      </div>
+
+      <!-- Message Input Area -->
+      <div class="input-area p-4 border-t-2 border-retro-green bg-black">
+        <div class="flex gap-2 items-end">
+          <textarea
+            [(ngModel)]="messageInput"
+            (keydown)="handleKeyDown($event)"
+            placeholder="TYPE YOUR MESSAGE..."
+            rows="2"
+            class="flex-1 bg-gray-900 border-2 border-retro-green text-retro-green font-mono text-sm p-2 placeholder-gray-500 focus:outline-none focus:border-retro-green/80 resize-none"
+            [disabled]="loading()"
+          ></textarea>
+          <button
+            (click)="sendMessage()"
+            [disabled]="!messageInput().trim() || loading()"
+            class="px-4 py-2 bg-retro-green text-black font-mono font-bold hover:bg-retro-green/80 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center gap-2"
+          >
+            @if (loading()) {
+            <i class="fa-solid fa-spinner animate-spin"></i>
+            } @else {
+            <i class="fa-solid fa-paper-plane"></i>
+            }
+            SEND
+          </button>
+        </div>
+      </div>
+      } @else {
+      <div class="flex-1 flex items-center justify-center bg-gray-900">
+        <div class="text-center">
+          <div class="text-retro-green font-mono text-4xl mb-4">
+            <i class="fa-solid fa-gamepad"></i>
+          </div>
+          <h1 class="font-mono text-2xl font-bold text-retro-green mb-2">WELCOME TO D-CHAT</h1>
+          <p class="text-gray-400 font-mono mb-4">SELECT A CONVERSATION OR START A NEW ONE</p>
+          <button
+            (click)="toggleUserSearch()"
+            class="px-6 py-2 bg-retro-green/20 border-2 border-retro-green text-retro-green font-mono hover:bg-retro-green/30 transition-colors"
+          >
+            <i class="fa-solid fa-plus mr-2"></i>
+            START NEW CHAT
+          </button>
+        </div>
+      </div>
+      }
+    </div>
+
+    <!-- User Search Modal Overlay -->
+    @if (showUserSearch()) {
+    <app-user-search
+      (userSelected)="startNewConversation($event)"
+      (closeSearch)="toggleUserSearch()"
+    ></app-user-search>
+    }
+  </div>
+</div>
