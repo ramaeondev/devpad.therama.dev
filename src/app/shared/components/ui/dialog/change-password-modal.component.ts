@@ -1,5 +1,5 @@
 import { Component, EventEmitter, Output, signal, inject } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { FormsModule } from '@angular/forms';
 import { SupabaseService } from '../../../../core/services/supabase.service';
 import { ToastService } from '../../../../core/services/toast.service';
@@ -8,7 +8,7 @@ import { LoadingService } from '../../../../core/services/loading.service';
 @Component({
   selector: 'app-change-password-modal',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [FormsModule],
   template: `
     <div
       class="fixed inset-0 z-[70] flex items-center justify-center p-4"

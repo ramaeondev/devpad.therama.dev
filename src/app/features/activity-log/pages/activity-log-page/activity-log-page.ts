@@ -1,5 +1,5 @@
 import { Component, OnInit, inject, signal, computed } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { ActivityLogService } from '../../../../core/services/activity-log.service';
@@ -9,7 +9,7 @@ import { ActivityLog, ActivityAction, ActivityResource } from '../../../../core/
 @Component({
   selector: 'app-activity-log-page',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [FormsModule],
   templateUrl: './activity-log-page.html',
   styleUrls: ['./activity-log-page.scss'],
 })

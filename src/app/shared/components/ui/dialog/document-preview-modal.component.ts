@@ -1,11 +1,11 @@
 import { Component, Input, signal, inject } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { SupabaseService } from '../../../../core/services/supabase.service';
 import { ToastService } from '../../../../core/services/toast.service';
 @Component({
   selector: 'app-document-preview-modal',
   standalone: true,
-  imports: [CommonModule],
+  imports: [],
   template: `
     <div
       class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"

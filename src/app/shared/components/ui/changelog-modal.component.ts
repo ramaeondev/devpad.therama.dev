@@ -1,12 +1,12 @@
 import { Component, signal, EventEmitter, Output, inject, OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { LogoComponent } from './logo/logo.component';
 import { AppwriteService } from '../../../core/services/appwrite.service';
 
 @Component({
   selector: 'app-changelog-modal',
   standalone: true,
-  imports: [CommonModule, LogoComponent],
+  imports: [LogoComponent],
   template: `
     <div class="fixed inset-0 z-[100] flex items-center justify-center bg-black/50" (click)="onClose()">
       <div class="bg-white dark:bg-gray-900 rounded-lg shadow-xl max-w-2xl w-full mx-4 overflow-auto max-h-[90vh] p-6 relative" (click)="$event.stopPropagation()">

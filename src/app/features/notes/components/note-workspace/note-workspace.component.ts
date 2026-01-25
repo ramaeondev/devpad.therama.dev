@@ -1,5 +1,5 @@
 import { Component, inject, signal, computed, effect } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { MarkdownEditorComponent } from '../markdown-editor/markdown-editor.component';
 import { DocumentPreviewComponent } from '../../../../shared/components/ui/document-preview/document-preview.component';
 import { GoogleDrivePreviewComponent } from '../../../integrations/components/google-drive-preview/google-drive-preview.component';
@@ -17,7 +17,7 @@ import { GoogleDriveFile, OneDriveFile } from '../../../../core/models/integrati
 @Component({
   selector: 'app-note-workspace',
   standalone: true,
-  imports: [CommonModule, MarkdownEditorComponent, DocumentPreviewComponent, GoogleDrivePreviewComponent, OneDrivePreviewComponent],
+  imports: [MarkdownEditorComponent, DocumentPreviewComponent, GoogleDrivePreviewComponent, OneDrivePreviewComponent],
   template: `
     <div class="h-full flex flex-col">
       <!-- Google Drive Preview -->

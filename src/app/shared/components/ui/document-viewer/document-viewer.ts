@@ -8,14 +8,14 @@ import {
   OnChanges,
   SimpleChanges,
 } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { getExtensionFromPath, getIconNameFromExt, getTypeLabelFromExt } from '../../../utils/file-type.util';
 
 @Component({
   selector: 'app-document-viewer',
   standalone: true,
-  imports: [CommonModule],
+  imports: [],
   template: `
     <div class="h-full flex flex-col bg-white dark:bg-gray-800">
       <!-- Header -->

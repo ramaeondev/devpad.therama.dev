@@ -1,5 +1,5 @@
 import { Component, Input, Output, EventEmitter, inject } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { OneDriveFile } from '../../../../core/models/integration.model';
 import { RelativeTimeDirective, FileSizeDirective } from '../../../../shared/directives';
@@ -9,7 +9,7 @@ import { getIconNameFromNameAndMime } from '../../../../shared/utils/file-type.u
 @Component({
   selector: 'app-onedrive-preview',
   standalone: true,
-  imports: [CommonModule, RelativeTimeDirective, FileSizeDirective],
+  imports: [RelativeTimeDirective, FileSizeDirective],
   template: `
     <div class="onedrive-preview h-full flex flex-col bg-white dark:bg-gray-900">
       <!-- Header -->

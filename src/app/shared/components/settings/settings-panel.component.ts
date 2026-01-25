@@ -1,5 +1,5 @@
 import { Component, EventEmitter, Input, Output, inject, signal, computed } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { ThemeService, Theme } from '../../../core/services/theme.service';
 import { ChangelogModalComponent } from '../ui/changelog-modal.component';
 import { AuthStateService } from '../../../core/services/auth-state.service';
@@ -24,7 +24,6 @@ import { ContactUsModalComponent } from '../ui/dialog/contact-us-modal.component
   selector: 'app-settings-panel',
   standalone: true,
   imports: [
-    CommonModule,
     RouterLink,
     ConfirmModalComponent,
     TermsModalComponent,
@@ -35,8 +34,8 @@ import { ContactUsModalComponent } from '../ui/dialog/contact-us-modal.component
     ChangelogModalComponent,
     AboutMeModalComponent,
     UserDevicesComponent,
-    ContactUsModalComponent,
-  ],
+    ContactUsModalComponent
+],
   templateUrl: './settings-panel.component.html',
   styles: [],
 })

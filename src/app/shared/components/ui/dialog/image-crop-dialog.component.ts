@@ -1,12 +1,12 @@
 import { Component, EventEmitter, Input, Output, signal } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { ImageCroppedEvent, ImageCropperComponent, LoadedImage } from 'ngx-image-cropper';
 import { DomSanitizer, SafeUrl } from '@angular/platform-browser';
 
 @Component({
   selector: 'app-image-crop-dialog',
   standalone: true,
-  imports: [CommonModule, ImageCropperComponent],
+  imports: [ImageCropperComponent],
   template: `
     @if (open) {
       <div

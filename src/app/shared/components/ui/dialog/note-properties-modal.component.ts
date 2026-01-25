@@ -1,5 +1,5 @@
 import { Component, Input, Output, EventEmitter } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 export interface NoteProperties {
   id: string;
   title: string;
@@ -16,7 +16,7 @@ export interface NoteProperties {
 @Component({
   selector: 'app-note-properties-modal',
   standalone: true,
-  imports: [CommonModule],
+  imports: [],
   template: `
     <div
       class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50"

@@ -1,11 +1,11 @@
 import { Component, Input, Output, EventEmitter, signal, computed } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { marked } from 'marked';
 
 @Component({
   selector: 'app-markdown-editor',
   standalone: true,
-  imports: [CommonModule],
+  imports: [],
   template: `
     <div class="flex flex-col gap-3 sm:gap-4">
       <ng-content select="[editor-header]"></ng-content>

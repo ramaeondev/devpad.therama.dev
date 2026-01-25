@@ -1,10 +1,10 @@
 import { Component, computed, inject } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { LoadingService } from '../../../../core/services/loading.service';
 @Component({
   selector: 'app-global-spinner',
   standalone: true,
-  imports: [CommonModule],
+  imports: [],
   template: `
     @if (isLoading()) {
       <div

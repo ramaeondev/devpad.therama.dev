@@ -1,11 +1,11 @@
 import { Component, EventEmitter, Output } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { SocialLinksComponent } from '../../social-links/social-links.component';
 
 @Component({
   selector: 'app-about-me-modal',
   standalone: true,
-  imports: [CommonModule, SocialLinksComponent],
+  imports: [SocialLinksComponent],
   template: `
     <div class="fixed inset-0 z-[70] flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
       <div class="bg-white dark:bg-gray-900 rounded-lg shadow-xl max-w-md w-full p-6">

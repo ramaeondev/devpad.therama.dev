@@ -1,5 +1,5 @@
 import { Component, signal, inject, OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { RouterLink } from '@angular/router';
 import { LogoComponent } from './logo/logo.component';
 import { AppwriteService } from '../../../core/services/appwrite.service';
@@ -7,7 +7,7 @@ import { AppwriteService } from '../../../core/services/appwrite.service';
 @Component({
   selector: 'app-changelog-page',
   standalone: true,
-  imports: [CommonModule, RouterLink, LogoComponent],
+  imports: [RouterLink, LogoComponent],
   template: `
     <div class="min-h-screen bg-white dark:bg-gray-900 flex flex-col items-center py-10 px-4">
       <!-- Back Button -->

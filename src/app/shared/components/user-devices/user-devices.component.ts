@@ -1,5 +1,5 @@
 import { Component, inject, OnInit, signal } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { DeviceFingerprintService, UserDevice } from '../../../core/services/device-fingerprint.service';
 import { AuthStateService } from '../../../core/services/auth-state.service';
 import { ToastService } from '../../../core/services/toast.service';
@@ -9,7 +9,7 @@ import { ConfirmModalComponent } from '../ui/dialog/confirm-modal.component';
 @Component({
     selector: 'app-user-devices',
     standalone: true,
-    imports: [CommonModule, FormsModule, ConfirmModalComponent],
+    imports: [FormsModule, ConfirmModalComponent],
     template: `
     <div class="space-y-4">
       <div>

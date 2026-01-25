@@ -1,6 +1,6 @@
 import { Component, OnInit, inject, signal, OnDestroy } from '@angular/core';
 import { Title, Meta } from '@angular/platform-browser';
-import { CommonModule } from '@angular/common';
+
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ShareService } from '../../../../core/services/share.service';
@@ -13,7 +13,7 @@ import { LogoComponent } from '../../../../shared/components/ui/logo/logo.compon
 @Component({
   selector: 'app-public-note',
   standalone: true,
-  imports: [CommonModule, FormsModule, LogoComponent],
+  imports: [FormsModule, LogoComponent],
   template: `
     <div class="min-h-screen bg-gray-50 dark:bg-gray-900">
       @if (processingRedirect()) {

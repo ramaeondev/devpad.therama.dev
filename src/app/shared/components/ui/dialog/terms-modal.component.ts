@@ -7,13 +7,13 @@ import {
   SimpleChanges,
   inject,
 } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 
 @Component({
   selector: 'app-terms-modal',
   standalone: true,
-  imports: [CommonModule],
+  imports: [],
   template: `
     <div
       class="fixed inset-0 z-[70] flex items-center justify-center"
