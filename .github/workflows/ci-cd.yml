@@ -29,6 +29,8 @@ jobs:
         with:
           node-version: 20
           cache: 'npm'
+      - name: Pin npm to v10
+        run: npm install -g npm@10
       - name: Install dependencies
         run: npm ci
       - name: Run unit tests (coverage + JUnit)
@@ -147,6 +149,8 @@ jobs:
         with:
           node-version: 20
           cache: 'npm'
+      - name: Pin npm to v10
+        run: npm install -g npm@10
       - name: Install dependencies
         run: npm ci
       - name: Build (production)
@@ -161,6 +165,8 @@ jobs:
         with:
           node-version: 20
           cache: 'npm'
+      - name: Pin npm to v10
+        run: npm install -g npm@10
       - name: Install dependencies
         run: npm ci
       - name: Run full ESLint (on PRs and push)
