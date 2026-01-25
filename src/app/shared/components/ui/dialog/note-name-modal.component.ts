@@ -1,6 +1,5 @@
 import { Component, EventEmitter, Input, Output, signal } from '@angular/core';
 
-
 @Component({
   selector: 'app-note-name-modal',
   standalone: true,

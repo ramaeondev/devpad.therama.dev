@@ -8,7 +8,7 @@ import { AuthStateService } from '../../../../core/services/auth-state.service';
 import { FolderTree } from '../../../../core/models/folder.model';
 import { Note } from '../../../../core/models/note.model';
 import { WorkspaceStateService } from '../../../../core/services/workspace-state.service';
-import { OneDriveTreeComponent } from "../../../integrations/components/onedrive-tree/onedrive-tree.component";
+import { OneDriveTreeComponent } from '../../../integrations/components/onedrive-tree/onedrive-tree.component';
 
 @Component({
   selector: 'app-sidebar',
@@ -63,7 +63,9 @@ import { OneDriveTreeComponent } from "../../../integrations/components/onedrive
 
         <!-- Google Drive Integration -->
         <div>
-          <h3 class="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2 px-1">Cloud Storage</h3>
+          <h3 class="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2 px-1">
+            Cloud Storage
+          </h3>
           <app-google-drive-tree />
           <app-onedrive-tree />
         </div>

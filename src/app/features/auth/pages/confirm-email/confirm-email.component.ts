@@ -18,7 +18,8 @@ import { LogoComponent } from '../../../../shared/components/ui/logo/logo.compon
         <div class="text-6xl">📧</div>
         <h2 class="text-3xl font-bold text-gray-900 dark:text-white">Check your email</h2>
         <p class="text-gray-600 dark:text-gray-400">
-          We've sent a confirmation link to <strong>{{ email() }}</strong>. Please check your email and click the link to activate your account.
+          We've sent a confirmation link to <strong>{{ email() }}</strong
+          >. Please check your email and click the link to activate your account.
         </p>
         <a routerLink="/auth/signin" class="btn btn-primary inline-block px-6 py-2">
           Go to Sign In

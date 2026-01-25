@@ -29,8 +29,8 @@ import { ActivityAction, ActivityResource } from '../../core/models/activity-log
     LogoComponent,
     SettingsPanelComponent,
     AvatarComponent,
-    NotificationIconComponent
-],
+    NotificationIconComponent,
+  ],
   templateUrl: './dashboard-layout.component.html',
   styles: [],
 })
@@ -40,7 +40,7 @@ export class DashboardLayoutComponent {
   showSettings = signal(false);
   showMobileSidebar = signal(false);
   showDropdown = signal(false);
-  
+
   private userService = inject(UserService);
   private loading = inject(LoadingService);
   private supabase = inject(SupabaseService);
@@ -52,11 +52,11 @@ export class DashboardLayoutComponent {
 
   constructor() {
     // Listen to route changes
-    this.router.events.pipe(
-      filter(event => event instanceof NavigationEnd)
-    ).subscribe((event: any) => {
-      this.isActivityLogPage.set(event.url.includes('/activity-log'));
-    });
+    this.router.events
+      .pipe(filter((event) => event instanceof NavigationEnd))
+      .subscribe((event: any) => {
+        this.isActivityLogPage.set(event.url.includes('/activity-log'));
+      });
 
     // Set initial value
     this.isActivityLogPage.set(this.router.url.includes('/activity-log'));
@@ -82,8 +82,6 @@ export class DashboardLayoutComponent {
     const email = this.auth.userEmail();
     return email ? email[0].toUpperCase() : '?';
   });
-
-
 
   private async loadProfile() {
     const userId = this.auth.userId();
@@ -131,7 +129,6 @@ export class DashboardLayoutComponent {
     this.router.navigate(['/auth/signin']);
   }
 
-
   setTheme(theme: 'light' | 'dark' | 'system' | 'auto') {
     this.theme.setTheme(theme);
     this.showDropdown.set(false);
@@ -159,7 +156,7 @@ export class DashboardLayoutComponent {
     if (!this.showDropdown()) return;
 
     const target = event.target as HTMLElement;
-    
+
     // Check if the click target is the trigger button or inside it
     const triggerButton = document.getElementById('user-menu-button');
     if (triggerButton && (triggerButton === target || triggerButton.contains(target))) {
