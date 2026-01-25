@@ -20,11 +20,16 @@ import { LoadingService } from '../../../../core/services/loading.service';
         class="relative w-full max-w-md rounded-lg bg-white dark:bg-gray-800 shadow-lg border border-gray-200 dark:border-gray-700 p-5"
         (click)="$event.stopPropagation()"
       >
-        <h3 class="text-base font-semibold text-gray-900 dark:text-gray-100 mb-4">Change Password</h3>
-        
+        <h3 class="text-base font-semibold text-gray-900 dark:text-gray-100 mb-4">
+          Change Password
+        </h3>
+
         <div class="space-y-4">
           <div>
-            <label class="block text-sm text-gray-600 dark:text-gray-400 mb-1" for="currentPassword">
+            <label
+              class="block text-sm text-gray-600 dark:text-gray-400 mb-1"
+              for="currentPassword"
+            >
               Current Password
             </label>
             <input
@@ -57,7 +62,10 @@ import { LoadingService } from '../../../../core/services/loading.service';
           </div>
 
           <div>
-            <label class="block text-sm text-gray-600 dark:text-gray-400 mb-1" for="confirmPassword">
+            <label
+              class="block text-sm text-gray-600 dark:text-gray-400 mb-1"
+              for="confirmPassword"
+            >
               Confirm New Password
             </label>
             <input
@@ -69,9 +77,7 @@ import { LoadingService } from '../../../../core/services/loading.service';
               autocomplete="new-password"
             />
             @if (confirmPassword && newPassword !== confirmPassword) {
-              <p class="mt-1 text-xs text-red-600 dark:text-red-400">
-                Passwords do not match
-              </p>
+              <p class="mt-1 text-xs text-red-600 dark:text-red-400">Passwords do not match</p>
             }
           </div>
 
@@ -185,5 +191,3 @@ export class ChangePasswordModalComponent {
     }
   }
 }
-
-
