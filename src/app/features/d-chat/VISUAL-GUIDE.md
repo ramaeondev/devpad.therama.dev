@@ -1,6 +1,7 @@
 # D-Chat Visual Guide
 
 ## Overview
+
 This document provides a visual description of the D-Chat retro-style interface since we cannot run the application in this environment.
 
 ## Main Interface Components
@@ -17,6 +18,7 @@ The sidebar now includes a prominent D-Chat button with the following retro styl
 ```
 
 **Visual Details:**
+
 - **Background**: Dark blue-black gradient (`#0a0e27` to `#151933`)
 - **Border**: Bright green border (`#00ff41`) with glow effect
 - **Text**: Terminal green for title, dim green for subtitle
@@ -102,17 +104,20 @@ When a user is selected, the interface transforms:
 The interface uses a retro terminal color palette:
 
 ### Primary Colors
+
 - **Background**: `#0a0e27` (Deep navy/black)
 - **Secondary Background**: `#151933` (Lighter navy)
 - **Tertiary Background**: `#1f2540` (Even lighter navy)
 
 ### Text Colors
+
 - **Primary Text (Terminal Green)**: `#00ff41` - Used for main text, borders, titles
 - **Accent (Amber)**: `#ffb000` - Used for highlights, selected items, prompts
 - **Accent (Cyan)**: `#00ffff` - Used for instructions, secondary info
 - **Dim Text**: `#4a9c5a` - Used for timestamps, subtle text
 
 ### Effects
+
 - **Glow Effects**: `rgba(0, 255, 65, 0.5)` - Green glow on borders and text
 - **Box Shadows**: Applied to buttons, messages, and panels for depth
 
@@ -125,33 +130,41 @@ The interface uses a retro terminal color palette:
 ## Animations
 
 ### 1. Blinking Cursor
+
 The cursor (▸) in the title blinks on/off with a 1-second interval
 
 ### 2. Pulsing Status Dot
+
 The green dot next to "ONLINE" pulses between full and 50% opacity
 
 ### 3. Button Hover
+
 - Shimmer effect sweeps across button from left to right
 - Border color changes from green to amber
 - Arrow icon slides right by 4px
 
 ### 4. Spinner
+
 Loading states show a rotating circular spinner in terminal green
 
 ## Accessibility Features
 
 ### ARIA Labels
+
 All interactive elements have descriptive labels:
+
 - Buttons: "Open D-Chat retro chat application", "Send message", "Refresh user list"
 - Inputs: "Message input", "Type your message"
 - Regions: "Chat messages", "User list", "Chat conversation"
 
 ### Keyboard Navigation
+
 - Tab through all interactive elements
 - Enter to select users and send messages
 - Focus indicators clearly visible with amber outline
 
 ### Screen Reader Support
+
 - Live regions announce new messages
 - Proper semantic HTML (main, aside, article, etc.)
 - Descriptive text for all icons and visual elements
@@ -160,16 +173,19 @@ All interactive elements have descriptive labels:
 ## Responsive Design
 
 ### Desktop (>= 1024px)
+
 - Sidebar width: 300px
 - Two-column layout (users | messages)
 - Full retro effects visible
 
 ### Tablet (768px - 1023px)
+
 - Sidebar width: 100% (max 300px)
 - Stacked layout
 - Message width: 85% of container
 
 ### Mobile (< 768px)
+
 - Full-width sidebar at top
 - Messages stack vertically
 - Simplified animations for performance
@@ -177,12 +193,14 @@ All interactive elements have descriptive labels:
 ## Message Styles
 
 ### Sent Messages (You)
+
 - Aligned right
 - Amber border (`#ffb000`)
 - Darker background
 - "YOU" label in amber
 
 ### Received Messages (Other User)
+
 - Aligned left
 - Cyan border (`#00ffff`)
 - Lighter background
@@ -191,16 +209,20 @@ All interactive elements have descriptive labels:
 ## Special UI Elements
 
 ### ASCII Art Welcome
+
 The welcome screen features ASCII art spelling "D-CHAT" in a retro computer font style.
 
 ### Footer Status Bar
+
 Displays system status:
+
 - Version number
 - "SYSTEM READY" indicator
 - Pulsing connection dot
 - All in retro green/amber
 
 ### Input Box
+
 - Green border with amber glow on focus
 - Retro prompt symbol (▸) on the left
 - Placeholder in dim green
