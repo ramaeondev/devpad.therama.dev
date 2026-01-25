@@ -6,6 +6,17 @@ describe('ChatMessageComponent', () => {
   let component: ChatMessageComponent;
   let fixture: ComponentFixture<ChatMessageComponent>;
 
+  const mockMessage: DMessage = {
+    id: 'msg-1',
+    sender_id: 'user-1',
+    recipient_id: 'user-2',
+    content: 'Hello World',
+    created_at: new Date().toISOString(),
+    updated_at: new Date().toISOString(),
+    read: false,
+    conversation_id: 'conv-1',
+  };
+
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [ChatMessageComponent],
@@ -13,6 +24,8 @@ describe('ChatMessageComponent', () => {
 
     fixture = TestBed.createComponent(ChatMessageComponent);
     component = fixture.componentInstance;
+    component.message = mockMessage;
+    component.isOwn = false;
   });
 
   it('should create', () => {
@@ -20,26 +33,14 @@ describe('ChatMessageComponent', () => {
   });
 
   it('should display message content', () => {
-    const message: DMessage = {
-      id: 'msg-1',
-      sender_id: 'user-1',
-      recipient_id: 'user-2',
-      content: 'Hello World',
-      created_at: new Date().toISOString(),
-      updated_at: new Date().toISOString(),
-      read: false,
-    };
-
-    component.message = message;
-    component.isOwn = false;
     fixture.detectChanges();
 
     expect(fixture.nativeElement.textContent).toContain('Hello World');
   });
 
   it('should format time correctly', () => {
-    const now = new Date();
-    const formattedTime = component.formatTime(now.toISOString());
+    const now = new Date().toISOString();
+    const formattedTime = component.formatTime(now);
 
     expect(formattedTime).toBeTruthy();
     expect(formattedTime).toMatch(/\d{1,2}:\d{2}\s(AM|PM)/);
@@ -50,6 +51,7 @@ describe('ChatMessageComponent', () => {
     fixture.detectChanges();
 
     const bubble = fixture.nativeElement.querySelector('.message-bubble');
+    expect(bubble).toBeTruthy();
     expect(bubble.classList.contains('bg-retro-green')).toBe(true);
   });
 
@@ -58,6 +60,8 @@ describe('ChatMessageComponent', () => {
     fixture.detectChanges();
 
     const bubble = fixture.nativeElement.querySelector('.message-bubble');
+    expect(bubble).toBeTruthy();
     expect(bubble.classList.contains('bg-gray-700')).toBe(true);
   });
 });
+

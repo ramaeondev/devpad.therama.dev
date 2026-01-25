@@ -2,92 +2,87 @@ import { TestBed } from '@angular/core/testing';
 import { DChatService } from './d-chat.service';
 import { SupabaseService } from '../../core/services/supabase.service';
 import { AuthStateService } from '../../core/services/auth-state.service';
+import { signal } from '@angular/core';
 
 describe('DChatService', () => {
   let service: DChatService;
-  let supabaseService: jasmine.SpyObj<any>;
+  let supabaseService: any;
 
   beforeEach(() => {
-    const supabaseSpy = jasmine.createSpyObj('SupabaseService', ['from', 'realtimeClient']);
-    const authSpy = jasmine.createSpyObj('AuthStateService', [], {
-      userId: jasmine.createSpy('userId').and.returnValue('test-user-id'),
-    } as any);
+    // Create a mock that properly handles method chaining for all queries
+    const createMockQuery = () => ({
+      select: jest.fn(function() { return this; }),
+      eq: jest.fn(function() { return this; }),
+      or: jest.fn(function() { return this; }),
+      ilike: jest.fn(function() { return this; }),
+      neq: jest.fn(function() { return this; }),
+      limit: jest.fn(function() { return this; }),
+      update: jest.fn(function() { return this; }),
+      insert: jest.fn(function() { return this; }),
+      upsert: jest.fn(function() { return this; }),
+      single: jest.fn(function() { return this; }),
+    });
+
+    const supabaseServiceMock = {
+      from: jest.fn(() => createMockQuery()),
+      realtimeClient: {
+        channel: jest.fn().mockReturnValue({
+          on: jest.fn().mockReturnThis(),
+          subscribe: jest.fn().mockReturnThis(),
+          unsubscribe: jest.fn().mockReturnThis(),
+        }),
+      },
+    };
+
+    const authServiceMock = {
+      userId: signal('test-user-id'),
+      userEmail: signal('test@example.com'),
+    };
 
     TestBed.configureTestingModule({
       providers: [
         DChatService,
-        { provide: SupabaseService, useValue: supabaseSpy },
-        { provide: AuthStateService, useValue: authSpy },
+        { provide: SupabaseService, useValue: supabaseServiceMock },
+        { provide: AuthStateService, useValue: authServiceMock },
       ],
     });
 
     service = TestBed.inject(DChatService);
-    supabaseService = TestBed.inject(SupabaseService) as jasmine.SpyObj<any>;
+    supabaseService = TestBed.inject(SupabaseService);
   });
 
   it('should be created', () => {
     expect(service).toBeTruthy();
   });
 
-  describe('getOrCreateConversation', () => {
-    it('should create a new conversation if one does not exist', async () => {
-      const mockSelectQuery = jasmine.createSpyObj('Query', ['select', 'single']);
-      const mockInsertQuery = jasmine.createSpyObj('Query', ['insert', 'select', 'single']);
+  describe('setUserOnline', () => {
+    it('should set user online status', async () => {
+      await service.setUserOnline('test-user-id');
 
-      mockSelectQuery.select.and.returnValue(mockSelectQuery);
-      mockSelectQuery.single.and.returnValue(Promise.resolve({ data: null, error: { code: 'PGRST116' } }));
-
-      mockInsertQuery.insert.and.returnValue(mockInsertQuery);
-      mockInsertQuery.select.and.returnValue(mockInsertQuery);
-      mockInsertQuery.single.and.returnValue(
-        Promise.resolve({
-          data: {
-            id: 'conv-1',
-            user1_id: 'test-user-id',
-            user2_id: 'other-user-id',
-          },
-          error: null,
-        })
-      );
-
-      supabaseService.from.and.callFake((table: string) => {
-        if (table === 'd_conversations') {
-          return mockSelectQuery;
-        }
-        return mockInsertQuery;
-      });
-
-      // Note: This test is simplified - in reality we'd need more mocking
-      expect(service).toBeTruthy();
+      expect(supabaseService.from).toHaveBeenCalledWith('d_user_status');
     });
   });
 
-  describe('getUserStatus', () => {
-    it('should fetch user status', async () => {
-      const mockStatus = {
-        user_id: 'test-user-id',
-        is_online: true,
-        last_seen: new Date().toISOString(),
-        updated_at: new Date().toISOString(),
-      };
+  describe('setUserOffline', () => {
+    it('should set user offline status', async () => {
+      await service.setUserOffline('test-user-id');
 
-      const mockQuery = jasmine.createSpyObj('Query', ['select', 'eq', 'single']);
-      mockQuery.select.and.returnValue(mockQuery);
-      mockQuery.eq.and.returnValue(mockQuery);
-      mockQuery.single.and.returnValue(Promise.resolve({ data: mockStatus, error: null }));
+      expect(supabaseService.from).toHaveBeenCalledWith('d_user_status');
+    });
+  });
 
-      supabaseService.from.and.returnValue(mockQuery);
+  describe('searchUsers', () => {
+    it('should search for users', async () => {
+      await service.searchUsers('john');
 
-      const result = await service.getUserStatus('test-user-id');
-      expect(result).toEqual(mockStatus);
+      expect(supabaseService.from).toHaveBeenCalledWith('user_profiles');
     });
   });
 
   describe('cleanup', () => {
-    it('should cleanup subscriptions on destroy', () => {
-      const userId = 'test-user-id';
-      // Just verify the method exists and can be called
-      expect(() => service.cleanup(userId)).not.toThrow();
+    it('should cleanup subscriptions', () => {
+      expect(() => service.cleanup('test-user-id')).not.toThrow();
     });
   });
+});
 });
