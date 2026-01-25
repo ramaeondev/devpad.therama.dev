@@ -76,7 +76,7 @@ export class DChatService {
         .from('chat_messages')
         .select('*')
         .or(
-          `and(sender_id.eq.${currentUserId},receiver_id.eq.${otherUserId}),and(sender_id.eq.${otherUserId},receiver_id.eq.${currentUserId})`
+          `and(sender_id.eq.${currentUserId},receiver_id.eq.${otherUserId}),and(sender_id.eq.${otherUserId},receiver_id.eq.${currentUserId})`,
         )
         .order('created_at', { ascending: true });
 
@@ -160,14 +160,14 @@ export class DChatService {
             this.messagesSubject.next([...currentMessages, payload.new as ChatMessage]);
           } else if (payload.eventType === 'UPDATE') {
             const updated = currentMessages.map((msg) =>
-              msg.id === (payload.new as any)['id'] ? (payload.new as ChatMessage) : msg
+              msg.id === (payload.new as any)['id'] ? (payload.new as ChatMessage) : msg,
             );
             this.messagesSubject.next(updated);
           } else if (payload.eventType === 'DELETE') {
             const filtered = currentMessages.filter((msg) => msg.id !== (payload.old as any)['id']);
             this.messagesSubject.next(filtered);
           }
-        }
+        },
       )
       .subscribe();
   }

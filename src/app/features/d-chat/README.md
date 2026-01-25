@@ -1,9 +1,11 @@
 # D-Chat - Retro-Style One-to-One Chat
 
 ## Overview
+
 D-Chat is a retro-styled, one-to-one chat application built with Angular and Supabase. It features a terminal-like interface with green/amber text, accessibility support via Angular ARIA, and real-time messaging.
 
 ## Features
+
 - 🎨 **Retro Terminal Styling**: Green/amber terminal aesthetic with blinking cursors and scanline effects
 - ♿ **Full ARIA Support**: Screen reader compatible with proper ARIA labels and keyboard navigation
 - 🔒 **Secure**: Row-level security in Supabase ensures users can only see their own messages
@@ -14,6 +16,7 @@ D-Chat is a retro-styled, one-to-one chat application built with Angular and Sup
 ## Setup
 
 ### 1. Database Setup
+
 Run the SQL migration to create the `chat_messages` table in your Supabase database:
 
 ```sql
@@ -21,28 +24,33 @@ Run the SQL migration to create the `chat_messages` table in your Supabase datab
 ```
 
 This creates:
+
 - `chat_messages` table with proper indexes
 - Row-level security policies
 - Real-time subscription capabilities
 
 ### 2. Navigate to D-Chat
+
 Once authenticated, click the retro-styled "D-CHAT" button in the sidebar to access the chat interface.
 
 ## Architecture
 
 ### Components
+
 - **DChatComponent** (`src/app/features/d-chat/pages/d-chat.component.ts`)
   - Main chat interface
   - Handles user selection and message display
   - Manages real-time updates
 
 ### Services
+
 - **DChatService** (`src/app/features/d-chat/services/d-chat.service.ts`)
   - Manages Supabase queries
   - Handles real-time subscriptions
   - Provides Observable streams for messages and users
 
 ### Routing
+
 - Route: `/d-chat`
 - Protected by `authGuard`
 - Lazy-loaded for performance
@@ -120,6 +128,7 @@ chat_messages
 ## Future Enhancements
 
 Potential improvements:
+
 - [ ] Typing indicators
 - [ ] Message reactions
 - [ ] File/image sharing
@@ -152,19 +161,23 @@ To test the D-Chat feature:
 ## Troubleshooting
 
 ### Messages not appearing in real-time
+
 - Check Supabase real-time is enabled for the `chat_messages` table
 - Verify the subscription is working in browser console
 - Check network tab for WebSocket connections
 
 ### Users not loading
+
 - Ensure the `profiles` table exists with required columns
 - Verify RLS policies allow reading profiles
 - Check authentication state
 
 ### Styling issues
+
 - Ensure component styles are not being overridden
 - Check browser console for CSS errors
 - Verify Font Awesome is loaded
 
 ## License
+
 MIT

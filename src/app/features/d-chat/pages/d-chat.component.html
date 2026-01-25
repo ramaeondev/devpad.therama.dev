@@ -1,9 +1,7 @@
 <div class="retro-chat-container" role="main" aria-label="D-Chat Retro Chat Application">
   <!-- Header -->
   <div class="retro-header">
-    <h1 class="retro-title">
-      <span class="retro-blink">▸</span> D-CHAT v1.0
-    </h1>
+    <h1 class="retro-title"><span class="retro-blink">▸</span> D-CHAT v1.0</h1>
     <div class="retro-subtitle">ONE-TO-ONE SECURE CHAT SYSTEM</div>
   </div>
 
@@ -126,7 +124,9 @@
               <div class="retro-message">
                 <div class="retro-message-header">
                   <span class="retro-message-sender">
-                    {{ isMessageFromCurrentUser(message) ? 'YOU' : getUserDisplayName(selectedUser()) }}
+                    {{
+                      isMessageFromCurrentUser(message) ? 'YOU' : getUserDisplayName(selectedUser())
+                    }}
                   </span>
                   <span class="retro-message-time">{{ formatTime(message.created_at) }}</span>
                 </div>
