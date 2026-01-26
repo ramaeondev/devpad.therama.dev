@@ -12,14 +12,12 @@ describe('LinkPreviewComponent', () => {
   beforeEach(async () => {
     // Create a mock service with Jest
     const mockService = {
-      getMetadata: jest.fn()
+      getMetadata: jest.fn(),
     } as unknown as jest.Mocked<LinkPreviewService>;
 
     await TestBed.configureTestingModule({
       imports: [LinkPreviewComponent],
-      providers: [
-        { provide: LinkPreviewService, useValue: mockService }
-      ]
+      providers: [{ provide: LinkPreviewService, useValue: mockService }],
     }).compileComponents();
 
     linkPreviewService = TestBed.inject(LinkPreviewService) as jest.Mocked<LinkPreviewService>;
@@ -43,7 +41,7 @@ describe('LinkPreviewComponent', () => {
       const mockMetadata: LinkMetadata = {
         url: 'https://example.com',
         title: 'Example',
-        domain: 'example.com'
+        domain: 'example.com',
       };
 
       component.url = 'https://example.com';
@@ -63,7 +61,7 @@ describe('LinkPreviewComponent', () => {
         title: 'GitHub',
         description: 'Build software better',
         image: 'https://github.com/image.png',
-        domain: 'github.com'
+        domain: 'github.com',
       };
 
       component.url = 'https://github.com';
@@ -79,7 +77,7 @@ describe('LinkPreviewComponent', () => {
     it('should handle metadata fetch error', () => {
       component.url = 'https://example.com';
       (linkPreviewService.getMetadata as jest.Mock).mockReturnValue(
-        throwError(() => new Error('Network error'))
+        throwError(() => new Error('Network error')),
       );
 
       component.ngOnInit();
@@ -99,7 +97,7 @@ describe('LinkPreviewComponent', () => {
     it('should extract domain from metadata', () => {
       const mockMetadata: LinkMetadata = {
         url: 'https://google.com',
-        domain: 'google.com'
+        domain: 'google.com',
       };
 
       component.url = 'https://google.com';
@@ -117,7 +115,7 @@ describe('LinkPreviewComponent', () => {
 
       component.metadata.set({
         url: 'https://example.com',
-        image: 'https://example.com/image.png'
+        image: 'https://example.com/image.png',
       });
 
       expect(component.hasImage()).toBe(true);
@@ -128,7 +126,7 @@ describe('LinkPreviewComponent', () => {
 
       component.metadata.set({
         url: 'https://example.com',
-        title: 'Example'
+        title: 'Example',
       });
 
       expect(component.hasMetadata()).toBe(true);
@@ -141,7 +139,7 @@ describe('LinkPreviewComponent', () => {
 
       component.metadata.set({
         url: 'https://example.com',
-        domain: 'example.com'
+        domain: 'example.com',
       });
 
       expect(component.displayUrl()).toBe('example.com');
@@ -155,12 +153,8 @@ describe('LinkPreviewComponent', () => {
 
       component.openLink();
 
-      expect(openSpy).toHaveBeenCalledWith(
-        'https://example.com',
-        '_blank',
-        'noopener,noreferrer'
-      );
-      
+      expect(openSpy).toHaveBeenCalledWith('https://example.com', '_blank', 'noopener,noreferrer');
+
       openSpy.mockRestore();
     });
 
@@ -170,23 +164,19 @@ describe('LinkPreviewComponent', () => {
 
       component.openLink();
 
-      expect(openSpy).toHaveBeenCalledWith(
-        'https://example.com',
-        '_blank',
-        'noopener,noreferrer'
-      );
-      
+      expect(openSpy).toHaveBeenCalledWith('https://example.com', '_blank', 'noopener,noreferrer');
+
       openSpy.mockRestore();
     });
 
     it('should copy link to clipboard', () => {
       // Mock clipboard API
       const mockClipboard = {
-        writeText: jest.fn().mockResolvedValue(undefined)
+        writeText: jest.fn().mockResolvedValue(undefined),
       };
       Object.defineProperty(navigator, 'clipboard', {
         value: mockClipboard,
-        writable: true
+        writable: true,
       });
 
       component.url = 'https://example.com';
@@ -199,7 +189,7 @@ describe('LinkPreviewComponent', () => {
 
     it('should handle favicon error gracefully', () => {
       const mockEvent = {
-        target: { style: { display: '' } }
+        target: { style: { display: '' } },
       } as unknown as Event;
 
       component.onFaviconError(mockEvent);
@@ -213,7 +203,7 @@ describe('LinkPreviewComponent', () => {
       component.showInline = false;
       component.metadata.set({
         url: 'https://example.com',
-        title: 'Example'
+        title: 'Example',
       });
 
       fixture.detectChanges();
@@ -250,7 +240,7 @@ describe('LinkPreviewComponent', () => {
         title: 'Example Title',
         description: 'Example Description',
         domain: 'example.com',
-        image: 'https://example.com/image.png'
+        image: 'https://example.com/image.png',
       });
 
       fixture.detectChanges();
@@ -267,7 +257,7 @@ describe('LinkPreviewComponent', () => {
     it('should display action buttons', () => {
       component.metadata.set({
         url: 'https://example.com',
-        title: 'Example'
+        title: 'Example',
       });
 
       fixture.detectChanges();
@@ -288,7 +278,7 @@ describe('LinkPreviewComponent', () => {
     it('should display error state', () => {
       // Mock the service to return an error
       (linkPreviewService.getMetadata as jest.Mock).mockReturnValue(
-        throwError(() => new Error('Failed to load'))
+        throwError(() => new Error('Failed to load')),
       );
 
       component.url = 'https://example.com';
@@ -302,7 +292,7 @@ describe('LinkPreviewComponent', () => {
     it('should display URL fallback when no metadata', () => {
       const mockMetadata: LinkMetadata = {
         url: 'https://example.com',
-        domain: 'example.com'
+        domain: 'example.com',
       };
 
       (linkPreviewService.getMetadata as jest.Mock).mockReturnValue(of(mockMetadata));
@@ -325,7 +315,7 @@ describe('LinkPreviewComponent', () => {
     it('should handle metadata with missing title', () => {
       component.metadata.set({
         url: 'https://example.com',
-        description: 'Only description'
+        description: 'Only description',
       });
 
       fixture.detectChanges();
@@ -340,7 +330,7 @@ describe('LinkPreviewComponent', () => {
     it('should handle metadata with missing image', () => {
       component.metadata.set({
         url: 'https://example.com',
-        title: 'Example'
+        title: 'Example',
       });
 
       fixture.detectChanges();
@@ -353,7 +343,7 @@ describe('LinkPreviewComponent', () => {
       component.metadata.set({
         url: 'https://example.com',
         title: 'A'.repeat(200),
-        description: 'B'.repeat(300)
+        description: 'B'.repeat(300),
       });
 
       fixture.detectChanges();
@@ -372,18 +362,14 @@ describe('LinkPreviewComponent', () => {
 
       component.openLink();
 
-      expect(openSpy).toHaveBeenCalledWith(
-        'https://example.com',
-        '_blank',
-        'noopener,noreferrer'
-      );
-      
+      expect(openSpy).toHaveBeenCalledWith('https://example.com', '_blank', 'noopener,noreferrer');
+
       openSpy.mockRestore();
     });
 
     it('should handle empty metadata response', () => {
       component.metadata.set({
-        url: 'https://example.com'
+        url: 'https://example.com',
       });
       component.loading.set(false);
 
@@ -398,7 +384,7 @@ describe('LinkPreviewComponent', () => {
       component.metadata.set({
         url: 'https://github.com',
         title: 'GitHub',
-        favicon: 'https://github.com/favicon.ico'
+        favicon: 'https://github.com/favicon.ico',
       });
 
       fixture.detectChanges();
@@ -411,7 +397,7 @@ describe('LinkPreviewComponent', () => {
     it('should display fallback icon when favicon unavailable', () => {
       component.metadata.set({
         url: 'https://example.com',
-        title: 'Example'
+        title: 'Example',
       });
 
       fixture.detectChanges();
@@ -425,7 +411,7 @@ describe('LinkPreviewComponent', () => {
     it('should load metadata quickly', (done) => {
       const mockMetadata = {
         url: 'https://example.com',
-        title: 'Example'
+        title: 'Example',
       };
 
       component.url = 'https://example.com';

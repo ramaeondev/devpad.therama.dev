@@ -18,23 +18,27 @@ import { DChatService } from '../../d-chat.service';
       <div class="flex items-center gap-2">
         <!-- User Avatar -->
         <div class="relative flex-shrink-0">
-          <div class="w-10 h-10 rounded bg-retro-green/20 border border-retro-green flex items-center justify-center">
+          <div
+            class="w-10 h-10 rounded bg-retro-green/20 border border-retro-green flex items-center justify-center"
+          >
             @if (otherUser()) {
-            @if (otherUser()!.avatar_url) {
-            <img
-              [src]="otherUser()!.avatar_url"
-              alt="{{ otherUser()!.first_name }}"
-              class="w-full h-full rounded object-cover"
-            />
-            } @else {
-            <span class="text-retro-green font-mono text-sm font-bold">
-              {{ (otherUser()!.first_name || 'U')[0] | uppercase }}
-            </span>
-            }
+              @if (otherUser()!.avatar_url) {
+                <img
+                  [src]="otherUser()!.avatar_url"
+                  alt="{{ otherUser()!.first_name }}"
+                  class="w-full h-full rounded object-cover"
+                />
+              } @else {
+                <span class="text-retro-green font-mono text-sm font-bold">
+                  {{ (otherUser()!.first_name || 'U')[0] | uppercase }}
+                </span>
+              }
             }
           </div>
           @if (isOnline()) {
-          <div class="absolute bottom-0 right-0 w-2.5 h-2.5 bg-retro-green rounded-full border border-black"></div>
+            <div
+              class="absolute bottom-0 right-0 w-2.5 h-2.5 bg-retro-green rounded-full border border-black"
+            ></div>
           }
         </div>
 
@@ -50,45 +54,49 @@ import { DChatService } from '../../d-chat.service';
               </p>
             </div>
             @if (unreadCount() > 0) {
-            <div class="flex-shrink-0 bg-retro-green text-black rounded-full w-5 h-5 flex items-center justify-center text-xs font-mono font-bold">
-              {{ unreadCount() }}
-            </div>
+              <div
+                class="flex-shrink-0 bg-retro-green text-black rounded-full w-5 h-5 flex items-center justify-center text-xs font-mono font-bold"
+              >
+                {{ unreadCount() }}
+              </div>
             }
           </div>
           <p class="text-xs text-gray-400 truncate mt-1">
             @if (conversation.last_message) {
-            {{ conversation.last_message.content }}
+              {{ conversation.last_message.content }}
             } @else {
-            NO MESSAGES
+              NO MESSAGES
             }
           </p>
         </div>
 
         <!-- Online Status Indicator -->
         @if (isOnline()) {
-        <div class="flex-shrink-0">
-          <span class="text-xs text-retro-green font-mono">●</span>
-        </div>
+          <div class="flex-shrink-0">
+            <span class="text-xs text-retro-green font-mono">●</span>
+          </div>
         }
       </div>
     </button>
   `,
-  styles: [`
-    .conversation-item {
-      animation: fade-in 0.3s ease-in;
-    }
+  styles: [
+    `
+      .conversation-item {
+        animation: fade-in 0.3s ease-in;
+      }
 
-    @keyframes fade-in {
-      from {
-        opacity: 0;
-        transform: translateX(-10px);
+      @keyframes fade-in {
+        from {
+          opacity: 0;
+          transform: translateX(-10px);
+        }
+        to {
+          opacity: 1;
+          transform: translateX(0);
+        }
       }
-      to {
-        opacity: 1;
-        transform: translateX(0);
-      }
-    }
-  `],
+    `,
+  ],
 })
 export class ConversationItemComponent {
   @Input() conversation!: DConversation;
@@ -98,15 +106,15 @@ export class ConversationItemComponent {
   @Output() selectConversation = new EventEmitter<void>();
 
   private readonly dChatService = inject(DChatService);
-  
+
   // Signals for reactive updates
   otherUserId = signal<string>('');
   otherUser = signal<any>(null);
   unreadCount = signal<number>(0);
-  
+
   // Track userStatuses as a signal to enable computed properties
   userStatusesSignal = signal<Map<string, DUserStatus>>(new Map());
-  
+
   // Computed online status that updates reactively
   isOnline = computed(() => {
     const otherUserId = this.otherUserId();
@@ -119,7 +127,7 @@ export class ConversationItemComponent {
     this.otherUserId.set(
       this.conversation.user1_id === this.currentUserId
         ? this.conversation.user2_id
-        : this.conversation.user1_id
+        : this.conversation.user1_id,
     );
     await this.loadUserInfo();
   }
@@ -139,7 +147,7 @@ export class ConversationItemComponent {
     // Get unread messages count for this specific conversation
     const unread = await this.dChatService.getUnreadCountForConversation(
       this.currentUserId,
-      this.conversation.id
+      this.conversation.id,
     );
     this.unreadCount.set(unread);
   }

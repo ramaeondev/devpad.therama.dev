@@ -6,7 +6,10 @@ import { MarkdownFormatter, detectMessageType } from '../../utils/markdown-forma
 import { LinkPreviewComponent } from '../link-preview/link-preview.component';
 import { LinkPreviewService } from '../../services/link-preview.service';
 import { DChatService } from '../../d-chat.service';
-import { MessageKebabMenuComponent, MessageAction } from '../message-kebab-menu/message-kebab-menu.component';
+import {
+  MessageKebabMenuComponent,
+  MessageAction,
+} from '../message-kebab-menu/message-kebab-menu.component';
 
 @Component({
   selector: 'app-chat-message',
@@ -25,7 +28,7 @@ export class ChatMessageComponent implements OnInit {
   @Output() editMessage = new EventEmitter<DMessage>();
   @Output() deleteMessage = new EventEmitter<DMessage>();
   @Output() pinMessage = new EventEmitter<DMessage>();
-  @Output() messageAction = new EventEmitter<{action: MessageAction; message: DMessage}>();
+  @Output() messageAction = new EventEmitter<{ action: MessageAction; message: DMessage }>();
 
   private readonly sanitizer = inject(DomSanitizer);
   private readonly linkPreviewService = inject(LinkPreviewService);
@@ -65,7 +68,7 @@ export class ChatMessageComponent implements OnInit {
     if (!this.message?.attachments) return;
 
     const urlMap = new Map<string, string>();
-    this.message.attachments.forEach(attachment => {
+    this.message.attachments.forEach((attachment) => {
       const url = this.dChatService.getAttachmentUrl(attachment.storage_path);
       urlMap.set(attachment.id, url);
     });
@@ -81,12 +84,14 @@ export class ChatMessageComponent implements OnInit {
     const images: DMessageAttachment[] = [];
     const documents: DMessageAttachment[] = [];
 
-    this.message.attachments.forEach(attachment => {
+    this.message.attachments.forEach((attachment) => {
       const mimeType = attachment.file_type.toLowerCase();
-      const isImage = mimeType.startsWith('image/') || 
-                     ['jpg', 'jpeg', 'png', 'gif', 'webp', 'bmp', 'svg'].some(ext => 
-                       attachment.file_name.toLowerCase().endsWith(ext));
-      
+      const isImage =
+        mimeType.startsWith('image/') ||
+        ['jpg', 'jpeg', 'png', 'gif', 'webp', 'bmp', 'svg'].some((ext) =>
+          attachment.file_name.toLowerCase().endsWith(ext),
+        );
+
       if (isImage) {
         images.push(attachment);
       } else {
@@ -111,8 +116,9 @@ export class ChatMessageComponent implements OnInit {
   isImage(attachment: DMessageAttachment): boolean {
     const mimeType = attachment.file_type.toLowerCase();
     const isImageMime = mimeType.startsWith('image/');
-    const isImageExt = ['jpg', 'jpeg', 'png', 'gif', 'webp', 'bmp', 'svg'].some(ext => 
-      attachment.file_name.toLowerCase().endsWith(ext));
+    const isImageExt = ['jpg', 'jpeg', 'png', 'gif', 'webp', 'bmp', 'svg'].some((ext) =>
+      attachment.file_name.toLowerCase().endsWith(ext),
+    );
     return isImageMime || isImageExt;
   }
 
@@ -276,7 +282,7 @@ export class ChatMessageComponent implements OnInit {
       },
       (error) => {
         console.error('Failed to copy:', error);
-      }
+      },
     );
   }
 

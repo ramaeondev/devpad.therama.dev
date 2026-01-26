@@ -1,4 +1,14 @@
-import { Component, OnInit, OnDestroy, inject, signal, computed, ViewChild, ElementRef, effect } from '@angular/core';
+import {
+  Component,
+  OnInit,
+  OnDestroy,
+  inject,
+  signal,
+  computed,
+  ViewChild,
+  ElementRef,
+  effect,
+} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
@@ -78,9 +88,7 @@ export class DChatComponent implements OnInit, OnDestroy {
   });
 
   hasUnreadMessages = computed(() => {
-    return this.messages().some(
-      (m) => m.recipient_id === this.currentUserId() && !m.read
-    );
+    return this.messages().some((m) => m.recipient_id === this.currentUserId() && !m.read);
   });
 
   ngOnInit(): void {
@@ -130,11 +138,7 @@ export class DChatComponent implements OnInit, OnDestroy {
 
       // Load messages (first page - 100 messages)
       this.loading.set(true);
-      const msgs = await this.dChatService.getMessagesBetweenUsers(
-        otherUserId,
-        100,
-        0
-      );
+      const msgs = await this.dChatService.getMessagesBetweenUsers(otherUserId, 100, 0);
       this.dChatService.setConversationMessages(msgs);
 
       // Subscribe to real-time messages for this conversation
@@ -163,9 +167,7 @@ export class DChatComponent implements OnInit, OnDestroy {
   async startNewConversation(user: DChatUser): Promise<void> {
     try {
       this.loading.set(true);
-      const conversation = await this.dChatService.getOrCreateConversation(
-        user.id
-      );
+      const conversation = await this.dChatService.getOrCreateConversation(user.id);
       await this.selectConversation(conversation);
       this.showUserSearch.set(false);
     } catch (error) {
@@ -179,7 +181,7 @@ export class DChatComponent implements OnInit, OnDestroy {
   async sendMessage(attachmentData?: FileMetadata[]): Promise<void> {
     const content = this.messageInput().trim();
     const files = attachmentData || this.attachments();
-    
+
     // Allow sending with files even if content is empty
     if (!content && files.length === 0) return;
 
@@ -188,26 +190,26 @@ export class DChatComponent implements OnInit, OnDestroy {
     if (editingMsg) {
       try {
         this.sendingMessage.set(true);
-        
+
         // Update the message
         await this.dChatService.updateMessage(editingMsg.id, content);
-        
+
         // Update local messages array
         const currentMessages = this.dChatService.currentConversationMessages();
-        const updatedMessages = currentMessages.map(m => 
-          m.id === editingMsg.id ? { ...m, content } : m
+        const updatedMessages = currentMessages.map((m) =>
+          m.id === editingMsg.id ? { ...m, content } : m,
         );
         this.dChatService.currentConversationMessages.set(updatedMessages);
-        
+
         // Reset editing state
         this.editingMessage.set(null);
         this.messageInput.set('');
         this.attachments.set([]);
-        
+
         if (this.richTextarea) {
           this.richTextarea.reset();
         }
-        
+
         this.toast.success('Message updated');
       } catch (error) {
         console.error('Error updating message:', error);
@@ -228,7 +230,7 @@ export class DChatComponent implements OnInit, OnDestroy {
 
     try {
       this.sendingMessage.set(true);
-      
+
       // Create optimistic message - appears immediately
       const optimisticMessage: DMessage = {
         id: `temp-${Date.now()}`, // Temporary ID
@@ -240,7 +242,7 @@ export class DChatComponent implements OnInit, OnDestroy {
         updated_at: new Date().toISOString(),
         read: false,
         status: 'sending', // Custom status for UI
-        attachments: [] // Will be added after real send
+        attachments: [], // Will be added after real send
       };
 
       // Add optimistic message to UI immediately
@@ -261,15 +263,15 @@ export class DChatComponent implements OnInit, OnDestroy {
         conversationId,
         recipientId,
         content,
-        files
+        files,
       );
 
       // Replace optimistic message with real one
       const updatedMessages = this.messages().map((m) =>
-        m.id === optimisticMessage.id ? sentMessage : m
+        m.id === optimisticMessage.id ? sentMessage : m,
       );
       this.dChatService.currentConversationMessages.set(updatedMessages);
-      
+
       // Note: The real-time subscription will also receive the INSERT event
       // but our map above ensures we don't duplicate since we already replaced it
 
@@ -282,19 +284,19 @@ export class DChatComponent implements OnInit, OnDestroy {
     } catch (error) {
       console.error('Error sending message:', error);
       this.toast.error('Failed to send message');
-      
+
       // Remove optimistic message on error
       const updatedMessages = this.messages().filter(
-        (m) => m.id !== `temp-${Date.now()}` && !m.id.startsWith('temp-')
+        (m) => m.id !== `temp-${Date.now()}` && !m.id.startsWith('temp-'),
       );
       this.dChatService.currentConversationMessages.set(updatedMessages);
-      
+
       // Restore input on error
       this.messageInput.set(content);
       this.attachments.set(files);
     } finally {
       this.sendingMessage.set(false);
-      
+
       // Ensure focus is set after all state updates complete
       setTimeout(() => {
         if (this.richTextarea) {
@@ -314,10 +316,10 @@ export class DChatComponent implements OnInit, OnDestroy {
   async deleteAttachment(attachmentId: string, messageId: string): Promise<void> {
     try {
       // Find the attachment in the current message
-      const currentMessage = this.messages().find(m => m.id === messageId);
+      const currentMessage = this.messages().find((m) => m.id === messageId);
       if (!currentMessage || !currentMessage.attachments) return;
 
-      const attachment = currentMessage.attachments.find(a => a.id === attachmentId);
+      const attachment = currentMessage.attachments.find((a) => a.id === attachmentId);
       if (!attachment) return;
 
       // Delete from service (storage + database + local state)
@@ -407,7 +409,9 @@ export class DChatComponent implements OnInit, OnDestroy {
         this.richTextarea.focus();
       }
     }, 0);
-    this.toast.success(`Replying to ${message.sender_id === this.currentUserId() ? 'your' : 'their'} message`);
+    this.toast.success(
+      `Replying to ${message.sender_id === this.currentUserId() ? 'your' : 'their'} message`,
+    );
   }
 
   /**
@@ -430,7 +434,7 @@ export class DChatComponent implements OnInit, OnDestroy {
    */
   handleEditMessage(message: DMessage): void {
     if (!message.id) return;
-    
+
     // Only allow editing own messages
     if (message.sender_id !== this.currentUserId()) {
       this.toast.error('You can only edit your own messages');
@@ -470,12 +474,12 @@ export class DChatComponent implements OnInit, OnDestroy {
     try {
       this.sendingMessage.set(true);
       await this.dChatService.deleteMessage(message.id);
-      
+
       // Remove from local messages array
       const currentMessages = this.dChatService.currentConversationMessages();
-      const updatedMessages = currentMessages.filter(m => m.id !== message.id);
+      const updatedMessages = currentMessages.filter((m) => m.id !== message.id);
       this.dChatService.currentConversationMessages.set(updatedMessages);
-      
+
       this.toast.success('Message deleted');
     } catch (error) {
       console.error('Error deleting message:', error);

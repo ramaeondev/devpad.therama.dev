@@ -53,38 +53,38 @@ export const FILE_CATEGORIES = {
   document: {
     icon: '📄',
     extensions: ['pdf', 'doc', 'docx', 'txt', 'xls', 'xlsx', 'ppt', 'pptx'],
-    label: 'Document'
+    label: 'Document',
   },
   image: {
     icon: '🖼️',
     extensions: ['jpg', 'jpeg', 'png', 'gif', 'bmp', 'webp', 'svg'],
-    label: 'Image'
+    label: 'Image',
   },
   video: {
     icon: '🎬',
     extensions: ['mp4', 'avi', 'mkv', 'mov', 'webm', 'flv'],
-    label: 'Video'
+    label: 'Video',
   },
   audio: {
     icon: '🎵',
     extensions: ['mp3', 'wav', 'flac', 'aac', 'm4a', 'ogg'],
-    label: 'Audio'
+    label: 'Audio',
   },
   archive: {
     icon: '📦',
     extensions: ['zip', 'rar', '7z', 'tar', 'gz'],
-    label: 'Archive'
+    label: 'Archive',
   },
   code: {
     icon: '💻',
     extensions: ['js', 'ts', 'py', 'java', 'cpp', 'c', 'html', 'css', 'json', 'xml'],
-    label: 'Code'
+    label: 'Code',
   },
   default: {
     icon: '📎',
     extensions: [],
-    label: 'File'
-  }
+    label: 'File',
+  },
 };
 
 /**

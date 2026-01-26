@@ -1,4 +1,9 @@
-<div class="message flex animate-fade-in gap-2" [class.justify-end]="isOwn" [class.justify-start]="!isOwn" [class.message-sending]="message.status === 'sending'">
+<div
+  class="message flex animate-fade-in gap-2"
+  [class.justify-end]="isOwn"
+  [class.justify-start]="!isOwn"
+  [class.message-sending]="message.status === 'sending'"
+>
   <!-- Kebab Menu - always visible on left side -->
   <div class="flex items-end">
     <app-message-kebab-menu
@@ -69,7 +74,9 @@
 
     <!-- Attachments Display -->
     @if (message.attachments && message.attachments.length > 0) {
-      <div class="attachments-section mt-3 space-y-2 pt-2 border-t border-current border-opacity-30">
+      <div
+        class="attachments-section mt-3 space-y-2 pt-2 border-t border-current border-opacity-30"
+      >
         <!-- Image Previews -->
         @if (imageAttachments().length > 0) {
           <div class="image-gallery space-y-2">
@@ -93,10 +100,16 @@
                   </button>
 
                   <!-- Image Info Overlay -->
-                  <div class="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-60 rounded flex items-end p-2 transition-all">
-                    <div class="text-xs text-white opacity-0 group-hover:opacity-100 transition-opacity w-full">
+                  <div
+                    class="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-60 rounded flex items-end p-2 transition-all"
+                  >
+                    <div
+                      class="text-xs text-white opacity-0 group-hover:opacity-100 transition-opacity w-full"
+                    >
                       <p class="truncate font-semibold">{{ attachment.file_name }}</p>
-                      <p class="text-gray-300">{{ (attachment.file_size / 1024 / 1024).toFixed(2) }} MB</p>
+                      <p class="text-gray-300">
+                        {{ (attachment.file_size / 1024 / 1024).toFixed(2) }} MB
+                      </p>
                     </div>
                   </div>
                 </div>
@@ -117,11 +130,19 @@
                   <div class="flex-shrink-0 mt-1">
                     @if (attachment.file_type.includes('pdf')) {
                       <i class="fa-solid fa-file-pdf text-retro-green text-lg"></i>
-                    } @else if (attachment.file_type.includes('word') || attachment.file_type.includes('document')) {
+                    } @else if (
+                      attachment.file_type.includes('word') ||
+                      attachment.file_type.includes('document')
+                    ) {
                       <i class="fa-solid fa-file-word text-retro-green text-lg"></i>
-                    } @else if (attachment.file_type.includes('sheet') || attachment.file_type.includes('csv')) {
+                    } @else if (
+                      attachment.file_type.includes('sheet') || attachment.file_type.includes('csv')
+                    ) {
                       <i class="fa-solid fa-file-csv text-retro-green text-lg"></i>
-                    } @else if (attachment.file_type.includes('zip') || attachment.file_type.includes('archive')) {
+                    } @else if (
+                      attachment.file_type.includes('zip') ||
+                      attachment.file_type.includes('archive')
+                    ) {
                       <i class="fa-solid fa-file-zipper text-retro-green text-lg"></i>
                     } @else if (attachment.file_type.includes('text')) {
                       <i class="fa-solid fa-file-lines text-retro-green text-lg"></i>

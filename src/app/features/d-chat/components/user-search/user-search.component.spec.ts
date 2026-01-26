@@ -82,4 +82,3 @@ describe('UserSearchComponent', () => {
     expect(component.results().length).toBeGreaterThan(0);
   });
 });
-

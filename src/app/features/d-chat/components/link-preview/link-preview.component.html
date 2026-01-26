@@ -5,11 +5,7 @@
   <div class="link-badge" [title]="metadata()?.title || url">
     <span class="link-icon">🔗</span>
     <span class="domain">{{ displayUrl() }}</span>
-    <button
-      class="open-btn"
-      (click)="openLink()"
-      [title]="'Open ' + url"
-      aria-label="Open link">
+    <button class="open-btn" (click)="openLink()" [title]="'Open ' + url" aria-label="Open link">
       ↗
     </button>
   </div>
@@ -33,10 +29,7 @@
           <span>❌</span>
           <span class="error-text">{{ error() }}</span>
         </div>
-        <button
-          class="retry-btn"
-          (click)="retryLoad()"
-          aria-label="Retry loading preview">
+        <button class="retry-btn" (click)="retryLoad()" aria-label="Retry loading preview">
           Retry
         </button>
       </div>
@@ -52,7 +45,8 @@
               [src]="data.image"
               [alt]="data.title || 'Link preview'"
               class="preview-img"
-              (error)="$event.target.style.display='none'" />
+              (error)="$event.target.style.display = 'none'"
+            />
           </div>
         }
 
@@ -65,7 +59,8 @@
                 [src]="data.favicon"
                 [alt]="data.domain || 'favicon'"
                 class="favicon"
-                (error)="onFaviconError($event)" />
+                (error)="onFaviconError($event)"
+              />
             } @else {
               <span class="favicon-icon">🌐</span>
             }
@@ -93,7 +88,8 @@
               class="action-btn open"
               (click)="openLink()"
               [title]="'Open ' + url"
-              aria-label="Open link">
+              aria-label="Open link"
+            >
               <span>↗</span>
               <span>Open Link</span>
             </button>
@@ -101,7 +97,8 @@
               class="action-btn copy"
               (click)="copyLink()"
               title="Copy link to clipboard"
-              aria-label="Copy link">
+              aria-label="Copy link"
+            >
               <span>📋</span>
               <span>Copy</span>
             </button>
@@ -122,7 +119,8 @@
           class="open-btn"
           (click)="openLink()"
           [title]="'Open ' + url"
-          aria-label="Open link">
+          aria-label="Open link"
+        >
           ↗
         </button>
       </div>

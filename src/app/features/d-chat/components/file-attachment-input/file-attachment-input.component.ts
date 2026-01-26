@@ -20,7 +20,7 @@ import { FileMetadata } from '../../models/file-attachment.model';
       />
 
       <!-- Drag and drop area -->
-      <div 
+      <div
         class="drop-zone"
         [class.dragging]="isDragging()"
         [class.loading]="isLoading()"
@@ -31,7 +31,9 @@ import { FileMetadata } from '../../models/file-attachment.model';
       >
         <div class="drop-icon">📁</div>
         <p class="drop-text">
-          <span *ngIf="!isLoading()">{{ isDragging() ? 'Drop files here' : 'Click or drag files to attach' }}</span>
+          <span *ngIf="!isLoading()">{{
+            isDragging() ? 'Drop files here' : 'Click or drag files to attach'
+          }}</span>
           <span *ngIf="isLoading()">Processing files...</span>
         </p>
         <p class="drop-hint">Files up to {{ maxSizeLabel }} • Any file type</p>
@@ -57,7 +59,7 @@ import { FileMetadata } from '../../models/file-attachment.model';
               <span class="file-name">{{ truncateFileName(file.name, 25) }}</span>
               <span class="file-size">{{ formatFileSize(file.size) }}</span>
             </span>
-            <button 
+            <button
               type="button"
               class="remove-btn"
               (click)="removeFile(file.name)"
@@ -70,7 +72,7 @@ import { FileMetadata } from '../../models/file-attachment.model';
 
         <!-- Action buttons -->
         <div class="action-buttons">
-          <button 
+          <button
             type="button"
             class="btn btn-secondary"
             (click)="clearFiles()"
@@ -78,290 +80,300 @@ import { FileMetadata } from '../../models/file-attachment.model';
           >
             Clear All
           </button>
-          <button 
+          <button
             type="button"
             class="btn btn-primary"
             (click)="submitFiles()"
             [disabled]="isLoading() || selectedFiles().length === 0"
           >
-            Attach {{ selectedFiles().length }} {{ selectedFiles().length === 1 ? 'File' : 'Files' }}
+            Attach {{ selectedFiles().length }}
+            {{ selectedFiles().length === 1 ? 'File' : 'Files' }}
           </button>
         </div>
       </div>
     </div>
   `,
-  styles: [`
-    .file-input-container {
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
-    }
-
-    .hidden-input {
-      display: none;
-    }
-
-    .drop-zone {
-      position: relative;
-      padding: 24px;
-      border: 2px dashed rgba(0, 255, 0, 0.4);
-      border-radius: 8px;
-      background: linear-gradient(135deg, rgba(0, 255, 0, 0.03) 0%, rgba(0, 128, 0, 0.03) 100%);
-      cursor: pointer;
-      transition: all 0.3s ease;
-      text-align: center;
-
-      &:hover {
-        border-color: rgba(0, 255, 0, 0.6);
-        background: linear-gradient(135deg, rgba(0, 255, 0, 0.08) 0%, rgba(0, 128, 0, 0.08) 100%);
+  styles: [
+    `
+      .file-input-container {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
       }
 
-      &.dragging {
-        border-color: rgba(0, 255, 0, 0.8);
-        background: linear-gradient(135deg, rgba(0, 255, 0, 0.12) 0%, rgba(0, 128, 0, 0.12) 100%);
-        box-shadow: 0 0 16px rgba(0, 255, 0, 0.3);
+      .hidden-input {
+        display: none;
       }
 
-      &.loading {
-        cursor: not-allowed;
-        opacity: 0.7;
-      }
-    }
-
-    .drop-icon {
-      font-size: 40px;
-      margin-bottom: 8px;
-      animation: bounce 2s infinite;
-    }
-
-    @keyframes bounce {
-      0%, 100% { transform: translateY(0); }
-      50% { transform: translateY(-4px); }
-    }
-
-    .drop-text {
-      margin: 0 0 4px;
-      font-size: 14px;
-      font-weight: 500;
-      color: rgba(0, 255, 0, 0.8);
-      font-family: 'Courier New', monospace;
-    }
-
-    .drop-hint {
-      margin: 0;
-      font-size: 12px;
-      color: rgba(0, 255, 0, 0.5);
-      font-family: 'Courier New', monospace;
-    }
-
-    .loading-spinner {
-      margin-top: 12px;
-      display: flex;
-      justify-content: center;
-    }
-
-    .spinner {
-      width: 24px;
-      height: 24px;
-      border: 2px solid rgba(0, 255, 0, 0.2);
-      border-top-color: rgba(0, 255, 0, 0.8);
-      border-radius: 50%;
-      animation: spin 0.8s linear infinite;
-    }
-
-    @keyframes spin {
-      to { transform: rotate(360deg); }
-    }
-
-    .error-message {
-      padding: 10px 12px;
-      background: rgba(255, 0, 0, 0.1);
-      border: 1px solid rgba(255, 0, 0, 0.3);
-      border-radius: 6px;
-      color: rgba(255, 0, 0, 0.8);
-      font-size: 12px;
-      font-family: 'Courier New', monospace;
-      line-height: 1.4;
-    }
-
-    .selected-files {
-      padding: 12px;
-      background: linear-gradient(135deg, rgba(0, 255, 0, 0.05) 0%, rgba(0, 128, 0, 0.05) 100%);
-      border: 1px solid rgba(0, 255, 0, 0.2);
-      border-radius: 6px;
-    }
-
-    .selected-title {
-      margin: 0 0 8px;
-      font-size: 12px;
-      font-weight: 600;
-      color: rgba(0, 255, 0, 0.7);
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-    }
-
-    .file-list {
-      display: flex;
-      flex-direction: column;
-      gap: 6px;
-      margin-bottom: 12px;
-      max-height: 200px;
-      overflow-y: auto;
-
-      &::-webkit-scrollbar {
-        width: 6px;
-      }
-
-      &::-webkit-scrollbar-track {
-        background: rgba(0, 255, 0, 0.05);
-        border-radius: 3px;
-      }
-
-      &::-webkit-scrollbar-thumb {
-        background: rgba(0, 255, 0, 0.3);
-        border-radius: 3px;
+      .drop-zone {
+        position: relative;
+        padding: 24px;
+        border: 2px dashed rgba(0, 255, 0, 0.4);
+        border-radius: 8px;
+        background: linear-gradient(135deg, rgba(0, 255, 0, 0.03) 0%, rgba(0, 128, 0, 0.03) 100%);
+        cursor: pointer;
+        transition: all 0.3s ease;
+        text-align: center;
 
         &:hover {
-          background: rgba(0, 255, 0, 0.5);
+          border-color: rgba(0, 255, 0, 0.6);
+          background: linear-gradient(135deg, rgba(0, 255, 0, 0.08) 0%, rgba(0, 128, 0, 0.08) 100%);
+        }
+
+        &.dragging {
+          border-color: rgba(0, 255, 0, 0.8);
+          background: linear-gradient(135deg, rgba(0, 255, 0, 0.12) 0%, rgba(0, 128, 0, 0.12) 100%);
+          box-shadow: 0 0 16px rgba(0, 255, 0, 0.3);
+        }
+
+        &.loading {
+          cursor: not-allowed;
+          opacity: 0.7;
         }
       }
-    }
 
-    .file-item {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      padding: 6px 8px;
-      background: rgba(0, 0, 0, 0.2);
-      border-radius: 4px;
-      font-size: 12px;
-      color: rgba(0, 255, 0, 0.8);
-
-      &:hover {
-        background: rgba(0, 0, 0, 0.3);
-      }
-    }
-
-    .file-icon {
-      font-size: 16px;
-      flex-shrink: 0;
-    }
-
-    .file-info {
-      display: flex;
-      flex-direction: column;
-      gap: 2px;
-      flex: 1;
-      min-width: 0;
-    }
-
-    .file-name {
-      display: block;
-      word-break: break-word;
-      font-weight: 500;
-    }
-
-    .file-size {
-      display: block;
-      font-size: 11px;
-      color: rgba(0, 255, 0, 0.5);
-    }
-
-    .remove-btn {
-      flex-shrink: 0;
-      width: 20px;
-      height: 20px;
-      padding: 0;
-      background: rgba(255, 0, 0, 0.1);
-      border: 1px solid rgba(255, 0, 0, 0.3);
-      border-radius: 3px;
-      color: rgba(255, 0, 0, 0.6);
-      cursor: pointer;
-      font-size: 12px;
-      transition: all 0.2s ease;
-
-      &:hover {
-        background: rgba(255, 0, 0, 0.2);
-        border-color: rgba(255, 0, 0, 0.6);
+      .drop-icon {
+        font-size: 40px;
+        margin-bottom: 8px;
+        animation: bounce 2s infinite;
       }
 
-      &:active {
-        transform: scale(0.9);
-      }
-    }
-
-    .action-buttons {
-      display: flex;
-      gap: 8px;
-      justify-content: flex-end;
-    }
-
-    .btn {
-      padding: 8px 16px;
-      border-radius: 4px;
-      font-size: 12px;
-      font-weight: 500;
-      border: 1px solid;
-      cursor: pointer;
-      transition: all 0.2s ease;
-      font-family: inherit;
-
-      &:hover:not(:disabled) {
-        transform: scale(1.02);
+      @keyframes bounce {
+        0%,
+        100% {
+          transform: translateY(0);
+        }
+        50% {
+          transform: translateY(-4px);
+        }
       }
 
-      &:active:not(:disabled) {
-        transform: scale(0.98);
+      .drop-text {
+        margin: 0 0 4px;
+        font-size: 14px;
+        font-weight: 500;
+        color: rgba(0, 255, 0, 0.8);
+        font-family: 'Courier New', monospace;
       }
 
-      &:disabled {
-        opacity: 0.5;
-        cursor: not-allowed;
+      .drop-hint {
+        margin: 0;
+        font-size: 12px;
+        color: rgba(0, 255, 0, 0.5);
+        font-family: 'Courier New', monospace;
       }
-    }
 
-    .btn-primary {
-      background: rgba(0, 255, 0, 0.2);
-      border-color: rgba(0, 255, 0, 0.5);
-      color: rgba(0, 255, 0, 0.9);
-
-      &:hover:not(:disabled) {
-        background: rgba(0, 255, 0, 0.3);
-        border-color: rgba(0, 255, 0, 0.7);
-        box-shadow: 0 0 8px rgba(0, 255, 0, 0.3);
+      .loading-spinner {
+        margin-top: 12px;
+        display: flex;
+        justify-content: center;
       }
-    }
 
-    .btn-secondary {
-      background: rgba(100, 100, 100, 0.2);
-      border-color: rgba(100, 100, 100, 0.4);
-      color: rgba(150, 150, 150, 0.8);
-
-      &:hover:not(:disabled) {
-        background: rgba(100, 100, 100, 0.3);
-        border-color: rgba(100, 100, 100, 0.6);
+      .spinner {
+        width: 24px;
+        height: 24px;
+        border: 2px solid rgba(0, 255, 0, 0.2);
+        border-top-color: rgba(0, 255, 0, 0.8);
+        border-radius: 50%;
+        animation: spin 0.8s linear infinite;
       }
-    }
 
-    /* Retro scanlines */
-    .drop-zone::before {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      background: repeating-linear-gradient(
-        0deg,
-        transparent,
-        transparent 2px,
-        rgba(0, 255, 0, 0.02) 2px,
-        rgba(0, 255, 0, 0.02) 4px
-      );
-      pointer-events: none;
-      border-radius: 6px;
-    }
-  `]
+      @keyframes spin {
+        to {
+          transform: rotate(360deg);
+        }
+      }
+
+      .error-message {
+        padding: 10px 12px;
+        background: rgba(255, 0, 0, 0.1);
+        border: 1px solid rgba(255, 0, 0, 0.3);
+        border-radius: 6px;
+        color: rgba(255, 0, 0, 0.8);
+        font-size: 12px;
+        font-family: 'Courier New', monospace;
+        line-height: 1.4;
+      }
+
+      .selected-files {
+        padding: 12px;
+        background: linear-gradient(135deg, rgba(0, 255, 0, 0.05) 0%, rgba(0, 128, 0, 0.05) 100%);
+        border: 1px solid rgba(0, 255, 0, 0.2);
+        border-radius: 6px;
+      }
+
+      .selected-title {
+        margin: 0 0 8px;
+        font-size: 12px;
+        font-weight: 600;
+        color: rgba(0, 255, 0, 0.7);
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+      }
+
+      .file-list {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+        margin-bottom: 12px;
+        max-height: 200px;
+        overflow-y: auto;
+
+        &::-webkit-scrollbar {
+          width: 6px;
+        }
+
+        &::-webkit-scrollbar-track {
+          background: rgba(0, 255, 0, 0.05);
+          border-radius: 3px;
+        }
+
+        &::-webkit-scrollbar-thumb {
+          background: rgba(0, 255, 0, 0.3);
+          border-radius: 3px;
+
+          &:hover {
+            background: rgba(0, 255, 0, 0.5);
+          }
+        }
+      }
+
+      .file-item {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 6px 8px;
+        background: rgba(0, 0, 0, 0.2);
+        border-radius: 4px;
+        font-size: 12px;
+        color: rgba(0, 255, 0, 0.8);
+
+        &:hover {
+          background: rgba(0, 0, 0, 0.3);
+        }
+      }
+
+      .file-icon {
+        font-size: 16px;
+        flex-shrink: 0;
+      }
+
+      .file-info {
+        display: flex;
+        flex-direction: column;
+        gap: 2px;
+        flex: 1;
+        min-width: 0;
+      }
+
+      .file-name {
+        display: block;
+        word-break: break-word;
+        font-weight: 500;
+      }
+
+      .file-size {
+        display: block;
+        font-size: 11px;
+        color: rgba(0, 255, 0, 0.5);
+      }
+
+      .remove-btn {
+        flex-shrink: 0;
+        width: 20px;
+        height: 20px;
+        padding: 0;
+        background: rgba(255, 0, 0, 0.1);
+        border: 1px solid rgba(255, 0, 0, 0.3);
+        border-radius: 3px;
+        color: rgba(255, 0, 0, 0.6);
+        cursor: pointer;
+        font-size: 12px;
+        transition: all 0.2s ease;
+
+        &:hover {
+          background: rgba(255, 0, 0, 0.2);
+          border-color: rgba(255, 0, 0, 0.6);
+        }
+
+        &:active {
+          transform: scale(0.9);
+        }
+      }
+
+      .action-buttons {
+        display: flex;
+        gap: 8px;
+        justify-content: flex-end;
+      }
+
+      .btn {
+        padding: 8px 16px;
+        border-radius: 4px;
+        font-size: 12px;
+        font-weight: 500;
+        border: 1px solid;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        font-family: inherit;
+
+        &:hover:not(:disabled) {
+          transform: scale(1.02);
+        }
+
+        &:active:not(:disabled) {
+          transform: scale(0.98);
+        }
+
+        &:disabled {
+          opacity: 0.5;
+          cursor: not-allowed;
+        }
+      }
+
+      .btn-primary {
+        background: rgba(0, 255, 0, 0.2);
+        border-color: rgba(0, 255, 0, 0.5);
+        color: rgba(0, 255, 0, 0.9);
+
+        &:hover:not(:disabled) {
+          background: rgba(0, 255, 0, 0.3);
+          border-color: rgba(0, 255, 0, 0.7);
+          box-shadow: 0 0 8px rgba(0, 255, 0, 0.3);
+        }
+      }
+
+      .btn-secondary {
+        background: rgba(100, 100, 100, 0.2);
+        border-color: rgba(100, 100, 100, 0.4);
+        color: rgba(150, 150, 150, 0.8);
+
+        &:hover:not(:disabled) {
+          background: rgba(100, 100, 100, 0.3);
+          border-color: rgba(100, 100, 100, 0.6);
+        }
+      }
+
+      /* Retro scanlines */
+      .drop-zone::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: repeating-linear-gradient(
+          0deg,
+          transparent,
+          transparent 2px,
+          rgba(0, 255, 0, 0.02) 2px,
+          rgba(0, 255, 0, 0.02) 4px
+        );
+        pointer-events: none;
+        border-radius: 6px;
+      }
+    `,
+  ],
 })
 export class FileAttachmentInputComponent {
   @ViewChild('fileInput') fileInput?: ElementRef<HTMLInputElement>;
@@ -420,18 +432,16 @@ export class FileAttachmentInputComponent {
     }
 
     if (result.valid.length > 0) {
-      const newFiles = result.valid.map(file => ({
+      const newFiles = result.valid.map((file) => ({
         ...this.fileAttachmentService.extractFileMetadata(file),
-        file: file // Include the actual File object
+        file: file, // Include the actual File object
       }));
 
       const currentFiles = this.selectedFiles();
       const allFiles = [...currentFiles, ...newFiles];
-      
+
       // Remove duplicates by file name
-      const uniqueFiles = Array.from(
-        new Map(allFiles.map(f => [f.name, f])).values()
-      );
+      const uniqueFiles = Array.from(new Map(allFiles.map((f) => [f.name, f])).values());
 
       this.selectedFiles.set(uniqueFiles);
     }
@@ -439,7 +449,7 @@ export class FileAttachmentInputComponent {
 
   removeFile(fileName: string): void {
     const current = this.selectedFiles();
-    this.selectedFiles.set(current.filter(f => f.name !== fileName));
+    this.selectedFiles.set(current.filter((f) => f.name !== fileName));
   }
 
   clearFiles(): void {
@@ -449,11 +459,11 @@ export class FileAttachmentInputComponent {
 
   truncateFileName(fileName: string, maxLength: number): string {
     if (fileName.length <= maxLength) return fileName;
-    
+
     const ext = fileName.split('.').pop() || '';
     const nameWithoutExt = fileName.substring(0, fileName.lastIndexOf('.'));
     const maxNameLength = maxLength - ext.length - 3;
-    
+
     return `${nameWithoutExt.substring(0, maxNameLength)}...${ext ? '.' + ext : ''}`;
   }
 

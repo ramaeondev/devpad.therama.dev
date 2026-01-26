@@ -49,20 +49,21 @@ src/app/features/d-chat/
 
 ### Supported Formats
 
-| Format | Syntax | Example | Output |
-|--------|--------|---------|--------|
-| Bold | `**text**` | `**hello**` | **hello** |
-| Italic | `*text*` | `*world*` | *world* |
-| Underline | `__text__` | `__underline__` | <u>underline</u> |
-| Strikethrough | `~~text~~` | `~~wrong~~` | ~~wrong~~ |
-| Inline Code | `` `text` `` | `` `const x` `` | `const x` |
-| Code Block | `` ```code``` `` | `` ```js\nfn()``` `` | Code block |
-| Quote | `> text` | `> quote` | > quote |
-| Link | `[text](url)` | `[click](https://x)` | [click] |
+| Format        | Syntax         | Example              | Output           |
+| ------------- | -------------- | -------------------- | ---------------- |
+| Bold          | `**text**`     | `**hello**`          | **hello**        |
+| Italic        | `*text*`       | `*world*`            | _world_          |
+| Underline     | `__text__`     | `__underline__`      | <u>underline</u> |
+| Strikethrough | `~~text~~`     | `~~wrong~~`          | ~~wrong~~        |
+| Inline Code   | `` `text` ``   | `` `const x` ``      | `const x`        |
+| Code Block    | ` ```code``` ` | ` ```js\nfn()``` `   | Code block       |
+| Quote         | `> text`       | `> quote`            | > quote          |
+| Link          | `[text](url)`  | `[click](https://x)` | [click]          |
 
 ### Real Examples
 
 #### Example 1: Mixed Formatting
+
 ```
 Input: "This is **bold** and *italic* text"
 Output: "This is <strong>bold</strong> and <em>italic</em> text"
@@ -70,13 +71,15 @@ Display: This is bold and italic text
 ```
 
 #### Example 2: Code with Explanation
-```
+
+````
 Input: "Use `const` for constants. Here's an example:\n```\nconst x = 10;\n```"
 Output: Formatted code block with styling
 Display: Shows code with dark background and green text
-```
+````
 
 #### Example 3: Quote
+
 ```
 Input: "> This is important\nDon't forget!"
 Output: Blockquote with border + normal text below
@@ -84,6 +87,7 @@ Display: Quote highlighted with left green border
 ```
 
 #### Example 4: Media Placeholder
+
 ```
 Input: "Here's my screenshot: ![screenshot](image.png)"
 Output: "Here's my screenshot: " + Media placeholder
@@ -120,16 +124,16 @@ const fileType = MarkdownFormatter.getFileType('document.pdf');
 
 ```typescript
 // Check for media type
-component.hasMedia('images');        // true if contains images
-component.hasMedia('pdfs');          // true if contains PDFs
-component.hasMedia('documents');     // true if contains documents
+component.hasMedia('images'); // true if contains images
+component.hasMedia('pdfs'); // true if contains PDFs
+component.hasMedia('documents'); // true if contains documents
 
 // Get placeholder text
-component.getMediaPlaceholder('image');   // '📷 Image (Coming Soon)'
-component.getMediaPlaceholder('pdf');     // '📄 PDF Document (Coming Soon)'
+component.getMediaPlaceholder('image'); // '📷 Image (Coming Soon)'
+component.getMediaPlaceholder('pdf'); // '📄 PDF Document (Coming Soon)'
 
 // Format timestamp
-component.formatTime('2024-01-15T10:30:00Z');  // '10:30 AM' or '10:30'
+component.formatTime('2024-01-15T10:30:00Z'); // '10:30 AM' or '10:30'
 ```
 
 ---
@@ -175,12 +179,12 @@ $retro-light-green: #00ff80;
 // Mobile adjustments
 @media (max-width: 640px) {
   .message-bubble {
-    font-size: 0.875rem;      // Smaller text
-    padding: 0.5rem 0.75rem;  // Tighter padding
+    font-size: 0.875rem; // Smaller text
+    padding: 0.5rem 0.75rem; // Tighter padding
   }
 
   .formatted-text pre {
-    font-size: 0.75rem;       // Smaller code
+    font-size: 0.75rem; // Smaller code
   }
 }
 ```
@@ -238,9 +242,9 @@ describe('ChatMessageComponent - New Feature', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [ChatMessageComponent]
+      imports: [ChatMessageComponent],
     }).compileComponents();
-    
+
     fixture = TestBed.createComponent(ChatMessageComponent);
     component = fixture.componentInstance;
   });
@@ -258,8 +262,10 @@ describe('ChatMessageComponent - New Feature', () => {
 ## Common Issues & Solutions
 
 ### Issue 1: Markdown Not Rendering
+
 **Problem**: Messages show raw markdown syntax instead of formatted text
-**Solution**: 
+**Solution**:
+
 ```typescript
 // Check component initialization
 ngOnInit() {
@@ -272,18 +278,20 @@ ngOnInit() {
 ```
 
 ### Issue 2: XSS Security Warning
+
 **Problem**: Angular warns about unsafe HTML
-**Solution**: 
+**Solution**:
+
 ```typescript
 // Always use DomSanitizer.bypassSecurityTrustHtml()
-this.formattedContent.set(
-  this.sanitizer.bypassSecurityTrustHtml(formatted)
-);
+this.formattedContent.set(this.sanitizer.bypassSecurityTrustHtml(formatted));
 ```
 
 ### Issue 3: Styling Not Applied
+
 **Problem**: Markdown text appears unstyled
 **Solution**:
+
 ```html
 <!-- Use proper CSS class for styling -->
 <div class="message-content formatted-text" [innerHTML]="formattedContent()"></div>
@@ -291,8 +299,10 @@ this.formattedContent.set(
 ```
 
 ### Issue 4: Media Placeholders Not Showing
+
 **Problem**: Media placeholders missing even with markdown syntax
 **Solution**:
+
 ```typescript
 // Check detectMedia function
 const media = MarkdownFormatter.detectMedia(content);
@@ -339,7 +349,7 @@ export class DChatComponent {
 // In d-message.model.ts
 export interface DMessage {
   id: string;
-  content: string;           // Markdown formatted
+  content: string; // Markdown formatted
   sender_id: string;
   receiver_id: string;
   created_at: string;
@@ -353,10 +363,11 @@ export interface DMessage {
 ## Performance Optimization
 
 ### 1. Change Detection
+
 ```typescript
 // Use OnPush strategy for better performance
 @Component({
-  changeDetection: ChangeDetectionStrategy.OnPush
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ChatMessageComponent {
   // Signals automatically trigger change detection only when needed
@@ -364,6 +375,7 @@ export class ChatMessageComponent {
 ```
 
 ### 2. Memoization for Computed Values
+
 ```typescript
 // Cache formatted content
 formattedContent = signal<SafeHtml>('');
@@ -377,6 +389,7 @@ ngOnInit(): void {
 ```
 
 ### 3. Virtual Scrolling (For Large Message Lists)
+
 ```typescript
 // In parent component
 <cdk-virtual-scroll-viewport itemSize="100">
@@ -391,6 +404,7 @@ ngOnInit(): void {
 ## Future Enhancements
 
 ### Phase 2: Media Implementation
+
 ```typescript
 // Placeholder for future image rendering
 getImagePreview(url: string): void {
@@ -408,6 +422,7 @@ openPDFViewer(url: string): void {
 ```
 
 ### Phase 3: Advanced Features
+
 ```typescript
 // Syntax highlighting for code
 highlightCode(code: string): SafeHtml {
@@ -435,6 +450,7 @@ editMessage(id: string, content: string): void {
 ## Deployment Instructions
 
 ### Prerequisites
+
 - ✅ Angular 19+
 - ✅ TypeScript 5.2+
 - ✅ Tailwind CSS 3.3+
@@ -443,24 +459,28 @@ editMessage(id: string, content: string): void {
 ### Steps
 
 1. **Verify Files Exist**
+
 ```bash
 ls -la src/app/features/d-chat/utils/markdown-formatter.ts
 ls -la src/app/features/d-chat/components/chat-message/
 ```
 
 2. **Run Tests**
+
 ```bash
 npm test -- --testPathPatterns="chat-message"
 # Expected: 47/47 PASSING
 ```
 
 3. **Build for Production**
+
 ```bash
 npm run build:prod
 # Expected: ✅ SUCCESS
 ```
 
 4. **Deploy**
+
 ```bash
 # Vercel deployment
 vercel --prod
@@ -514,6 +534,7 @@ npm ci && npm test
 ## Support & Documentation
 
 ### Related Files
+
 - Main Component: [chat-message.component.ts](../../components/chat-message/chat-message.component.ts)
 - Markdown Formatter: [markdown-formatter.ts](../../utils/markdown-formatter.ts)
 - Template: [chat-message.component.html](../../components/chat-message/chat-message.component.html)
@@ -521,6 +542,7 @@ npm ci && npm test
 - Tests: [chat-message.component.spec.ts](../../components/chat-message/chat-message.component.spec.ts)
 
 ### Additional Resources
+
 - [D-Chat Feature Overview](../d-chat-overview.md)
 - [RichTextarea Component Guide](../rich-textarea-implementation-guide.md)
 - [Supabase Integration](../../../core/services/supabase.service.ts)

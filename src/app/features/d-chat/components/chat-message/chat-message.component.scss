@@ -286,7 +286,9 @@
   transition: all 0.3s ease;
 
   &:hover {
-    box-shadow: 0 0 12px rgba(0, 255, 65, 0.2), 0 2px 12px rgba(0, 0, 0, 0.5);
+    box-shadow:
+      0 0 12px rgba(0, 255, 65, 0.2),
+      0 2px 12px rgba(0, 0, 0, 0.5);
   }
 
   // Image gallery styles

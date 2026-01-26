@@ -10,7 +10,7 @@ describe('FileAttachmentInputComponent', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [FileAttachmentInputComponent],
-      providers: [FileAttachmentService]
+      providers: [FileAttachmentService],
     }).compileComponents();
 
     fixture = TestBed.createComponent(FileAttachmentInputComponent);
@@ -26,7 +26,7 @@ describe('FileAttachmentInputComponent', () => {
     it('should set isDragging to true on dragover', () => {
       const event = {
         preventDefault: jest.fn(),
-        stopPropagation: jest.fn()
+        stopPropagation: jest.fn(),
       } as unknown as DragEvent;
       component.onDragOver(event);
       expect(component.isDragging()).toBe(true);
@@ -36,7 +36,7 @@ describe('FileAttachmentInputComponent', () => {
       component.isDragging.set(true);
       const event = {
         preventDefault: jest.fn(),
-        stopPropagation: jest.fn()
+        stopPropagation: jest.fn(),
       } as unknown as DragEvent;
       component.onDragLeave(event);
       expect(component.isDragging()).toBe(false);
@@ -48,8 +48,8 @@ describe('FileAttachmentInputComponent', () => {
         preventDefault: jest.fn(),
         stopPropagation: jest.fn(),
         dataTransfer: {
-          files: [file] as unknown as FileList
-        }
+          files: [file] as unknown as FileList,
+        },
       } as unknown as DragEvent;
 
       component.onDrop(event);
@@ -62,8 +62,8 @@ describe('FileAttachmentInputComponent', () => {
         preventDefault: jest.fn(),
         stopPropagation: jest.fn(),
         dataTransfer: {
-          files: [file] as unknown as FileList
-        }
+          files: [file] as unknown as FileList,
+        },
       } as unknown as DragEvent;
 
       component.onDrop(event);
@@ -87,8 +87,8 @@ describe('FileAttachmentInputComponent', () => {
 
       const event = {
         target: {
-          files
-        }
+          files,
+        },
       } as unknown as Event;
 
       component.onFileSelected(event);
@@ -105,8 +105,8 @@ describe('FileAttachmentInputComponent', () => {
 
       const event = {
         target: {
-          files
-        }
+          files,
+        },
       } as unknown as Event;
 
       component.onFileSelected(event);
@@ -138,7 +138,9 @@ describe('FileAttachmentInputComponent', () => {
     it('should handle mixed valid and invalid files', () => {
       const validFile = new File(['content'], 'valid.txt', { type: 'text/plain' });
       const largeContent = new Array(MAX_FILE_SIZE + 1).fill('a').join('');
-      const invalidFile = new File([largeContent], 'invalid.bin', { type: 'application/octet-stream' });
+      const invalidFile = new File([largeContent], 'invalid.bin', {
+        type: 'application/octet-stream',
+      });
 
       component['handleFiles']([validFile, invalidFile]);
 
@@ -234,7 +236,7 @@ describe('FileAttachmentInputComponent', () => {
     it('should emit filesSelected event with selected files', (done) => {
       const file = new File(['content'], 'test.txt', { type: 'text/plain' });
 
-      component.filesSelected.subscribe(files => {
+      component.filesSelected.subscribe((files) => {
         expect(files.length).toBe(1);
         expect(files[0].name).toBe('test.txt');
         done();
@@ -252,7 +254,7 @@ describe('FileAttachmentInputComponent', () => {
       component.submitFiles();
       expect(component.isLoading()).toBe(true);
 
-      await new Promise(resolve => setTimeout(resolve, 600));
+      await new Promise((resolve) => setTimeout(resolve, 600));
       expect(component.isLoading()).toBe(false);
     });
 
@@ -262,7 +264,7 @@ describe('FileAttachmentInputComponent', () => {
       expect(component.selectedFiles().length).toBe(1);
 
       component.submitFiles();
-      await new Promise(resolve => setTimeout(resolve, 600));
+      await new Promise((resolve) => setTimeout(resolve, 600));
 
       expect(component.selectedFiles().length).toBe(0);
     });

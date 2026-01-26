@@ -1,7 +1,9 @@
 # ChatMessageComponent - Universal Markdown & Media Support
 
 ## Overview
+
 Enhanced `ChatMessageComponent` now supports universal message rendering with:
+
 - ✅ **Full Markdown Formatting** (8 types)
 - ✅ **Rich Text Display**
 - ✅ **Media Placeholders** (Images, PDFs, Documents)
@@ -15,46 +17,57 @@ Enhanced `ChatMessageComponent` now supports universal message rendering with:
 ### 1. Markdown Support (8 Formatting Types)
 
 #### Bold Text
+
 ```markdown
 **bold text** → <strong>bold text</strong>
 ```
 
 #### Italic Text
+
 ```markdown
-*italic text* → <em>italic text</em>
+_italic text_ → <em>italic text</em>
 ```
 
 #### Underline Text
+
 ```markdown
-__underlined text__ → <u>underlined text</u>
+**underlined text** → <u>underlined text</u>
 ```
 
 #### Strikethrough Text
+
 ```markdown
 ~~strikethrough text~~ → <s>strikethrough text</s>
 ```
 
 #### Inline Code
+
 ```markdown
 `const x = 10;` → <code>const x = 10;</code>
 ```
 
 #### Code Blocks
+
 ```markdown
+
 ```
+
 function hello() {
-  console.log("Hi");
+console.log("Hi");
 }
+
 ```
 → Formatted code block with syntax highlight styling
 ```
 
 #### Blockquotes
+
 ```markdown
 > This is a quote → <blockquote>This is a quote</blockquote>
 ```
 
 #### Links
+
 ```markdown
 [Click here](https://example.com) → <a href="...">Click here</a>
 ```
@@ -66,6 +79,7 @@ function hello() {
 ### Files Created/Modified
 
 #### New Files
+
 1. **markdown-formatter.ts** (265 lines)
    - `MarkdownFormatter` utility class
    - Markdown parsing and formatting logic
@@ -73,6 +87,7 @@ function hello() {
    - Type definitions
 
 #### Updated Files
+
 1. **chat-message.component.ts** (80 lines)
    - Signal-based state management
    - Markdown detection
@@ -151,25 +166,21 @@ formatTime(timestamp: string): string
 ```html
 <!-- Display formatted messages -->
 @if (messageType() !== 'text') {
-  <div class="formatted-text" [innerHTML]="formattedContent()"></div>
+<div class="formatted-text" [innerHTML]="formattedContent()"></div>
 }
 
 <!-- Plain text messages -->
 @if (messageType() === 'text') {
-  <p>{{ message.content }}</p>
+<p>{{ message.content }}</p>
 }
 
 <!-- Media placeholders -->
 @if (hasMedia('images')) {
-  <div class="media-placeholder">📷 Image (Coming Soon)</div>
-}
-
-@if (hasMedia('pdfs')) {
-  <div class="media-placeholder">📄 PDF Document (Coming Soon)</div>
-}
-
-@if (hasMedia('documents')) {
-  <div class="media-placeholder">📃 Document (Coming Soon)</div>
+<div class="media-placeholder">📷 Image (Coming Soon)</div>
+} @if (hasMedia('pdfs')) {
+<div class="media-placeholder">📄 PDF Document (Coming Soon)</div>
+} @if (hasMedia('documents')) {
+<div class="media-placeholder">📃 Document (Coming Soon)</div>
 }
 ```
 
@@ -178,30 +189,35 @@ formatTime(timestamp: string): string
 ## Supported Message Types
 
 ### 1. Plain Text
+
 ```
 Content: "Hello World"
 Display: Simple text, no formatting
 ```
 
 ### 2. Formatted Text
+
 ```
 Content: "This is **bold** and *italic* text"
 Display: HTML-rendered formatted text
 ```
 
 ### 3. Code Blocks
-```
+
+````
 Content: "```\nfunction() {}\n```"
 Display: Code block with styling
-```
+````
 
 ### 4. Quotes
+
 ```
 Content: "> This is a quote"
 Display: Blockquote with left border
 ```
 
 ### 5. Media with Placeholders
+
 ```
 Content: "![alt](file.jpg) or ![doc](file.pdf)"
 Display: Media placeholder showing file type
@@ -212,6 +228,7 @@ Display: Media placeholder showing file type
 ## Styling Features
 
 ### Retro Theme Integration
+
 - **Colors**: Green (#00ff41) on black (#000, #0a0a0a)
 - **Font**: Monospace (Courier New)
 - **Effects**: Glow shadows, smooth animations
@@ -220,6 +237,7 @@ Display: Media placeholder showing file type
 ### Formatted Text Styles
 
 #### Code Styling
+
 ```scss
 // Inline code
 code {
@@ -241,12 +259,13 @@ pre {
 ```
 
 #### Link Styling
+
 ```scss
 a {
   color: #00ff41;
   text-decoration: underline;
   transition: all 0.2s ease;
-  
+
   &:hover {
     opacity: 0.7;
     text-decoration: line-through;
@@ -255,6 +274,7 @@ a {
 ```
 
 #### Quote Styling
+
 ```scss
 blockquote {
   border-left: 2px solid #00ff41;
@@ -271,6 +291,7 @@ blockquote {
 ### Placeholder Display
 
 #### Images
+
 ```
 Icon: 📷
 Text: "Image (Coming Soon)"
@@ -278,6 +299,7 @@ Styles: Dashed border, green highlight
 ```
 
 #### PDFs
+
 ```
 Icon: 📄
 Text: "PDF Document (Coming Soon)"
@@ -285,6 +307,7 @@ Styles: Dashed border, green highlight
 ```
 
 #### Documents
+
 ```
 Icon: 📃
 Text: "Document (Coming Soon)"
@@ -295,9 +318,9 @@ Styles: Dashed border, green highlight
 
 ```typescript
 // Detect from URL extension
-getFileType('document.pdf')    // → 'pdf'
-getFileType('image.png')       // → 'image'
-getFileType('report.docx')     // → 'document'
+getFileType('document.pdf'); // → 'pdf'
+getFileType('image.png'); // → 'image'
+getFileType('report.docx'); // → 'document'
 ```
 
 ---
@@ -388,6 +411,7 @@ Tests:       47 passed, 47 total
 ## Build Status
 
 ### Production Build
+
 ```
 Status:        ✅ SUCCESS
 Bundle:        180.47 kB (uncompressed)
@@ -404,6 +428,7 @@ All Tests:     114/114 passing (D-Chat suite)
 ### Key Methods
 
 #### 1. Message Type Detection
+
 ```typescript
 ngOnInit(): void {
   if (this.message?.content) {
@@ -415,6 +440,7 @@ ngOnInit(): void {
 ```
 
 #### 2. Media Detection
+
 ```typescript
 hasMedia(type: 'images' | 'pdfs' | 'documents'): boolean {
   if (!this.message?.content) return false;
@@ -431,7 +457,8 @@ hasMedia(type: 'images' | 'pdfs' | 'documents'): boolean {
 ```
 
 #### 3. Markdown Formatting
-```typescript
+
+````typescript
 static format(text: string): string {
   let formatted = text
     .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
@@ -442,10 +469,10 @@ static format(text: string): string {
     .replace(/^> (.+)$/gm, '<blockquote class="...">$1</blockquote>')
     .replace(/\[(.+?)\]\((.+?)\)/g, '<a href="$2" target="_blank">$1</a>')
     .replace(/\n/g, '<br>');
-  
+
   return formatted;
 }
-```
+````
 
 ---
 
@@ -543,12 +570,14 @@ formatTime(timestamp: string): string
 ## Error Handling
 
 ### Content Validation
+
 - ✅ Empty content handled gracefully
 - ✅ Null/undefined checks
 - ✅ Special character escaping
 - ✅ XSS prevention via DomSanitizer
 
 ### Media Detection
+
 - ✅ Regex validation for file types
 - ✅ Fallback for unknown types
 - ✅ Case-insensitive file matching
@@ -558,12 +587,14 @@ formatTime(timestamp: string): string
 ## Performance Metrics
 
 ### Bundle Size
+
 - **Component**: Minimal impact
 - **Formatter Utility**: ~8 kB
 - **Total D-Chat**: 54.90 kB (uncompressed)
 - **Gzipped**: 11.64 kB
 
 ### Rendering Performance
+
 - No unnecessary re-renders (signals)
 - Efficient HTML sanitization
 - Hardware-accelerated CSS animations
@@ -598,13 +629,13 @@ formatTime(timestamp: string): string
 
 ## Files Summary
 
-| File | Lines | Status |
-|------|-------|--------|
-| markdown-formatter.ts | 265 | ✅ New |
-| chat-message.component.ts | 80 | ✅ Updated |
-| chat-message.component.html | 60 | ✅ New |
-| chat-message.component.scss | 200+ | ✅ New |
-| chat-message.component.spec.ts | 300+ | ✅ Enhanced |
+| File                           | Lines | Status      |
+| ------------------------------ | ----- | ----------- |
+| markdown-formatter.ts          | 265   | ✅ New      |
+| chat-message.component.ts      | 80    | ✅ Updated  |
+| chat-message.component.html    | 60    | ✅ New      |
+| chat-message.component.scss    | 200+  | ✅ New      |
+| chat-message.component.spec.ts | 300+  | ✅ Enhanced |
 
 ---
 

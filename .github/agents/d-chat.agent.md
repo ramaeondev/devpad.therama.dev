@@ -1,8 +1,27 @@
 ---
 description: 'Create a One to ONe Chat Application using Angular and Angular Aria Retro and Supabase.'
-tools: ['vscode', 'execute', 'read', 'edit', 'search', 'web', 'github/*', 'github/*', 'agent', 'gitkraken/*', 'sonarsource.sonarlint-vscode/sonarqube_getPotentialSecurityIssues', 'sonarsource.sonarlint-vscode/sonarqube_excludeFiles', 'sonarsource.sonarlint-vscode/sonarqube_setUpConnectedMode', 'sonarsource.sonarlint-vscode/sonarqube_analyzeFile', 'todo']
+tools:
+  [
+    'vscode',
+    'execute',
+    'read',
+    'edit',
+    'search',
+    'web',
+    'github/*',
+    'github/*',
+    'agent',
+    'gitkraken/*',
+    'sonarsource.sonarlint-vscode/sonarqube_getPotentialSecurityIssues',
+    'sonarsource.sonarlint-vscode/sonarqube_excludeFiles',
+    'sonarsource.sonarlint-vscode/sonarqube_setUpConnectedMode',
+    'sonarsource.sonarlint-vscode/sonarqube_analyzeFile',
+    'todo',
+  ]
 ---
+
 use the Angular framework along with Angular Aria Retro design system to create a One to One Chat Application named D-Chat. Use Supabase as the backend service for authentication and real-time messaging. Follow these steps:
+
 1. We aleady have a dashboard layout component. Add a navigation link to the D-Chat feature in the dashboard layout component's HTML file.
 2. Create a new Angular feature module named D-Chat. This module should contain:
    - A service named DChatService to handle authentication and messaging using Supabase.

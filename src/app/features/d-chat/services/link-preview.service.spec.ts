@@ -9,11 +9,7 @@ describe('LinkPreviewService', () => {
 
   beforeEach(() => {
     TestBed.configureTestingModule({
-      providers: [
-        LinkPreviewService,
-        provideHttpClient(),
-        provideHttpClientTesting()
-      ]
+      providers: [LinkPreviewService, provideHttpClient(), provideHttpClientTesting()],
     });
 
     service = TestBed.inject(LinkPreviewService);
@@ -80,12 +76,9 @@ describe('LinkPreviewService', () => {
 
   describe('URL Validation', () => {
     it('should validate URLs with proper protocol', () => {
-      const testUrls = [
-        'https://example.com',
-        'http://google.com'
-      ];
+      const testUrls = ['https://example.com', 'http://google.com'];
 
-      testUrls.forEach(url => {
+      testUrls.forEach((url) => {
         expect(service['isValidUrl'](url)).toBe(true);
       });
     });
@@ -103,7 +96,7 @@ describe('LinkPreviewService', () => {
       // Test that invalid URLs are filtered out during extraction
       const text = 'Check out rama.ddf and example.com but also https://valid.com';
       const urls = service.extractUrls(text);
-      
+
       // Should only extract valid URLs with proper protocol
       expect(urls.length).toBe(1);
       expect(urls[0]).toContain('valid.com');
@@ -182,17 +175,17 @@ describe('LinkPreviewService', () => {
         data: {
           title: 'Example',
           description: 'Example description',
-          url: url
-        }
+          url: url,
+        },
       };
 
-      service.getMetadata(url).subscribe(metadata => {
+      service.getMetadata(url).subscribe((metadata) => {
         expect(metadata.url).toBe(url);
         expect(metadata.domain).toBeTruthy();
         done();
       });
 
-      const req = httpMock.expectOne(req => req.url.includes('microlink.io'));
+      const req = httpMock.expectOne((req) => req.url.includes('microlink.io'));
       req.flush(mockResponse);
     });
 
@@ -201,23 +194,23 @@ describe('LinkPreviewService', () => {
       const mockResponse = {
         status: 'success',
         data: {
-          url: url
-        }
+          url: url,
+        },
       };
 
-      service.getMetadata(url).subscribe(metadata => {
+      service.getMetadata(url).subscribe((metadata) => {
         expect(metadata).toBeTruthy();
         done();
       });
 
-      const req = httpMock.expectOne(req => req.url.includes('microlink.io'));
+      const req = httpMock.expectOne((req) => req.url.includes('microlink.io'));
       req.flush(mockResponse);
     });
 
     it('should return basic metadata for invalid URL', (done) => {
       const url = 'not a url';
 
-      service.getMetadata(url).subscribe(metadata => {
+      service.getMetadata(url).subscribe((metadata) => {
         expect(metadata.url).toBe(url);
         done();
       });
@@ -236,10 +229,10 @@ describe('LinkPreviewService', () => {
         },
         error: () => {
           fail('Should not error');
-        }
+        },
       });
 
-      const req = httpMock.expectOne(req => req.url.includes('microlink.io'));
+      const req = httpMock.expectOne((req) => req.url.includes('microlink.io'));
       req.error(new ErrorEvent('Network error'));
     });
 
@@ -256,10 +249,10 @@ describe('LinkPreviewService', () => {
         },
         error: () => {
           fail('Should not error - should fallback to basic metadata');
-        }
+        },
       });
 
-      const req = httpMock.expectOne(req => req.url.includes('microlink.io'));
+      const req = httpMock.expectOne((req) => req.url.includes('microlink.io'));
       req.flush(null, { status: 500, statusText: 'Server Error' });
     });
   });
@@ -308,14 +301,14 @@ describe('LinkPreviewService', () => {
         }
       });
 
-      const req = httpMock.expectOne(req => req.url.includes('microlink.io'));
+      const req = httpMock.expectOne((req) => req.url.includes('microlink.io'));
       req.flush({
         status: 'success',
         data: {
           title: 'Example',
           description: 'Example site',
-          url: url
-        }
+          url: url,
+        },
       });
     });
   });

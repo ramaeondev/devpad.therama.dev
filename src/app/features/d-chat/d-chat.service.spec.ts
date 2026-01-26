@@ -11,20 +11,48 @@ describe('DChatService', () => {
   beforeEach(() => {
     // Create a mock that properly handles method chaining for all queries
     const createMockQuery = () => ({
-      select: jest.fn(function() { return this; }),
-      eq: jest.fn(function() { return this; }),
-      or: jest.fn(function() { return this; }),
-      ilike: jest.fn(function() { return this; }),
-      neq: jest.fn(function() { return this; }),
-      limit: jest.fn(function() { return this; }),
-      range: jest.fn(function() { return this; }),
-      order: jest.fn(function() { return this; }),
-      update: jest.fn(function() { return this; }),
-      insert: jest.fn(function() { return this; }),
-      upsert: jest.fn(function() { return this; }),
-      single: jest.fn(function() { return this; }),
-      in: jest.fn(function() { return this; }),
-      delete: jest.fn(function() { return this; }),
+      select: jest.fn(function () {
+        return this;
+      }),
+      eq: jest.fn(function () {
+        return this;
+      }),
+      or: jest.fn(function () {
+        return this;
+      }),
+      ilike: jest.fn(function () {
+        return this;
+      }),
+      neq: jest.fn(function () {
+        return this;
+      }),
+      limit: jest.fn(function () {
+        return this;
+      }),
+      range: jest.fn(function () {
+        return this;
+      }),
+      order: jest.fn(function () {
+        return this;
+      }),
+      update: jest.fn(function () {
+        return this;
+      }),
+      insert: jest.fn(function () {
+        return this;
+      }),
+      upsert: jest.fn(function () {
+        return this;
+      }),
+      single: jest.fn(function () {
+        return this;
+      }),
+      in: jest.fn(function () {
+        return this;
+      }),
+      delete: jest.fn(function () {
+        return this;
+      }),
     });
 
     const supabaseServiceMock = {

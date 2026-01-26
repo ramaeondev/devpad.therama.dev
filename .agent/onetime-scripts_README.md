@@ -11,6 +11,7 @@ node scripts/generate-encryption-key.js --bytes 32 --format base64url --name ENC
 ```
 
 Options:
+
 - `--bytes N` — number of random bytes to generate (default: 32)
 - `--format base64url|base64|hex` — output format (default: base64url)
 - `--name NAME` — optional env var name to show in export commands (default: ENCRYPTION_MASTER_SECRET)
