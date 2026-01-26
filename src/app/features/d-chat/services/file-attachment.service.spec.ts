@@ -155,7 +155,7 @@ describe('FileAttachmentService', () => {
     it('should extract metadata from file', () => {
       const file = new File(['content'], 'test.txt', { type: 'text/plain' });
       const metadata = service.extractFileMetadata(file);
-      
+
       expect(metadata.name).toBe('test.txt');
       expect(metadata.size).toBe(7);
       expect(metadata.type).toBe('text/plain');
@@ -165,7 +165,7 @@ describe('FileAttachmentService', () => {
     it('should handle files with various types', () => {
       const pdfFile = new File(['content'], 'doc.pdf', { type: 'application/pdf' });
       const metadata = service.extractFileMetadata(pdfFile);
-      
+
       expect(metadata.type).toBe('application/pdf');
       expect(metadata.name).toBe('doc.pdf');
     });
@@ -175,28 +175,36 @@ describe('FileAttachmentService', () => {
     it('should create and trigger download', () => {
       const url = 'blob:http://example.com/123';
       const fileName = 'test.txt';
-      
-      const appendChildSpy = jest.spyOn(document.body, 'appendChild').mockReturnValue(null as unknown as Element);
-      const removeChildSpy = jest.spyOn(document.body, 'removeChild').mockReturnValue(null as unknown as Element);
-      
+
+      const appendChildSpy = jest
+        .spyOn(document.body, 'appendChild')
+        .mockReturnValue(null as unknown as Element);
+      const removeChildSpy = jest
+        .spyOn(document.body, 'removeChild')
+        .mockReturnValue(null as unknown as Element);
+
       service.createDownloadLink(url, fileName);
-      
+
       expect(appendChildSpy).toHaveBeenCalled();
-      
+
       appendChildSpy.mockRestore();
       removeChildSpy.mockRestore();
     });
 
     it('should use default filename if not provided', () => {
       const url = 'blob:http://example.com/123';
-      
-      const appendChildSpy = jest.spyOn(document.body, 'appendChild').mockReturnValue(null as unknown as Element);
-      const removeChildSpy = jest.spyOn(document.body, 'removeChild').mockReturnValue(null as unknown as Element);
-      
+
+      const appendChildSpy = jest
+        .spyOn(document.body, 'appendChild')
+        .mockReturnValue(null as unknown as Element);
+      const removeChildSpy = jest
+        .spyOn(document.body, 'removeChild')
+        .mockReturnValue(null as unknown as Element);
+
       service.createDownloadLink(url, '');
-      
+
       expect(appendChildSpy).toHaveBeenCalled();
-      
+
       appendChildSpy.mockRestore();
       removeChildSpy.mockRestore();
     });
@@ -206,7 +214,7 @@ describe('FileAttachmentService', () => {
     it('should convert file to base64', async () => {
       const file = new File(['content'], 'test.txt', { type: 'text/plain' });
       const base64 = await service.fileToBase64(file);
-      
+
       expect(base64).toContain('data:text/plain');
       expect(base64).toContain('base64');
     });
@@ -214,7 +222,7 @@ describe('FileAttachmentService', () => {
     it('should handle different file types', async () => {
       const file = new File(['content'], 'image.png', { type: 'image/png' });
       const base64 = await service.fileToBase64(file);
-      
+
       expect(base64).toContain('data:image/png');
     });
   });
@@ -223,10 +231,12 @@ describe('FileAttachmentService', () => {
     it('should separate valid and invalid files', () => {
       const validFile = new File(['content'], 'small.txt', { type: 'text/plain' });
       const largeContent = new Array(MAX_FILE_SIZE + 1).fill('a').join('');
-      const invalidFile = new File([largeContent], 'large.bin', { type: 'application/octet-stream' });
-      
+      const invalidFile = new File([largeContent], 'large.bin', {
+        type: 'application/octet-stream',
+      });
+
       const result = service.validateFiles([validFile, invalidFile]);
-      
+
       expect(result.valid.length).toBe(1);
       expect(result.valid[0].name).toBe('small.txt');
       expect(result.errors.length).toBe(1);
@@ -236,16 +246,16 @@ describe('FileAttachmentService', () => {
     it('should handle all valid files', () => {
       const file1 = new File(['content1'], 'file1.txt', { type: 'text/plain' });
       const file2 = new File(['content2'], 'file2.txt', { type: 'text/plain' });
-      
+
       const result = service.validateFiles([file1, file2]);
-      
+
       expect(result.valid.length).toBe(2);
       expect(result.errors.length).toBe(0);
     });
 
     it('should handle empty array', () => {
       const result = service.validateFiles([]);
-      
+
       expect(result.valid.length).toBe(0);
       expect(result.errors.length).toBe(0);
     });

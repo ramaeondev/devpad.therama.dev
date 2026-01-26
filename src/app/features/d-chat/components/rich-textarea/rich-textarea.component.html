@@ -12,60 +12,59 @@
     </button>
 
     @if (showFormatting()) {
-    <div class="format-options">
-      <button (click)="applyFormat('bold')" class="format-btn" title="Bold (Ctrl+B)">
-        <i class="fa-solid fa-bold"></i>
-      </button>
-      <button (click)="applyFormat('italic')" class="format-btn" title="Italic (Ctrl+I)">
-        <i class="fa-solid fa-italic"></i>
-      </button>
-      <button (click)="applyFormat('underline')" class="format-btn" title="Underline">
-        <i class="fa-solid fa-underline"></i>
-      </button>
-      <button (click)="applyFormat('strikethrough')" class="format-btn" title="Strikethrough">
-        <i class="fa-solid fa-strikethrough"></i>
-      </button>
-      <div class="divider"></div>
-      <button (click)="applyFormat('code')" class="format-btn" title="Inline Code">
-        <i class="fa-solid fa-code"></i>
-      </button>
-      <button (click)="applyFormat('codeblock')" class="format-btn" title="Code Block">
-        <i class="fa-solid fa-square-terminal"></i>
-      </button>
-      <button (click)="applyFormat('quote')" class="format-btn" title="Quote">
-        <i class="fa-solid fa-quote-left"></i>
-      </button>
-      <button (click)="applyFormat('link')" class="format-btn" title="Link">
-        <i class="fa-solid fa-link"></i>
-      </button>
-      <div class="divider"></div>
-      <button (click)="clearText()" class="format-btn danger" title="Clear All">
-        <i class="fa-solid fa-trash"></i>
-      </button>
-      <div class="divider"></div>
-      <button
-        (click)="toggleFileUploader()"
-        class="format-btn attachment-btn"
-        [class.active]="showFileUploader()"
-        title="Attach Files"
-        [attr.aria-label]="showFileUploader() ? 'Hide file uploader' : 'Show file uploader'"
-      >
-        <i class="fa-solid fa-paperclip"></i>
-        @if (getSelectedFilesCount() > 0) {
-        <span class="file-count">{{ getSelectedFilesCount() }}</span>
-        }
-      </button>
-    </div>
+      <div class="format-options">
+        <button (click)="applyFormat('bold')" class="format-btn" title="Bold (Ctrl+B)">
+          <i class="fa-solid fa-bold"></i>
+        </button>
+        <button (click)="applyFormat('italic')" class="format-btn" title="Italic (Ctrl+I)">
+          <i class="fa-solid fa-italic"></i>
+        </button>
+        <button (click)="applyFormat('underline')" class="format-btn" title="Underline">
+          <i class="fa-solid fa-underline"></i>
+        </button>
+        <button (click)="applyFormat('strikethrough')" class="format-btn" title="Strikethrough">
+          <i class="fa-solid fa-strikethrough"></i>
+        </button>
+        <div class="divider"></div>
+        <button (click)="applyFormat('code')" class="format-btn" title="Inline Code">
+          <i class="fa-solid fa-code"></i>
+        </button>
+        <button (click)="applyFormat('codeblock')" class="format-btn" title="Code Block">
+          <i class="fa-solid fa-square-terminal"></i>
+        </button>
+        <button (click)="applyFormat('quote')" class="format-btn" title="Quote">
+          <i class="fa-solid fa-quote-left"></i>
+        </button>
+        <button (click)="applyFormat('link')" class="format-btn" title="Link">
+          <i class="fa-solid fa-link"></i>
+        </button>
+        <div class="divider"></div>
+        <button (click)="clearText()" class="format-btn danger" title="Clear All">
+          <i class="fa-solid fa-trash"></i>
+        </button>
+        <div class="divider"></div>
+        <button
+          (click)="toggleFileUploader()"
+          class="format-btn attachment-btn"
+          [class.active]="showFileUploader()"
+          title="Attach Files"
+          [attr.aria-label]="showFileUploader() ? 'Hide file uploader' : 'Show file uploader'"
+        >
+          <i class="fa-solid fa-paperclip"></i>
+          @if (getSelectedFilesCount() > 0) {
+            <span class="file-count">{{ getSelectedFilesCount() }}</span>
+          }
+        </button>
+      </div>
     }
   </div>
 
   <!-- File Attachment Input (Togglable) -->
   @if (showFileUploader()) {
-  <div class="file-attachment-section">
-    <app-file-attachment-input
-      (filesSelected)="onFilesSelected($event)">
-    </app-file-attachment-input>
-  </div>
+    <div class="file-attachment-section">
+      <app-file-attachment-input (filesSelected)="onFilesSelected($event)">
+      </app-file-attachment-input>
+    </div>
   }
 
   <!-- Textarea Container -->

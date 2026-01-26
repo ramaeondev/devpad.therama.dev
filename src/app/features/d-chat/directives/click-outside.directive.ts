@@ -2,7 +2,7 @@ import { Directive, ElementRef, EventEmitter, HostListener, Output } from '@angu
 
 @Directive({
   selector: '[clickOutside]',
-  standalone: true
+  standalone: true,
 })
 export class ClickOutsideDirective {
   @Output() clickOutside = new EventEmitter<MouseEvent | TouchEvent>();

@@ -12,7 +12,7 @@ import { LinkPreviewService, LinkMetadata } from '../../services/link-preview.se
   imports: [CommonModule],
   templateUrl: './link-preview.component.html',
   styleUrls: ['./link-preview.component.scss'],
-  changeDetection: ChangeDetectionStrategy.OnPush
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class LinkPreviewComponent implements OnInit {
   @Input() url!: string;
@@ -62,7 +62,7 @@ export class LinkPreviewComponent implements OnInit {
         // Still set basic metadata
         const domain = this.url.split('/')[2] || this.url;
         this.metadata.set({ url: this.url, domain });
-      }
+      },
     });
   }
 

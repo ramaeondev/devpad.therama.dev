@@ -331,9 +331,9 @@ describe('ChatMessageComponent - Enhanced Markdown & Media Support', () => {
 
   describe('Link Preview Integration', () => {
     it('should extract URLs from message content', () => {
-      component.message = { 
-        ...mockMessage, 
-        content: 'Check out https://example.com for more info' 
+      component.message = {
+        ...mockMessage,
+        content: 'Check out https://example.com for more info',
       };
       component.ngOnInit();
       expect(component.messageUrls().length).toBeGreaterThan(0);
@@ -341,27 +341,27 @@ describe('ChatMessageComponent - Enhanced Markdown & Media Support', () => {
     });
 
     it('should extract multiple URLs from message', () => {
-      component.message = { 
-        ...mockMessage, 
-        content: 'Visit https://example.com and https://github.com today' 
+      component.message = {
+        ...mockMessage,
+        content: 'Visit https://example.com and https://github.com today',
       };
       component.ngOnInit();
       expect(component.messageUrls().length).toBeGreaterThanOrEqual(2);
     });
 
     it('should extract www URLs', () => {
-      component.message = { 
-        ...mockMessage, 
-        content: 'Check https://www.example.com for details' 
+      component.message = {
+        ...mockMessage,
+        content: 'Check https://www.example.com for details',
       };
       component.ngOnInit();
       expect(component.messageUrls().length).toBeGreaterThan(0);
     });
 
     it('should extract URLs with paths and query parameters', () => {
-      component.message = { 
-        ...mockMessage, 
-        content: 'Visit https://example.com/path?id=123&name=test' 
+      component.message = {
+        ...mockMessage,
+        content: 'Visit https://example.com/path?id=123&name=test',
       };
       component.ngOnInit();
       expect(component.messageUrls().length).toBeGreaterThan(0);
@@ -369,97 +369,96 @@ describe('ChatMessageComponent - Enhanced Markdown & Media Support', () => {
     });
 
     it('should not extract URLs from plain text messages', () => {
-      component.message = { 
-        ...mockMessage, 
-        content: 'This is plain text without any links' 
+      component.message = {
+        ...mockMessage,
+        content: 'This is plain text without any links',
       };
       component.ngOnInit();
       expect(component.messageUrls().length).toBe(0);
     });
 
     it('should display link preview components when URLs are present', () => {
-      component.message = { 
-        ...mockMessage, 
-        content: 'Check https://example.com' 
+      component.message = {
+        ...mockMessage,
+        content: 'Check https://example.com',
       };
       component.ngOnInit();
       fixture.detectChanges();
-      
+
       const linkPreviewElement = fixture.nativeElement.querySelector('app-link-preview');
       expect(linkPreviewElement).toBeTruthy();
     });
 
     it('should not display link preview container when no URLs present', () => {
-      component.message = { 
-        ...mockMessage, 
-        content: 'No URLs here' 
+      component.message = {
+        ...mockMessage,
+        content: 'No URLs here',
       };
       component.ngOnInit();
       fixture.detectChanges();
-      
+
       const linkPreviewContainer = fixture.nativeElement.querySelector('.link-previews');
       expect(linkPreviewContainer).toBeFalsy();
     });
 
     it('should pass correct URL to link preview component', () => {
       const testUrl = 'https://github.com/angular/angular';
-      component.message = { 
-        ...mockMessage, 
-        content: `Visit ${testUrl} for documentation` 
+      component.message = {
+        ...mockMessage,
+        content: `Visit ${testUrl} for documentation`,
       };
       component.ngOnInit();
       fixture.detectChanges();
-      
+
       // Check that messageUrls signal contains the extracted URL
       expect(component.messageUrls().length).toBeGreaterThan(0);
       expect(component.messageUrls()[0]).toContain('github.com');
-      
+
       // Check that the link-preview components are rendered
       const linkPreviewElements = fixture.nativeElement.querySelectorAll('app-link-preview');
       expect(linkPreviewElements.length).toBeGreaterThan(0);
     });
 
     it('should remove duplicate URLs from message', () => {
-      component.message = { 
-        ...mockMessage, 
-        content: 'Visit https://example.com and also https://example.com' 
+      component.message = {
+        ...mockMessage,
+        content: 'Visit https://example.com and also https://example.com',
       };
       component.ngOnInit();
-      
+
       // Should have only one unique URL
       const uniqueUrls = [...new Set(component.messageUrls())];
       expect(uniqueUrls.length).toBe(1);
     });
 
     it('should update URL list when message content changes', () => {
-      component.message = { 
-        ...mockMessage, 
-        content: 'No URLs' 
+      component.message = {
+        ...mockMessage,
+        content: 'No URLs',
       };
       component.ngOnInit();
       expect(component.messageUrls().length).toBe(0);
 
       // Simulate message update
-      component.message = { 
-        ...mockMessage, 
-        content: 'Now has https://example.com' 
+      component.message = {
+        ...mockMessage,
+        content: 'Now has https://example.com',
       };
       component.ngOnInit();
       expect(component.messageUrls().length).toBeGreaterThan(0);
     });
 
     it('should handle mixed content with formatting and URLs', () => {
-      component.message = { 
-        ...mockMessage, 
-        content: 'Check **[our site](https://example.com)** for `code` samples' 
+      component.message = {
+        ...mockMessage,
+        content: 'Check **[our site](https://example.com)** for `code` samples',
       };
       component.ngOnInit();
       fixture.detectChanges();
-      
+
       // Should extract URL and format text
       expect(component.messageUrls().length).toBeGreaterThan(0);
       expect(component.messageType()).toBe('formatted');
     });
   });
 });
-

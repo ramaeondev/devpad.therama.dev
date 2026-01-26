@@ -5,7 +5,19 @@
  */
 
 export interface FormattedSegment {
-  type: 'text' | 'bold' | 'italic' | 'underline' | 'strikethrough' | 'code' | 'codeblock' | 'quote' | 'link' | 'image' | 'pdf' | 'document';
+  type:
+    | 'text'
+    | 'bold'
+    | 'italic'
+    | 'underline'
+    | 'strikethrough'
+    | 'code'
+    | 'codeblock'
+    | 'quote'
+    | 'link'
+    | 'image'
+    | 'pdf'
+    | 'document';
   content: string;
   url?: string;
 }
@@ -21,7 +33,7 @@ export class MarkdownFormatter {
 
     // Process line by line for block elements
     const lines = text.split('\n');
-    
+
     for (const line of lines) {
       if (!line.trim()) {
         segments.push({ type: 'text', content: '\n' });
@@ -32,9 +44,7 @@ export class MarkdownFormatter {
       if (line.trim().startsWith('```')) {
         const codeMatch = /```[\s\S]*?```/.exec(text);
         if (codeMatch) {
-          const codeContent = codeMatch[0]
-            .replace(/^```\n?/, '')
-            .replace(/\n?```$/, '');
+          const codeContent = codeMatch[0].replace(/^```\n?/, '').replace(/\n?```$/, '');
           segments.push({ type: 'codeblock', content: codeContent });
           continue;
         }
@@ -48,7 +58,7 @@ export class MarkdownFormatter {
       }
 
       // Parse inline formatting in the line
-      this.parseInlineFormatting(line).forEach(seg => segments.push(seg));
+      this.parseInlineFormatting(line).forEach((seg) => segments.push(seg));
       segments.push({ type: 'text', content: '\n' });
     }
 
@@ -174,7 +184,8 @@ export class MarkdownFormatter {
       underline: 'underline',
       strikethrough: 'line-through',
       code: 'bg-gray-800 px-1 py-0.5 rounded text-retro-green font-mono text-xs',
-      codeblock: 'bg-gray-800 p-2 rounded block font-mono text-xs text-retro-green my-1 overflow-x-auto',
+      codeblock:
+        'bg-gray-800 p-2 rounded block font-mono text-xs text-retro-green my-1 overflow-x-auto',
       quote: 'border-l-2 border-retro-green pl-2 italic opacity-75',
       link: 'text-retro-green underline hover:opacity-75 cursor-pointer',
       image: 'block my-2 max-w-xs',
@@ -222,13 +233,25 @@ export class MarkdownFormatter {
       // Strikethrough: ~~text~~ → <s>text</s>
       .replace(/~~(.+?)~~/g, '<s>$1</s>')
       // Code block: ```code``` → <pre><code>code</code></pre>
-      .replace(/```\n?([\s\S]*?)\n?```/g, '<pre class="bg-gray-800 p-2 rounded font-mono text-xs text-retro-green overflow-x-auto my-1"><code>$1</code></pre>')
+      .replace(
+        /```\n?([\s\S]*?)\n?```/g,
+        '<pre class="bg-gray-800 p-2 rounded font-mono text-xs text-retro-green overflow-x-auto my-1"><code>$1</code></pre>',
+      )
       // Inline code: `code` → <code>code</code>
-      .replace(/`([^`]+)`/g, '<code class="bg-gray-800 px-1 py-0.5 rounded text-retro-green font-mono text-xs">$1</code>')
+      .replace(
+        /`([^`]+)`/g,
+        '<code class="bg-gray-800 px-1 py-0.5 rounded text-retro-green font-mono text-xs">$1</code>',
+      )
       // Quote: > text → <blockquote>text</blockquote>
-      .replace(/^> (.+)$/gm, '<blockquote class="border-l-2 border-retro-green pl-2 italic opacity-75">$1</blockquote>')
+      .replace(
+        /^> (.+)$/gm,
+        '<blockquote class="border-l-2 border-retro-green pl-2 italic opacity-75">$1</blockquote>',
+      )
       // Links: [text](url) → <a href="url">text</a>
-      .replace(/\[(.+?)\]\((.+?)\)/g, '<a href="$2" target="_blank" class="text-retro-green underline hover:opacity-75">$1</a>')
+      .replace(
+        /\[(.+?)\]\((.+?)\)/g,
+        '<a href="$2" target="_blank" class="text-retro-green underline hover:opacity-75">$1</a>',
+      )
       // Preserve line breaks
       .replace(/\n/g, '<br>');
 
@@ -239,7 +262,9 @@ export class MarkdownFormatter {
 /**
  * Detect message type/content
  */
-export function detectMessageType(content: string): 'text' | 'formatted' | 'code' | 'quote' | 'mixed' {
+export function detectMessageType(
+  content: string,
+): 'text' | 'formatted' | 'code' | 'quote' | 'mixed' {
   const hasCodeBlock = /```/.test(content);
   const hasQuote = /^> /m.test(content);
   // Check for common formatting markers

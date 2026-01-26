@@ -1,20 +1,24 @@
 import { Injectable } from '@angular/core';
-import { FileMetadata, FILE_CATEGORIES, MAX_FILE_SIZE, FILE_SIZE_UNITS } from '../models/file-attachment.model';
+import {
+  FileMetadata,
+  FILE_CATEGORIES,
+  MAX_FILE_SIZE,
+  FILE_SIZE_UNITS,
+} from '../models/file-attachment.model';
 
 /**
  * Service for handling file attachment operations
  */
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class FileAttachmentService {
-
   /**
    * Get file extension from file name
    */
   getFileExtension(fileName: string): string {
     const parts = fileName.split('.');
-    return parts.length > 1 ? parts.at(-1)?.toLowerCase() ?? '' : '';
+    return parts.length > 1 ? (parts.at(-1)?.toLowerCase() ?? '') : '';
   }
 
   /**
@@ -22,13 +26,13 @@ export class FileAttachmentService {
    */
   getFileCategory(fileName: string): string {
     const extension = this.getFileExtension(fileName);
-    
+
     for (const [category, config] of Object.entries(FILE_CATEGORIES)) {
       if (category !== 'default' && config.extensions.includes(extension as never)) {
         return category;
       }
     }
-    
+
     return 'default';
   }
 
@@ -53,11 +57,11 @@ export class FileAttachmentService {
    */
   formatFileSize(bytes: number): string {
     if (bytes === 0) return '0 B';
-    
+
     const k = 1024;
     const i = Math.floor(Math.log(bytes) / Math.log(k));
     const value = Number.parseFloat((bytes / Math.pow(k, i)).toFixed(2));
-    
+
     return `${value} ${FILE_SIZE_UNITS[i] || 'B'}`;
   }
 
@@ -86,7 +90,7 @@ export class FileAttachmentService {
       name: file.name,
       size: file.size,
       type: file.type,
-      lastModified: file.lastModified
+      lastModified: file.lastModified,
     };
   }
 
@@ -125,7 +129,7 @@ export class FileAttachmentService {
   /**
    * Validate multiple files
    */
-  validateFiles(files: File[]): { valid: File[], errors: string[] } {
+  validateFiles(files: File[]): { valid: File[]; errors: string[] } {
     const valid: File[] = [];
     const errors: string[] = [];
 

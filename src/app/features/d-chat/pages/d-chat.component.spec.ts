@@ -34,8 +34,12 @@ describe('DChatComponent', () => {
       subscribeToConversationMessages: jest.fn(),
       markConversationMessagesAsRead: jest.fn().mockResolvedValue(undefined),
       sendMessage: jest.fn().mockResolvedValue({ id: 'msg-1', content: 'test' }),
-      sendMessageWithAttachments: jest.fn().mockResolvedValue({ id: 'msg-1', content: 'test', attachments: [] }),
-      getUserById: jest.fn().mockResolvedValue({ id: 'user-2', first_name: 'Test', last_name: 'User' }),
+      sendMessageWithAttachments: jest
+        .fn()
+        .mockResolvedValue({ id: 'msg-1', content: 'test', attachments: [] }),
+      getUserById: jest
+        .fn()
+        .mockResolvedValue({ id: 'user-2', first_name: 'Test', last_name: 'User' }),
       getOrCreateConversation: jest.fn().mockResolvedValue(mockConversation),
       getUnreadCountForConversation: jest.fn().mockResolvedValue(0),
       resetPaginationState: jest.fn(),
@@ -101,7 +105,12 @@ describe('DChatComponent', () => {
 
       await component.sendMessage();
 
-      expect(dChatService.sendMessageWithAttachments).toHaveBeenCalledWith('conv-1', 'user-2', 'Hello', []);
+      expect(dChatService.sendMessageWithAttachments).toHaveBeenCalledWith(
+        'conv-1',
+        'user-2',
+        'Hello',
+        [],
+      );
       expect(component.messageInput()).toBe('');
       expect(component.attachments()).toEqual([]);
     });

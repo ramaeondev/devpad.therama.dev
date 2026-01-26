@@ -41,6 +41,7 @@ src/app/features/d-chat/
 #### 1. **FileAttachmentInputComponent**
 
 Handles file selection and validation. Features:
+
 - Drag-and-drop support
 - File input dialog
 - Real-time validation
@@ -50,20 +51,22 @@ Handles file selection and validation. Features:
 **Selector**: `app-file-attachment-input`
 
 **Outputs**:
+
 ```typescript
 @Output() filesSelected = new EventEmitter<FileMetadata[]>();
 ```
 
 **Usage**:
+
 ```html
-<app-file-attachment-input 
-  (filesSelected)="handleFilesSelected($event)">
+<app-file-attachment-input (filesSelected)="handleFilesSelected($event)">
 </app-file-attachment-input>
 ```
 
 #### 2. **FileAttachmentPreviewComponent**
 
 Displays file information and download/delete options. Features:
+
 - File icon based on category
 - Truncated filename display
 - Formatted file size
@@ -74,24 +77,28 @@ Displays file information and download/delete options. Features:
 **Selector**: `app-file-attachment-preview`
 
 **Inputs**:
+
 ```typescript
 @Input() attachment!: FileAttachment;
 @Input() showDelete = false;
 ```
 
 **Outputs**:
+
 ```typescript
 @Output() download = new EventEmitter<FileAttachment>();
 @Output() delete = new EventEmitter<FileAttachment>();
 ```
 
 **Usage**:
+
 ```html
-<app-file-attachment-preview 
+<app-file-attachment-preview
   [attachment]="attachment"
   [showDelete]="true"
   (download)="onDownload($event)"
-  (delete)="onDelete($event)">
+  (delete)="onDelete($event)"
+>
 </app-file-attachment-preview>
 ```
 
@@ -123,6 +130,7 @@ fileToBase64(file: File): Promise<string>
 ### Data Models
 
 #### FileAttachment
+
 ```typescript
 interface FileAttachment {
   id: string;
@@ -132,12 +140,13 @@ interface FileAttachment {
   fileType: string;
   mimeType: string;
   url: string;
-  uploadedAt: string;        // ISO timestamp
-  uploadedBy: string;        // user ID
+  uploadedAt: string; // ISO timestamp
+  uploadedBy: string; // user ID
 }
 ```
 
 #### FileMetadata (Local)
+
 ```typescript
 interface FileMetadata {
   name: string;
@@ -148,6 +157,7 @@ interface FileMetadata {
 ```
 
 #### FileUploadRequest/Response
+
 ```typescript
 interface FileUploadRequest {
   file: File;
@@ -164,15 +174,15 @@ interface FileUploadResponse {
 
 ### File Categories
 
-| Category | Icon | Extensions | Use Cases |
-|----------|------|-----------|-----------|
-| **Document** | 📄 | pdf, doc, docx, txt, xls, xlsx, ppt, pptx | Reports, spreadsheets, presentations |
-| **Image** | 🖼️ | jpg, jpeg, png, gif, bmp, webp, svg | Photos, screenshots, graphics |
-| **Video** | 🎬 | mp4, avi, mkv, mov, webm, flv | Movies, clips, tutorials |
-| **Audio** | 🎵 | mp3, wav, flac, aac, m4a, ogg | Music, podcasts, sound effects |
-| **Archive** | 📦 | zip, rar, 7z, tar, gz | Compressed files, backups |
-| **Code** | 💻 | js, ts, py, java, cpp, c, html, css, json, xml | Source code, configurations |
-| **Default** | 📎 | (any other) | Unknown file types |
+| Category     | Icon | Extensions                                     | Use Cases                            |
+| ------------ | ---- | ---------------------------------------------- | ------------------------------------ |
+| **Document** | 📄   | pdf, doc, docx, txt, xls, xlsx, ppt, pptx      | Reports, spreadsheets, presentations |
+| **Image**    | 🖼️   | jpg, jpeg, png, gif, bmp, webp, svg            | Photos, screenshots, graphics        |
+| **Video**    | 🎬   | mp4, avi, mkv, mov, webm, flv                  | Movies, clips, tutorials             |
+| **Audio**    | 🎵   | mp3, wav, flac, aac, m4a, ogg                  | Music, podcasts, sound effects       |
+| **Archive**  | 📦   | zip, rar, 7z, tar, gz                          | Compressed files, backups            |
+| **Code**     | 💻   | js, ts, py, java, cpp, c, html, css, json, xml | Source code, configurations          |
+| **Default**  | 📎   | (any other)                                    | Unknown file types                   |
 
 ### Constants
 
@@ -238,7 +248,7 @@ import { FileAttachmentService } from './services/file-attachment.service';
   selector: 'app-chat-input',
   imports: [FileAttachmentInputComponent, ...],
   template: `
-    <app-file-attachment-input 
+    <app-file-attachment-input
       (filesSelected)="handleFilesSelected($event)">
     </app-file-attachment-input>
   `
@@ -266,10 +276,10 @@ export class ChatInputComponent {
     <div class="message-body">
       <!-- Message content -->
       <p>{{ message.content }}</p>
-      
+
       <!-- File attachments -->
       <div class="attachments" *ngIf="message.attachments?.length">
-        <app-file-attachment-preview 
+        <app-file-attachment-preview
           *ngFor="let attachment of message.attachments"
           [attachment]="attachment"
           (download)="downloadFile($event)">
@@ -334,7 +344,7 @@ it('should format file size correctly', () => {
 
 // Component test
 it('should emit filesSelected event with selected files', (done) => {
-  component.filesSelected.subscribe(files => {
+  component.filesSelected.subscribe((files) => {
     expect(files.length).toBe(1);
     done();
   });
@@ -370,16 +380,19 @@ it('should emit filesSelected event with selected files', (done) => {
 ## Troubleshooting
 
 ### Files not uploading
+
 - Check file size (must be < 10 MB)
 - Verify browser supports Fetch API
 - Check network connectivity
 
 ### Drag & drop not working
+
 - Ensure component is properly imported
 - Check for CSS that might prevent drop events
 - Verify event handlers are bound correctly
 
 ### File icon not displaying
+
 - Check file extension is in FILE_CATEGORIES
 - Verify emoji support in browser
 - Fall back to default icon if needed
