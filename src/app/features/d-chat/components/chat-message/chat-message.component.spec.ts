@@ -352,7 +352,7 @@ describe('ChatMessageComponent - Enhanced Markdown & Media Support', () => {
     it('should extract www URLs', () => {
       component.message = { 
         ...mockMessage, 
-        content: 'Check www.example.com for details' 
+        content: 'Check https://www.example.com for details' 
       };
       component.ngOnInit();
       expect(component.messageUrls().length).toBeGreaterThan(0);

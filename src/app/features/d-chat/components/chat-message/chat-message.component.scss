@@ -1,6 +1,11 @@
 .message {
   animation: fade-in 0.3s ease-in;
   margin-bottom: 0.5rem;
+
+  // Slightly transparent for sending messages (optimistic update)
+  &.message-sending {
+    opacity: 0.8;
+  }
 }
 
 @keyframes fade-in {

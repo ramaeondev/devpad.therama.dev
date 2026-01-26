@@ -153,4 +153,13 @@ export class RichTextareaComponent {
     this.showFileUploader.set(false);
     this.selectedFormat.set('');
   }
+
+  /**
+   * Focus the textarea element
+   */
+  focus(): void {
+    if (this.textareaRef) {
+      this.textareaRef.nativeElement.focus();
+    }
+  }
 }

@@ -1,4 +1,16 @@
-<div class="message flex animate-fade-in" [class.justify-end]="isOwn" [class.justify-start]="!isOwn">
+<div class="message flex animate-fade-in gap-2" [class.justify-end]="isOwn" [class.justify-start]="!isOwn" [class.message-sending]="message.status === 'sending'">
+  <!-- Kebab Menu - always visible on left side -->
+  <div class="flex items-end">
+    <app-message-kebab-menu
+      [message]="message"
+      [isOwn]="isOwn"
+      [isPinned]="isPinned()"
+      [isAlreadyReplied]="isMessageReplied"
+      (action)="onMessageAction($event)"
+    ></app-message-kebab-menu>
+  </div>
+
+  <!-- Message Content -->
   <div
     class="message-bubble max-w-xs lg:max-w-md px-3 py-2 rounded font-mono text-sm break-words"
     [class.bg-retro-green]="isOwn"
@@ -63,28 +75,6 @@
           <div class="image-gallery space-y-2">
             @for (attachment of imageAttachments(); track attachment.id) {
               <div class="image-item space-y-2 group/image">
-                <!-- Desktop Buttons Positioned Above Image -->
-                <div class="hidden lg:flex gap-2 mb-1">
-                  <!-- Open in new window button -->
-                  <button
-                    type="button"
-                    class="p-2 hover:bg-retro-green hover:text-black rounded transition-colors bg-black/70 text-retro-green text-sm"
-                    title="Open in new window"
-                    (click)="onAttachmentDownload(attachment, true)"
-                  >
-                    <i class="fa-solid fa-external-link"></i>
-                  </button>
-                  <!-- Download button -->
-                  <button
-                    type="button"
-                    class="p-2 hover:bg-retro-green hover:text-black rounded transition-colors bg-black/70 text-retro-green text-sm"
-                    title="Download file"
-                    (click)="onAttachmentDownload(attachment, false)"
-                  >
-                    <i class="fa-solid fa-download"></i>
-                  </button>
-                </div>
-
                 <div class="image-preview-container relative group">
                   <!-- Image Preview Button -->
                   <button
@@ -112,26 +102,6 @@
                 </div>
 
                 <!-- Mobile Buttons - Always visible below image on mobile -->
-                <div class="flex lg:hidden gap-2">
-                  <!-- Open in new window button -->
-                  <button
-                    type="button"
-                    class="p-2 hover:bg-retro-green hover:text-black rounded transition-colors bg-black/70 text-retro-green text-sm"
-                    title="Open in new window"
-                    (click)="onAttachmentDownload(attachment, true)"
-                  >
-                    <i class="fa-solid fa-external-link"></i>
-                  </button>
-                  <!-- Download button -->
-                  <button
-                    type="button"
-                    class="p-2 hover:bg-retro-green hover:text-black rounded transition-colors bg-black/70 text-retro-green text-sm"
-                    title="Download file"
-                    (click)="onAttachmentDownload(attachment, false)"
-                  >
-                    <i class="fa-solid fa-download"></i>
-                  </button>
-                </div>
               </div>
             }
           </div>
@@ -171,26 +141,6 @@
                   </div>
 
                   <!-- Action Buttons -->
-                  <div class="flex-shrink-0 flex gap-2">
-                    <!-- Open in new window button -->
-                    <button
-                      type="button"
-                      class="p-1 hover:bg-retro-green hover:text-black rounded transition-colors"
-                      title="Open in new window"
-                      (click)="onAttachmentDownload(attachment, true)"
-                    >
-                      <i class="fa-solid fa-external-link text-sm"></i>
-                    </button>
-                    <!-- Download button -->
-                    <button
-                      type="button"
-                      class="p-1 hover:bg-retro-green hover:text-black rounded transition-colors"
-                      title="Download file"
-                      (click)="onAttachmentDownload(attachment, false)"
-                    >
-                      <i class="fa-solid fa-download text-sm"></i>
-                    </button>
-                  </div>
                 </div>
               </div>
             }
@@ -207,7 +157,13 @@
     >
       <span>{{ formatTime(message.created_at) }}</span>
       @if (isOwn) {
-        @if (message.read) {
+        @if (message.status === 'sending') {
+          <!-- Sending indicator - animated spinner -->
+          <div class="flex items-center gap-1">
+            <i class="fa-solid fa-spinner text-retro-green animate-spin" title="Sending..."></i>
+            <span class="text-xs opacity-75">sending</span>
+          </div>
+        } @else if (message.read) {
           <i class="fa-solid fa-check-double text-retro-green" title="Message read"></i>
         } @else {
           <i class="fa-solid fa-check" title="Message sent"></i>

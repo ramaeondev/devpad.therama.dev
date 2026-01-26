@@ -22,6 +22,8 @@ export interface DMessage {
   updated_at: string;
   read: boolean;
   attachments?: DMessageAttachment[];
+  conversation_id?: string;
+  status?: 'sending' | 'sent' | 'error'; // For optimistic updates
 }
 
 export interface DConversation {

@@ -370,6 +370,86 @@ export class DChatService {
   }
 
   /**
+   * Delete a message by ID
+   */
+  async deleteMessage(messageId: string): Promise<void> {
+    const userId = this.auth.userId();
+    if (!userId) throw new Error('User not authenticated');
+
+    try {
+      // First verify the message belongs to the current user
+      const { data: message, error: fetchError } = await this.supabase
+        .from('d_messages')
+        .select('*')
+        .eq('id', messageId)
+        .single();
+
+      if (fetchError || !message) {
+        throw new Error('Message not found');
+      }
+
+      if (message.sender_id !== userId) {
+        throw new Error('You can only delete your own messages');
+      }
+
+      // Delete the message
+      const { error: deleteError } = await this.supabase
+        .from('d_messages')
+        .delete()
+        .eq('id', messageId);
+
+      if (deleteError) throw deleteError;
+
+      console.log(`✓ Message ${messageId} deleted successfully`);
+    } catch (error) {
+      console.error('Error deleting message:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Update/Edit a message
+   */
+  async updateMessage(messageId: string, newContent: string): Promise<DMessage> {
+    const userId = this.auth.userId();
+    if (!userId) throw new Error('User not authenticated');
+
+    try {
+      // First verify the message belongs to the current user
+      const { data: message, error: fetchError } = await this.supabase
+        .from('d_messages')
+        .select('*')
+        .eq('id', messageId)
+        .single();
+
+      if (fetchError || !message) {
+        throw new Error('Message not found');
+      }
+
+      if (message.sender_id !== userId) {
+        throw new Error('You can only edit your own messages');
+      }
+
+      // Update the message
+      const { data, error } = await this.supabase
+        .from('d_messages')
+        .update({
+          content: newContent.trim(),
+          updated_at: new Date().toISOString(),
+        })
+        .eq('id', messageId)
+        .select();
+
+      if (error) throw error;
+
+      return (data && data.length > 0) ? (data[0] as DMessage) : ({} as DMessage);
+    } catch (error) {
+      console.error('Error updating message:', error);
+      throw error;
+    }
+  }
+
+  /**
    * Get unread message count
    */
   async getUnreadCount(userId: string): Promise<number> {
