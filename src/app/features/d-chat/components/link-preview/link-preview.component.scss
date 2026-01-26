@@ -1,0 +1,417 @@
+// Link Preview Component Styling
+// Retro gaming theme with Matrix-inspired colors
+
+// Variables
+$retro-green: #00ff41;
+$retro-dark-green: #00aa20;
+$retro-black: #000;
+$retro-dark: #0a0a0a;
+$retro-gray: #333;
+$border-radius: 0.25rem;
+$transition: all 0.2s ease;
+
+// Link Preview Card
+.link-preview-card {
+  background: rgba(0, 0, 0, 0.3);
+  border: 1px solid rgba($retro-green, 0.3);
+  border-radius: $border-radius;
+  overflow: hidden;
+  transition: $transition;
+  margin: 0.5rem 0;
+
+  &:hover {
+    border-color: rgba($retro-green, 0.6);
+    background: rgba(0, 0, 0, 0.4);
+    box-shadow: 0 0 10px rgba($retro-green, 0.2);
+  }
+}
+
+// Preview Content
+.preview-content {
+  display: flex;
+  flex-direction: column;
+
+  @media (min-width: 640px) {
+    flex-direction: row;
+  }
+}
+
+// Preview Image
+.preview-image {
+  flex-shrink: 0;
+  width: 100%;
+  height: 150px;
+  background: rgba(0, 0, 0, 0.5);
+  overflow: hidden;
+  border-bottom: 1px solid rgba($retro-green, 0.2);
+
+  @media (min-width: 640px) {
+    width: 180px;
+    height: 150px;
+    border-bottom: none;
+    border-right: 1px solid rgba($retro-green, 0.2);
+  }
+
+  .preview-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+}
+
+// Preview Text Content
+.preview-text {
+  flex: 1;
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+// Preview Header (Domain)
+.preview-header {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
+
+  .favicon {
+    width: 16px;
+    height: 16px;
+    flex-shrink: 0;
+    margin-top: 0.125rem;
+  }
+
+  .favicon-icon {
+    color: $retro-green;
+    font-size: 0.875rem;
+  }
+
+  .header-info {
+    display: flex;
+    flex-direction: column;
+    gap: 0.125rem;
+    min-width: 0;
+  }
+
+  .domain-name {
+    font-size: 0.75rem;
+    color: $retro-green;
+    opacity: 0.9;
+    font-family: 'Courier New', monospace;
+    text-overflow: ellipsis;
+    overflow: hidden;
+    white-space: nowrap;
+  }
+
+  .publisher {
+    font-size: 0.7rem;
+    color: rgba($retro-green, 0.7);
+    font-family: 'Courier New', monospace;
+    text-overflow: ellipsis;
+    overflow: hidden;
+    white-space: nowrap;
+  }
+}
+
+// Preview Title
+.preview-title {
+  margin: 0.25rem 0;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: $retro-green;
+  line-height: 1.3;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  word-break: break-word;
+
+  @media (max-width: 640px) {
+    font-size: 0.875rem;
+  }
+}
+
+// Preview Description
+.preview-description {
+  margin: 0.5rem 0 0;
+  font-size: 0.8rem;
+  color: rgba($retro-green, 0.8);
+  line-height: 1.4;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  word-break: break-word;
+}
+
+// Preview Actions
+.preview-actions {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 0.75rem;
+  flex-wrap: wrap;
+}
+
+// Action Buttons
+.action-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.4rem 0.8rem;
+  background: rgba($retro-green, 0.1);
+  border: 1px solid rgba($retro-green, 0.4);
+  color: $retro-green;
+  font-size: 0.75rem;
+  font-weight: 500;
+  cursor: pointer;
+  border-radius: 0.2rem;
+  transition: $transition;
+  font-family: 'Courier New', monospace;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+
+  &:hover {
+    background: rgba($retro-green, 0.2);
+    border-color: $retro-green;
+    box-shadow: 0 0 5px rgba($retro-green, 0.3);
+  }
+
+  &:active {
+    opacity: 0.7;
+  }
+
+  fa-icon {
+    font-size: 0.7rem;
+  }
+
+  @media (max-width: 640px) {
+    padding: 0.35rem 0.6rem;
+    font-size: 0.7rem;
+  }
+}
+
+// Link Badge (Inline Mode)
+.link-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.3rem 0.6rem;
+  background: rgba($retro-green, 0.1);
+  border: 1px solid rgba($retro-green, 0.3);
+  border-radius: 0.2rem;
+  color: $retro-green;
+  font-size: 0.75rem;
+  font-family: 'Courier New', monospace;
+  transition: $transition;
+  cursor: default;
+  max-width: 200px;
+
+  &:hover {
+    background: rgba($retro-green, 0.15);
+    border-color: rgba($retro-green, 0.5);
+    box-shadow: 0 0 5px rgba($retro-green, 0.2);
+  }
+
+  .link-icon {
+    font-size: 0.7rem;
+    flex-shrink: 0;
+  }
+
+  .domain {
+    text-overflow: ellipsis;
+    overflow: hidden;
+    white-space: nowrap;
+    flex: 1;
+  }
+
+  .open-btn {
+    display: flex;
+    align-items: center;
+    background: none;
+    border: none;
+    color: $retro-green;
+    cursor: pointer;
+    padding: 0.2rem;
+    font-size: 0.7rem;
+    transition: $transition;
+
+    &:hover {
+      opacity: 0.7;
+    }
+  }
+}
+
+// Loading State
+.loading-state {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  padding: 1.5rem;
+  color: $retro-green;
+  font-size: 0.875rem;
+  font-family: 'Courier New', monospace;
+
+  .spinner {
+    animation: spin 1s linear infinite;
+    font-size: 1rem;
+  }
+}
+
+// Error State
+.error-state {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem;
+  background: rgba($retro-dark-green, 0.1);
+  border: 1px solid rgba($retro-dark-green, 0.4);
+
+  .error-content {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: $retro-dark-green;
+    font-size: 0.875rem;
+    flex: 1;
+
+    fa-icon {
+      flex-shrink: 0;
+    }
+  }
+
+  .retry-btn {
+    padding: 0.4rem 0.8rem;
+    background: rgba($retro-dark-green, 0.2);
+    border: 1px solid rgba($retro-dark-green, 0.5);
+    color: $retro-dark-green;
+    cursor: pointer;
+    border-radius: 0.2rem;
+    font-size: 0.75rem;
+    transition: $transition;
+    flex-shrink: 0;
+    font-family: 'Courier New', monospace;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+
+    &:hover {
+      background: rgba($retro-dark-green, 0.3);
+      box-shadow: 0 0 5px rgba($retro-dark-green, 0.2);
+    }
+  }
+}
+
+// URL Fallback
+.url-fallback {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 1rem;
+  border: 1px solid rgba($retro-green, 0.2);
+
+  .link-icon {
+    color: $retro-green;
+    font-size: 1rem;
+    flex-shrink: 0;
+  }
+
+  .url-info {
+    flex: 1;
+    min-width: 0;
+
+    .url-domain {
+      margin: 0;
+      font-size: 0.875rem;
+      color: $retro-green;
+      font-weight: 500;
+      font-family: 'Courier New', monospace;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .url-full {
+      margin: 0.25rem 0 0;
+      font-size: 0.7rem;
+      color: rgba($retro-green, 0.7);
+      font-family: 'Courier New', monospace;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+  }
+
+  .open-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    background: rgba($retro-green, 0.1);
+    border: 1px solid rgba($retro-green, 0.4);
+    color: $retro-green;
+    cursor: pointer;
+    border-radius: 0.2rem;
+    transition: $transition;
+    flex-shrink: 0;
+
+    &:hover {
+      background: rgba($retro-green, 0.2);
+      box-shadow: 0 0 5px rgba($retro-green, 0.2);
+    }
+
+    fa-icon {
+      font-size: 0.875rem;
+    }
+  }
+}
+
+// Spinner Animation
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+// Responsive Design
+@media (max-width: 640px) {
+  .link-preview-card {
+    margin: 0.5rem 0;
+  }
+
+  .preview-text {
+    padding: 0.75rem;
+  }
+
+  .preview-title {
+    font-size: 0.8rem;
+    margin: 0.2rem 0;
+  }
+
+  .preview-description {
+    font-size: 0.7rem;
+  }
+
+  .preview-actions {
+    gap: 0.4rem;
+    margin-top: 0.5rem;
+  }
+}
+
+// Dark mode (already applied with transparent backgrounds)
+@media (prefers-color-scheme: dark) {
+  .link-preview-card {
+    background: rgba(0, 0, 0, 0.4);
+  }
+
+  .preview-image {
+    background: rgba(0, 0, 0, 0.6);
+  }
+}

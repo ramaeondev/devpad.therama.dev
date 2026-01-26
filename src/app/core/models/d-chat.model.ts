@@ -3,6 +3,16 @@
  * Models for one-to-one messaging system powered by Supabase
  */
 
+export interface DMessageAttachment {
+  id: string;
+  message_id: string;
+  file_name: string;
+  file_size: number;
+  file_type: string;
+  storage_path: string;
+  created_at: string;
+}
+
 export interface DMessage {
   id: string;
   sender_id: string;
@@ -11,6 +21,7 @@ export interface DMessage {
   created_at: string;
   updated_at: string;
   read: boolean;
+  attachments?: DMessageAttachment[];
 }
 
 export interface DConversation {

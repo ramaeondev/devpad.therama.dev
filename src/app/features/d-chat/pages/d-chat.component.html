@@ -13,14 +13,13 @@
   <div class="flex flex-1 min-h-0 relative">
     <!-- Mobile overlay -->
     @if (isMobileOpen()) {
-    <div
+    <button
       class="fixed inset-0 bg-black/80 z-30 md:hidden"
       (click)="closeMobileSidebar()"
       (keydown.escape)="closeMobileSidebar()"
-      tabindex="0"
-      aria-label="Close sidebar overlay"
-      aria-hidden="true"
-    ></div>
+      type="button"
+      aria-label="Close sidebar overlay">
+    </button>
     }
 
     <!-- Sidebar - Conversations List -->
@@ -128,41 +127,30 @@
 
       <!-- Messages Area -->
       @if (selectedConversationId()) {
-      <div class="messages-container flex-1 overflow-y-auto p-4 space-y-2 bg-gray-900 message-scroll">
+      <div #messagesContainer class="messages-container flex-1 overflow-y-auto p-4 space-y-2 bg-gray-900 message-scroll">
         @for (message of messages(); track message.id) {
         <app-chat-message
           [message]="message"
           [isOwn]="message.sender_id === currentUserId()"
           [otherUserOnline]="isUserOnline(otherUserId() || '')"
+          (deleteAttachment)="deleteAttachment($event, message.id)"
         ></app-chat-message>
         }
       </div>
 
       <!-- Message Input Area -->
-      <div class="input-area p-4 border-t-2 border-retro-green bg-black">
-        <div class="flex gap-2 items-end">
-          <textarea
-            [value]="messageInput()"
-            (input)="onMessageInput($event)"
-            (keydown)="handleKeyDown($event)"
-            placeholder="TYPE YOUR MESSAGE..."
-            rows="2"
-            class="flex-1 bg-gray-900 border-2 border-retro-green text-retro-green font-mono text-sm p-2 placeholder-gray-500 focus:outline-none focus:border-retro-green/80 resize-none"
-            [disabled]="loading()"
-          ></textarea>
-          <button
-            (click)="sendMessage()"
-            [disabled]="!messageInput().trim() || loading()"
-            class="px-4 py-2 bg-retro-green text-black font-mono font-bold hover:bg-retro-green/80 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center gap-2"
-          >
-            @if (loading()) {
-            <i class="fa-solid fa-spinner animate-spin"></i>
-            } @else {
-            <i class="fa-solid fa-paper-plane"></i>
-            }
-            SEND
-          </button>
-        </div>
+      <div class="input-area p-4 bg-black">
+        <app-rich-textarea
+          #richTextarea
+          [value]="messageInput()"
+          (valueChange)="messageInput.set($event)"
+          (sendMessage)="sendMessage($event)"
+          (fileAttachmentsSelected)="onFileAttachmentsSelected($event)"
+          (keyDown)="handleKeyDown($event)"
+          [disabled]="loading() || sendingMessage()"
+          placeholder="TYPE YOUR MESSAGE..."
+          [rows]="2"
+        ></app-rich-textarea>
       </div>
       } @else {
       <div class="flex-1 flex items-center justify-center bg-gray-900">

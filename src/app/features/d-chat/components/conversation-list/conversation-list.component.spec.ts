@@ -2,7 +2,6 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { ConversationItemComponent } from './conversation-list.component';
 import { DChatService } from '../../d-chat.service';
 import { DConversation } from '../../../../core/models/d-chat.model';
-import { signal } from '@angular/core';
 
 describe('ConversationItemComponent', () => {
   let component: ConversationItemComponent;
@@ -21,7 +20,6 @@ describe('ConversationItemComponent', () => {
       created_at: new Date().toISOString(),
       updated_at: new Date().toISOString(),
       read: false,
-      conversation_id: 'conv-1',
     },
     last_message_at: new Date().toISOString(),
     created_at: new Date().toISOString(),
@@ -105,14 +103,19 @@ describe('ConversationItemComponent', () => {
   });
 
   it('should update signals on input change', () => {
-    component.ngOnChanges({
-      userStatuses: {
-        currentValue: new Map([['user-2', { user_id: 'user-2', is_online: true }]]),
-        previousValue: undefined,
-        firstChange: true,
-        isFirstChange: () => true,
-      },
-    });
+    const userStatusMap = new Map([
+      [
+        'user-2',
+        {
+          user_id: 'user-2',
+          is_online: true,
+          last_seen: new Date().toISOString(),
+          updated_at: new Date().toISOString(),
+        },
+      ],
+    ]);
+    component.userStatuses = userStatusMap;
+    component.userStatusesSignal.set(userStatusMap);
 
     expect(component.userStatusesSignal()).toBeTruthy();
   });

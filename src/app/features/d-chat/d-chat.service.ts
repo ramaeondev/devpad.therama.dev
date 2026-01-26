@@ -1,7 +1,8 @@
 import { Injectable, inject, signal } from '@angular/core';
 import { SupabaseService } from '../../core/services/supabase.service';
 import { AuthStateService } from '../../core/services/auth-state.service';
-import { DMessage, DConversation, DUserStatus, DChatUser } from '../../core/models/d-chat.model';
+import { DMessage, DConversation, DUserStatus, DChatUser, DMessageAttachment } from '../../core/models/d-chat.model';
+import { FileMetadata } from './models/file-attachment.model';
 import { RealtimeChannel } from '@supabase/supabase-js';
 
 @Injectable({ providedIn: 'root' })
@@ -12,7 +13,7 @@ export class DChatService {
   private readonly conversations = signal<DConversation[]>([]);
   private readonly userStatuses = signal<Map<string, DUserStatus>>(new Map());
   private readonly subscriptions = signal<Map<string, RealtimeChannel>>(new Map());
-  private readonly currentConversationMessages = signal<DMessage[]>([]);
+  readonly currentConversationMessages = signal<DMessage[]>([]);
   private currentConversationId: string | null = null;
 
   // Public signals
@@ -152,7 +153,15 @@ export class DChatService {
 
       return (newConversation && newConversation.length > 0) 
         ? (newConversation[0] as DConversation)
-        : ({ id: '', user1_id: user1, user2_id: user2 } as DConversation);
+        : ({
+            id: '',
+            user1_id: user1,
+            user2_id: user2,
+            last_message: null,
+            last_message_at: null,
+            created_at: new Date().toISOString(),
+            updated_at: new Date().toISOString()
+          } as DConversation);
     } catch (error) {
       console.error('Error creating conversation:', error);
       throw error;
@@ -224,6 +233,7 @@ export class DChatService {
     if (!userId) throw new Error('User not authenticated');
 
     try {
+      // Fetch messages
       const { data, error } = await this.supabase
         .from('d_messages')
         .select('*')
@@ -235,7 +245,42 @@ export class DChatService {
 
       if (error) throw error;
 
-      return (data || []) as DMessage[];
+      const messages = (data || []) as DMessage[];
+
+      // If no messages, return early
+      if (messages.length === 0) {
+        return messages;
+      }
+
+      // OPTIMIZATION: Fetch all attachments for all messages in ONE query
+      const messageIds = messages.map(m => m.id);
+      const { data: attachmentsData, error: attachmentsError } = await this.supabase
+        .from('d_message_attachments')
+        .select('*')
+        .in('message_id', messageIds);
+
+      if (attachmentsError) {
+        console.error('Error fetching attachments:', attachmentsError);
+        // If attachments fail, still return messages without attachments
+        return messages.map(m => ({ ...m, attachments: [] }));
+      }
+
+      // Create a map of message_id -> attachments for O(1) lookup
+      const attachmentsByMessageId = new Map<string, DMessageAttachment[]>();
+      (attachmentsData || []).forEach((att: any) => {
+        if (!attachmentsByMessageId.has(att.message_id)) {
+          attachmentsByMessageId.set(att.message_id, []);
+        }
+        attachmentsByMessageId.get(att.message_id)!.push(att);
+      });
+
+      // Attach attachments to each message
+      const messagesWithAttachments = messages.map(msg => ({
+        ...msg,
+        attachments: attachmentsByMessageId.get(msg.id) || []
+      }));
+
+      return messagesWithAttachments;
     } catch (error) {
       console.error('Error fetching messages:', error);
       throw error;
@@ -590,8 +635,40 @@ export class DChatService {
           table: 'd_messages',
           filter: `conversation_id=eq.${conversationId}`,
         },
-        (payload) => {
+        async (payload) => {
           const message = payload.new as DMessage;
+          // Load attachments for the new message with retry logic
+          // to handle race condition where attachments haven't been created yet
+          try {
+            let attachments: DMessageAttachment[] = [];
+            let retries = 0;
+            const maxRetries = 3;
+            
+            while (retries < maxRetries) {
+              try {
+                attachments = await this.getMessageAttachments(message.id);
+                if (attachments.length > 0 || retries === maxRetries - 1) {
+                  // Exit if we found attachments or exhausted retries
+                  break;
+                }
+                // If no attachments and not last retry, wait a bit and retry
+                if (attachments.length === 0 && retries < maxRetries - 1) {
+                  await new Promise(resolve => setTimeout(resolve, 100));
+                }
+              } catch (error) {
+                if (retries < maxRetries - 1) {
+                  await new Promise(resolve => setTimeout(resolve, 100));
+                } else {
+                  throw error;
+                }
+              }
+              retries++;
+            }
+            message.attachments = attachments;
+          } catch (error) {
+            console.error('Error loading attachments for new message:', error);
+            message.attachments = [];
+          }
           // Add new message to current conversation
           this.currentConversationMessages.set([
             ...this.currentConversationMessages(),
@@ -638,6 +715,259 @@ export class DChatService {
    */
   setConversationMessages(messages: DMessage[]): void {
     this.currentConversationMessages.set(messages);
+  }
+
+  /**
+   * Upload file to Supabase storage
+   */
+  async uploadFile(
+    file: File,
+    conversationId: string,
+    messageId: string
+  ): Promise<{ path: string; url: string }> {
+    const userId = this.auth.userId();
+    if (!userId) throw new Error('User not authenticated');
+
+    try {
+      console.log(`[D-Chat] uploadFile() called for: ${file.name}, size: ${file.size} bytes, type: ${file.type}`);
+      
+      // Create unique file path
+      const fileExtension = file.name.split('.').pop() || '';
+      const fileName = `${Date.now()}_${Math.random().toString(36).substring(7)}.${fileExtension}`;
+      const storagePath = `d-chat/${conversationId}/${messageId}/${fileName}`;
+
+      console.log(`[D-Chat] Uploading to Supabase Storage at path: ${storagePath}`);
+
+      // Upload file to storage using correct Supabase API
+      const { error } = await this.supabase.storage
+        .from('chat-attachments')
+        .upload(storagePath, file);
+
+      if (error) {
+        console.error(`[D-Chat] Upload error for ${file.name}:`, error);
+        throw error;
+      }
+
+      console.log(`[D-Chat] File uploaded successfully to storage: ${storagePath}`);
+
+      // Get public URL
+      const { data: publicData } = this.supabase.storage
+        .from('chat-attachments')
+        .getPublicUrl(storagePath);
+
+      const publicUrl = publicData?.publicUrl || '';
+      console.log(`[D-Chat] Public URL generated: ${publicUrl}`);
+
+      return {
+        path: storagePath,
+        url: publicUrl,
+      };
+    } catch (error) {
+      console.error('Error uploading file:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Create message attachment record in database
+   */
+  async createAttachmentRecord(
+    messageId: string,
+    file: File,
+    storagePath: string
+  ): Promise<DMessageAttachment> {
+    try {
+      const { data, error } = await this.supabase
+        .from('d_message_attachments')
+        .insert({
+          message_id: messageId,
+          file_name: file.name,
+          file_size: file.size,
+          file_type: file.type,
+          storage_path: storagePath,
+          created_at: new Date().toISOString(),
+        })
+        .select();
+
+      if (error) throw error;
+
+      console.log(`✓ Attachment record created for message ${messageId}`);
+      return (data && data.length > 0) 
+        ? (data[0] as DMessageAttachment)
+        : {} as DMessageAttachment;
+    } catch (error) {
+      console.error('Error creating attachment record:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Send message with attachments
+   * Note: attachments parameter should contain File objects, not just FileMetadata
+   */
+  async sendMessageWithAttachments(
+    conversationId: string,
+    recipientId: string,
+    content: string,
+    attachments: (File | FileMetadata)[] = []
+  ): Promise<DMessage> {
+    const userId = this.auth.userId();
+    if (!userId) throw new Error('User not authenticated');
+
+    console.log(`[D-Chat] sendMessageWithAttachments called with ${attachments.length} attachments`, attachments);
+
+    try {
+      // Create message first
+      const { data, error } = await this.supabase
+        .from('d_messages')
+        .insert({
+          conversation_id: conversationId,
+          sender_id: userId,
+          recipient_id: recipientId,
+          content: content.trim(),
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString(),
+          read: false,
+        })
+        .select();
+
+      if (error) throw error;
+
+      const message = (data && data.length > 0) ? (data[0] as DMessage) : null;
+      if (!message) throw new Error('Failed to create message');
+
+      // Upload and attach files if any
+      if (attachments.length > 0) {
+        console.log(`[D-Chat] Processing ${attachments.length} attachments for message ${message.id}`);
+        const uploadedAttachments: DMessageAttachment[] = [];
+
+        for (const attachment of attachments) {
+          try {
+            // Handle both File and FileMetadata types
+            let file: File;
+            if (attachment instanceof File) {
+              console.log(`[D-Chat] Attachment is File object:`, attachment.name);
+              file = attachment;
+            } else {
+              // For FileMetadata, try to get the file property
+              const meta = attachment as any;
+              if (meta.file instanceof File) {
+                console.log(`[D-Chat] Attachment has file property:`, meta.file.name);
+                file = meta.file;
+              } else {
+                console.error(`[D-Chat] FileMetadata without File object:`, meta);
+                throw new Error('FileMetadata without File object - component must pass File objects');
+              }
+            }
+
+            console.log(`[D-Chat] Uploading file: ${file.name} (${file.size} bytes)`);
+
+            // Upload file
+            const { path } = await this.uploadFile(
+              file,
+              conversationId,
+              message.id
+            );
+
+            // Create attachment record
+            const attachmentRecord = await this.createAttachmentRecord(
+              message.id,
+              file,
+              path
+            );
+
+            uploadedAttachments.push(attachmentRecord);
+            console.log(`[D-Chat] Successfully uploaded and recorded: ${file.name}`);
+          } catch (uploadError) {
+            console.error(`Error uploading attachment ${(attachment as any).name}:`, uploadError);
+            // Continue with other files on error
+          }
+        }
+
+        // Add attachments to message
+        message.attachments = uploadedAttachments;
+        console.log(`✓ Uploaded ${uploadedAttachments.length} attachments for message ${message.id}`);
+      }
+
+      // Update conversation last_message_at
+      await this.supabase
+        .from('d_conversations')
+        .update({ updated_at: new Date().toISOString() })
+        .eq('id', conversationId);
+
+      return message;
+    } catch (error) {
+      console.error('Error sending message with attachments:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Get attachments for a message
+   */
+  async getMessageAttachments(messageId: string): Promise<DMessageAttachment[]> {
+    try {
+      const { data, error } = await this.supabase
+        .from('d_message_attachments')
+        .select('*')
+        .eq('message_id', messageId);
+
+      if (error) throw error;
+
+      return (data || []) as DMessageAttachment[];
+    } catch (error) {
+      console.error('Error fetching message attachments:', error);
+      return [];
+    }
+  }
+
+  /**
+   * Delete attachment
+   */
+  async deleteAttachment(attachmentId: string, storagePath: string): Promise<void> {
+    const userId = this.auth.userId();
+    if (!userId) throw new Error('User not authenticated');
+
+    try {
+      // Delete from storage using correct Supabase API
+      await this.supabase.storage
+        .from('chat-attachments')
+        .remove([storagePath]);
+
+      // Delete attachment record
+      await this.supabase
+        .from('d_message_attachments')
+        .delete()
+        .eq('id', attachmentId);
+
+      // Update local message state - remove attachment from messages
+      const messages = this.currentConversationMessages();
+      const updatedMessages = messages.map(msg => {
+        if (msg.attachments) {
+          return {
+            ...msg,
+            attachments: msg.attachments.filter(a => a.id !== attachmentId)
+          };
+        }
+        return msg;
+      });
+      this.currentConversationMessages.set(updatedMessages);
+
+      console.log(`✓ Attachment deleted: ${attachmentId}`);
+    } catch (error) {
+      console.error('Error deleting attachment:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Get public URL for attachment
+   */
+  getAttachmentUrl(storagePath: string): string {
+    const { data } = this.supabase.storage
+      .from('chat-attachments')
+      .getPublicUrl(storagePath);
+    return data?.publicUrl || '';
   }
 
   /**

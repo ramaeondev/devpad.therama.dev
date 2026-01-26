@@ -1,0 +1,105 @@
+<div class="rich-textarea-container">
+  <!-- Formatting Toolbar -->
+  <div class="formatting-toolbar">
+    <button
+      (click)="toggleFormatting()"
+      class="format-toggle"
+      [class.active]="showFormatting()"
+      aria-label="Toggle formatting options"
+    >
+      <i class="fa-solid fa-palette"></i>
+      <span>FORMAT</span>
+    </button>
+
+    @if (showFormatting()) {
+    <div class="format-options">
+      <button (click)="applyFormat('bold')" class="format-btn" title="Bold (Ctrl+B)">
+        <i class="fa-solid fa-bold"></i>
+      </button>
+      <button (click)="applyFormat('italic')" class="format-btn" title="Italic (Ctrl+I)">
+        <i class="fa-solid fa-italic"></i>
+      </button>
+      <button (click)="applyFormat('underline')" class="format-btn" title="Underline">
+        <i class="fa-solid fa-underline"></i>
+      </button>
+      <button (click)="applyFormat('strikethrough')" class="format-btn" title="Strikethrough">
+        <i class="fa-solid fa-strikethrough"></i>
+      </button>
+      <div class="divider"></div>
+      <button (click)="applyFormat('code')" class="format-btn" title="Inline Code">
+        <i class="fa-solid fa-code"></i>
+      </button>
+      <button (click)="applyFormat('codeblock')" class="format-btn" title="Code Block">
+        <i class="fa-solid fa-square-terminal"></i>
+      </button>
+      <button (click)="applyFormat('quote')" class="format-btn" title="Quote">
+        <i class="fa-solid fa-quote-left"></i>
+      </button>
+      <button (click)="applyFormat('link')" class="format-btn" title="Link">
+        <i class="fa-solid fa-link"></i>
+      </button>
+      <div class="divider"></div>
+      <button (click)="clearText()" class="format-btn danger" title="Clear All">
+        <i class="fa-solid fa-trash"></i>
+      </button>
+      <div class="divider"></div>
+      <button
+        (click)="toggleFileUploader()"
+        class="format-btn attachment-btn"
+        [class.active]="showFileUploader()"
+        title="Attach Files"
+        [attr.aria-label]="showFileUploader() ? 'Hide file uploader' : 'Show file uploader'"
+      >
+        <i class="fa-solid fa-paperclip"></i>
+        @if (getSelectedFilesCount() > 0) {
+        <span class="file-count">{{ getSelectedFilesCount() }}</span>
+        }
+      </button>
+    </div>
+    }
+  </div>
+
+  <!-- File Attachment Input (Togglable) -->
+  @if (showFileUploader()) {
+  <div class="file-attachment-section">
+    <app-file-attachment-input
+      (filesSelected)="onFilesSelected($event)">
+    </app-file-attachment-input>
+  </div>
+  }
+
+  <!-- Textarea Container -->
+  <div class="textarea-wrapper">
+    <textarea
+      #textarea
+      [value]="internalValue()"
+      (input)="onInput($event)"
+      (keydown)="onKeyDown($event)"
+      [placeholder]="placeholder"
+      [rows]="rowCount()"
+      [disabled]="disabled"
+      class="rich-textarea"
+    ></textarea>
+
+    <!-- Stats Bar -->
+    <div class="stats-bar">
+      <div class="stat">
+        <span class="stat-label">CHARS:</span>
+        <span class="stat-value">{{ charCount() }}</span>
+      </div>
+      <div class="stat">
+        <span class="stat-label">WORDS:</span>
+        <span class="stat-value">{{ wordCount() }}</span>
+      </div>
+      <button
+        (click)="sendMsg()"
+        [disabled]="!isSendEnabled() || disabled"
+        class="send-btn"
+        aria-label="Send message"
+      >
+        <i class="fa-solid fa-paper-plane"></i>
+        SEND
+      </button>
+    </div>
+  </div>
+</div>

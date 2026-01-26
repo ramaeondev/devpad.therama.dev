@@ -1,0 +1,384 @@
+.message {
+  animation: fade-in 0.3s ease-in;
+  margin-bottom: 0.5rem;
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.message-bubble {
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+  transition: all 0.2s ease;
+  word-break: break-word;
+  overflow-wrap: break-word;
+
+  &:hover {
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.5);
+  }
+
+  // Formatted text styles
+  .formatted-text {
+    line-height: 1.5;
+
+    // Bold text
+    strong {
+      font-weight: 700;
+    }
+
+    // Italic text
+    em {
+      font-style: italic;
+    }
+
+    // Underlined text
+    u {
+      text-decoration: underline;
+    }
+
+    // Strikethrough text
+    s {
+      text-decoration: line-through;
+    }
+
+    // Inline code
+    code {
+      background-color: rgba(0, 0, 0, 0.3);
+      padding: 0.25rem 0.5rem;
+      border-radius: 0.25rem;
+      font-family: 'Courier New', monospace;
+      font-size: 0.875rem;
+      display: inline-block;
+      max-width: 100%;
+      overflow-x: auto;
+    }
+
+    // Code block
+    pre {
+      background-color: rgba(0, 0, 0, 0.4);
+      padding: 1rem;
+      border-radius: 0.5rem;
+      font-family: 'Courier New', monospace;
+      font-size: 0.75rem;
+      line-height: 1.4;
+      overflow-x: auto;
+      margin: 0.5rem 0;
+      border-left: 2px solid #00ff41;
+
+      code {
+        background-color: transparent;
+        padding: 0;
+        color: #00ff41;
+      }
+
+      // Custom scrollbar for code blocks
+      &::-webkit-scrollbar {
+        height: 6px;
+      }
+
+      &::-webkit-scrollbar-track {
+        background: rgba(0, 0, 0, 0.2);
+        border-radius: 3px;
+      }
+
+      &::-webkit-scrollbar-thumb {
+        background: #00ff41;
+        border-radius: 3px;
+
+        &:hover {
+          background: #00dd33;
+        }
+      }
+    }
+
+    // Blockquote
+    blockquote {
+      border-left: 2px solid #00ff41;
+      padding-left: 1rem;
+      margin: 0.5rem 0;
+      opacity: 0.85;
+      font-style: italic;
+    }
+
+    // Links
+    a {
+      color: #00ff41;
+      text-decoration: underline;
+      cursor: pointer;
+      transition: all 0.2s ease;
+
+      &:hover {
+        opacity: 0.7;
+        text-decoration: line-through;
+      }
+
+      &:active {
+        opacity: 0.5;
+      }
+    }
+
+    // Line breaks
+    br {
+      display: block;
+      content: '';
+    }
+
+    // Paragraphs
+    p {
+      margin: 0;
+      white-space: pre-wrap;
+      word-wrap: break-word;
+    }
+
+    // Preserve whitespace for formatted text
+    white-space: pre-wrap;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+  }
+}
+
+// Media placeholders
+.media-placeholder {
+  border: 1px dashed rgba(0, 255, 65, 0.4);
+  background-color: rgba(0, 255, 65, 0.05);
+  padding: 0.75rem;
+  border-radius: 0.5rem;
+  margin-top: 0.5rem;
+  font-size: 0.875rem;
+
+  &.images-placeholder {
+    border-color: rgba(0, 255, 65, 0.3);
+
+    i {
+      font-size: 1.25rem;
+    }
+  }
+
+  &.pdfs-placeholder {
+    border-color: rgba(0, 255, 65, 0.3);
+
+    i {
+      font-size: 1.25rem;
+    }
+  }
+
+  &.documents-placeholder {
+    border-color: rgba(0, 255, 65, 0.3);
+
+    i {
+      font-size: 1.25rem;
+    }
+  }
+
+  // Flex layout for icon and text
+  div {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+
+    i {
+      min-width: 1.25rem;
+      text-align: center;
+    }
+
+    span {
+      flex: 1;
+    }
+  }
+
+  // Hover effect
+  &:hover {
+    background-color: rgba(0, 255, 65, 0.1);
+    border-color: rgba(0, 255, 65, 0.5);
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+}
+
+// Message footer
+.text-xs {
+  font-size: 0.75rem;
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  flex-wrap: wrap;
+
+  i {
+    font-size: 0.75rem;
+    min-width: 0.75rem;
+
+    &.fa-check {
+      opacity: 0.6;
+    }
+
+    &.fa-check-double {
+      opacity: 1;
+    }
+  }
+}
+
+// Responsive adjustments
+@media (max-width: 640px) {
+  .message-bubble {
+    max-width: 85vw;
+    font-size: 0.875rem;
+
+    .formatted-text {
+      code {
+        font-size: 0.75rem;
+      }
+
+      pre {
+        font-size: 0.7rem;
+        padding: 0.75rem;
+      }
+    }
+  }
+}
+
+// Animation for new messages
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateX(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+// Glow effect on hover
+.message {
+  &.new {
+    animation: slideIn 0.3s ease-out;
+  }
+
+  // Link previews container
+  .link-previews {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    margin-top: 0.75rem;
+
+    app-link-preview {
+      &:deep(.link-preview-card) {
+        font-size: 0.875rem;
+        max-width: 100%;
+      }
+    }
+  }
+}
+
+.message-bubble {
+  transition: all 0.3s ease;
+
+  &:hover {
+    box-shadow: 0 0 12px rgba(0, 255, 65, 0.2), 0 2px 12px rgba(0, 0, 0, 0.5);
+  }
+
+  // Image gallery styles
+  .image-gallery {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+
+    .image-item {
+      .flex {
+        flex-direction: column;
+        gap: 0.5rem;
+      }
+
+      .image-preview-container {
+        overflow: hidden;
+        position: relative;
+
+        button {
+          width: 100%;
+          height: 120px;
+          padding: 0;
+          border: none;
+          background: transparent;
+          cursor: pointer;
+          display: block;
+          overflow: hidden;
+          border-radius: 0.375rem;
+
+          img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 0.375rem;
+            border: 1px solid rgba(0, 255, 65, 0.5);
+            transition: all 0.2s ease;
+
+            &:hover {
+              border-color: rgba(0, 255, 65, 1);
+              transform: scale(1.02);
+              box-shadow: 0 0 8px rgba(0, 255, 65, 0.3);
+            }
+          }
+
+          &:focus-visible {
+            outline: 2px solid rgba(0, 255, 65, 1);
+            outline-offset: 2px;
+          }
+
+          &:hover img {
+            border-color: rgba(0, 255, 65, 1);
+            transform: scale(1.02);
+            box-shadow: 0 0 8px rgba(0, 255, 65, 0.3);
+          }
+        }
+
+        // Overlay on hover
+        &:hover {
+          .image-info-overlay {
+            opacity: 1;
+          }
+        }
+      }
+    }
+  }
+
+  // Documents list styles
+  .documents-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+
+    .attachment-item {
+      .flex {
+        &:hover {
+          background-color: rgba(0, 255, 65, 0.1);
+        }
+      }
+    }
+  }
+
+  // Attachment section
+  .attachments-section {
+    margin-top: 0.75rem;
+    padding-top: 0.5rem;
+  }
+
+  // File action buttons
+  button {
+    transition: all 0.2s ease;
+
+    &:hover {
+      transform: scale(1.1);
+    }
+
+    &:active {
+      transform: scale(0.95);
+    }
+  }
+}
