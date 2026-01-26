@@ -1,0 +1,294 @@
+.rich-textarea-container {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  background: #000;
+  border: 2px solid #00ff41;
+}
+
+.formatting-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 0.75rem;
+  border-bottom: 1px solid #00ff41;
+  background: #0a0a0a;
+  flex-wrap: wrap;
+
+  .format-toggle {
+    padding: 0.4rem 0.8rem;
+    background: #00ff41;
+    color: #000;
+    border: none;
+    font-weight: bold;
+    font-family: 'Courier New', monospace;
+    font-size: 0.75rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    gap: 0.3rem;
+
+    &:hover {
+      background: #00ff41;
+      transform: scale(1.05);
+      box-shadow: 0 0 10px rgba(0, 255, 65, 0.5);
+    }
+
+    &.active {
+      box-shadow: 0 0 15px rgba(0, 255, 65, 0.8);
+    }
+
+    i {
+      font-size: 0.8rem;
+    }
+  }
+
+  .format-options {
+    display: flex;
+    align-items: center;
+    gap: 0.3rem;
+    flex-wrap: wrap;
+
+    .format-btn {
+      padding: 0.4rem 0.6rem;
+      background: transparent;
+      border: 1px solid #00ff41;
+      color: #00ff41;
+      font-family: 'Courier New', monospace;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      font-size: 0.75rem;
+      position: relative;
+
+      &:hover {
+        background: #00ff41;
+        color: #000;
+        box-shadow: 0 0 8px rgba(0, 255, 65, 0.6);
+      }
+
+      &.danger:hover {
+        background: #ff4400;
+        border-color: #ff4400;
+        color: #000;
+        box-shadow: 0 0 8px rgba(255, 68, 0, 0.6);
+      }
+
+      &.attachment-btn {
+        &.active {
+          background: rgba(0, 255, 65, 0.2);
+          border-color: rgba(0, 255, 65, 0.8);
+          box-shadow: 0 0 8px rgba(0, 255, 65, 0.6);
+        }
+
+        .file-count {
+          position: absolute;
+          top: -6px;
+          right: -6px;
+          background: #00ff41;
+          color: #000;
+          border: 1px solid #00ff41;
+          border-radius: 50%;
+          width: 18px;
+          height: 18px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          font-size: 9px;
+          font-weight: bold;
+          font-family: 'Courier New', monospace;
+          box-shadow: 0 0 6px rgba(0, 255, 65, 0.8);
+        }
+      }
+
+      i {
+        font-size: 0.75rem;
+      }
+    }
+
+    .divider {
+      width: 1px;
+      height: 1.2rem;
+      background: #00ff41;
+      margin: 0 0.2rem;
+      opacity: 0.5;
+    }
+  }
+}
+
+.textarea-wrapper {
+  display: flex;
+  flex-direction: column;
+  position: relative;
+
+  .rich-textarea {
+    flex: 1;
+    padding: 0.75rem;
+    background: #0a0a0a;
+    border: none;
+    color: #00ff41;
+    font-family: 'Courier New', monospace;
+    font-size: 0.875rem;
+    resize: none;
+    outline: none;
+    line-height: 1.4;
+    letter-spacing: 0.02em;
+
+    &::placeholder {
+      color: #00ff41;
+      opacity: 0.5;
+    }
+
+    &:focus {
+      box-shadow: inset 0 0 10px rgba(0, 255, 65, 0.2);
+    }
+
+    &:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+
+    /* Scrollbar styling */
+    &::-webkit-scrollbar {
+      width: 0.4rem;
+    }
+
+    &::-webkit-scrollbar-track {
+      background: #0a0a0a;
+    }
+
+    &::-webkit-scrollbar-thumb {
+      background: #00ff41;
+      border-radius: 2px;
+
+      &:hover {
+        background: #00cc33;
+      }
+    }
+  }
+
+  .stats-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.5rem 0.75rem;
+    border-top: 1px solid #00ff41;
+    background: #0a0a0a;
+    font-family: 'Courier New', monospace;
+    font-size: 0.7rem;
+
+    .stat {
+      display: flex;
+      align-items: center;
+      gap: 0.3rem;
+      color: #00ff41;
+
+      .stat-label {
+        opacity: 0.7;
+        font-weight: bold;
+      }
+
+      .stat-value {
+        font-weight: bold;
+        min-width: 2rem;
+      }
+    }
+
+    .send-btn {
+      padding: 0.3rem 0.6rem;
+      background: #00ff41;
+      border: none;
+      color: #000;
+      font-weight: bold;
+      font-family: 'Courier New', monospace;
+      font-size: 0.7rem;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      display: flex;
+      align-items: center;
+      gap: 0.2rem;
+
+      &:hover:not(:disabled) {
+        background: #00ff41;
+        box-shadow: 0 0 10px rgba(0, 255, 65, 0.8);
+        transform: scale(1.05);
+      }
+
+      &:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
+
+      i {
+        font-size: 0.65rem;
+      }
+    }
+  }
+}
+
+/* Animation for toolbar appearance */
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-5px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.format-options {
+  animation: slideDown 0.2s ease-out;
+}
+
+/* Retro glow effect */
+@keyframes glow {
+  0%, 100% {
+    box-shadow: 0 0 5px rgba(0, 255, 65, 0.5);
+  }
+  50% {
+    box-shadow: 0 0 15px rgba(0, 255, 65, 0.8);
+  }
+}
+
+.format-toggle.active {
+  animation: glow 1.5s ease-in-out infinite;
+}
+
+// File Attachment Section
+.file-attachment-section {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding: 0.75rem;
+  border-bottom: 1px solid #00ff41;
+  background: #0a0a0a;
+  animation: slideDownFileAttachment 0.3s ease-out;
+
+  app-file-attachment-input {
+    width: 100%;
+  }
+}
+
+@keyframes slideDownFileAttachment {
+  from {
+    max-height: 0;
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    max-height: 500px;
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.7;
+  }
+}

@@ -1,0 +1,131 @@
+<!-- Link Preview Component Template -->
+
+<!-- Inline Badge Mode -->
+@if (showInline && !loading()) {
+  <div class="link-badge" [title]="metadata()?.title || url">
+    <span class="link-icon">🔗</span>
+    <span class="domain">{{ displayUrl() }}</span>
+    <button
+      class="open-btn"
+      (click)="openLink()"
+      [title]="'Open ' + url"
+      aria-label="Open link">
+      ↗
+    </button>
+  </div>
+}
+
+<!-- Card Mode (Default) -->
+@if (!showInline && (loading() || hasMetadata() || error())) {
+  <div class="link-preview-card">
+    <!-- Loading State -->
+    @if (loading()) {
+      <div class="loading-state">
+        <span class="spinner">⏳</span>
+        <span>Loading preview...</span>
+      </div>
+    }
+
+    <!-- Error State -->
+    @if (error() && !loading() && !hasMetadata()) {
+      <div class="error-state">
+        <div class="error-content">
+          <span>❌</span>
+          <span class="error-text">{{ error() }}</span>
+        </div>
+        <button
+          class="retry-btn"
+          (click)="retryLoad()"
+          aria-label="Retry loading preview">
+          Retry
+        </button>
+      </div>
+    }
+
+    <!-- Preview Content -->
+    @if (hasMetadata() && metadata(); as data) {
+      <div class="preview-content">
+        <!-- Image Section -->
+        @if (data.image) {
+          <div class="preview-image">
+            <img
+              [src]="data.image"
+              [alt]="data.title || 'Link preview'"
+              class="preview-img"
+              (error)="$event.target.style.display='none'" />
+          </div>
+        }
+
+        <!-- Text Content -->
+        <div class="preview-text">
+          <!-- Favicon and Domain -->
+          <div class="preview-header">
+            @if (data.favicon) {
+              <img
+                [src]="data.favicon"
+                [alt]="data.domain || 'favicon'"
+                class="favicon"
+                (error)="onFaviconError($event)" />
+            } @else {
+              <span class="favicon-icon">🌐</span>
+            }
+            <div class="header-info">
+              <span class="domain-name">{{ data.domain }}</span>
+              @if (data.publisher || data.author) {
+                <span class="publisher">{{ data.publisher || data.author }}</span>
+              }
+            </div>
+          </div>
+
+          <!-- Title -->
+          @if (data.title) {
+            <h3 class="preview-title">{{ data.title }}</h3>
+          }
+
+          <!-- Description -->
+          @if (data.description) {
+            <p class="preview-description">{{ data.description }}</p>
+          }
+
+          <!-- Actions -->
+          <div class="preview-actions">
+            <button
+              class="action-btn open"
+              (click)="openLink()"
+              [title]="'Open ' + url"
+              aria-label="Open link">
+              <span>↗</span>
+              <span>Open Link</span>
+            </button>
+            <button
+              class="action-btn copy"
+              (click)="copyLink()"
+              title="Copy link to clipboard"
+              aria-label="Copy link">
+              <span>📋</span>
+              <span>Copy</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    }
+
+    <!-- Fallback: Just URL -->
+    @if (!hasMetadata() && !error() && !loading()) {
+      <div class="url-fallback">
+        <span class="link-icon">🔗</span>
+        <div class="url-info">
+          <p class="url-domain">{{ displayUrl() }}</p>
+          <p class="url-full">{{ url }}</p>
+        </div>
+        <button
+          class="open-btn"
+          (click)="openLink()"
+          [title]="'Open ' + url"
+          aria-label="Open link">
+          ↗
+        </button>
+      </div>
+    }
+  </div>
+}

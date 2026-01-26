@@ -1,14 +1,16 @@
-import { Component, OnInit, OnDestroy, inject, signal, computed } from '@angular/core';
+import { Component, OnInit, OnDestroy, inject, signal, computed, ViewChild, ElementRef, effect } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
 import { DChatService } from '../d-chat.service';
 import { AuthStateService } from '../../../core/services/auth-state.service';
 import { DChatUser, DConversation } from '../../../core/models/d-chat.model';
+import { FileMetadata } from '../models/file-attachment.model';
 import { ToastService } from '../../../core/services/toast.service';
 import { ChatMessageComponent } from '../components/chat-message/chat-message.component';
 import { ConversationItemComponent } from '../components/conversation-list/conversation-list.component';
 import { UserSearchComponent } from '../components/user-search/user-search.component';
+import { RichTextareaComponent } from '../components/rich-textarea/rich-textarea.component';
 
 @Component({
   selector: 'app-d-chat',
@@ -20,6 +22,7 @@ import { UserSearchComponent } from '../components/user-search/user-search.compo
     ChatMessageComponent,
     ConversationItemComponent,
     UserSearchComponent,
+    RichTextareaComponent,
   ],
   templateUrl: './d-chat.component.html',
   styleUrls: ['./d-chat.component.scss'],
@@ -33,9 +36,24 @@ export class DChatComponent implements OnInit, OnDestroy {
   selectedConversationId = signal<string | null>(null);
   selectedUser = signal<DChatUser | null>(null);
   messageInput = signal<string>('');
+  attachments = signal<FileMetadata[]>([]);
   loading = signal<boolean>(false);
+  sendingMessage = signal<boolean>(false);
   showUserSearch = signal<boolean>(false);
   isMobileOpen = signal<boolean>(false);
+
+  @ViewChild('messagesContainer') messagesContainer!: ElementRef<HTMLDivElement>;
+  @ViewChild(RichTextareaComponent) richTextarea!: RichTextareaComponent;
+
+  // Auto-scroll effect when messages change
+  constructor() {
+    effect(() => {
+      // Watch messages signal
+      this.messages();
+      // Auto-scroll to bottom after messages update
+      this.scrollToBottom();
+    });
+  }
 
   // Computed signals
   conversations = this.dChatService.conversations$;
@@ -64,6 +82,19 @@ export class DChatComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.loadChat();
+  }
+
+  /**
+   * Auto-scroll to bottom of messages container
+   */
+  private scrollToBottom(): void {
+    // Use setTimeout to ensure DOM has updated
+    setTimeout(() => {
+      if (this.messagesContainer?.nativeElement) {
+        const container = this.messagesContainer.nativeElement;
+        container.scrollTop = container.scrollHeight;
+      }
+    }, 0);
   }
 
   private async loadChat(): Promise<void> {
@@ -111,6 +142,9 @@ export class DChatComponent implements OnInit, OnDestroy {
 
       // Close mobile sidebar
       this.isMobileOpen.set(false);
+
+      // Scroll to bottom when conversation is selected
+      this.scrollToBottom();
     } catch (error) {
       console.error('Error selecting conversation:', error);
       this.toast.error('Failed to load conversation');
@@ -135,9 +169,12 @@ export class DChatComponent implements OnInit, OnDestroy {
     }
   }
 
-  async sendMessage(): Promise<void> {
+  async sendMessage(attachmentData?: FileMetadata[]): Promise<void> {
     const content = this.messageInput().trim();
-    if (!content) return;
+    const files = attachmentData || this.attachments();
+    
+    // Allow sending with files even if content is empty
+    if (!content && files.length === 0) return;
 
     const conversationId = this.selectedConversationId();
     const recipientId = this.otherUserId();
@@ -148,29 +185,79 @@ export class DChatComponent implements OnInit, OnDestroy {
     }
 
     try {
+      this.sendingMessage.set(true);
       this.messageInput.set('');
+      this.attachments.set([]);
 
-      await this.dChatService.sendMessage(
+      // Send message and get it back with attachments
+      const sentMessage = await this.dChatService.sendMessageWithAttachments(
         conversationId,
         recipientId,
-        content
+        content,
+        files
       );
 
-      // Let real-time subscription add the message - don't duplicate it here
-      // Just scroll to bottom after a short delay to let realtime update arrive
-      setTimeout(() => {
-        const messagesContainer = document.querySelector(
-          '.messages-container'
+      // Add the sent message with attachments immediately to avoid race condition
+      // The real-time subscription will also add it, but this ensures attachments are visible
+      const currentMessages = this.dChatService.currentConversationMessages();
+      
+      // Check if message already exists (from real-time)
+      const messageExists = currentMessages.some(m => m.id === sentMessage.id);
+      if (!messageExists) {
+        // Add immediately with attachments included
+        this.dChatService.currentConversationMessages.set([
+          ...currentMessages,
+          sentMessage
+        ]);
+      } else {
+        // Update existing message with attachments if they weren't loaded
+        const updatedMessages = currentMessages.map(m => 
+          m.id === sentMessage.id 
+            ? { ...m, attachments: sentMessage.attachments }
+            : m
         );
-        if (messagesContainer) {
-          messagesContainer.scrollTop = messagesContainer.scrollHeight;
-        }
-      }, 100);
+        this.dChatService.currentConversationMessages.set(updatedMessages);
+      }
+
+      // Reset the rich textarea component (clears files, text, formatting)
+      if (this.richTextarea) {
+        this.richTextarea.reset();
+      }
+
+      // Let real-time subscription sync the message state
     } catch (error) {
       console.error('Error sending message:', error);
       this.toast.error('Failed to send message');
       // Restore input on error
       this.messageInput.set(content);
+      this.attachments.set(files);
+    } finally {
+      this.sendingMessage.set(false);
+    }
+  }
+
+  onFileAttachmentsSelected(files: FileMetadata[]): void {
+    this.attachments.set(files);
+  }
+
+  /**
+   * Delete attachment from message
+   */
+  async deleteAttachment(attachmentId: string, messageId: string): Promise<void> {
+    try {
+      // Find the attachment in the current message
+      const currentMessage = this.messages().find(m => m.id === messageId);
+      if (!currentMessage || !currentMessage.attachments) return;
+
+      const attachment = currentMessage.attachments.find(a => a.id === attachmentId);
+      if (!attachment) return;
+
+      // Delete from service (storage + database + local state)
+      await this.dChatService.deleteAttachment(attachmentId, attachment.storage_path);
+      this.toast.success('Attachment deleted successfully');
+    } catch (error) {
+      console.error('Error deleting attachment:', error);
+      this.toast.error('Failed to delete attachment');
     }
   }
 

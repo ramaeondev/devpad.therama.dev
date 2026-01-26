@@ -1,0 +1,197 @@
+<div class="message flex animate-fade-in" [class.justify-end]="isOwn" [class.justify-start]="!isOwn">
+  <div
+    class="message-bubble max-w-xs lg:max-w-md px-3 py-2 rounded font-mono text-sm break-words"
+    [class.bg-retro-green]="isOwn"
+    [class.text-black]="isOwn"
+    [class.bg-gray-700]="!isOwn"
+    [class.text-retro-green]="!isOwn"
+    [class.border-l-2]="!isOwn"
+    [class.border-retro-green]="!isOwn"
+  >
+    <!-- Formatted Content -->
+    @if (messageType() !== 'text') {
+      <div class="message-content formatted-text" [innerHTML]="formattedContent()"></div>
+    }
+
+    <!-- Plain Text Content -->
+    @if (messageType() === 'text') {
+      <p class="whitespace-pre-wrap">{{ message.content }}</p>
+    }
+
+    <!-- Media Indicators -->
+    @if (hasMedia('images')) {
+      <div class="media-placeholder images-placeholder mt-2 p-2 rounded bg-black bg-opacity-20">
+        <div class="flex items-center gap-2">
+          <i class="fa-solid fa-image text-retro-green"></i>
+          <span class="text-xs">{{ getMediaPlaceholder('image') }}</span>
+        </div>
+      </div>
+    }
+
+    @if (hasMedia('pdfs')) {
+      <div class="media-placeholder pdfs-placeholder mt-2 p-2 rounded bg-black bg-opacity-20">
+        <div class="flex items-center gap-2">
+          <i class="fa-solid fa-file-pdf text-retro-green"></i>
+          <span class="text-xs">{{ getMediaPlaceholder('pdf') }}</span>
+        </div>
+      </div>
+    }
+
+    @if (hasMedia('documents')) {
+      <div class="media-placeholder documents-placeholder mt-2 p-2 rounded bg-black bg-opacity-20">
+        <div class="flex items-center gap-2">
+          <i class="fa-solid fa-file-word text-retro-green"></i>
+          <span class="text-xs">{{ getMediaPlaceholder('document') }}</span>
+        </div>
+      </div>
+    }
+
+    <!-- Link Previews -->
+    @if (messageUrls().length > 0) {
+      <div class="link-previews mt-2">
+        @for (url of messageUrls(); track url) {
+          <app-link-preview [url]="url"></app-link-preview>
+        }
+      </div>
+    }
+
+    <!-- Attachments Display -->
+    @if (message.attachments && message.attachments.length > 0) {
+      <div class="attachments-section mt-3 space-y-2 pt-2 border-t border-current border-opacity-30">
+        <!-- Image Previews -->
+        @if (imageAttachments().length > 0) {
+          <div class="image-gallery space-y-2">
+            @for (attachment of imageAttachments(); track attachment.id) {
+              <div class="image-item">
+                <div class="flex flex-col gap-2">
+                  <!-- Image Preview -->
+                  <div class="image-preview-container relative group">
+                    <button
+                      type="button"
+                      class="w-full h-32 p-0 border-0 rounded bg-transparent cursor-pointer hover:border-opacity-100 transition-all block overflow-hidden"
+                      (click)="onAttachmentDownload(attachment, true)"
+                      (keydown)="onImageKeyDown($event, attachment)"
+                      title="Click or press Enter to view full image"
+                    >
+                      <img
+                        [src]="getAttachmentUrl(attachment.id)"
+                        [alt]="attachment.file_name"
+                        class="w-full h-full object-cover rounded border border-retro-green border-opacity-50"
+                        aria-hidden="true"
+                      />
+                    </button>
+                    <!-- Image Info Overlay -->
+                    <div class="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-60 rounded flex items-end p-2 transition-all">
+                      <div class="text-xs text-white opacity-0 group-hover:opacity-100 transition-opacity w-full">
+                        <p class="truncate font-semibold">{{ attachment.file_name }}</p>
+                        <p class="text-gray-300">{{ (attachment.file_size / 1024 / 1024).toFixed(2) }} MB</p>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Image Action Buttons -->
+                  <div class="flex gap-2 items-center">
+                    <!-- Open in new window button -->
+                    <button
+                      type="button"
+                      class="p-1 hover:bg-retro-green hover:text-black rounded transition-colors"
+                      title="Open in new window"
+                      (click)="onAttachmentDownload(attachment, true)"
+                    >
+                      <i class="fa-solid fa-external-link text-sm"></i>
+                    </button>
+                    <!-- Download button -->
+                    <button
+                      type="button"
+                      class="p-1 hover:bg-retro-green hover:text-black rounded transition-colors"
+                      title="Download file"
+                      (click)="onAttachmentDownload(attachment, false)"
+                    >
+                      <i class="fa-solid fa-download text-sm"></i>
+                    </button>
+                  </div>
+                </div>
+              </div>
+            }
+          </div>
+        }
+
+        <!-- Document Files -->
+        @if (documentAttachments().length > 0) {
+          <div class="documents-list space-y-2">
+            @for (attachment of documentAttachments(); track attachment.id) {
+              <div class="attachment-item">
+                <div class="flex items-start gap-2 p-2 rounded bg-black bg-opacity-20">
+                  <!-- File Icon -->
+                  <div class="flex-shrink-0 mt-1">
+                    @if (attachment.file_type.includes('pdf')) {
+                      <i class="fa-solid fa-file-pdf text-retro-green text-lg"></i>
+                    } @else if (attachment.file_type.includes('word') || attachment.file_type.includes('document')) {
+                      <i class="fa-solid fa-file-word text-retro-green text-lg"></i>
+                    } @else if (attachment.file_type.includes('sheet') || attachment.file_type.includes('csv')) {
+                      <i class="fa-solid fa-file-csv text-retro-green text-lg"></i>
+                    } @else if (attachment.file_type.includes('zip') || attachment.file_type.includes('archive')) {
+                      <i class="fa-solid fa-file-zipper text-retro-green text-lg"></i>
+                    } @else if (attachment.file_type.includes('text')) {
+                      <i class="fa-solid fa-file-lines text-retro-green text-lg"></i>
+                    } @else {
+                      <i class="fa-solid fa-file text-retro-green text-lg"></i>
+                    }
+                  </div>
+
+                  <!-- File Info -->
+                  <div class="flex-1 min-w-0">
+                    <p class="text-xs font-semibold truncate" [title]="attachment.file_name">
+                      {{ attachment.file_name }}
+                    </p>
+                    <p class="text-xs opacity-70">
+                      {{ (attachment.file_size / 1024 / 1024).toFixed(2) }} MB
+                    </p>
+                  </div>
+
+                  <!-- Action Buttons -->
+                  <div class="flex-shrink-0 flex gap-2">
+                    <!-- Open in new window button -->
+                    <button
+                      type="button"
+                      class="p-1 hover:bg-retro-green hover:text-black rounded transition-colors"
+                      title="Open in new window"
+                      (click)="onAttachmentDownload(attachment, true)"
+                    >
+                      <i class="fa-solid fa-external-link text-sm"></i>
+                    </button>
+                    <!-- Download button -->
+                    <button
+                      type="button"
+                      class="p-1 hover:bg-retro-green hover:text-black rounded transition-colors"
+                      title="Download file"
+                      (click)="onAttachmentDownload(attachment, false)"
+                    >
+                      <i class="fa-solid fa-download text-sm"></i>
+                    </button>
+                  </div>
+                </div>
+              </div>
+            }
+          </div>
+        }
+      </div>
+    }
+
+    <!-- Message Footer with Time & Read Status -->
+    <div
+      class="text-xs mt-1 opacity-60 flex items-center gap-1 flex-wrap"
+      [class.text-black]="isOwn"
+      [class.text-gray-300]="!isOwn"
+    >
+      <span>{{ formatTime(message.created_at) }}</span>
+      @if (isOwn) {
+        @if (message.read) {
+          <i class="fa-solid fa-check-double text-retro-green" title="Message read"></i>
+        } @else {
+          <i class="fa-solid fa-check" title="Message sent"></i>
+        }
+      }
+    </div>
+  </div>
+</div>

@@ -5,6 +5,7 @@
 @layer base {
   * {
     -webkit-tap-highlight-color: transparent;
+    -webkit-overflow-scrolling: touch;
   }
 
   body {
@@ -22,11 +23,6 @@
   /* Prevent text size adjustment on orientation change in iOS */
   html {
     -webkit-text-size-adjust: 100%;
-  }
-
-  /* Improve scrolling on mobile */
-  * {
-    -webkit-overflow-scrolling: touch;
   }
 }
 

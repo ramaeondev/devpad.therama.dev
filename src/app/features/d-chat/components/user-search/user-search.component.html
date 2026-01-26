@@ -1,6 +1,13 @@
 <div class="user-search fixed inset-0 md:absolute md:inset-auto md:top-1/2 md:left-1/2 md:-translate-x-1/2 md:-translate-y-1/2 flex items-center justify-center z-50">
   <!-- Backdrop -->
-  <div class="absolute inset-0 bg-black/80 md:hidden" (click)="onClose()"></div>
+  <button 
+    class="absolute inset-0 bg-black/80 md:hidden" 
+    (click)="onClose()" 
+    (keydown.escape)="onClose()"
+    aria-label="Close search"
+    type="button"
+    class:pointer-events-auto="false"
+    [style.pointer-events]="'auto'"></button>
 
   <!-- Modal -->
   <div class="relative bg-black border-2 border-retro-green w-full md:w-96 max-h-96 md:max-h-full p-4 flex flex-col">

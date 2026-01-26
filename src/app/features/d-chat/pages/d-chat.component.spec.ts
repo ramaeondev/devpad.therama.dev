@@ -10,7 +10,6 @@ describe('DChatComponent', () => {
   let component: DChatComponent;
   let fixture: ComponentFixture<DChatComponent>;
   let dChatService: any;
-  let toastService: any;
 
   const mockConversation: DConversation = {
     id: 'conv-1',
@@ -27,12 +26,14 @@ describe('DChatComponent', () => {
       conversations$: signal([mockConversation]),
       messages$: signal([]),
       userStatuses$: signal(new Map()),
+      currentConversationMessages: signal([]),
       initializeChat: jest.fn().mockResolvedValue(undefined),
       getMessagesBetweenUsers: jest.fn().mockResolvedValue([]),
       setConversationMessages: jest.fn(),
       subscribeToConversationMessages: jest.fn(),
       markConversationMessagesAsRead: jest.fn().mockResolvedValue(undefined),
       sendMessage: jest.fn().mockResolvedValue({ id: 'msg-1', content: 'test' }),
+      sendMessageWithAttachments: jest.fn().mockResolvedValue({ id: 'msg-1', content: 'test', attachments: [] }),
       getUserById: jest.fn().mockResolvedValue({ id: 'user-2', first_name: 'Test', last_name: 'User' }),
       getOrCreateConversation: jest.fn().mockResolvedValue(mockConversation),
       getUnreadCountForConversation: jest.fn().mockResolvedValue(0),
@@ -63,7 +64,6 @@ describe('DChatComponent', () => {
     fixture = TestBed.createComponent(DChatComponent);
     component = fixture.componentInstance;
     dChatService = TestBed.inject(DChatService);
-    toastService = TestBed.inject(ToastService);
   });
 
   it('should create', () => {
@@ -79,25 +79,28 @@ describe('DChatComponent', () => {
   });
 
   describe('sendMessage', () => {
-    it('should not send empty messages', async () => {
+    it('should not send empty messages without attachments', async () => {
       component.messageInput.set('   ');
+      component.attachments.set([]);
 
       await component.sendMessage();
 
-      expect(dChatService.sendMessage).not.toHaveBeenCalled();
+      expect(dChatService.sendMessageWithAttachments).not.toHaveBeenCalled();
     });
 
-    it('should send message when conversation is selected', async () => {
+    it('should send message with attachments when conversation is selected', async () => {
       // Setup: select the conversation first
       component.selectedConversationId.set('conv-1');
       component.messageInput.set('Hello');
+      component.attachments.set([]);
 
-      dChatService.sendMessage.mockResolvedValueOnce({ id: 'msg-1' });
+      dChatService.sendMessageWithAttachments.mockResolvedValueOnce({ id: 'msg-1' });
 
       await component.sendMessage();
 
-      expect(dChatService.sendMessage).toHaveBeenCalledWith('conv-1', 'user-2', 'Hello');
+      expect(dChatService.sendMessageWithAttachments).toHaveBeenCalledWith('conv-1', 'user-2', 'Hello', []);
       expect(component.messageInput()).toBe('');
+      expect(component.attachments()).toEqual([]);
     });
   });
 

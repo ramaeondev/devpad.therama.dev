@@ -6,15 +6,13 @@ import { environment } from '../../../environments/environment';
   providedIn: 'root',
 })
 export class SupabaseService {
-  private supabase: SupabaseClient;
+  private readonly supabase: SupabaseClient;
 
   constructor() {
     // Check if we are in the OneDrive callback flow
     // OneDrive has its own OAuth token that's not a Supabase session
     // For GitHub and other Supabase OAuth providers, we NEED detectSessionInUrl enabled
-    const isOneDriveCallback =
-      typeof window !== 'undefined' &&
-      window.location.pathname.includes('/auth/callback/onedrive');
+    const isOneDriveCallback = globalThis.window?.location.pathname.includes('/auth/callback/onedrive');
 
     // Validate config before creating the client so the error is actionable
     const supabaseUrl = environment?.supabase?.url;
@@ -34,7 +32,7 @@ export class SupabaseService {
         autoRefreshToken: true,
         persistSession: true,
         detectSessionInUrl: !isOneDriveCallback, // Only disable for OneDrive
-        storage: window.localStorage,
+        storage: globalThis.window.localStorage,
       },
       realtime: {
         params: {

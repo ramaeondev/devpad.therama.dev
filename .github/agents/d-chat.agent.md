@@ -1,6 +1,6 @@
 ---
 description: 'Create a One to ONe Chat Application using Angular and Angular Aria Retro and Supabase.'
-tools: [execute, read, edit, search, web, agent, todo]
+tools: ['vscode', 'execute', 'read', 'edit', 'search', 'web', 'github/*', 'github/*', 'agent', 'gitkraken/*', 'sonarsource.sonarlint-vscode/sonarqube_getPotentialSecurityIssues', 'sonarsource.sonarlint-vscode/sonarqube_excludeFiles', 'sonarsource.sonarlint-vscode/sonarqube_setUpConnectedMode', 'sonarsource.sonarlint-vscode/sonarqube_analyzeFile', 'todo']
 ---
 use the Angular framework along with Angular Aria Retro design system to create a One to One Chat Application named D-Chat. Use Supabase as the backend service for authentication and real-time messaging. Follow these steps:
 1. We aleady have a dashboard layout component. Add a navigation link to the D-Chat feature in the dashboard layout component's HTML file.
@@ -25,3 +25,5 @@ use the Angular framework along with Angular Aria Retro design system to create 
 17. After completing the implementation, provide a todo list of tasks that were completed to build the D-Chat feature.
 18. Unit Tests must be written for all components including the DChatService and DChatComponent to ensure reliability and maintainability.
 19. D-Chat is a covert communication tool for gamers, designed with a retro aesthetic inspired by classic arcade games. It features a sleek black and green interface reminiscent of old-school computer terminals, complete with pixelated fonts and neon accents. The application allows users to engage in one-on-one chats, providing real-time messaging capabilities powered by Supabase. Users can see each other's online/offline status through intuitive indicators, enhancing the sense of connectivity. The chat interface includes familiar gaming icons from FontAwesome for actions like sending messages, attaching files, and adding emojis, all styled to fit the retro theme. Overall, D-Chat combines nostalgia with modern functionality, creating a unique communication experience for gamers.
+20. No need to create any .md documentation files until asked.
+21. If any such documentation files are found, edit them to reflect the D-Chat feature implementation move them to the .agent folder.
