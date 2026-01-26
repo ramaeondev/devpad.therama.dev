@@ -6,11 +6,12 @@ import { MarkdownFormatter, detectMessageType } from '../../utils/markdown-forma
 import { LinkPreviewComponent } from '../link-preview/link-preview.component';
 import { LinkPreviewService } from '../../services/link-preview.service';
 import { DChatService } from '../../d-chat.service';
+import { MessageKebabMenuComponent, MessageAction } from '../message-kebab-menu/message-kebab-menu.component';
 
 @Component({
   selector: 'app-chat-message',
   standalone: true,
-  imports: [CommonModule, LinkPreviewComponent],
+  imports: [CommonModule, LinkPreviewComponent, MessageKebabMenuComponent],
   templateUrl: './chat-message.component.html',
   styleUrls: ['./chat-message.component.scss'],
 })
@@ -19,6 +20,12 @@ export class ChatMessageComponent implements OnInit {
   @Input() isOwn: boolean = false;
   @Input() otherUserOnline: boolean = false;
   @Output() deleteAttachment = new EventEmitter<string>();
+  @Output() replyToMessage = new EventEmitter<DMessage>();
+  @Output() forwardMessage = new EventEmitter<DMessage>();
+  @Output() editMessage = new EventEmitter<DMessage>();
+  @Output() deleteMessage = new EventEmitter<DMessage>();
+  @Output() pinMessage = new EventEmitter<DMessage>();
+  @Output() messageAction = new EventEmitter<{action: MessageAction; message: DMessage}>();
 
   private readonly sanitizer = inject(DomSanitizer);
   private readonly linkPreviewService = inject(LinkPreviewService);
@@ -30,6 +37,8 @@ export class ChatMessageComponent implements OnInit {
   attachmentUrls = signal<Map<string, string>>(new Map());
   imageAttachments = signal<DMessageAttachment[]>([]);
   documentAttachments = signal<DMessageAttachment[]>([]);
+  isMessageReplied = signal<boolean>(false);
+  isPinned = signal<boolean>(false);
 
   ngOnInit(): void {
     if (this.message?.content) {
@@ -222,5 +231,87 @@ export class ChatMessageComponent implements OnInit {
       document: '📃 Document (Coming Soon)',
     };
     return placeholders[fileType] || 'File (Coming Soon)';
+  }
+
+  /**
+   * Handle message actions from kebab menu
+   */
+  onMessageAction(action: MessageAction): void {
+    switch (action) {
+      case 'reply':
+        this.replyToMessage.emit(this.message);
+        break;
+      case 'forward':
+        this.forwardMessage.emit(this.message);
+        break;
+      case 'copy':
+        this.copyMessageContent();
+        break;
+      case 'edit':
+        this.editMessage.emit(this.message);
+        break;
+      case 'delete':
+        this.deleteMessageConfirm();
+        break;
+      case 'pin':
+        this.pinMessage.emit(this.message);
+        break;
+      case 'download':
+        this.downloadAllAttachments();
+        break;
+      case 'open':
+        this.openFirstAttachment();
+        break;
+    }
+    this.messageAction.emit({ action, message: this.message });
+  }
+
+  /**
+   * Copy message content to clipboard
+   */
+  private copyMessageContent(): void {
+    navigator.clipboard.writeText(this.message.content).then(
+      () => {
+        console.log('Message copied to clipboard');
+      },
+      (error) => {
+        console.error('Failed to copy:', error);
+      }
+    );
+  }
+
+  /**
+   * Delete message with confirmation
+   */
+  private deleteMessageConfirm(): void {
+    if (confirm('Are you sure you want to delete this message?')) {
+      this.deleteMessage.emit(this.message);
+    }
+  }
+
+  /**
+   * Download all attachments from the message
+   */
+  private downloadAllAttachments(): void {
+    if (!this.message.attachments || this.message.attachments.length === 0) {
+      return;
+    }
+
+    // Download each attachment
+    this.message.attachments.forEach((attachment) => {
+      this.onAttachmentDownload(attachment, false);
+    });
+  }
+
+  /**
+   * Open the first attachment (image or file) in a new window
+   */
+  private openFirstAttachment(): void {
+    if (!this.message.attachments || this.message.attachments.length === 0) {
+      return;
+    }
+
+    // Open the first attachment
+    this.onAttachmentDownload(this.message.attachments[0], true);
   }
 }

@@ -4,7 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
 import { DChatService } from '../d-chat.service';
 import { AuthStateService } from '../../../core/services/auth-state.service';
-import { DChatUser, DConversation } from '../../../core/models/d-chat.model';
+import { DChatUser, DConversation, DMessage } from '../../../core/models/d-chat.model';
 import { FileMetadata } from '../models/file-attachment.model';
 import { ToastService } from '../../../core/services/toast.service';
 import { ChatMessageComponent } from '../components/chat-message/chat-message.component';
@@ -41,6 +41,8 @@ export class DChatComponent implements OnInit, OnDestroy {
   sendingMessage = signal<boolean>(false);
   showUserSearch = signal<boolean>(false);
   isMobileOpen = signal<boolean>(false);
+  replyingTo = signal<DMessage | null>(null);
+  editingMessage = signal<DMessage | null>(null);
 
   @ViewChild('messagesContainer') messagesContainer!: ElementRef<HTMLDivElement>;
   @ViewChild(RichTextareaComponent) richTextarea!: RichTextareaComponent;
@@ -181,6 +183,41 @@ export class DChatComponent implements OnInit, OnDestroy {
     // Allow sending with files even if content is empty
     if (!content && files.length === 0) return;
 
+    // Check if we're editing a message
+    const editingMsg = this.editingMessage();
+    if (editingMsg) {
+      try {
+        this.sendingMessage.set(true);
+        
+        // Update the message
+        await this.dChatService.updateMessage(editingMsg.id, content);
+        
+        // Update local messages array
+        const currentMessages = this.dChatService.currentConversationMessages();
+        const updatedMessages = currentMessages.map(m => 
+          m.id === editingMsg.id ? { ...m, content } : m
+        );
+        this.dChatService.currentConversationMessages.set(updatedMessages);
+        
+        // Reset editing state
+        this.editingMessage.set(null);
+        this.messageInput.set('');
+        this.attachments.set([]);
+        
+        if (this.richTextarea) {
+          this.richTextarea.reset();
+        }
+        
+        this.toast.success('Message updated');
+      } catch (error) {
+        console.error('Error updating message:', error);
+        this.toast.error('Failed to update message');
+      } finally {
+        this.sendingMessage.set(false);
+      }
+      return;
+    }
+
     const conversationId = this.selectedConversationId();
     const recipientId = this.otherUserId();
 
@@ -191,35 +228,79 @@ export class DChatComponent implements OnInit, OnDestroy {
 
     try {
       this.sendingMessage.set(true);
+      
+      // Create optimistic message - appears immediately
+      const optimisticMessage: DMessage = {
+        id: `temp-${Date.now()}`, // Temporary ID
+        conversation_id: conversationId,
+        sender_id: this.currentUserId()!,
+        recipient_id: recipientId,
+        content: content,
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+        read: false,
+        status: 'sending', // Custom status for UI
+        attachments: [] // Will be added after real send
+      };
+
+      // Add optimistic message to UI immediately
+      const currentMessages = this.messages();
+      this.dChatService.currentConversationMessages.set([...currentMessages, optimisticMessage]);
+
+      // Clear input immediately for better UX
       this.messageInput.set('');
       this.attachments.set([]);
-
-      // Send message - the real-time subscription will handle adding it
-      await this.dChatService.sendMessageWithAttachments(
-        conversationId,
-        recipientId,
-        content,
-        files
-      );
-
-      // Note: The real-time subscription (subscribeToConversationMessages) 
-      // will automatically add the message to the messages array via INSERT event.
-      // Do NOT manually add it here to avoid duplicates.
 
       // Reset the rich textarea component (clears files, text, formatting)
       if (this.richTextarea) {
         this.richTextarea.reset();
       }
 
-      // Let real-time subscription sync the message state
+      // Send message to server
+      const sentMessage = await this.dChatService.sendMessageWithAttachments(
+        conversationId,
+        recipientId,
+        content,
+        files
+      );
+
+      // Replace optimistic message with real one
+      const updatedMessages = this.messages().map((m) =>
+        m.id === optimisticMessage.id ? sentMessage : m
+      );
+      this.dChatService.currentConversationMessages.set(updatedMessages);
+      
+      // Note: The real-time subscription will also receive the INSERT event
+      // but our map above ensures we don't duplicate since we already replaced it
+
+      // Return focus to input for continuous typing (use setTimeout to ensure DOM is ready)
+      setTimeout(() => {
+        if (this.richTextarea) {
+          this.richTextarea.focus();
+        }
+      }, 50);
     } catch (error) {
       console.error('Error sending message:', error);
       this.toast.error('Failed to send message');
+      
+      // Remove optimistic message on error
+      const updatedMessages = this.messages().filter(
+        (m) => m.id !== `temp-${Date.now()}` && !m.id.startsWith('temp-')
+      );
+      this.dChatService.currentConversationMessages.set(updatedMessages);
+      
       // Restore input on error
       this.messageInput.set(content);
       this.attachments.set(files);
     } finally {
       this.sendingMessage.set(false);
+      
+      // Ensure focus is set after all state updates complete
+      setTimeout(() => {
+        if (this.richTextarea) {
+          this.richTextarea.focus();
+        }
+      }, 100);
     }
   }
 
@@ -313,6 +394,110 @@ export class DChatComponent implements OnInit, OnDestroy {
   isUserOnline(userId: string): boolean {
     const status = this.userStatuses().get(userId);
     return status?.is_online || false;
+  }
+
+  /**
+   * Handle reply to message action
+   */
+  handleReplyToMessage(message: DMessage): void {
+    this.replyingTo.set(message);
+    // Focus the text input
+    setTimeout(() => {
+      if (this.richTextarea) {
+        this.richTextarea.focus();
+      }
+    }, 0);
+    this.toast.success(`Replying to ${message.sender_id === this.currentUserId() ? 'your' : 'their'} message`);
+  }
+
+  /**
+   * Handle forward message action
+   */
+  handleForwardMessage(message: DMessage): void {
+    // Set the message content in the input with a forward prefix
+    const forwardedContent = `[FORWARDED]\n${message.content}`;
+    this.messageInput.set(forwardedContent);
+    setTimeout(() => {
+      if (this.richTextarea) {
+        this.richTextarea.focus();
+      }
+    }, 0);
+    this.toast.success('Message forwarded to input');
+  }
+
+  /**
+   * Handle edit message action
+   */
+  handleEditMessage(message: DMessage): void {
+    if (!message.id) return;
+    
+    // Only allow editing own messages
+    if (message.sender_id !== this.currentUserId()) {
+      this.toast.error('You can only edit your own messages');
+      return;
+    }
+
+    this.editingMessage.set(message);
+    this.messageInput.set(message.content);
+    setTimeout(() => {
+      if (this.richTextarea) {
+        this.richTextarea.focus();
+      }
+    }, 0);
+    this.toast.info('Editing message - send to update');
+  }
+
+  /**
+   * Cancel editing current message
+   */
+  cancelEditingMessage(): void {
+    this.editingMessage.set(null);
+    this.messageInput.set('');
+  }
+
+  /**
+   * Handle delete message action
+   */
+  async handleDeleteMessage(message: DMessage): Promise<void> {
+    if (!message.id) return;
+
+    // Only allow deleting own messages
+    if (message.sender_id !== this.currentUserId()) {
+      this.toast.error('You can only delete your own messages');
+      return;
+    }
+
+    try {
+      this.sendingMessage.set(true);
+      await this.dChatService.deleteMessage(message.id);
+      
+      // Remove from local messages array
+      const currentMessages = this.dChatService.currentConversationMessages();
+      const updatedMessages = currentMessages.filter(m => m.id !== message.id);
+      this.dChatService.currentConversationMessages.set(updatedMessages);
+      
+      this.toast.success('Message deleted');
+    } catch (error) {
+      console.error('Error deleting message:', error);
+      this.toast.error('Failed to delete message');
+    } finally {
+      this.sendingMessage.set(false);
+    }
+  }
+
+  /**
+   * Handle pin message action
+   */
+  async handlePinMessage(_message: DMessage): Promise<void> {
+    // TODO: Implement pin functionality when backend supports it
+    this.toast.info('Pin functionality coming soon');
+  }
+
+  /**
+   * Handle generic message action
+   */
+  handleMessageAction(event: { action: any; message: DMessage }): void {
+    console.log('Message action triggered:', event.action, event.message.id);
   }
 
   ngOnDestroy(): void {

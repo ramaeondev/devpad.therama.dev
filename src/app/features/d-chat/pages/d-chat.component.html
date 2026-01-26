@@ -158,6 +158,12 @@
           [isOwn]="message.sender_id === currentUserId()"
           [otherUserOnline]="isUserOnline(otherUserId() || '')"
           (deleteAttachment)="deleteAttachment($event, message.id)"
+          (replyToMessage)="handleReplyToMessage($event)"
+          (forwardMessage)="handleForwardMessage($event)"
+          (editMessage)="handleEditMessage($event)"
+          (deleteMessage)="handleDeleteMessage($event)"
+          (pinMessage)="handlePinMessage($event)"
+          (messageAction)="handleMessageAction($event)"
         ></app-chat-message>
         }
       </div>
