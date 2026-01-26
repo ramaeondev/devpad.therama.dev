@@ -15,3 +15,7 @@ name = "prettier"
 
 [[code_formatters]]
 name = "standardjs"
+
+[autofix]
+enabled = true
+mode = "pull_request"
