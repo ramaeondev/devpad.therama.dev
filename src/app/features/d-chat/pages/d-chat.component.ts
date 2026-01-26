@@ -200,6 +200,11 @@ export class DChatComponent implements OnInit, OnDestroy {
     // Shift+Enter allows default behavior (new line)
   }
 
+  onMessageInput(event: Event): void {
+    const target = event.target as HTMLTextAreaElement;
+    this.messageInput.set(target.value);
+  }
+
   isUserOnline(userId: string): boolean {
     const status = this.userStatuses().get(userId);
     return status?.is_online || false;
