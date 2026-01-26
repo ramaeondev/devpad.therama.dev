@@ -23,7 +23,7 @@ export class LinkPreviewService {
 
   /**
    * Extract URLs from text content
-   * Supports various URL formats (http, https, www, markdown links, etc.)
+   * Only accepts URLs with proper https:// or http:// protocol
    */
   extractUrls(content: string): string[] {
     const urls: string[] = [];
@@ -34,18 +34,17 @@ export class LinkPreviewService {
     while ((match = markdownRegex.exec(content)) !== null) {
       const url = match[2];
       if (this.isValidUrl(url)) {
-        urls.push(this.normalizeUrl(url));
+        urls.push(url);
       }
     }
 
-    // Extract standalone URLs (http, https, www, domains)
-    const urlRegex = /(https?:\/\/[^\s]+|www\.[^\s]+|[a-zA-Z0-9\-._~:/?#[\]@!$&'()*+,;=]+\.[a-zA-Z]{2,})/g;
+    // Extract standalone URLs with proper protocol (http:// or https://)
+    const urlRegex = /(https?:\/\/[^\s]+)/g;
     const standalonUrls = content.match(urlRegex) || [];
 
-    // Filter and normalize standalone URLs
+    // Filter valid URLs (those with proper protocol)
     standalonUrls
       .filter((url) => this.isValidUrl(url))
-      .map((url) => this.normalizeUrl(url))
       .forEach(url => urls.push(url));
 
     // Remove duplicates
@@ -139,12 +138,15 @@ export class LinkPreviewService {
 
   /**
    * Check if string is a valid URL
+   * Only accepts URLs with proper https:// or http:// protocol
    */
   private isValidUrl(str: string): boolean {
     try {
-      // Add protocol if missing
-      const urlString = str.startsWith('http') ? str : `https://${str}`;
-      new URL(urlString);
+      // Only accept URLs with proper protocol
+      if (!str.startsWith('http://') && !str.startsWith('https://')) {
+        return false;
+      }
+      new URL(str);
       return true;
     } catch {
       return false;
@@ -152,22 +154,11 @@ export class LinkPreviewService {
   }
 
   /**
-   * Normalize URL (add protocol if missing)
+   * Normalize URL - only returns URLs with proper protocol
    */
   private normalizeUrl(url: string): string {
-    if (url.startsWith('http://') || url.startsWith('https://')) {
-      return url;
-    }
-
-    if (url.startsWith('www.')) {
-      return `https://${url}`;
-    }
-
-    // Check if it looks like a domain
-    if (url.includes('.') && !url.includes(' ')) {
-      return `https://${url}`;
-    }
-
+    // Only return URLs with proper protocol, no normalization needed
+    // since isValidUrl now enforces proper protocol
     return url;
   }
 

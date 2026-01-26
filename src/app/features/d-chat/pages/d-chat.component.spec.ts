@@ -26,6 +26,7 @@ describe('DChatComponent', () => {
       conversations$: signal([mockConversation]),
       messages$: signal([]),
       userStatuses$: signal(new Map()),
+      hasMoreMessages$: signal(true),
       currentConversationMessages: signal([]),
       initializeChat: jest.fn().mockResolvedValue(undefined),
       getMessagesBetweenUsers: jest.fn().mockResolvedValue([]),
@@ -37,6 +38,8 @@ describe('DChatComponent', () => {
       getUserById: jest.fn().mockResolvedValue({ id: 'user-2', first_name: 'Test', last_name: 'User' }),
       getOrCreateConversation: jest.fn().mockResolvedValue(mockConversation),
       getUnreadCountForConversation: jest.fn().mockResolvedValue(0),
+      resetPaginationState: jest.fn(),
+      loadMoreMessages: jest.fn().mockResolvedValue([]),
       cleanup: jest.fn(),
     };
 
@@ -119,6 +122,29 @@ describe('DChatComponent', () => {
       component.ngOnDestroy();
 
       expect(dChatService.cleanup).toHaveBeenCalled();
+    });
+  });
+
+  describe('Pagination', () => {
+    it('should reset pagination state when selecting conversation', async () => {
+      await component.selectConversation(mockConversation);
+
+      expect(dChatService.resetPaginationState).toHaveBeenCalled();
+    });
+
+    it('should load initial messages with pagination', async () => {
+      await component.selectConversation(mockConversation);
+
+      expect(dChatService.getMessagesBetweenUsers).toHaveBeenCalledWith('user-2', 100, 0);
+    });
+
+    it('should load more messages when loadMoreMessages is called', async () => {
+      component.selectedConversationId.set('conv-1');
+      dChatService.loadMoreMessages.mockResolvedValueOnce([]);
+
+      await component.loadMoreMessages();
+
+      expect(dChatService.loadMoreMessages).toHaveBeenCalled();
     });
   });
 });

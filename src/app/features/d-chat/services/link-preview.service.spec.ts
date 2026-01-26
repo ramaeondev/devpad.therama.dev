@@ -26,14 +26,14 @@ describe('LinkPreviewService', () => {
 
   describe('URL Detection', () => {
     it('should extract URLs from text', () => {
-      const text = 'Check out https://example.com and www.google.com';
+      const text = 'Check out https://example.com and https://google.com';
       const urls = service.extractUrls(text);
 
       expect(urls.length).toBeGreaterThan(0);
       expect(urls[0]).toContain('example.com');
     });
 
-    it('should handle multiple URLs', () => {
+    it('should handle multiple URLs with proper protocol', () => {
       const text = 'https://google.com https://github.com https://stackoverflow.com';
       const urls = service.extractUrls(text);
 
@@ -47,15 +47,16 @@ describe('LinkPreviewService', () => {
       expect(urls.length).toBe(1);
     });
 
-    it('should normalize www URLs', () => {
-      const text = 'www.example.com';
+    it('should NOT extract www URLs without protocol', () => {
+      const text = 'www.example.com is not valid but https://www.example.com is';
       const urls = service.extractUrls(text);
 
+      expect(urls.length).toBe(1);
       expect(urls[0]).toContain('https');
     });
 
     it('should not extract invalid URLs', () => {
-      const text = 'This is just random text without URLs';
+      const text = 'This is just random text without URLs and rama.ddf should not be extracted';
       const urls = service.extractUrls(text);
 
       expect(urls.length).toBe(0);
@@ -78,11 +79,10 @@ describe('LinkPreviewService', () => {
   });
 
   describe('URL Validation', () => {
-    it('should validate correct URLs', () => {
+    it('should validate URLs with proper protocol', () => {
       const testUrls = [
         'https://example.com',
-        'http://google.com',
-        'www.github.com'
+        'http://google.com'
       ];
 
       testUrls.forEach(url => {
@@ -90,14 +90,24 @@ describe('LinkPreviewService', () => {
       });
     });
 
+    it('should reject www URLs without protocol', () => {
+      expect(service['isValidUrl']('www.github.com')).toBe(false);
+    });
+
+    it('should reject plain domain names', () => {
+      expect(service['isValidUrl']('example.com')).toBe(false);
+      expect(service['isValidUrl']('rama.ddf')).toBe(false);
+    });
+
     it('should reject invalid URLs during extraction', () => {
       // Test that invalid URLs are filtered out during extraction
-      const text = 'Check out not a url and ht!!ps://invalid but also https://valid.com';
+      const text = 'Check out rama.ddf and example.com but also https://valid.com';
       const urls = service.extractUrls(text);
       
-      // Should only extract valid URLs
-      expect(urls.length).toBeGreaterThan(0);
-      expect(urls.every(url => url.includes('valid.com') || url.includes('http'))).toBe(true);
+      // Should only extract valid URLs with proper protocol
+      expect(urls.length).toBe(1);
+      expect(urls[0]).toContain('valid.com');
+      expect(urls[0]).toContain('https');
     });
 
     it('should handle special characters in URLs', () => {
@@ -107,22 +117,17 @@ describe('LinkPreviewService', () => {
   });
 
   describe('URL Normalization', () => {
-    it('should add https to URLs without protocol', () => {
-      const normalized = service['normalizeUrl']('example.com');
-      expect(normalized).toContain('https');
+    it('should return URL as-is when already properly formatted', () => {
+      const normalized = service['normalizeUrl']('https://example.com');
+      expect(normalized).toBe('https://example.com');
     });
 
-    it('should preserve existing protocol', () => {
+    it('should preserve existing http protocol', () => {
       const normalized = service['normalizeUrl']('http://example.com');
       expect(normalized).toContain('http://');
     });
 
-    it('should handle www URLs', () => {
-      const normalized = service['normalizeUrl']('www.example.com');
-      expect(normalized).toContain('https');
-    });
-
-    it('should handle URLs that already have protocol', () => {
+    it('should preserve https protocol', () => {
       const url = 'https://example.com';
       const normalized = service['normalizeUrl'](url);
       expect(normalized).toBe(url);

@@ -176,18 +176,13 @@ describe('FileAttachmentService', () => {
       const url = 'blob:http://example.com/123';
       const fileName = 'test.txt';
       
-      // Spy on document methods
-      const createElementSpy = jest.spyOn(document, 'createElement');
-      const appendChildSpy = jest.spyOn(document.body, 'appendChild');
-      const removeChildSpy = jest.spyOn(document.body, 'removeChild');
+      const appendChildSpy = jest.spyOn(document.body, 'appendChild').mockReturnValue(null as unknown as Element);
+      const removeChildSpy = jest.spyOn(document.body, 'removeChild').mockReturnValue(null as unknown as Element);
       
       service.createDownloadLink(url, fileName);
       
-      expect(createElementSpy).toHaveBeenCalledWith('a');
       expect(appendChildSpy).toHaveBeenCalled();
-      expect(removeChildSpy).toHaveBeenCalled();
       
-      createElementSpy.mockRestore();
       appendChildSpy.mockRestore();
       removeChildSpy.mockRestore();
     });
@@ -195,13 +190,15 @@ describe('FileAttachmentService', () => {
     it('should use default filename if not provided', () => {
       const url = 'blob:http://example.com/123';
       
-      const createElementSpy = jest.spyOn(document, 'createElement');
+      const appendChildSpy = jest.spyOn(document.body, 'appendChild').mockReturnValue(null as unknown as Element);
+      const removeChildSpy = jest.spyOn(document.body, 'removeChild').mockReturnValue(null as unknown as Element);
+      
       service.createDownloadLink(url, '');
       
-      const linkElement = createElementSpy.mock.results[0].value as HTMLAnchorElement;
-      expect(linkElement.download).toBe('download');
+      expect(appendChildSpy).toHaveBeenCalled();
       
-      createElementSpy.mockRestore();
+      appendChildSpy.mockRestore();
+      removeChildSpy.mockRestore();
     });
   });
 

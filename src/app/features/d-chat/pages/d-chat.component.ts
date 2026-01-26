@@ -59,6 +59,7 @@ export class DChatComponent implements OnInit, OnDestroy {
   conversations = this.dChatService.conversations$;
   messages = this.dChatService.messages$;
   userStatuses = this.dChatService.userStatuses$;
+  hasMoreMessages = this.dChatService.hasMoreMessages$;
   currentUserId = this.auth.userId;
 
   selectedConversation = computed(() => {
@@ -122,11 +123,15 @@ export class DChatComponent implements OnInit, OnDestroy {
 
       if (!otherUserId) return;
 
-      // Load messages
+      // Reset pagination state for new conversation
+      this.dChatService.resetPaginationState();
+
+      // Load messages (first page - 100 messages)
       this.loading.set(true);
       const msgs = await this.dChatService.getMessagesBetweenUsers(
         otherUserId,
-        100
+        100,
+        0
       );
       this.dChatService.setConversationMessages(msgs);
 
@@ -189,35 +194,17 @@ export class DChatComponent implements OnInit, OnDestroy {
       this.messageInput.set('');
       this.attachments.set([]);
 
-      // Send message and get it back with attachments
-      const sentMessage = await this.dChatService.sendMessageWithAttachments(
+      // Send message - the real-time subscription will handle adding it
+      await this.dChatService.sendMessageWithAttachments(
         conversationId,
         recipientId,
         content,
         files
       );
 
-      // Add the sent message with attachments immediately to avoid race condition
-      // The real-time subscription will also add it, but this ensures attachments are visible
-      const currentMessages = this.dChatService.currentConversationMessages();
-      
-      // Check if message already exists (from real-time)
-      const messageExists = currentMessages.some(m => m.id === sentMessage.id);
-      if (!messageExists) {
-        // Add immediately with attachments included
-        this.dChatService.currentConversationMessages.set([
-          ...currentMessages,
-          sentMessage
-        ]);
-      } else {
-        // Update existing message with attachments if they weren't loaded
-        const updatedMessages = currentMessages.map(m => 
-          m.id === sentMessage.id 
-            ? { ...m, attachments: sentMessage.attachments }
-            : m
-        );
-        this.dChatService.currentConversationMessages.set(updatedMessages);
-      }
+      // Note: The real-time subscription (subscribeToConversationMessages) 
+      // will automatically add the message to the messages array via INSERT event.
+      // Do NOT manually add it here to avoid duplicates.
 
       // Reset the rich textarea component (clears files, text, formatting)
       if (this.richTextarea) {
@@ -268,6 +255,37 @@ export class DChatComponent implements OnInit, OnDestroy {
       console.log('User search toggled to:', newVal);
       return newVal;
     });
+  }
+
+  /**
+   * Load more messages for pagination
+   * Call when user scrolls to top of message list
+   */
+  async loadMoreMessages(): Promise<void> {
+    const otherUserId = this.otherUserId();
+    if (!otherUserId || !this.hasMoreMessages()) return;
+
+    try {
+      this.loading.set(true);
+      await this.dChatService.loadMoreMessages(otherUserId);
+    } catch (error) {
+      console.error('Error loading more messages:', error);
+      this.toast.error('Failed to load more messages');
+    } finally {
+      this.loading.set(false);
+    }
+  }
+
+  /**
+   * Handle scroll event in messages container
+   * Load more messages when user scrolls near the top
+   */
+  onMessagesScroll(event: Event): void {
+    const container = event.target as HTMLDivElement;
+    // Load more when user scrolls within 200px of the top
+    if (container.scrollTop < 200 && this.hasMoreMessages() && !this.loading()) {
+      this.loadMoreMessages();
+    }
   }
 
   toggleMobileSidebar(): void {

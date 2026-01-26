@@ -127,7 +127,31 @@
 
       <!-- Messages Area -->
       @if (selectedConversationId()) {
-      <div #messagesContainer class="messages-container flex-1 overflow-y-auto p-4 space-y-2 bg-gray-900 message-scroll">
+      <div 
+        #messagesContainer 
+        class="messages-container flex-1 overflow-y-auto p-4 space-y-2 bg-gray-900 message-scroll"
+        (scroll)="onMessagesScroll($event)"
+      >
+        <!-- Load More Button -->
+        @if (hasMoreMessages() && messages().length > 0) {
+        <div class="flex justify-center py-3">
+          <button
+            (click)="loadMoreMessages()"
+            [disabled]="loading()"
+            class="px-4 py-2 bg-retro-green/20 hover:bg-retro-green/30 disabled:opacity-50 border border-retro-green text-retro-green font-mono text-sm transition-colors"
+          >
+            @if (loading()) {
+            <i class="fa-solid fa-spinner fa-spin mr-2"></i>
+            LOADING...
+            } @else {
+            <i class="fa-solid fa-arrow-up mr-2"></i>
+            LOAD MORE MESSAGES
+            }
+          </button>
+        </div>
+        }
+
+        <!-- Messages List -->
         @for (message of messages(); track message.id) {
         <app-chat-message
           [message]="message"
