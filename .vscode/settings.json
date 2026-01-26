@@ -24,5 +24,11 @@
   "sonarlint.connectedMode.project": {
     "connectionId": "ramaeondev",
     "projectKey": "ramaeondev_devpad.therama.dev"
-  }
+  },
+  "terminal.integrated.shellIntegration.enabled": true,
+  "terminal.integrated.shellIntegration.decorationsEnabled": "both",
+  "terminal.integrated.commandsToSkipShell": [
+    "-workbench.action.terminal.clear"
+  ],
+  "terminal.integrated.enableMultiLinePasteWarning": false
 }

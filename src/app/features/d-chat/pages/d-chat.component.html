@@ -142,7 +142,8 @@
       <div class="input-area p-4 border-t-2 border-retro-green bg-black">
         <div class="flex gap-2 items-end">
           <textarea
-            [(ngModel)]="messageInput"
+            [value]="messageInput()"
+            (input)="messageInput.set($event.target.value)"
             (keydown)="handleKeyDown($event)"
             placeholder="TYPE YOUR MESSAGE..."
             rows="2"

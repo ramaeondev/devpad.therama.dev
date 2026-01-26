@@ -192,10 +192,12 @@ export class DChatComponent implements OnInit, OnDestroy {
   }
 
   handleKeyDown(event: KeyboardEvent): void {
-    if (event.key === 'Enter' && event.ctrlKey) {
+    // Enter sends message, Shift+Enter creates new line
+    if (event.key === 'Enter' && !event.shiftKey) {
       event.preventDefault();
       this.sendMessage();
     }
+    // Shift+Enter allows default behavior (new line)
   }
 
   isUserOnline(userId: string): boolean {
