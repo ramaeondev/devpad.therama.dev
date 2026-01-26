@@ -112,19 +112,45 @@ export class ChatMessageComponent implements OnInit {
    */
   onAttachmentDownload(attachment: DMessageAttachment, openInNewWindow: boolean = false): void {
     const url = this.getAttachmentUrl(attachment.id);
-    if (url) {
-      if (openInNewWindow) {
-        // Open in new window/tab
-        window.open(url, '_blank');
-      } else {
-        // Download directly
-        const link = document.createElement('a');
-        link.href = url;
-        link.download = attachment.file_name;
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
+    if (!url) return;
+
+    if (openInNewWindow) {
+      // Open in new window/tab
+      window.open(url, '_blank');
+    } else {
+      // Download file to user's machine
+      this.downloadFile(url, attachment.file_name);
+    }
+  }
+
+  /**
+   * Download file to user's machine using fetch API
+   */
+  private async downloadFile(url: string, fileName: string): Promise<void> {
+    try {
+      const response = await fetch(url);
+      if (!response.ok) {
+        throw new Error(`Failed to download file: ${response.statusText}`);
       }
+
+      const blob = await response.blob();
+      const blobUrl = window.URL.createObjectURL(blob);
+
+      const link = document.createElement('a');
+      link.href = blobUrl;
+      link.download = fileName;
+      link.style.display = 'none';
+
+      document.body.appendChild(link);
+      link.click();
+
+      // Clean up
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(blobUrl);
+    } catch (error) {
+      console.error('Error downloading file:', error);
+      // Fallback: open in new window if download fails
+      window.open(url, '_blank');
     }
   }
 

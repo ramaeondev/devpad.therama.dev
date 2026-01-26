@@ -99,14 +99,21 @@ CREATE POLICY "Users can view user statuses"
   FOR SELECT
   USING (true);
 
--- Users can update their own status
-CREATE POLICY "Users can update their own status"
+-- Users can insert their own status (for direct inserts)
+CREATE POLICY "Users can insert their own status"
   ON public.d_user_status
   FOR INSERT
   WITH CHECK (auth.uid() = user_id);
 
+-- Allow all authenticated users to insert any status (for upsert operations)
+-- This enables the setUserOnline/setUserOffline methods to work via upsert
+CREATE POLICY "Authenticated users can insert status for upsert"
+  ON public.d_user_status
+  FOR INSERT
+  WITH CHECK (true);
+
 -- Users can update their own status
-CREATE POLICY "Users can update their status"
+CREATE POLICY "Users can update their own status"
   ON public.d_user_status
   FOR UPDATE
   USING (auth.uid() = user_id);
