@@ -13,6 +13,7 @@ The `FileAttachmentInputComponent` has been successfully integrated into the ric
 **File**: `src/app/features/d-chat/components/rich-textarea/rich-textarea.component.ts`
 
 #### Added:
+
 - `showFileUploader` signal - Controls visibility of file attachment input
 - `toggleFileUploader()` method - Toggle the file uploader visibility
 
@@ -29,6 +30,7 @@ toggleFileUploader(): void {
 **File**: `src/app/features/d-chat/components/rich-textarea/rich-textarea.component.html`
 
 #### Changes:
+
 1. **Added Attachment Icon** to formatting toolbar (inside format-options)
    - Icon: Paperclip (📎)
    - Shows file count badge when files are attached
@@ -58,9 +60,7 @@ toggleFileUploader(): void {
 ```html
 @if (showFileUploader()) {
 <div class="file-attachment-section">
-  <app-file-attachment-input
-    (filesSelected)="onFilesSelected($event)">
-  </app-file-attachment-input>
+  <app-file-attachment-input (filesSelected)="onFilesSelected($event)"> </app-file-attachment-input>
 </div>
 }
 ```
@@ -70,6 +70,7 @@ toggleFileUploader(): void {
 **File**: `src/app/features/d-chat/components/rich-textarea/rich-textarea.component.scss`
 
 #### Added:
+
 - **Attachment Button Styling** (`.attachment-btn`)
   - File count badge with neon glow
   - Active state highlighting
@@ -113,11 +114,13 @@ toggleFileUploader(): void {
 ## 🎨 UI/UX Features
 
 ### Before
+
 - File attachment input was always visible
 - Took up valuable vertical space
 - Cluttered interface
 
 ### After
+
 - **Attachment icon** in toolbar (paperclip 📎)
 - **Badge with file count** visible at a glance
 - **Toggle on-demand** - Click icon to show/hide
@@ -142,17 +145,20 @@ toggleFileUploader(): void {
 ## 🧪 Test Status
 
 ### Rich Textarea Tests: ✅ **All Passing** (43/43)
+
 ```
 Test Suites: 1 passed, 1 total
 Tests:       43 passed, 43 total
 ```
 
 ### File Attachment Component Tests
+
 - Some tests fail due to jsdom limitations (DragEvent, DataTransfer not fully supported)
 - **Application functionality is NOT affected** - only test environment issue
 - Tests can be skipped or updated for jsdom environment
 
 ### Overall Test Suite
+
 ```
 Test Suites: 102 passed, 3 failed (unrelated to changes)
 Tests:       908 passed, 10 failed (unrelated to changes)
@@ -162,28 +168,31 @@ Tests:       908 passed, 10 failed (unrelated to changes)
 
 ## 📂 Modified Files
 
-| File | Changes |
-|------|---------|
-| `rich-textarea.component.ts` | Added `showFileUploader` signal and `toggleFileUploader()` method |
-| `rich-textarea.component.html` | Added attachment button and conditional file uploader |
-| `rich-textarea.component.scss` | Added attachment button styling and slide-down animation |
+| File                           | Changes                                                           |
+| ------------------------------ | ----------------------------------------------------------------- |
+| `rich-textarea.component.ts`   | Added `showFileUploader` signal and `toggleFileUploader()` method |
+| `rich-textarea.component.html` | Added attachment button and conditional file uploader             |
+| `rich-textarea.component.scss` | Added attachment button styling and slide-down animation          |
 
 ---
 
 ## 🔌 Component Integration Points
 
 ### FileAttachmentInputComponent
+
 - **Selector**: `app-file-attachment-input`
 - **Output**: `filesSelected: EventEmitter<FileMetadata[]>`
 - **Handler**: `onFilesSelected(files: FileMetadata[])`
 
 ### FileAttachmentPreviewComponent
+
 - **Selector**: `app-file-attachment-preview`
 - **Input**: `attachment: FileAttachment`
 - **Input**: `showDelete: boolean` (optional)
 - **Output**: `download`, `delete` events
 
 ### FileAttachmentService
+
 - Location: `services/file-attachment.service.ts`
 - Methods: 10 utility methods for file operations
 - Provided in: `'root'`
@@ -193,6 +202,7 @@ Tests:       908 passed, 10 failed (unrelated to changes)
 ## 🎯 Features Now Available
 
 ### In Chat Input (Rich Textarea)
+
 ✅ Format text (bold, italic, code, quotes, links, etc.)
 ✅ Toggle formatting toolbar
 ✅ **Toggle file attachment uploader** ← NEW
@@ -204,6 +214,7 @@ Tests:       908 passed, 10 failed (unrelated to changes)
 ✅ Auto-expand textarea
 
 ### File Attachment Features
+
 ✅ Drag-and-drop files
 ✅ Click to select files
 ✅ Batch file management
@@ -218,16 +229,19 @@ Tests:       908 passed, 10 failed (unrelated to changes)
 ## 🚀 Ready to Use
 
 ### Usage in Templates
+
 ```html
 <app-rich-textarea
   [placeholder]="'Type your message...'"
   (valueChange)="onMessageChange($event)"
   (fileAttachmentsSelected)="handleFileAttachments($event)"
-  (sendMessage)="sendChatMessage()">
+  (sendMessage)="sendChatMessage()"
+>
 </app-rich-textarea>
 ```
 
 ### Handler Implementation
+
 ```typescript
 handleFileAttachments(files: FileMetadata[]): void {
   // Upload files to Supabase Storage
@@ -275,19 +289,23 @@ handleFileAttachments(files: FileMetadata[]): void {
 ## 📝 Notes
 
 ### Design Decision: Toggle on Demand
+
 Rather than keeping the file uploader always visible (which clutters the interface), it's now:
+
 - **Hidden by default** - File input only appears when needed
 - **One-click to show** - Click paperclip icon to toggle
 - **File count badge** - Visual indicator when files are attached
 - **Compact toolbar** - Stays clean and organized
 
 ### File Count Badge
+
 - Shows number of attached files
 - Only visible when files are selected
 - Green neon appearance matching theme
 - Positioned on paperclip icon for visibility
 
 ### Animation
+
 - Smooth 0.3s slide-down when opening
 - Smooth 0.3s slide-up when closing
 - Provides visual feedback
@@ -298,6 +316,7 @@ Rather than keeping the file uploader always visible (which clutters the interfa
 ## 🎉 Integration Complete
 
 The file attachment system is now fully integrated into the chat input with a clean, modern toggle interface that:
+
 - ✅ Saves screen space
 - ✅ Provides on-demand access
 - ✅ Shows file count at a glance

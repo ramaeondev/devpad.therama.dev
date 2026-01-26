@@ -5,12 +5,13 @@ All notable changes to this project are documented in this file.
 ## [Unreleased] - 2025-12-07
 
 ### Changed
+
 - **Encryption Handling for Shared Notes**: Implemented proper encryption support for shared content:
   - **RPC Returns Encryption Metadata**: `get_shared_note()` now includes `is_encrypted` and `encryption_version` flags so viewers know when content is encrypted.
   - **Client-Side Decryption**: When owner views their encrypted shared note, the client automatically decrypts content (if encryption key is loaded).
   - **Non-Owner Encrypted Share Handling**: Non-owners viewing encrypted shares see a clear message: "[This note is encrypted. Sign in with your encryption key to view it.]"
   - **Owner-Only Encryption**: Encryption keys are owner-only; other viewers cannot decrypt notes without the owner's key.
-  - **Recommended Workflow**: 
+  - **Recommended Workflow**:
     - To share encrypted notes: Owner should disable encryption first, then share (recommended for all viewers)
     - Or: Share encrypted, but only viewers with the owner's key can read it
     - Or: Share decrypted copy to specific people
@@ -44,12 +45,13 @@ All notable changes to this project are documented in this file.
     - ❌ Cannot import/reshare the note
     - ❌ Cannot modify share settings
     - ❌ Cannot delete the original share
-  - **Updated UI**: 
+  - **Updated UI**:
     - "Add to My Notes" button only shows for readonly shares (where users can import)
     - Editable share viewers cannot trigger import actions
     - Signin link for editable shares no longer attempts import
 
 ### Fixed
+
 - **Remote User Content Saving on Editable Shares**: Fixed critical issue where remote users (non-authenticated or non-owner viewers) could not save edits to editable shared notes. The root cause was that `updatePublicContent()` required user authentication, but editable shares should grant edit access via the share token alone.
   - **Changed**: `updatePublicContent()` no longer requires `userId` authentication
   - **Impact**: Remote users can now edit and save changes to editable shares without being logged in
@@ -65,7 +67,7 @@ All notable changes to this project are documented in this file.
   - **Polling for All Shares**: Enabled auto-refresh polling for **all** share types (both readonly AND editable), not just readonly. Previously, editable share viewers had no polling so they never saw remote user edits.
   - **Sync to All Shares**: When any user edits a shared note, the update is immediately propagated to **all** shares of that note via `updatePublicContent()`.
 
-  - **Works Bidirectionally**: 
+  - **Works Bidirectionally**:
     - Owner edits in dashboard → synced to all public shares
     - Remote user edits in public-note view → synced to all shares of the same note
   - **Result**: Remote users viewing the same editable share link now see updates within 30 seconds of any edit
@@ -103,6 +105,7 @@ All notable changes to this project are documented in this file.
   - Uses the proper title in meta tags for better SEO and social sharing
 
 ### Changed
+
 - **Optimized Shared Note Polling**: Significantly improved performance and reduced server load for shared notes:
   - Reduced polling interval from 5 seconds to 30 seconds (6x less frequent)
   - Auto-refresh automatically stops after 5 minutes of viewing
@@ -113,6 +116,7 @@ All notable changes to this project are documented in this file.
 ## [Unreleased] - 2025-11-29
 
 ### Added
+
 - **Environment Configuration**: Migrated to .env configuration for enhanced security and environment management.
 - **External Service Integration**: Added environment config for external service integration.
 - **Contact Us Modal**: Implemented contact us functionality with a new modal and a Supabase function for email sending via Supabase Edge function and Resend.
@@ -120,24 +124,27 @@ All notable changes to this project are documented in this file.
 - **About Us Modal**: Added About Us modal to settings panel.
 - **User Email Display**: Displays user email on confirmation page after signup.
 - **Folder Icons**: Updated folder icons to use Font Awesome for better consistency and styling.
-- **CI/CD Enhancements**: 
+- **CI/CD Enhancements**:
   - Moved environment variable injection into the CI/CD workflow.
   - Added debug logging for environment variables in config generation.
   - Enabled manual triggering of CI/CD workflow.
 
 ### Changed
+
 - **Root Folder Validation**: Enhanced root folder validation logic in FolderService.
-- **OneDrive Integration**: 
+- **OneDrive Integration**:
   - Improved OneDrive service session handling and enhanced debug logging.
   - Enhanced OneDrive integration error handling and user ID validation.
   - Streamlined OneDrive service logging and session validation.
 
 ### Fixed
+
 - **Integration Operations**: Fixed 406 errors by using maybeSingle in integration ops.
 - **Device Registration**: Improved device registration error feedback.
 
 ### Refactored
-- **Configuration Management**: 
+
+- **Configuration Management**:
   - Migrated configuration from `config.ts` to Angular's `environment` files.
   - Removed Google refresh server, implemented new environment configuration, and added Google App ID.
 - **Environment Files**: Removed .env from git tracking.
@@ -145,25 +152,30 @@ All notable changes to this project are documented in this file.
 ## [Unreleased] - 2025-11-28
 
 ### Added
+
 - **Change Password**: Added change password functionality to settings panel.
 
 ## [Unreleased] - 2025-11-27
 
 ### Added
+
 - **Dashboard Layout**: Implemented responsive header, sidebar, and main content area.
 - **AuthStateService**: Integrated to manage user state directly after sign-in and simplify post-signin navigation logic.
 - **Terms and Conditions**: Added acceptance checkbox and validation to signup form.
 
 ### Changed
+
 - **CI/CD Workflow**: Triggered on pushes to the master branch.
 - **Vercel Deployment**: Replaced multi-stage CI/CD pipeline with streamlined workflow.
 
 ### Refactored
+
 - **Changelog Modal**: Updated to emit a close event and consume it in the settings panel.
 
 ## [Unreleased] - 2025-11-25
 
 ### Changed
+
 - Privacy policy and terms routes updated to top-level (`/policy`, `/terms`).
 - Navigation links updated for Google OAuth compliance.
 - Removed redundant `/legal` route.
@@ -171,50 +183,57 @@ All notable changes to this project are documented in this file.
 - Integrates Google Picker for user-driven file selection.
 
 ## [2025-11-24]
-### Changed
-- Updates changelog entries and removes homepage note.
 
+### Changed
+
+- Updates changelog entries and removes homepage note.
 
 ## [Unreleased] - 2025-11-22
 
 ### Changed
+
 - **Iconography Overhaul**: Migrated all document/file type icons from custom SVGs and local assets to Font Awesome CDN icons for consistency and performance.
   - Removed all usages of local SVG icon assets and custom icon directive (`appIcon`).
   - Updated all components and pipes to use `<i class="fa-solid ...">` with dynamic FA class names.
   - Ensured no local icon requests are made; all icons now load from the CDN.
 
-
 ### Added
+
 - **Features Section**: Added a "Key Features" section to the homepage to highlight application capabilities.
 - **Google User Data Policy**: Added a new section to the privacy policy to comply with Google's API Services User Data Policy.
+
 ### Changed
+
 - **Routing**: Updated application routing to direct root URL to the new homepage.
 - **Branding**: Replaced the default SVG with the `app-logo` component for consistent branding on the homepage.
 - **Privacy Policy Path**: The privacy policy is now accessible at `/policy`.
 - **UI**: Added a GitHub repository link with an icon in the homepage header.
 
 ### Fixed
+
 - **Google OAuth Compliance**: Addressed issues from the Google OAuth verification team by providing a homepage with a privacy policy link and updating the privacy policy content.
 
 ### Changed
+
 - **Iconography Overhaul**: Replaced all custom SVG icons with Google Material Icons for a consistent and modern UI.
   - Refactored the `IconComponent` to dynamically render Material Icons.
   - Replaced loading spinners with animated `autorenew` icon.
   - Standardized icon usage across all components, including buttons, menus, and file trees.
 
 ### Fixed
+
 - **UI Consistency**: Corrected icon alignment and visibility issues in dropdown menus and the folder tree.
 - **Kebab Menus**: Ensured kebab menu icons (`more_vert`) are consistent and properly sized across the application.
 
 ## [Unreleased] - 2025-11-17
 
 ### Added - Google Drive Integration Epic
+
 - **Google Drive OAuth Integration**: Complete OAuth 2.0 flow with Google Identity Services
   - Client-side authentication using Google's official SDK
   - Secure token storage in Supabase with access/refresh tokens
   - Automatic connection status detection and token validation
   - Integration management in user settings
-  
 - **Google Drive File Browser**: Full file/folder tree navigation in sidebar
   - Recursive folder structure display with expand/collapse functionality
   - Real-time file listing with proper MIME type detection
@@ -243,6 +262,7 @@ All notable changes to this project are documented in this file.
   - Used for both Google Drive and DevPad file properties
 
 ### Added - Document Preview Enhancements
+
 - **MS Office Document Preview**: View Office files directly in DevPad
   - Microsoft Office Online Viewer integration for Word, Excel, PowerPoint
   - Supports .doc, .docx, .xls, .xlsx, .ppt, .pptx formats
@@ -261,6 +281,7 @@ All notable changes to this project are documented in this file.
   - Rendered in iframe for proper formatting
 
 ### Changed
+
 - **File Download Behavior**: DevPad files now download directly instead of opening in new tab
   - Fetches files as blobs from Supabase storage
   - Creates proper download links with correct filenames and extensions
@@ -284,6 +305,7 @@ All notable changes to this project are documented in this file.
   - Seamless integration with existing folder navigation
 
 ### Technical Details
+
 - **Services Modified**:
   - `google-drive.service.ts`: File operations, OAuth, API integration
   - `workspace-state.service.ts`: Google Drive file selection state
@@ -302,6 +324,7 @@ All notable changes to this project are documented in this file.
   - `google-drive-preview.component.ts`: Google file preview
 
 ### Fixed
+
 - Google Drive API 401/403 authentication errors resolved with fetch API
 - Workspace file export now uses proper Google API export endpoints
 - Duplicate key violations in Supabase integrations table fixed with onConflict
@@ -311,6 +334,7 @@ All notable changes to this project are documented in this file.
 ## [Unreleased] - 2025-11-17
 
 ### Added
+
 - **Material File Icons Integration**: Implemented proper Material Design file type icons using `@ng-icons/core` and `@ng-icons/material-file-icons` packages
   - 34+ colored icons for different file types (PDF, Word, Excel, PowerPoint, images, videos, audio, archives, code files)
   - Icons automatically display based on file extension extracted from note title
@@ -319,6 +343,7 @@ All notable changes to this project are documented in this file.
 - `FILE_ICONS_REGISTRY` central registry for all Material File Icons
 
 ### Changed
+
 - **File Icon System Overhaul**:
   - `src/app/features/folders/components/folder-tree/folder-tree.component.ts`
     - Added `getFileIconName()` method to extract file extensions from note titles (not storage paths)
@@ -332,14 +357,17 @@ All notable changes to this project are documented in this file.
 - **Code Formatting**: Applied Prettier formatting to 59+ files for consistency
 
 ### Removed
+
 - `src/app/shared/icons/file-icon.directive.ts` - Removed directive-based approach as `NgIconComponent.name` is read-only
 - Emoji-based icon system replaced with proper SVG Material File Icons
 
 ### Fixed
+
 - PDF file extension extraction now correctly reads from note title instead of storage path
 - Icons properly render for all supported file types with accurate visual representation
 
 ### Technical Notes
+
 - Material File Icons imported from `@ng-icons/material-file-icons/colored` for colored variants
 - Direct icon name computation in component (not directive-based) due to Angular API constraints
 - Icons are registered globally for app-wide availability
@@ -347,6 +375,7 @@ All notable changes to this project are documented in this file.
 ## [Unreleased] - 2025-11-13
 
 ### Added
+
 - `app/shared/components/ui/dialog/confirm-modal.component.ts` - reusable confirmation modal component to replace native `confirm()` calls.
 - Drag and drop notes anywhere within folder areas: users can now drop notes on folder headers, notes lists, or any part of the folder container for improved usability.
 - Document upload feature: upload any general documents less than 5MB, excluding executable files (exe, bat, cmd, etc.). Documents are stored in Supabase storage and appear in the folder tree with download functionality.
@@ -355,6 +384,7 @@ All notable changes to this project are documented in this file.
 - Drag handle indicator: added visual drag handles (⋮⋮) to note rows for better drag-and-drop usability.
 
 ### Changed
+
 - `src/app/features/folders/components/folder-tree/folder-tree.component.ts`
   - Replaced native `prompt()`/`confirm()` flows with modal-based dialogs for note rename and delete.
   - Added modal state and handlers (note rename modal, generic confirm modal).
@@ -372,19 +402,23 @@ All notable changes to this project are documented in this file.
   - Editor now reacts to changes to `initialContent` via an input setter; preview is updated when parent sets content.
 
 ### Fixed
+
 - Resolved issue where saving a second note could overwrite the first note due to a selection/content race.
 - Addressed blank-note retrievals by using signed URL fetches for stored note content.
 
 ### Notes
+
 - Signed URL TTL is currently set to 60 seconds. Consider increasing TTL or returning signed URLs to the UI for direct use if needed.
 - Folder-delete still uses the existing delete flow; can be wired to the confirm modal on request.
 
-
 ## 2025-11-30
+
 - feat: Enhance changelog update script to avoid duplicate entries and improve commit detection (1b88ff0)
 
 ## 2025-12-01
+
 - chore: update changelog [skip ci] (1615db5)
 
 ## 2025-12-02
+
 - feat: remove deprecated encrypt and decrypt key functions (bd934f8)

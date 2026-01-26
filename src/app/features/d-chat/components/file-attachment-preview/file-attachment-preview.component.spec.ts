@@ -16,13 +16,13 @@ describe('FileAttachmentPreviewComponent', () => {
     mimeType: 'application/pdf',
     url: 'https://example.com/files/document.pdf',
     uploadedAt: new Date().toISOString(),
-    uploadedBy: 'user-1'
+    uploadedBy: 'user-1',
   };
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [FileAttachmentPreviewComponent],
-      providers: [FileAttachmentService]
+      providers: [FileAttachmentService],
     }).compileComponents();
 
     fixture = TestBed.createComponent(FileAttachmentPreviewComponent);
@@ -127,7 +127,7 @@ describe('FileAttachmentPreviewComponent', () => {
       const recentDate = new Date();
       component.attachment = {
         ...mockAttachment,
-        uploadedAt: recentDate.toISOString()
+        uploadedAt: recentDate.toISOString(),
       };
       component.ngOnInit();
 
@@ -140,7 +140,7 @@ describe('FileAttachmentPreviewComponent', () => {
       oldDate.setDate(oldDate.getDate() - 10);
       component.attachment = {
         ...mockAttachment,
-        uploadedAt: oldDate.toISOString()
+        uploadedAt: oldDate.toISOString(),
       };
       component.ngOnInit();
 
@@ -150,7 +150,7 @@ describe('FileAttachmentPreviewComponent', () => {
 
   describe('User Interactions', () => {
     it('should emit download event when download button is clicked', (done) => {
-      component.download.subscribe(attachment => {
+      component.download.subscribe((attachment) => {
         expect(attachment).toEqual(mockAttachment);
         done();
       });
@@ -159,7 +159,7 @@ describe('FileAttachmentPreviewComponent', () => {
     });
 
     it('should emit delete event when delete button is clicked', (done) => {
-      component.delete.subscribe(attachment => {
+      component.delete.subscribe((attachment) => {
         expect(attachment).toEqual(mockAttachment);
         done();
       });

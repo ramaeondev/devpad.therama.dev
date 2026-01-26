@@ -1,7 +1,13 @@
 import { Injectable, inject, signal } from '@angular/core';
 import { SupabaseService } from '../../core/services/supabase.service';
 import { AuthStateService } from '../../core/services/auth-state.service';
-import { DMessage, DConversation, DUserStatus, DChatUser, DMessageAttachment } from '../../core/models/d-chat.model';
+import {
+  DMessage,
+  DConversation,
+  DUserStatus,
+  DChatUser,
+  DMessageAttachment,
+} from '../../core/models/d-chat.model';
 import { FileMetadata } from './models/file-attachment.model';
 import { RealtimeChannel } from '@supabase/supabase-js';
 
@@ -15,7 +21,7 @@ export class DChatService {
   private readonly subscriptions = signal<Map<string, RealtimeChannel>>(new Map());
   readonly currentConversationMessages = signal<DMessage[]>([]);
   private currentConversationId: string | null = null;
-  
+
   // Pagination state
   private readonly messagePageOffset = signal<number>(0);
   private readonly messagePageSize = signal<number>(100);
@@ -81,8 +87,8 @@ export class DChatService {
   async loadConversationPartnerStatuses(userId: string): Promise<void> {
     try {
       const conversations = this.conversations();
-      const partnerIds = conversations.map(conv => 
-        conv.user1_id === userId ? conv.user2_id : conv.user1_id
+      const partnerIds = conversations.map((conv) =>
+        conv.user1_id === userId ? conv.user2_id : conv.user1_id,
       );
 
       if (partnerIds.length === 0) return;
@@ -96,13 +102,15 @@ export class DChatService {
 
       const statuses = this.userStatuses();
       const loadedCount = (data || []).length;
-      (data || []).forEach(status => {
+      (data || []).forEach((status) => {
         statuses.set(status.user_id, status as DUserStatus);
-        console.log(`✓ Loaded status for ${status.user_id}: ${status.is_online ? 'ONLINE' : 'OFFLINE'}`);
+        console.log(
+          `✓ Loaded status for ${status.user_id}: ${status.is_online ? 'ONLINE' : 'OFFLINE'}`,
+        );
       });
-      
+
       // Initialize missing partner statuses as offline
-      partnerIds.forEach(partnerId => {
+      partnerIds.forEach((partnerId) => {
         if (!statuses.has(partnerId)) {
           statuses.set(partnerId, {
             user_id: partnerId,
@@ -113,9 +121,11 @@ export class DChatService {
           console.log(`✓ Initialized ${partnerId} as OFFLINE (no status record)`);
         }
       });
-      
+
       this.userStatuses.set(new Map(statuses));
-      console.log(`✓ Loaded ${loadedCount} initial statuses for ${partnerIds.length} conversation partners`);
+      console.log(
+        `✓ Loaded ${loadedCount} initial statuses for ${partnerIds.length} conversation partners`,
+      );
     } catch (error) {
       console.error('Error loading conversation partner statuses:', error);
     }
@@ -133,7 +143,9 @@ export class DChatService {
       const { data: existing, error: selectError } = await this.supabase
         .from('d_conversations')
         .select('*')
-        .or(`and(user1_id.eq.${userId},user2_id.eq.${otherUserId}),and(user1_id.eq.${otherUserId},user2_id.eq.${userId})`);
+        .or(
+          `and(user1_id.eq.${userId},user2_id.eq.${otherUserId}),and(user1_id.eq.${otherUserId},user2_id.eq.${userId})`,
+        );
 
       if (selectError) throw selectError;
 
@@ -157,7 +169,7 @@ export class DChatService {
 
       if (createError) throw createError;
 
-      return (newConversation && newConversation.length > 0) 
+      return newConversation && newConversation.length > 0
         ? (newConversation[0] as DConversation)
         : ({
             id: '',
@@ -166,7 +178,7 @@ export class DChatService {
             last_message: null,
             last_message_at: null,
             created_at: new Date().toISOString(),
-            updated_at: new Date().toISOString()
+            updated_at: new Date().toISOString(),
           } as DConversation);
     } catch (error) {
       console.error('Error creating conversation:', error);
@@ -177,7 +189,11 @@ export class DChatService {
   /**
    * Send a message
    */
-  async sendMessage(conversationId: string, recipientId: string, content: string): Promise<DMessage> {
+  async sendMessage(
+    conversationId: string,
+    recipientId: string,
+    content: string,
+  ): Promise<DMessage> {
     const userId = this.auth.userId();
     if (!userId) throw new Error('User not authenticated');
 
@@ -203,7 +219,7 @@ export class DChatService {
         .update({ updated_at: new Date().toISOString() })
         .eq('id', conversationId);
 
-      return (data && data.length > 0) ? (data[0] as DMessage) : ({} as DMessage);
+      return data && data.length > 0 ? (data[0] as DMessage) : ({} as DMessage);
     } catch (error) {
       console.error('Error sending message:', error);
       throw error;
@@ -237,7 +253,11 @@ export class DChatService {
    * @param limit Number of messages to fetch per page (default: 100)
    * @param offset Offset for pagination (default: 0 for initial load)
    */
-  async getMessagesBetweenUsers(otherUserId: string, limit: number = 100, offset: number = 0): Promise<DMessage[]> {
+  async getMessagesBetweenUsers(
+    otherUserId: string,
+    limit: number = 100,
+    offset: number = 0,
+  ): Promise<DMessage[]> {
     const userId = this.auth.userId();
     if (!userId) throw new Error('User not authenticated');
 
@@ -247,7 +267,7 @@ export class DChatService {
         .from('d_messages')
         .select('*')
         .or(
-          `and(sender_id.eq.${userId},recipient_id.eq.${otherUserId}),and(sender_id.eq.${otherUserId},recipient_id.eq.${userId})`
+          `and(sender_id.eq.${userId},recipient_id.eq.${otherUserId}),and(sender_id.eq.${otherUserId},recipient_id.eq.${userId})`,
         )
         .order('created_at', { ascending: false })
         .range(offset, offset + limit - 1);
@@ -262,7 +282,7 @@ export class DChatService {
       }
 
       // OPTIMIZATION: Fetch all attachments for all messages in ONE query
-      const messageIds = messages.map(m => m.id);
+      const messageIds = messages.map((m) => m.id);
       const { data: attachmentsData, error: attachmentsError } = await this.supabase
         .from('d_message_attachments')
         .select('*')
@@ -271,7 +291,7 @@ export class DChatService {
       if (attachmentsError) {
         console.error('Error fetching attachments:', attachmentsError);
         // If attachments fail, still return messages without attachments
-        return messages.map(m => ({ ...m, attachments: [] }));
+        return messages.map((m) => ({ ...m, attachments: [] }));
       }
 
       // Create a map of message_id -> attachments for O(1) lookup
@@ -284,9 +304,9 @@ export class DChatService {
       });
 
       // Attach attachments to each message
-      const messagesWithAttachments = messages.map(msg => ({
+      const messagesWithAttachments = messages.map((msg) => ({
         ...msg,
-        attachments: attachmentsByMessageId.get(msg.id) || []
+        attachments: attachmentsByMessageId.get(msg.id) || [],
       }));
 
       // Reverse to get chronological order (oldest first)
@@ -305,20 +325,24 @@ export class DChatService {
    */
   async loadMoreMessages(otherUserId: string): Promise<DMessage[]> {
     const newOffset = this.messagePageOffset() + this.messagePageSize();
-    const messages = await this.getMessagesBetweenUsers(otherUserId, this.messagePageSize(), newOffset);
-    
+    const messages = await this.getMessagesBetweenUsers(
+      otherUserId,
+      this.messagePageSize(),
+      newOffset,
+    );
+
     if (messages.length < this.messagePageSize()) {
       // No more messages to load
       this.hasMoreMessages.set(false);
     }
-    
+
     // Prepend new messages to the current list
     const currentMessages = this.currentConversationMessages();
     this.currentConversationMessages.set([...messages, ...currentMessages]);
-    
+
     // Update offset
     this.messagePageOffset.set(newOffset);
-    
+
     console.log(`✓ Loaded ${messages.length} more messages. Total offset: ${newOffset}`);
     return messages;
   }
@@ -442,7 +466,7 @@ export class DChatService {
 
       if (error) throw error;
 
-      return (data && data.length > 0) ? (data[0] as DMessage) : ({} as DMessage);
+      return data && data.length > 0 ? (data[0] as DMessage) : ({} as DMessage);
     } catch (error) {
       console.error('Error updating message:', error);
       throw error;
@@ -496,16 +520,17 @@ export class DChatService {
 
       // Use upsert with onConflict to atomically insert or update
       // This avoids race conditions that can cause duplicate key errors
-      const { error } = await this.supabase
-        .from('d_user_status')
-        .upsert({
+      const { error } = await this.supabase.from('d_user_status').upsert(
+        {
           user_id: userId,
           is_online: true,
           last_seen: now,
           updated_at: now,
-        }, {
-          onConflict: 'user_id'
-        });
+        },
+        {
+          onConflict: 'user_id',
+        },
+      );
 
       if (error) throw error;
       console.log(`✓ User ${userId} marked online`);
@@ -544,7 +569,7 @@ export class DChatService {
 
       if (error) throw error;
 
-      return (data && data.length > 0) ? (data[0] as DUserStatus) : null;
+      return data && data.length > 0 ? (data[0] as DUserStatus) : null;
     } catch (error) {
       console.error('Error getting user status:', error);
       return null;
@@ -556,7 +581,7 @@ export class DChatService {
    */
   private subscribeToMessages(userId: string): void {
     console.log(`[D-Chat] Subscribing to messages for user ${userId}`);
-    
+
     const channel = this.supabase.realtimeClient
       .channel(`messages:${userId}`)
       .on(
@@ -570,11 +595,11 @@ export class DChatService {
           const message = payload.new as DMessage;
           // Trigger reload for both sent and received messages
           if (message.sender_id === userId || message.recipient_id === userId) {
-            this.loadConversations(userId).catch(err =>
-              console.error('Error reloading conversations:', err)
+            this.loadConversations(userId).catch((err) =>
+              console.error('Error reloading conversations:', err),
             );
           }
-        }
+        },
       )
       .on(
         'postgres_changes',
@@ -587,13 +612,13 @@ export class DChatService {
           const message = payload.new as DMessage;
           // Update message in current messages if it's for current conversation
           const messages = this.currentConversationMessages();
-          const index = messages.findIndex(m => m.id === message.id);
+          const index = messages.findIndex((m) => m.id === message.id);
           if (index !== -1) {
             messages[index] = message;
             this.currentConversationMessages.set([...messages]);
             console.log(`✓ Message ${message.id} marked as read`);
           }
-        }
+        },
       )
       .subscribe((status, err) => {
         console.log(`[D-Chat] Messages channel status: ${status}`, err || '');
@@ -614,7 +639,7 @@ export class DChatService {
    */
   private subscribeToUserStatus(): void {
     console.log('[D-Chat] Subscribing to user status changes');
-    
+
     const channel = this.supabase.realtimeClient
       .channel('user_status')
       .on(
@@ -629,8 +654,10 @@ export class DChatService {
           const statuses = this.userStatuses();
           statuses.set(status.user_id, status);
           this.userStatuses.set(new Map(statuses));
-          console.log(`✓ User status updated: ${status.user_id} is ${status.is_online ? 'online' : 'offline'}`);
-        }
+          console.log(
+            `✓ User status updated: ${status.user_id} is ${status.is_online ? 'online' : 'offline'}`,
+          );
+        },
       )
       .subscribe((status, err) => {
         console.log(`[D-Chat] User status channel status: ${status}`, err || '');
@@ -651,9 +678,7 @@ export class DChatService {
    */
   private setupHeartbeat(userId: string): void {
     const interval = setInterval(() => {
-      this.setUserOnline(userId).catch(err =>
-        console.error('Heartbeat error:', err)
-      );
+      this.setUserOnline(userId).catch((err) => console.error('Heartbeat error:', err));
     }, 30000); // Update every 30 seconds
 
     // Store interval for cleanup
@@ -733,15 +758,14 @@ export class DChatService {
     }
   }
 
-
   /**
    * Subscribe to messages for a specific conversation
    */
   subscribeToConversationMessages(conversationId: string): void {
     console.log(`[D-Chat] Subscribing to messages for conversation ${conversationId}`);
-    
+
     this.currentConversationId = conversationId;
-    
+
     // Unsubscribe from previous conversation if any
     const subs = this.subscriptions();
     const oldChannel = subs.get(`conversation:${this.currentConversationId}`);
@@ -768,7 +792,7 @@ export class DChatService {
             let attachments: DMessageAttachment[] = [];
             let retries = 0;
             const maxRetries = 3;
-            
+
             while (retries < maxRetries) {
               try {
                 attachments = await this.getMessageAttachments(message.id);
@@ -778,11 +802,11 @@ export class DChatService {
                 }
                 // If no attachments and not last retry, wait a bit and retry
                 if (attachments.length === 0 && retries < maxRetries - 1) {
-                  await new Promise(resolve => setTimeout(resolve, 100));
+                  await new Promise((resolve) => setTimeout(resolve, 100));
                 }
               } catch (error) {
                 if (retries < maxRetries - 1) {
-                  await new Promise(resolve => setTimeout(resolve, 100));
+                  await new Promise((resolve) => setTimeout(resolve, 100));
                 } else {
                   throw error;
                 }
@@ -795,12 +819,9 @@ export class DChatService {
             message.attachments = [];
           }
           // Add new message to current conversation
-          this.currentConversationMessages.set([
-            ...this.currentConversationMessages(),
-            message,
-          ]);
+          this.currentConversationMessages.set([...this.currentConversationMessages(), message]);
           console.log(`✓ New message received in conversation ${conversationId}`);
-        }
+        },
       )
       .on(
         'postgres_changes',
@@ -814,13 +835,13 @@ export class DChatService {
           const message = payload.new as DMessage;
           // Update message in current conversation (for read status)
           const messages = this.currentConversationMessages();
-          const index = messages.findIndex(m => m.id === message.id);
+          const index = messages.findIndex((m) => m.id === message.id);
           if (index !== -1) {
             messages[index] = message;
             this.currentConversationMessages.set([...messages]);
             console.log(`✓ Message ${message.id} updated (read status)`);
           }
-        }
+        },
       )
       .subscribe((status, err) => {
         console.log(`[D-Chat] Conversation channel status: ${status}`, err || '');
@@ -848,14 +869,16 @@ export class DChatService {
   async uploadFile(
     file: File,
     conversationId: string,
-    messageId: string
+    messageId: string,
   ): Promise<{ path: string; url: string }> {
     const userId = this.auth.userId();
     if (!userId) throw new Error('User not authenticated');
 
     try {
-      console.log(`[D-Chat] uploadFile() called for: ${file.name}, size: ${file.size} bytes, type: ${file.type}`);
-      
+      console.log(
+        `[D-Chat] uploadFile() called for: ${file.name}, size: ${file.size} bytes, type: ${file.type}`,
+      );
+
       // Create unique file path
       const fileExtension = file.name.split('.').pop() || '';
       const fileName = `${Date.now()}_${Math.random().toString(36).substring(7)}.${fileExtension}`;
@@ -899,7 +922,7 @@ export class DChatService {
   async createAttachmentRecord(
     messageId: string,
     file: File,
-    storagePath: string
+    storagePath: string,
   ): Promise<DMessageAttachment> {
     try {
       const { data, error } = await this.supabase
@@ -917,9 +940,7 @@ export class DChatService {
       if (error) throw error;
 
       console.log(`✓ Attachment record created for message ${messageId}`);
-      return (data && data.length > 0) 
-        ? (data[0] as DMessageAttachment)
-        : {} as DMessageAttachment;
+      return data && data.length > 0 ? (data[0] as DMessageAttachment) : ({} as DMessageAttachment);
     } catch (error) {
       console.error('Error creating attachment record:', error);
       throw error;
@@ -951,7 +972,7 @@ export class DChatService {
   private async uploadSingleAttachment(
     attachment: File | FileMetadata,
     conversationId: string,
-    messageId: string
+    messageId: string,
   ): Promise<DMessageAttachment | null> {
     try {
       const file = this.extractFileFromAttachment(attachment);
@@ -974,7 +995,7 @@ export class DChatService {
   private async processAttachments(
     attachments: (File | FileMetadata)[],
     conversationId: string,
-    messageId: string
+    messageId: string,
   ): Promise<DMessageAttachment[]> {
     if (attachments.length === 0) return [];
 
@@ -997,7 +1018,7 @@ export class DChatService {
     conversationId: string,
     userId: string,
     recipientId: string,
-    content: string
+    content: string,
   ): Promise<DMessage> {
     const { data, error } = await this.supabase
       .from('d_messages')
@@ -1014,7 +1035,7 @@ export class DChatService {
 
     if (error) throw error;
 
-    const message = (data && data.length > 0) ? (data[0] as DMessage) : null;
+    const message = data && data.length > 0 ? (data[0] as DMessage) : null;
     if (!message) throw new Error('Failed to create message');
 
     return message;
@@ -1038,12 +1059,15 @@ export class DChatService {
     conversationId: string,
     recipientId: string,
     content: string,
-    attachments: (File | FileMetadata)[] = []
+    attachments: (File | FileMetadata)[] = [],
   ): Promise<DMessage> {
     const userId = this.auth.userId();
     if (!userId) throw new Error('User not authenticated');
 
-    console.log(`[D-Chat] sendMessageWithAttachments called with ${attachments.length} attachments`, attachments);
+    console.log(
+      `[D-Chat] sendMessageWithAttachments called with ${attachments.length} attachments`,
+      attachments,
+    );
 
     try {
       // Create message first
@@ -1054,7 +1078,7 @@ export class DChatService {
         const uploadedAttachments = await this.processAttachments(
           attachments,
           conversationId,
-          message.id
+          message.id,
         );
         message.attachments = uploadedAttachments;
       }
@@ -1097,23 +1121,18 @@ export class DChatService {
 
     try {
       // Delete from storage using correct Supabase API
-      await this.supabase.storage
-        .from('chat-attachments')
-        .remove([storagePath]);
+      await this.supabase.storage.from('chat-attachments').remove([storagePath]);
 
       // Delete attachment record
-      await this.supabase
-        .from('d_message_attachments')
-        .delete()
-        .eq('id', attachmentId);
+      await this.supabase.from('d_message_attachments').delete().eq('id', attachmentId);
 
       // Update local message state - remove attachment from messages
       const messages = this.currentConversationMessages();
-      const updatedMessages = messages.map(msg => {
+      const updatedMessages = messages.map((msg) => {
         if (msg.attachments) {
           return {
             ...msg,
-            attachments: msg.attachments.filter(a => a.id !== attachmentId)
+            attachments: msg.attachments.filter((a) => a.id !== attachmentId),
           };
         }
         return msg;
@@ -1131,9 +1150,7 @@ export class DChatService {
    * Get public URL for attachment
    */
   getAttachmentUrl(storagePath: string): string {
-    const { data } = this.supabase.storage
-      .from('chat-attachments')
-      .getPublicUrl(storagePath);
+    const { data } = this.supabase.storage.from('chat-attachments').getPublicUrl(storagePath);
     return data?.publicUrl || '';
   }
 
@@ -1157,8 +1174,6 @@ export class DChatService {
     this.subscriptions.set(subs);
 
     // Set user offline
-    this.setUserOffline(userId).catch(err =>
-      console.error('Error setting offline:', err)
-    );
+    this.setUserOffline(userId).catch((err) => console.error('Error setting offline:', err));
   }
 }

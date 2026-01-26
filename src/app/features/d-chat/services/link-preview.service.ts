@@ -12,7 +12,7 @@ export type { LinkMetadata };
  * Handles CORS and metadata extraction without needing a backend proxy
  */
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class LinkPreviewService {
   private readonly DEFAULT_TIMEOUT = 8000; // 8 seconds for API call
@@ -43,9 +43,7 @@ export class LinkPreviewService {
     const standalonUrls = content.match(urlRegex) || [];
 
     // Filter valid URLs (those with proper protocol)
-    standalonUrls
-      .filter((url) => this.isValidUrl(url))
-      .forEach(url => urls.push(url));
+    standalonUrls.filter((url) => this.isValidUrl(url)).forEach((url) => urls.push(url));
 
     // Remove duplicates
     return urls.filter((value, index, self) => self.indexOf(value) === index);
@@ -72,7 +70,7 @@ export class LinkPreviewService {
         const basicMetadata = this.getBasicMetadata(url);
         this.metadataCache.set(url, basicMetadata);
         return of(basicMetadata);
-      })
+      }),
     );
   }
 
@@ -90,7 +88,7 @@ export class LinkPreviewService {
         if (response.status !== 'success' || !response.data) {
           throw new Error('Invalid response from API');
         }
-        
+
         // Parse and cache the metadata
         const metadata = this.parseMicrolinkResponse(response.data, url);
         this.metadataCache.set(url, metadata);
@@ -98,7 +96,7 @@ export class LinkPreviewService {
       }),
       catchError(() => {
         throw new Error('Failed to fetch metadata from API');
-      })
+      }),
     );
   }
 
@@ -116,11 +114,9 @@ export class LinkPreviewService {
       domain: this.extractDomain(url),
       type: data.type || 'website',
       author: data.author || undefined,
-      publisher: data.publisher || undefined
+      publisher: data.publisher || undefined,
     };
   }
-
-
 
   /**
    * Get basic metadata without fetching content
@@ -132,7 +128,7 @@ export class LinkPreviewService {
     return {
       url,
       domain: this.extractDomain(url),
-      favicon: this.getDefaultFavicon(url)
+      favicon: this.getDefaultFavicon(url),
     };
   }
 
@@ -185,8 +181,6 @@ export class LinkPreviewService {
       return 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16"><text x="2" y="14" font-size="12" fill="%2300ff41">🔗</text></svg>';
     }
   }
-
-
 
   /**
    * Detect if content contains URLs

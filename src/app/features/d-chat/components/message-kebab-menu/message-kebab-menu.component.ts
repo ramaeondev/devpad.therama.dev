@@ -1,9 +1,26 @@
-import { Component, Input, Output, EventEmitter, signal, HostListener, ElementRef, inject } from '@angular/core';
+import {
+  Component,
+  Input,
+  Output,
+  EventEmitter,
+  signal,
+  HostListener,
+  ElementRef,
+  inject,
+} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { DMessage } from '../../../../core/models/d-chat.model';
 import { ClickOutsideDirective } from '../../directives/click-outside.directive';
 
-export type MessageAction = 'reply' | 'forward' | 'copy' | 'edit' | 'delete' | 'pin' | 'download' | 'open';
+export type MessageAction =
+  | 'reply'
+  | 'forward'
+  | 'copy'
+  | 'edit'
+  | 'delete'
+  | 'pin'
+  | 'download'
+  | 'open';
 
 @Component({
   selector: 'app-message-kebab-menu',
@@ -128,11 +145,13 @@ export type MessageAction = 'reply' | 'forward' | 'copy' | 'edit' | 'delete' | '
       }
     </div>
   `,
-  styles: [`
-    .message-kebab-menu {
-      display: inline-block;
-    }
-  `]
+  styles: [
+    `
+      .message-kebab-menu {
+        display: inline-block;
+      }
+    `,
+  ],
 })
 export class MessageKebabMenuComponent {
   @Input() message!: DMessage;
@@ -146,7 +165,7 @@ export class MessageKebabMenuComponent {
   isMenuOpen = signal(false);
 
   toggleMenu(): void {
-    this.isMenuOpen.update(val => !val);
+    this.isMenuOpen.update((val) => !val);
   }
 
   closeMenu(): void {

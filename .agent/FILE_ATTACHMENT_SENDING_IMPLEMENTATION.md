@@ -1,14 +1,17 @@
 # File Attachment Sending Implementation - D-Chat
 
 ## Overview
+
 Successfully implemented end-to-end file attachment support for D-Chat via Supabase Storage and Database. Users can now attach files to messages, and files are securely stored and transmitted.
 
 ## Changes Made
 
 ### 1. **Database Model Updates**
+
 **File**: [src/app/core/models/d-chat.model.ts](src/app/core/models/d-chat.model.ts)
 
 Added new `DMessageAttachment` interface to support file attachments in messages:
+
 ```typescript
 export interface DMessageAttachment {
   id: string;
@@ -22,6 +25,7 @@ export interface DMessageAttachment {
 ```
 
 Updated `DMessage` interface to include optional attachments:
+
 ```typescript
 export interface DMessage {
   // ... existing fields
@@ -30,11 +34,13 @@ export interface DMessage {
 ```
 
 ### 2. **D-Chat Service Enhancement**
+
 **File**: [src/app/features/d-chat/d-chat.service.ts](src/app/features/d-chat/d-chat.service.ts)
 
 Added comprehensive file handling methods:
 
 #### File Upload Methods:
+
 - **`uploadFile(file, conversationId, messageId)`** - Uploads file to Supabase Storage
   - Creates unique file path: `d-chat/{conversationId}/{messageId}/{fileName}`
   - Stores in `chat-attachments` bucket
@@ -53,10 +59,12 @@ Added comprehensive file handling methods:
   - Handles errors gracefully (continues with remaining files on error)
 
 #### Attachment Retrieval Methods:
+
 - **`getMessageAttachments(messageId)`** - Fetches all attachments for a message
 - **`getAttachmentUrl(storagePath)`** - Gets public URL for direct access
 
 #### Cleanup Methods:
+
 - **`deleteAttachment(attachmentId, storagePath)`** - Deletes attachment
   - Removes file from storage
   - Removes database record
@@ -65,9 +73,11 @@ Added comprehensive file handling methods:
 ### 3. **Component Updates**
 
 #### D-Chat Component
+
 **File**: [src/app/features/d-chat/pages/d-chat.component.ts](src/app/features/d-chat/pages/d-chat.component.ts)
 
 Added file attachment support:
+
 - `attachments` signal - Tracks selected files
 - `sendingMessage` signal - Tracks sending state during upload
 - `sendMessage(attachmentData?)` method - Updated to handle both text and files
@@ -83,20 +93,24 @@ Added file attachment support:
 **File**: [src/app/features/d-chat/pages/d-chat.component.html](src/app/features/d-chat/pages/d-chat.component.html)
 
 Updated template to:
+
 - Bind `sendMessage` to emit file attachments
 - Bind `fileAttachmentsSelected` to receive files from rich-textarea
 - Update `[disabled]` to include `sendingMessage()` flag
 
 #### Rich-Textarea Component
+
 **File**: [src/app/features/d-chat/components/rich-textarea/rich-textarea.component.ts](src/app/features/d-chat/components/rich-textarea/rich-textarea.component.ts)
 
 Updated to emit attachments with send event:
+
 - Changed `@Output() sendMessage` type from `EventEmitter<void>` to `EventEmitter<FileMetadata[]>`
 - Updated `sendMsg()` method to emit selected files: `this.sendMessage.emit(this.selectedFiles())`
 
 ### 4. **Test Updates**
 
 #### D-Chat Component Tests
+
 **File**: [src/app/features/d-chat/pages/d-chat.component.spec.ts](src/app/features/d-chat/pages/d-chat.component.spec.ts)
 
 - Added `sendMessageWithAttachments` to service mock
@@ -104,6 +118,7 @@ Updated to emit attachments with send event:
 - Tests now verify empty check includes both text and files
 
 #### Rich-Textarea Component Tests
+
 **File**: [src/app/features/d-chat/components/rich-textarea/rich-textarea.component.spec.ts](src/app/features/d-chat/components/rich-textarea/rich-textarea.component.spec.ts)
 
 - Updated `sendMessage` emit tests to expect `FileMetadata[]` parameter
@@ -141,6 +156,7 @@ Real-time subscription delivers message to recipients
 ## Database Requirements
 
 ### New Table: `d_message_attachments`
+
 ```sql
 CREATE TABLE d_message_attachments (
   id UUID PRIMARY KEY,
@@ -156,6 +172,7 @@ CREATE INDEX idx_attachments_message_id ON d_message_attachments(message_id);
 ```
 
 ### Storage Bucket: `chat-attachments`
+
 ```
 Bucket: chat-attachments
 Path structure: d-chat/{conversationId}/{messageId}/{fileName}
@@ -165,29 +182,34 @@ Public: true (for direct download links)
 ## Features Enabled
 
 ✅ **Users can attach multiple files to messages**
+
 - Drag-and-drop file selection
 - File validation (10 MB limit)
 - Real-time file count badge
 - Batch file management
 
 ✅ **Send message with or without text**
+
 - Files only (no text) - useful for sharing documents/images
 - Text only (no files) - traditional messaging
 - Text + Files combined
 
 ✅ **Secure file storage**
+
 - Files stored in Supabase Storage (secure bucket)
 - Database tracking of file metadata
 - File path encryption via Supabase
 - Public access control via signed URLs (if needed)
 
 ✅ **File attachment metadata**
+
 - File name, size, type preserved
 - Storage path for retrieval
 - Timestamp for audit trail
 - Link to message for context
 
 ✅ **Error handling**
+
 - Individual file upload errors don't block other files
 - Graceful failure with user feedback
 - Input restoration on send failure
@@ -204,6 +226,7 @@ Public: true (for direct download links)
 ## Usage Example
 
 ### Sending a message with files:
+
 ```typescript
 // User selects files via file picker
 // Component automatically handles:
@@ -225,11 +248,12 @@ messageInput.set('Check out these documents!');
 ```
 
 ### Retrieving attachments:
+
 ```typescript
 // When message is fetched, attachments included
-message.attachments?.forEach(attachment => {
+message.attachments?.forEach((attachment) => {
   console.log(attachment.file_name, attachment.file_size);
-  
+
   // Get public URL for download
   const url = dChatService.getAttachmentUrl(attachment.storage_path);
 });
@@ -277,8 +301,8 @@ message.attachments?.forEach(attachment => {
 ## Status
 
 ✅ **IMPLEMENTATION COMPLETE**
+
 - File attachment support fully integrated
 - All core tests passing
 - Ready for chat message display integration
 - Production-ready for file uploads to Supabase
-
