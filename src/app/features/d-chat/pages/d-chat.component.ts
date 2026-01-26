@@ -148,7 +148,6 @@ export class DChatComponent implements OnInit, OnDestroy {
     }
 
     try {
-      this.loading.set(true);
       this.messageInput.set('');
 
       await this.dChatService.sendMessage(
@@ -172,8 +171,6 @@ export class DChatComponent implements OnInit, OnDestroy {
       this.toast.error('Failed to send message');
       // Restore input on error
       this.messageInput.set(content);
-    } finally {
-      this.loading.set(false);
     }
   }
 
