@@ -16,6 +16,14 @@ on:
   workflow_dispatch: 
 
 jobs:
+  # This job blocks merging while workflow is running
+  workflow-status:
+    name: Workflow Status Check
+    runs-on: ubuntu-latest
+    steps:
+      - name: Workflow running
+        run: echo "CI/CD workflow is in progress. Merging is blocked until all checks pass."
+
   unit-tests:
     runs-on: ubuntu-latest
     permissions:
@@ -177,7 +185,7 @@ jobs:
 
 
   Deploy-Production:
-    needs: [unit-tests, build, lint]
+    needs: [workflow-status, unit-tests, build, lint]
     if: github.event_name == 'push' && github.ref == 'refs/heads/master'
     runs-on: ubuntu-latest
     steps:
