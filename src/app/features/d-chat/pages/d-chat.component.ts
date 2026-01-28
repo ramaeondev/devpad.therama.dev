@@ -21,6 +21,7 @@ import { ChatMessageComponent } from '../components/chat-message/chat-message.co
 import { ConversationItemComponent } from '../components/conversation-list/conversation-list.component';
 import { UserSearchComponent } from '../components/user-search/user-search.component';
 import { RichTextareaComponent } from '../components/rich-textarea/rich-textarea.component';
+import { ReplyBlockComponent } from '../components/reply-block/reply-block.component';
 
 @Component({
   selector: 'app-d-chat',
@@ -33,6 +34,7 @@ import { RichTextareaComponent } from '../components/rich-textarea/rich-textarea
     ConversationItemComponent,
     UserSearchComponent,
     RichTextareaComponent,
+    ReplyBlockComponent,
   ],
   templateUrl: './d-chat.component.html',
   styleUrls: ['./d-chat.component.scss'],
@@ -91,6 +93,23 @@ export class DChatComponent implements OnInit, OnDestroy {
     return this.messages().some((m) => m.recipient_id === this.currentUserId() && !m.read);
   });
 
+  // Build user map for displaying names in reply blocks
+  userMap = computed(() => {
+    const map = new Map<string, DChatUser>();
+    const otherUser = this.selectedUser();
+    const currentUser = this.currentUserId();
+    
+    if (otherUser) {
+      map.set(otherUser.id, otherUser);
+    }
+    if (currentUser) {
+      // Add current user info if available
+      map.set(currentUser, { id: currentUser, email: '' });
+    }
+    
+    return map;
+  });
+
   ngOnInit(): void {
     this.loadChat();
   }
@@ -106,6 +125,25 @@ export class DChatComponent implements OnInit, OnDestroy {
         container.scrollTop = container.scrollHeight;
       }
     }, 0);
+  }
+
+  /**
+   * Scroll to a specific message in the chat
+   */
+  scrollToMessage(messageId: string): void {
+    setTimeout(() => {
+      const messageElement = document.querySelector(`[data-message-id="${messageId}"]`);
+      if (messageElement) {
+        messageElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        // Add a highlight effect
+        messageElement.classList.add('highlight-message');
+        setTimeout(() => {
+          messageElement.classList.remove('highlight-message');
+        }, 2000);
+      } else {
+        console.log(`Message ${messageId} not found in DOM`);
+      }
+    }, 100);
   }
 
   private async loadChat(): Promise<void> {
@@ -243,11 +281,15 @@ export class DChatComponent implements OnInit, OnDestroy {
         read: false,
         status: 'sending', // Custom status for UI
         attachments: [], // Will be added after real send
+        reply_to_id: this.replyingTo()?.id || null, // Include reply reference
+        replied_message: this.replyingTo() || undefined, // Include the replied message for UI
       };
 
       // Add optimistic message to UI immediately
       const currentMessages = this.messages();
+      console.log(`[Component] Adding optimistic message ${optimisticMessage.id}. Current count: ${currentMessages.length}`);
       this.dChatService.currentConversationMessages.set([...currentMessages, optimisticMessage]);
+      console.log(`[Component] After optimistic, message count: ${this.messages().length}`);
 
       // Clear input immediately for better UX
       this.messageInput.set('');
@@ -264,16 +306,45 @@ export class DChatComponent implements OnInit, OnDestroy {
         recipientId,
         content,
         files,
+        this.replyingTo()?.id || null, // Pass reply_to_id to service
       );
 
-      // Replace optimistic message with real one
-      const updatedMessages = this.messages().map((m) =>
-        m.id === optimisticMessage.id ? sentMessage : m,
-      );
-      this.dChatService.currentConversationMessages.set(updatedMessages);
+      // Clear reply after sending
+      this.clearReply();
+
+      // Register this message ID IMMEDIATELY to prevent subscription from adding it again
+      console.log(`[Component] Registering sent message ID: ${sentMessage.id}`);
+      this.dChatService.registerSentMessageId(sentMessage.id);
+
+      // Replace optimistic message with real one using a more robust approach
+      // Preserve the replied_message that was in the optimistic message if the real one doesn't have it
+      if (!sentMessage.replied_message && this.replyingTo()) {
+        sentMessage.replied_message = this.replyingTo() || undefined;
+      }
+
+      console.log(`[Component] Replacing optimistic ${optimisticMessage.id} with real ${sentMessage.id}. Before: ${this.messages().length} messages`);
+      
+      // Use a more robust replacement: find the optimistic message and replace it in place
+      // This prevents losing messages due to race conditions
+      const allMessages = [...this.messages()]; // Create a copy
+      const optimisticIndex = allMessages.findIndex((m) => m.id === optimisticMessage.id);
+      
+      if (optimisticIndex !== -1) {
+        // Found the optimistic message, replace it with the real one
+        allMessages[optimisticIndex] = sentMessage;
+        console.log(`[Component] Found optimistic message at index ${optimisticIndex}, replacing with real message`);
+      } else {
+        // Optimistic message not found (might have been removed by subscription already)
+        // Just add the real message at the end
+        allMessages.push(sentMessage);
+        console.log(`[Component] Optimistic message not found, appending real message to end`);
+      }
+      
+      console.log(`[Component] After replacement: ${allMessages.length} messages, replied_message included: ${!!sentMessage.replied_message}`);
+      this.dChatService.currentConversationMessages.set(allMessages);
 
       // Note: The real-time subscription will also receive the INSERT event
-      // but our map above ensures we don't duplicate since we already replaced it
+      // but our check ensures we don't duplicate since we already have the real message
 
       // Return focus to input for continuous typing (use setTimeout to ensure DOM is ready)
       setTimeout(() => {
@@ -408,10 +479,14 @@ export class DChatComponent implements OnInit, OnDestroy {
       if (this.richTextarea) {
         this.richTextarea.focus();
       }
-    }, 0);
-    this.toast.success(
-      `Replying to ${message.sender_id === this.currentUserId() ? 'your' : 'their'} message`,
-    );
+    }, 100);
+  }
+
+  /**
+   * Clear reply state
+   */
+  clearReply(): void {
+    this.replyingTo.set(null);
   }
 
   /**

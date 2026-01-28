@@ -21,6 +21,9 @@ export class DChatService {
   private readonly subscriptions = signal<Map<string, RealtimeChannel>>(new Map());
   readonly currentConversationMessages = signal<DMessage[]>([]);
   private currentConversationId: string | null = null;
+  
+  // Track message IDs we just sent to avoid subscription duplication
+  private recentlySentMessageIds = new Set<string>();
 
   // Pagination state
   private readonly messagePageOffset = signal<number>(0);
@@ -32,6 +35,14 @@ export class DChatService {
   userStatuses$ = this.userStatuses.asReadonly();
   messages$ = this.currentConversationMessages.asReadonly();
   hasMoreMessages$ = this.hasMoreMessages.asReadonly();
+
+  /**
+   * Register a message ID that was just sent to prevent subscription duplication
+   */
+  registerSentMessageId(messageId: string): void {
+    this.recentlySentMessageIds.add(messageId);
+    console.log(`[Service] Registered sent message ID: ${messageId}`);
+  }
 
   /**
    * Initialize chat service - load conversations and set up subscriptions
@@ -50,9 +61,6 @@ export class DChatService {
 
     // Load initial user statuses for conversation partners
     await this.loadConversationPartnerStatuses(userId);
-
-    // Subscribe to new messages
-    this.subscribeToMessages(userId);
 
     // Subscribe to user status changes
     this.subscribeToUserStatus();
@@ -262,15 +270,37 @@ export class DChatService {
     if (!userId) throw new Error('User not authenticated');
 
     try {
-      // Fetch messages with pagination
+      // Get total message count
+      const { count: totalCount, error: countError } = await this.supabase
+        .from('d_messages')
+        .select('*', { count: 'exact' })
+        .or(
+          `and(sender_id.eq.${userId},recipient_id.eq.${otherUserId}),and(sender_id.eq.${otherUserId},recipient_id.eq.${userId})`,
+        );
+
+      if (countError) throw countError;
+
+      const total = totalCount || 0;
+      
+      // Calculate the range from the end (to get oldest messages first on initial load)
+      // If offset=0, we want the first 100 messages (oldest)
+      // If offset=100, we want messages 100-199 (next batch of older messages)
+      const startIndex = Math.max(0, total - offset - limit);
+      const endIndex = Math.max(0, total - offset - 1);
+
+      console.log(
+        `[Service] Fetching messages: total=${total}, offset=${offset}, limit=${limit}, startIndex=${startIndex}, endIndex=${endIndex}`,
+      );
+
+      // Fetch messages with pagination (oldest messages on initial load)
       const { data, error } = await this.supabase
         .from('d_messages')
         .select('*')
         .or(
           `and(sender_id.eq.${userId},recipient_id.eq.${otherUserId}),and(sender_id.eq.${otherUserId},recipient_id.eq.${userId})`,
         )
-        .order('created_at', { ascending: false })
-        .range(offset, offset + limit - 1);
+        .order('created_at', { ascending: true })
+        .range(startIndex, endIndex);
 
       if (error) throw error;
 
@@ -294,6 +324,46 @@ export class DChatService {
         return messages.map((m) => ({ ...m, attachments: [] }));
       }
 
+      // Fetch all replied messages (for the reply_to references)
+      const replyToIds = messages
+        .filter((m) => m.reply_to_id)
+        .map((m) => m.reply_to_id as string);
+
+      let repliedMessages: DMessage[] = [];
+      let repliedMessageAttachments: DMessageAttachment[] = [];
+      if (replyToIds.length > 0) {
+        console.log(`[Service] Fetching ${replyToIds.length} replied messages`);
+        const { data: repliedData, error: repliedError } = await this.supabase
+          .from('d_messages')
+          .select('*')
+          .in('id', replyToIds);
+
+        if (repliedError) {
+          console.error('Error fetching replied messages:', repliedError);
+        } else {
+          repliedMessages = (repliedData || []) as DMessage[];
+          console.log(`[Service] Loaded ${repliedMessages.length} replied messages`);
+          
+          // Also fetch attachments for replied messages
+          const { data: repliedAttachData, error: repliedAttachError } = await this.supabase
+            .from('d_message_attachments')
+            .select('*')
+            .in('message_id', replyToIds);
+
+          if (!repliedAttachError) {
+            repliedMessageAttachments = (repliedAttachData || []) as DMessageAttachment[];
+            console.log(`[Service] Loaded ${repliedMessageAttachments.length} attachments for replied messages`);
+          }
+        }
+      }
+
+      // Create a map of id -> replied message for O(1) lookup
+      const repliedMessagesMap = new Map<string, DMessage>();
+      repliedMessages.forEach((m) => {
+        repliedMessagesMap.set(m.id, m);
+        console.log(`[Service] Mapped replied message: ${m.id}`);
+      });
+
       // Create a map of message_id -> attachments for O(1) lookup
       const attachmentsByMessageId = new Map<string, DMessageAttachment[]>();
       (attachmentsData || []).forEach((att: any) => {
@@ -302,16 +372,34 @@ export class DChatService {
         }
         attachmentsByMessageId.get(att.message_id)!.push(att);
       });
+      
+      // Also add replied message attachments
+      repliedMessageAttachments.forEach((att: any) => {
+        if (!attachmentsByMessageId.has(att.message_id)) {
+          attachmentsByMessageId.set(att.message_id, []);
+        }
+        attachmentsByMessageId.get(att.message_id)!.push(att);
+      });
 
-      // Attach attachments to each message
-      const messagesWithAttachments = messages.map((msg) => ({
-        ...msg,
-        attachments: attachmentsByMessageId.get(msg.id) || [],
-      }));
+      // Attach attachments to each message and replied messages
+      const messagesWithAttachments = messages.map((msg) => {
+        const repliedMessage = msg.reply_to_id ? repliedMessagesMap.get(msg.reply_to_id) : undefined;
+        if (msg.reply_to_id && repliedMessage) {
+          console.log(`[Service] Message ${msg.id} has replied_message: ${repliedMessage.id}`);
+        }
+        // Also attach attachments to the replied message
+        if (repliedMessage) {
+          repliedMessage.attachments = attachmentsByMessageId.get(repliedMessage.id) || [];
+        }
+        return {
+          ...msg,
+          attachments: attachmentsByMessageId.get(msg.id) || [],
+          replied_message: repliedMessage,
+        };
+      });
 
-      // Reverse to get chronological order (oldest first)
-      messagesWithAttachments.reverse();
-
+      // Messages are already in chronological order (oldest first) from the query
+      // No need to reverse
       return messagesWithAttachments;
     } catch (error) {
       console.error('Error fetching messages:', error);
@@ -579,61 +667,6 @@ export class DChatService {
   /**
    * Subscribe to real-time messages
    */
-  private subscribeToMessages(userId: string): void {
-    console.log(`[D-Chat] Subscribing to messages for user ${userId}`);
-
-    const channel = this.supabase.realtimeClient
-      .channel(`messages:${userId}`)
-      .on(
-        'postgres_changes',
-        {
-          event: 'INSERT',
-          schema: 'public',
-          table: 'd_messages',
-        },
-        (payload) => {
-          const message = payload.new as DMessage;
-          // Trigger reload for both sent and received messages
-          if (message.sender_id === userId || message.recipient_id === userId) {
-            this.loadConversations(userId).catch((err) =>
-              console.error('Error reloading conversations:', err),
-            );
-          }
-        },
-      )
-      .on(
-        'postgres_changes',
-        {
-          event: 'UPDATE',
-          schema: 'public',
-          table: 'd_messages',
-        },
-        (payload) => {
-          const message = payload.new as DMessage;
-          // Update message in current messages if it's for current conversation
-          const messages = this.currentConversationMessages();
-          const index = messages.findIndex((m) => m.id === message.id);
-          if (index !== -1) {
-            messages[index] = message;
-            this.currentConversationMessages.set([...messages]);
-            console.log(`✓ Message ${message.id} marked as read`);
-          }
-        },
-      )
-      .subscribe((status, err) => {
-        console.log(`[D-Chat] Messages channel status: ${status}`, err || '');
-        if (status === 'SUBSCRIBED') {
-          console.log(`✓ Subscribed to messages for user ${userId}`);
-        } else if (status === 'CHANNEL_ERROR') {
-          console.error(`✗ Subscription error for messages channel:`, err);
-        }
-      });
-
-    const subs = this.subscriptions();
-    subs.set(`messages:${userId}`, channel);
-    this.subscriptions.set(subs);
-  }
-
   /**
    * Subscribe to user status changes
    */
@@ -764,15 +797,19 @@ export class DChatService {
   subscribeToConversationMessages(conversationId: string): void {
     console.log(`[D-Chat] Subscribing to messages for conversation ${conversationId}`);
 
-    this.currentConversationId = conversationId;
-
-    // Unsubscribe from previous conversation if any
+    // Unsubscribe from previous conversation if any (BEFORE updating currentConversationId)
     const subs = this.subscriptions();
-    const oldChannel = subs.get(`conversation:${this.currentConversationId}`);
-    if (oldChannel) {
-      (oldChannel as any).unsubscribe?.();
-      subs.delete(`conversation:${this.currentConversationId}`);
+    if (this.currentConversationId) {
+      const oldChannel = subs.get(`conversation:${this.currentConversationId}`);
+      if (oldChannel) {
+        console.log(`[D-Chat] Unsubscribing from previous conversation ${this.currentConversationId}`);
+        (oldChannel as any).unsubscribe?.();
+        subs.delete(`conversation:${this.currentConversationId}`);
+      }
     }
+
+    // NOW update to new conversation
+    this.currentConversationId = conversationId;
 
     const channel = this.supabase.realtimeClient
       .channel(`conversation:${conversationId}`)
@@ -786,6 +823,21 @@ export class DChatService {
         },
         async (payload) => {
           const message = payload.new as DMessage;
+          
+          // Check if this message was just sent by us (to avoid duplication)
+          if (this.recentlySentMessageIds.has(message.id)) {
+            console.log(`ℹ Message ${message.id} was just sent by us, skipping INSERT`);
+            this.recentlySentMessageIds.delete(message.id); // Clean up
+            return;
+          }
+          
+          // MOST IMPORTANT: Check if message already exists in the array
+          const messages = this.currentConversationMessages();
+          if (messages.some((m) => m.id === message.id)) {
+            console.log(`ℹ Message ${message.id} already in array, skipping to prevent duplicate`);
+            return;
+          }
+          
           // Load attachments for the new message with retry logic
           // to handle race condition where attachments haven't been created yet
           try {
@@ -814,13 +866,48 @@ export class DChatService {
               retries++;
             }
             message.attachments = attachments;
+
+            // Load replied message if this message is a reply
+            if (message.reply_to_id) {
+              try {
+                const { data, error } = await this.supabase
+                  .from('d_messages')
+                  .select('*')
+                  .eq('id', message.reply_to_id)
+                  .single();
+
+                if (!error && data) {
+                  const repliedMsg = data as DMessage;
+                  
+                  // Also load attachments for the replied message
+                  try {
+                    const repliedAttachments = await this.getMessageAttachments(repliedMsg.id);
+                    repliedMsg.attachments = repliedAttachments;
+                  } catch (attachErr) {
+                    console.error('Error loading replied message attachments:', attachErr);
+                    repliedMsg.attachments = [];
+                  }
+                  
+                  message.replied_message = repliedMsg;
+                  console.log(`[Service] Loaded replied message for message ${message.id}`);
+                }
+              } catch (error) {
+                console.error('Error loading replied message:', error);
+              }
+            }
           } catch (error) {
             console.error('Error loading attachments for new message:', error);
             message.attachments = [];
           }
-          // Add new message to current conversation
-          this.currentConversationMessages.set([...this.currentConversationMessages(), message]);
-          console.log(`✓ New message received in conversation ${conversationId}`);
+          
+          // Double-check one more time before adding (in case of race condition)
+          const finalMessages = this.currentConversationMessages();
+          if (!finalMessages.some((m) => m.id === message.id)) {
+            this.currentConversationMessages.set([...finalMessages, message]);
+            console.log(`✓ New message received in conversation ${conversationId}`);
+          } else {
+            console.log(`ℹ Message ${message.id} appeared while loading attachments, skipping`);
+          }
         },
       )
       .on(
@@ -853,7 +940,7 @@ export class DChatService {
       });
 
     subs.set(`conversation:${conversationId}`, channel);
-    this.subscriptions.set(subs);
+    this.subscriptions.set(new Map(subs)); // Create new Map to trigger signal update
   }
 
   /**
@@ -1019,6 +1106,7 @@ export class DChatService {
     userId: string,
     recipientId: string,
     content: string,
+    replyToId: string | null = null,
   ): Promise<DMessage> {
     const { data, error } = await this.supabase
       .from('d_messages')
@@ -1030,6 +1118,7 @@ export class DChatService {
         created_at: new Date().toISOString(),
         updated_at: new Date().toISOString(),
         read: false,
+        reply_to_id: replyToId,
       })
       .select();
 
@@ -1037,6 +1126,24 @@ export class DChatService {
 
     const message = data && data.length > 0 ? (data[0] as DMessage) : null;
     if (!message) throw new Error('Failed to create message');
+
+    // Load the replied message if this is a reply
+    if (message.reply_to_id) {
+      try {
+        const { data: repliedData, error: repliedError } = await this.supabase
+          .from('d_messages')
+          .select('*')
+          .eq('id', message.reply_to_id)
+          .single();
+
+        if (!repliedError && repliedData) {
+          message.replied_message = repliedData as DMessage;
+          console.log(`[Service] Loaded replied message for message ${message.id}`);
+        }
+      } catch (error) {
+        console.error('Error loading replied message:', error);
+      }
+    }
 
     return message;
   }
@@ -1060,6 +1167,7 @@ export class DChatService {
     recipientId: string,
     content: string,
     attachments: (File | FileMetadata)[] = [],
+    replyToId: string | null = null,
   ): Promise<DMessage> {
     const userId = this.auth.userId();
     if (!userId) throw new Error('User not authenticated');
@@ -1070,8 +1178,8 @@ export class DChatService {
     );
 
     try {
-      // Create message first
-      const message = await this.createMessage(conversationId, userId, recipientId, content);
+      // Create message first (with reply_to_id if provided)
+      const message = await this.createMessage(conversationId, userId, recipientId, content, replyToId);
 
       // Process attachments if any
       if (attachments.length > 0) {

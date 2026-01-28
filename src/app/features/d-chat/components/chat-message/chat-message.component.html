@@ -25,6 +25,9 @@
     [class.border-l-2]="!isOwn"
     [class.border-retro-green]="!isOwn"
   >
+    <!-- Reply Block (WhatsApp style quote) -->
+    <app-message-reply [message]="message" [userMap]="userMap" (scrollToMessage)="scrollToMessage.emit($event)"></app-message-reply>
+
     <!-- Formatted Content -->
     @if (messageType() !== 'text') {
       <div class="message-content formatted-text" [innerHTML]="formattedContent()"></div>
@@ -193,3 +196,23 @@
     </div>
   </div>
 </div>
+<!-- Delete Confirmation Modal -->
+@if (showDeleteConfirmModal()) {
+  <app-confirm-modal
+    title="Delete Message"
+    message="Are you sure you want to delete this message? This action cannot be undone."
+    confirmLabel="Delete"
+    cancelLabel="Cancel"
+    (confirm)="onDeleteConfirm()"
+    (cancel)="onDeleteCancel()"
+  ></app-confirm-modal>
+}
+
+<!-- Forward Message Modal -->
+@if (showForwardModal()) {
+  <app-forward-message-modal
+    [message]="message"
+    (userSelected)="onForwardToUser($event)"
+    (closeModal)="onForwardModalClose()"
+  ></app-forward-message-modal>
+}

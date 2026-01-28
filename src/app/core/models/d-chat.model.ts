@@ -24,6 +24,8 @@ export interface DMessage {
   attachments?: DMessageAttachment[];
   conversation_id?: string;
   status?: 'sending' | 'sent' | 'error'; // For optimistic updates
+  reply_to_id?: string | null; // ID of the message being replied to
+  replied_message?: DMessage; // The actual message being replied to (loaded from DB)
 }
 
 export interface DConversation {

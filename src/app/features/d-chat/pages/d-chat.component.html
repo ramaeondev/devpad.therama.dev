@@ -160,9 +160,11 @@
           <!-- Messages List -->
           @for (message of messages(); track message.id) {
             <app-chat-message
+              [attr.data-message-id]="message.id"
               [message]="message"
               [isOwn]="message.sender_id === currentUserId()"
               [otherUserOnline]="isUserOnline(otherUserId() || '')"
+              [userMap]="userMap()"
               (deleteAttachment)="deleteAttachment($event, message.id)"
               (replyToMessage)="handleReplyToMessage($event)"
               (forwardMessage)="handleForwardMessage($event)"
@@ -170,12 +172,21 @@
               (deleteMessage)="handleDeleteMessage($event)"
               (pinMessage)="handlePinMessage($event)"
               (messageAction)="handleMessageAction($event)"
+              (scrollToMessage)="scrollToMessage($event)"
             ></app-chat-message>
           }
         </div>
 
         <!-- Message Input Area -->
-        <div class="input-area p-4 bg-black">
+        <div class="input-area p-4 bg-black space-y-3">
+          <!-- Reply Block -->
+          @if (replyingTo()) {
+            <app-reply-block
+              [parentMessage]="replyingTo()"
+              (clearReply)="clearReply()"
+            ></app-reply-block>
+          }
+
           <app-rich-textarea
             #richTextarea
             [value]="messageInput()"

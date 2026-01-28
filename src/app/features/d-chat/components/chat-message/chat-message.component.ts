@@ -1,11 +1,15 @@
 import { Component, Input, Output, EventEmitter, signal, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
-import { DMessage, DMessageAttachment } from '../../../../core/models/d-chat.model';
+import { DMessage, DMessageAttachment, DChatUser } from '../../../../core/models/d-chat.model';
 import { MarkdownFormatter, detectMessageType } from '../../utils/markdown-formatter';
 import { LinkPreviewComponent } from '../link-preview/link-preview.component';
 import { LinkPreviewService } from '../../services/link-preview.service';
 import { DChatService } from '../../d-chat.service';
+import { ToastService } from '../../../../core/services/toast.service';
+import { ConfirmModalComponent } from '../../../../shared/components/ui/dialog/confirm-modal.component';
+import { ForwardMessageModalComponent } from '../forward-message-modal/forward-message-modal.component';
+import { MessageReplyComponent } from '../message-reply/message-reply.component';
 import {
   MessageKebabMenuComponent,
   MessageAction,
@@ -14,25 +18,28 @@ import {
 @Component({
   selector: 'app-chat-message',
   standalone: true,
-  imports: [CommonModule, LinkPreviewComponent, MessageKebabMenuComponent],
+  imports: [CommonModule, LinkPreviewComponent, MessageKebabMenuComponent, ConfirmModalComponent, ForwardMessageModalComponent, MessageReplyComponent],
   templateUrl: './chat-message.component.html',
   styleUrls: ['./chat-message.component.scss'],
 })
 export class ChatMessageComponent implements OnInit {
   @Input() message!: DMessage;
-  @Input() isOwn: boolean = false;
-  @Input() otherUserOnline: boolean = false;
-  @Output() deleteAttachment = new EventEmitter<string>();
-  @Output() replyToMessage = new EventEmitter<DMessage>();
-  @Output() forwardMessage = new EventEmitter<DMessage>();
-  @Output() editMessage = new EventEmitter<DMessage>();
-  @Output() deleteMessage = new EventEmitter<DMessage>();
-  @Output() pinMessage = new EventEmitter<DMessage>();
-  @Output() messageAction = new EventEmitter<{ action: MessageAction; message: DMessage }>();
+  @Input() isOwn = false;
+  @Input() otherUserOnline = false;
+  @Input() userMap!: Map<string, DChatUser>;
+  @Output() readonly deleteAttachment = new EventEmitter<string>();
+  @Output() readonly replyToMessage = new EventEmitter<DMessage>();
+  @Output() readonly forwardMessage = new EventEmitter<DMessage>();
+  @Output() readonly editMessage = new EventEmitter<DMessage>();
+  @Output() readonly deleteMessage = new EventEmitter<DMessage>();
+  @Output() readonly pinMessage = new EventEmitter<DMessage>();
+  @Output() readonly scrollToMessage = new EventEmitter<string>();
+  @Output() readonly messageAction = new EventEmitter<{ action: MessageAction; message: DMessage }>();
 
   private readonly sanitizer = inject(DomSanitizer);
   private readonly linkPreviewService = inject(LinkPreviewService);
   private readonly dChatService = inject(DChatService);
+  private readonly toast = inject(ToastService);
 
   messageType = signal<'text' | 'formatted' | 'code' | 'quote' | 'mixed'>('text');
   formattedContent = signal<SafeHtml>('');
@@ -42,6 +49,8 @@ export class ChatMessageComponent implements OnInit {
   documentAttachments = signal<DMessageAttachment[]>([]);
   isMessageReplied = signal<boolean>(false);
   isPinned = signal<boolean>(false);
+  showDeleteConfirmModal = signal<boolean>(false);
+  showForwardModal = signal<boolean>(false);
 
   ngOnInit(): void {
     if (this.message?.content) {
@@ -248,7 +257,7 @@ export class ChatMessageComponent implements OnInit {
         this.replyToMessage.emit(this.message);
         break;
       case 'forward':
-        this.forwardMessage.emit(this.message);
+        this.showForwardModal.set(true);
         break;
       case 'copy':
         this.copyMessageContent();
@@ -278,21 +287,52 @@ export class ChatMessageComponent implements OnInit {
   private copyMessageContent(): void {
     navigator.clipboard.writeText(this.message.content).then(
       () => {
-        console.log('Message copied to clipboard');
+        this.toast.success('Message copied to clipboard');
       },
       (error) => {
         console.error('Failed to copy:', error);
+        this.toast.error('Failed to copy message');
       },
     );
   }
 
   /**
-   * Delete message with confirmation
+   * Delete message with confirmation modal
    */
   private deleteMessageConfirm(): void {
-    if (confirm('Are you sure you want to delete this message?')) {
-      this.deleteMessage.emit(this.message);
-    }
+    this.showDeleteConfirmModal.set(true);
+  }
+
+  /**
+   * Handle delete confirmation
+   */
+  onDeleteConfirm(): void {
+    this.showDeleteConfirmModal.set(false);
+    this.deleteMessage.emit(this.message);
+    this.toast.success('Message deleted successfully');
+  }
+
+  /**
+   * Handle delete cancellation
+   */
+  onDeleteCancel(): void {
+    this.showDeleteConfirmModal.set(false);
+  }
+
+  /**
+   * Handle forward modal close
+   */
+  onForwardModalClose(): void {
+    this.showForwardModal.set(false);
+  }
+
+  /**
+   * Handle forward message to selected user
+   */
+  onForwardToUser(_user: any): void {
+    // Emit the message with recipient info
+    this.forwardMessage.emit(this.message);
+    this.showForwardModal.set(false);
   }
 
   /**
@@ -300,6 +340,7 @@ export class ChatMessageComponent implements OnInit {
    */
   private downloadAllAttachments(): void {
     if (!this.message.attachments || this.message.attachments.length === 0) {
+      this.toast.info('No attachments to download');
       return;
     }
 
@@ -307,6 +348,9 @@ export class ChatMessageComponent implements OnInit {
     this.message.attachments.forEach((attachment) => {
       this.onAttachmentDownload(attachment, false);
     });
+
+    const count = this.message.attachments.length;
+    this.toast.success(`Downloading ${count} attachment${count > 1 ? 's' : ''}`);
   }
 
   /**
@@ -314,10 +358,12 @@ export class ChatMessageComponent implements OnInit {
    */
   private openFirstAttachment(): void {
     if (!this.message.attachments || this.message.attachments.length === 0) {
+      this.toast.info('No attachments to open');
       return;
     }
 
     // Open the first attachment
     this.onAttachmentDownload(this.message.attachments[0], true);
+    this.toast.success('Opening attachment');
   }
 }

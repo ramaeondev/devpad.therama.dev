@@ -44,7 +44,20 @@ export type MessageAction =
       <!-- Dropdown Menu -->
       @if (isMenuOpen()) {
         <div
-          class="absolute right-0 mt-1 w-48 bg-gray-900 border border-retro-green rounded shadow-lg z-[9999] animate-fade-in"
+          [ngClass]="{
+            'absolute': true,
+            'left-0': !isOwn,
+            'right-0': isOwn,
+            'mt-1': true,
+            'w-48': true,
+            'bg-gray-900': true,
+            'border': true,
+            'border-retro-green': true,
+            'rounded': true,
+            'shadow-lg': true,
+            'z-50': true,
+            'animate-fade-in': true
+          }"
         >
           <div class="py-1">
             <!-- Reply Option -->

@@ -45,6 +45,7 @@ describe('DChatComponent', () => {
       resetPaginationState: jest.fn(),
       loadMoreMessages: jest.fn().mockResolvedValue([]),
       cleanup: jest.fn(),
+      registerSentMessageId: jest.fn(),
     };
 
     const authServiceMock = {
@@ -110,6 +111,7 @@ describe('DChatComponent', () => {
         'user-2',
         'Hello',
         [],
+        null,
       );
       expect(component.messageInput()).toBe('');
       expect(component.attachments()).toEqual([]);
