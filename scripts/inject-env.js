@@ -18,10 +18,10 @@ const envVariables = {
   MICROSOFT_CLIENT_ID: process.env.MICROSOFT_CLIENT_ID || '',
   MICROSOFT_REDIRECT_URI: process.env.MICROSOFT_REDIRECT_URI || '',
   GOOGLE_APPID: process.env.GOOGLE_APPID || '',
-  APPWRITE_ENDPOINT: process.env.APPWRITE_ENDPOINT || '',
-  APPWRITE_PROJECT_ID: process.env.APPWRITE_PROJECT_ID || '',
-  APPWRITE_DB_READ_ONLY_API_KEY: process.env.APPWRITE_DB_READ_ONLY_API_KEY || '',
-  APPWRITE_DATABASE_ID: process.env.APPWRITE_DATABASE_ID || '',
+  // Public read-only reference data (changelog, social links) on the therama.dev Supabase backend.
+  // The publishable key is public by design; defaults mean no Vercel env vars are required.
+  STATIC_API_URL: process.env.STATIC_API_URL || 'https://api-v3.therama.dev',
+  STATIC_API_PUBLISHABLE_KEY: process.env.STATIC_API_PUBLISHABLE_KEY || 'sb_publishable_TvfycUXoZ1whU1e-L8qhH-_PwN2YmxB',
   HONEYBADGER_API_KEY: process.env.HONEYBADGER_API_KEY || ''
 }
 
@@ -55,11 +55,9 @@ const generateConfigFile = (filePath) => {
     clientId: '${envVariables.MICROSOFT_CLIENT_ID}',
     redirectUri: ${microsoftRedirect},
   },
-  appwrite: {
-    endpoint: '${envVariables.APPWRITE_ENDPOINT}',
-    projectId: '${envVariables.APPWRITE_PROJECT_ID}',
-    apiKey: '${envVariables.APPWRITE_DB_READ_ONLY_API_KEY}',
-    databaseId: '${envVariables.APPWRITE_DATABASE_ID}',
+  staticApi: {
+    url: '${envVariables.STATIC_API_URL}',
+    publishableKey: '${envVariables.STATIC_API_PUBLISHABLE_KEY}',
   },
   HONEYBADGER_API_KEY: '${envVariables.HONEYBADGER_API_KEY}',
 };

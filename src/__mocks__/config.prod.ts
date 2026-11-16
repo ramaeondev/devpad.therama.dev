@@ -12,10 +12,8 @@ export const config = {
     clientId: 'test-microsoft-client-id',
     redirectUri: 'http://localhost:4200',
   },
-  appwrite: {
-    endpoint: 'https://test.appwrite.io/v1',
-    projectId: 'test-project-id',
-    apiKey: 'test-api-key',
-    databaseId: 'test-database',
+  staticApi: {
+    url: 'https://test.static-api.local',
+    publishableKey: 'sb_publishable_test',
   },
 };

@@ -3,8 +3,8 @@ import { AboutMeModalComponent } from './about-me-modal.component';
 
 describe('AboutMeModalComponent', () => {
   it('renders About Us header and emits close', async () => {
-    class MockAppwrite { async getSocialLinks() { return []; } }
-    await TestBed.configureTestingModule({ imports: [AboutMeModalComponent], providers: [ { provide: (await import('../../../../core/services/appwrite.service')).AppwriteService, useClass: MockAppwrite } ] }).compileComponents();
+    class MockStaticData { async getSocialLinks() { return []; } }
+    await TestBed.configureTestingModule({ imports: [AboutMeModalComponent], providers: [ { provide: (await import('../../../../core/services/static-data.service')).StaticDataService, useClass: MockStaticData } ] }).compileComponents();
     const fixture = TestBed.createComponent(AboutMeModalComponent);
     fixture.detectChanges();
     expect(fixture.nativeElement.textContent).toContain('About Us');

@@ -2,7 +2,7 @@ import { Component, signal, inject, OnInit } from '@angular/core';
 
 import { RouterLink } from '@angular/router';
 import { LogoComponent } from './logo/logo.component';
-import { AppwriteService } from '../../../core/services/appwrite.service';
+import { StaticDataService } from '../../../core/services/static-data.service';
 
 @Component({
   selector: 'app-changelog-page',
@@ -52,7 +52,7 @@ import { AppwriteService } from '../../../core/services/appwrite.service';
   styles: [],
 })
 export class ChangelogPageComponent implements OnInit {
-  private appwriteService = inject(AppwriteService);
+  private staticData = inject(StaticDataService);
 
   changelog = signal<{ date: string; changes: string[] }[]>([]);
   loading = signal(false);
@@ -67,7 +67,7 @@ export class ChangelogPageComponent implements OnInit {
     this.error.set(false);
 
     try {
-      const data = await this.appwriteService.getChangelogs();
+      const data = await this.staticData.getChangelogs();
       this.changelog.set(data);
     } catch (err) {
       console.error('Failed to load changelog:', err);

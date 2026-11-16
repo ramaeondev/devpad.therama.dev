@@ -1,7 +1,7 @@
 import { Component, signal, EventEmitter, Output, inject, OnInit } from '@angular/core';
 
 import { LogoComponent } from './logo/logo.component';
-import { AppwriteService } from '../../../core/services/appwrite.service';
+import { StaticDataService } from '../../../core/services/static-data.service';
 
 @Component({
   selector: 'app-changelog-modal',
@@ -58,7 +58,7 @@ import { AppwriteService } from '../../../core/services/appwrite.service';
   styles: [],
 })
 export class ChangelogModalComponent implements OnInit {
-  private appwriteService = inject(AppwriteService);
+  private staticData = inject(StaticDataService);
 
   changelog = signal<{ date: string; changes: string[] }[]>([]);
   loading = signal(false);
@@ -76,7 +76,7 @@ export class ChangelogModalComponent implements OnInit {
     this.error.set(false);
 
     try {
-      const data = await this.appwriteService.getChangelogs();
+      const data = await this.staticData.getChangelogs();
       this.changelog.set(data);
     } catch (err) {
       console.error('Failed to load changelog:', err);
